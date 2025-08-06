@@ -103,3 +103,4 @@ build/
 tmp/
 pip-wheel-metadata/
 
+*.swp

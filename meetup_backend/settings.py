@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-d9y5umd6oac&virvd4^^t!3^zm6(+227@&0(%ts#2ztwrdt!-@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["meet.onebitebitcoin.com", "localhost"]
 
 
 # Application definition
@@ -131,7 +131,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF settings - Exempt API URLs from CSRF
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173', "https://meet.onebitebitcoin.com"]
 
 # REST Framework settings
 REST_FRAMEWORK = {

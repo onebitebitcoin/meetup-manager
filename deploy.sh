@@ -50,7 +50,7 @@ sudo ufw allow 'Nginx Full'
 sudo ufw --force enable
 
 # Create application directory
-APP_DIR="/var/www/app"
+APP_DIR="/var/www/meet"
 echo "Creating application directory: $APP_DIR"
 sudo mkdir -p $APP_DIR
 sudo chown -R $USER:$USER $APP_DIR
@@ -86,7 +86,7 @@ if [ -f "package.json" ] && grep -q "build" package.json; then
 fi
 
 # Setup systemd service (customize as needed)
-SERVICE_NAME="your-app"
+SERVICE_NAME="meet-onebitebitcoin"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
 if [ ! -f "$SERVICE_FILE" ]; then
@@ -119,26 +119,70 @@ sudo systemctl restart $SERVICE_NAME
 sudo systemctl status $SERVICE_NAME --no-pager
 
 # Setup Nginx configuration (basic example)
-NGINX_CONFIG="/etc/nginx/sites-available/default"
+NGINX_CONFIG="/etc/nginx/sites-available/meet.onebitebitcoin.com"
 if ! grep -q "proxy_pass" $NGINX_CONFIG; then
     echo "Configuring Nginx reverse proxy..."
     sudo tee $NGINX_CONFIG > /dev/null <<EOF
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
+    listen 80 ;
+    server_name meet.onebitebitcoin.com;
 
-    server_name _;
+    location ~ /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+        allow all;
+        try_files $uri =404;
+    }
 
     location / {
-        proxy_pass http://localhost:3000;
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name meet.onebitebitcoin.com;
+
+    access_log /var/log/nginx/meet.onebitebitcoin.com.access.log;
+    error_log /var/log/nginx/meet.onebitebitcoin.com.error.log;
+    ssl_certificate /etc/letsencrypt/live/onebitebitcoin.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/onebitebitcoin.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    root /var/www/meet;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+
+    location ~ /media/ {
+        # for media upload 
+        allow all;
+        root /var/www/meet.onebitebitcoin.com/;
+        try_files $uri =404;
+        charset utf-8;  # Add UTF-8 Support
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:8000/;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_cache_bypass \$http_upgrade;
+        proxy_set_header Host $host;
+    }
+
+
+    # Serve JavaScript, CSS, images, fonts, etc.
+    location ~* \.(?:js|css|ico|json|xml|jpg|jpeg|png|gif|woff|woff2|ttf|svg|map)$ {
+        root /var/www/meet.onebitebitcoin.com/html;
+        access_log off;
+        #expires max;
+        #add_header Cache-Control "public, max-age=31536000";
+
+        expires -1;
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+        add_header Pragma "no-cache";
+        add_header Expires 0;
     }
 }
 EOF
