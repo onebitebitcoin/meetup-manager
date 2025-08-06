@@ -10,7 +10,7 @@ sudo apt update && sudo apt upgrade -y
 
 # Install essential packages
 echo "Installing essential packages..."
-sudo apt install -y curl wget git build-essential software-properties-common python3 python3-pip python3-venv
+sudo apt install -y curl wget git build-essential software-properties-common python3 python3-pip python3-venv psmisc net-tools
 
 # Install Node.js (if needed)
 if ! command -v node &> /dev/null; then
@@ -137,9 +137,8 @@ fi
 SERVICE_NAME="meet-django-backend"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
-if [ ! -f "$SERVICE_FILE" ]; then
-    echo "Creating Django systemd service..."
-    sudo tee $SERVICE_FILE > /dev/null <<EOF
+echo "Creating/updating Django systemd service..."
+sudo tee $SERVICE_FILE > /dev/null <<EOF
 [Unit]
 Description=Meetup Django Backend
 After=network.target
@@ -149,28 +148,82 @@ Type=simple
 User=$USER
 Group=www-data
 WorkingDirectory=$APP_DIR
-Environment="PATH=$APP_DIR/venv/bin"
+Environment="PATH=$APP_DIR/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONPATH=$APP_DIR"
+Environment="DJANGO_SETTINGS_MODULE=meetup_backend.settings"
 ExecStart=$APP_DIR/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application
 ExecReload=/bin/kill -s HUP \$MAINPID
 KillMode=mixed
 TimeoutStopSec=5
+TimeoutStartSec=30
 PrivateTmp=true
 Restart=always
 RestartSec=10
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable $SERVICE_NAME
-    echo "Django service created and enabled"
-fi
+sudo systemctl daemon-reload
+sudo systemctl enable $SERVICE_NAME
+echo "Django service created and enabled"
 
 # Start/restart the service
-echo "Starting application service..."
-sudo systemctl restart $SERVICE_NAME
-sudo systemctl status $SERVICE_NAME --no-pager
+echo "=== Starting Django Backend Service ==="
+echo "Stopping existing service if running..."
+sudo systemctl stop $SERVICE_NAME 2>/dev/null || true
+
+echo "Starting Django backend service..."
+sudo systemctl start $SERVICE_NAME
+
+# Wait for service to start
+sleep 3
+
+echo "Checking service status..."
+if sudo systemctl is-active --quiet $SERVICE_NAME; then
+    echo "✅ Django service is running successfully"
+    sudo systemctl status $SERVICE_NAME --no-pager
+else
+    echo "❌ Django service failed to start. Checking logs..."
+    sudo journalctl -u $SERVICE_NAME --no-pager -n 20
+    
+    # Try to start manually as fallback
+    echo "Attempting manual start as fallback..."
+    cd $APP_DIR
+    source venv/bin/activate
+    
+    # Kill any existing processes on port 8000
+    sudo fuser -k 8000/tcp 2>/dev/null || true
+    sleep 2
+    
+    # Start Gunicorn manually in background
+    echo "Starting Gunicorn manually on port 8000..."
+    nohup $APP_DIR/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application > /var/log/gunicorn.log 2>&1 &
+    
+    # Wait and check if port 8000 is responding
+    sleep 5
+    if curl -s http://localhost:8000/api/health/ > /dev/null 2>&1; then
+        echo "✅ Django backend started manually on port 8000"
+    else
+        echo "❌ Failed to start Django backend. Trying development server..."
+        # Kill gunicorn and try development server
+        sudo fuser -k 8000/tcp 2>/dev/null || true
+        sleep 2
+        nohup python manage.py runserver 0.0.0.0:8000 > /var/log/django-dev.log 2>&1 &
+        sleep 3
+        if curl -s http://localhost:8000/api/health/ > /dev/null 2>&1; then
+            echo "✅ Django development server started on port 8000"
+        else
+            echo "❌ All startup methods failed. Check logs:"
+            echo "  - systemd: sudo journalctl -u $SERVICE_NAME"
+            echo "  - gunicorn: tail -f /var/log/gunicorn.log"
+            echo "  - django: tail -f /var/log/django-dev.log"
+        fi
+    fi
+    deactivate
+fi
 
 # Setup Nginx configuration (basic example)
 NGINX_CONFIG="/etc/nginx/sites-available/meet.onebitebitcoin.com"
@@ -280,8 +333,29 @@ if [ -f "/etc/nginx/sites-available/meet.onebitebitcoin.com" ]; then
     sudo systemctl reload nginx
 fi
 
+echo "=== Final Verification ==="
+echo "Checking if Django backend is running on port 8000..."
+if netstat -tlnp 2>/dev/null | grep -q ":8000 "; then
+    echo "✅ Port 8000 is active"
+    if curl -s http://localhost:8000/api/health/ > /dev/null 2>&1; then
+        echo "✅ Django backend health check passed"
+    else
+        echo "⚠️  Port 8000 active but health check failed"
+    fi
+else
+    echo "❌ Port 8000 is not active"
+    echo "Checking what's running on port 8000..."
+    sudo lsof -i :8000 || echo "No process found on port 8000"
+fi
+
+echo ""
 echo "=== Deployment Summary ==="
-echo "✅ Django Backend: Running on http://localhost:8000"
+BACKEND_STATUS="❌ Not Running"
+if netstat -tlnp 2>/dev/null | grep -q ":8000 "; then
+    BACKEND_STATUS="✅ Running on http://localhost:8000"
+fi
+
+echo "🔧 Django Backend: $BACKEND_STATUS"
 echo "✅ Vue Frontend: Deployed to /var/www/meet/"
 echo "✅ Nginx: Configured with SSL support"
 echo "✅ Systemd Service: meet-django-backend"
@@ -296,6 +370,13 @@ echo "📋 Service Management Commands:"
 echo "  sudo systemctl status meet-django-backend"
 echo "  sudo systemctl restart meet-django-backend"
 echo "  sudo systemctl reload nginx"
+echo "  sudo journalctl -u meet-django-backend -f  # View logs"
+echo ""
+echo "🔍 Debugging Commands:"
+echo "  netstat -tlnp | grep :8000  # Check port 8000"
+echo "  curl http://localhost:8000/api/health/  # Test backend"
+echo "  tail -f /var/log/gunicorn.log  # Gunicorn logs"
+echo "  tail -f /var/log/django-dev.log  # Django dev server logs"
 echo ""
 echo "🌐 Site should be accessible at: https://meet.onebitebitcoin.com"
 echo "📝 Django admin: https://meet.onebitebitcoin.com/api/admin/"
