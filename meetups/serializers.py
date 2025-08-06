@@ -4,17 +4,12 @@ from .models import MeetupUser, Meetup, Registration
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    name = serializers.CharField()
-    phone = serializers.CharField(required=False, allow_blank=True)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'name', 'phone']
+        fields = ['username', 'email', 'password']
     
     def create(self, validated_data):
-        name = validated_data.pop('name')
-        phone = validated_data.pop('phone', '')
-        
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -23,9 +18,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         meetup_user = MeetupUser.objects.create(
             user=user,
-            name=name,
+            name=validated_data['username'],  # Use username as name
             email=validated_data['email'],
-            phone=phone
+            phone=''
         )
         
         return user

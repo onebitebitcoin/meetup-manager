@@ -26,6 +26,7 @@ def get_csrf_token(request):
     return JsonResponse({'csrfToken': token})
 
 @api_view(['POST'])
+@csrf_exempt
 def register_new_user(request):
     serializer = UserRegistrationSerializer(data=request.data)
     if serializer.is_valid():

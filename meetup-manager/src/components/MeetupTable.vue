@@ -1,74 +1,66 @@
 <template>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">모임 목록</h2>
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">모임 목록</h2>
     </div>
     
-    <div class="overflow-x-auto">
+    <!-- Desktop table view -->
+    <div class="hidden sm:block overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               모임명
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              참여 인원
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              인원
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               시간
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               장소
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-              생성자
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               상태
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               액션
             </th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           <tr v-for="meetup in sortedMeetups" :key="meetup.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-4 py-4">
               <div class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ meetup.name }}
               </div>
-              <div class="text-sm text-gray-500 dark:text-gray-400 truncate" :title="meetup.description">
+              <div class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]" :title="meetup.description">
                 {{ meetup.description }}
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-3 py-4">
               <div class="text-sm text-gray-900 dark:text-white">
-                {{ meetup.current_participants }} / {{ meetup.max_participants }}명
+                {{ meetup.current_participants }}/{{ meetup.max_participants }}
               </div>
               <div v-if="meetup.is_full" class="text-xs text-red-600 font-semibold">
                 마감
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-3 py-4">
               <div class="text-sm text-gray-900 dark:text-white">
                 {{ formatDate(meetup.date_time) }}
               </div>
-              <div class="text-sm text-gray-500">
+              <div class="text-xs text-gray-500">
                 {{ formatTime(meetup.date_time) }}
-                <span v-if="meetup.end_time"> - {{ formatTime(meetup.end_time) }}</span>
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900 dark:text-white">
+            <td class="px-3 py-4">
+              <div class="text-sm text-gray-900 dark:text-white truncate max-w-[120px]" :title="meetup.location">
                 {{ meetup.location }}
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                {{ meetup.creator_name }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-3 py-4">
               <span 
                 class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
                 :class="getStatusClass(meetup.date_time)"
@@ -76,19 +68,86 @@
                 {{ getStatus(meetup.date_time) }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex space-x-2">
-                <button
-                  @click="showMeetupDetail(meetup)"
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
-                >
-                  상세보기
-                </button>
-              </div>
+            <td class="px-3 py-4">
+              <button
+                @click="showMeetupDetail(meetup)"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
+              >
+                상세
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Mobile card view -->
+    <div class="sm:hidden space-y-3 p-4">
+      <div
+        v-for="meetup in sortedMeetups"
+        :key="meetup.id"
+        class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+      >
+        <div class="flex justify-between items-start">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {{ meetup.name }}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+              {{ meetup.description }}
+            </p>
+          </div>
+          <span 
+            class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0"
+            :class="getStatusClass(meetup.date_time)"
+          >
+            {{ getStatus(meetup.date_time) }}
+          </span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <div class="text-gray-500 dark:text-gray-400">참여 인원</div>
+            <div class="text-gray-900 dark:text-white font-medium">
+              {{ meetup.current_participants }}/{{ meetup.max_participants }}명
+              <span v-if="meetup.is_full" class="text-red-600 ml-1">(마감)</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="text-gray-500 dark:text-gray-400">시간</div>
+            <div class="text-gray-900 dark:text-white font-medium">
+              {{ formatTime(meetup.date_time) }}
+            </div>
+          </div>
+          
+          <div>
+            <div class="text-gray-500 dark:text-gray-400">장소</div>
+            <div class="text-gray-900 dark:text-white font-medium truncate" :title="meetup.location">
+              {{ meetup.location }}
+            </div>
+          </div>
+          
+          <div>
+            <div class="text-gray-500 dark:text-gray-400">날짜</div>
+            <div class="text-gray-900 dark:text-white font-medium">
+              {{ formatDate(meetup.date_time) }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
+          <span class="text-xs text-gray-500 dark:text-gray-400">
+            생성자: {{ meetup.creator_name }}
+          </span>
+          <button
+            @click="showMeetupDetail(meetup)"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+          >
+            상세보기
+          </button>
+        </div>
+      </div>
     </div>
     
     <!-- Empty state - only show when no data -->

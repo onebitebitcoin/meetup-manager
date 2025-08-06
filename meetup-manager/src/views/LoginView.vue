@@ -8,7 +8,7 @@
       
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          계정에 로그인
+          로그인
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           또는
@@ -18,7 +18,7 @@
         </p>
       </div>
       <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="rounded-md shadow-sm -space-y-px">
+        <div class="rounded-md shadow-sm space-y-3">
           <div>
             <label for="email" class="sr-only">이메일</label>
             <input
@@ -27,7 +27,7 @@
               name="email"
               type="email"
               required
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="이메일 주소"
             />
           </div>
@@ -39,7 +39,7 @@
               name="password"
               type="password"
               required
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="비밀번호"
             />
           </div>
@@ -60,18 +60,26 @@
           </div>
         </div>
 
-        <div>
+        <div class="space-y-3">
           <button
             type="submit"
             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             로그인
           </button>
+          
+          <button
+            type="button"
+            @click="handleGuestLogin"
+            class="group relative w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            게스트로 입장
+          </button>
         </div>
 
         <div class="text-center">
-          <p class="text-sm text-gray-600 dark:text-gray-400">
-            테스트 계정: admin@test.com / user@test.com (비밀번호: password)
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            게스트 모드: 모임 조회만 가능, 생성/참가 불가
           </p>
         </div>
       </form>
@@ -122,10 +130,14 @@ export default {
             name: data.user.name,
             email: data.user.email,
             username: data.user.username,
-            is_admin: data.user.is_admin
+            is_admin: data.user.is_admin,
+            is_guest: false
           }
 
           await authStore.login(userData)
+          
+          // Small delay to ensure authentication state is fully established
+          await new Promise(resolve => setTimeout(resolve, 100))
           
           if (userData.is_admin) {
             router.push('/admin')
@@ -141,9 +153,28 @@ export default {
       }
     }
 
+    const handleGuestLogin = async () => {
+      try {
+        const guestUserData = {
+          id: 'guest',
+          name: '게스트 사용자',
+          email: 'guest@example.com',
+          username: 'guest',
+          is_admin: false,
+          is_guest: true
+        }
+
+        await authStore.login(guestUserData)
+        router.push('/dashboard')
+      } catch (error) {
+        alert('게스트 로그인에 실패했습니다.')
+      }
+    }
+
     return {
       form,
-      handleLogin
+      handleLogin,
+      handleGuestLogin
     }
   }
 }

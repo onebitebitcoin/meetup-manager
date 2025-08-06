@@ -34,13 +34,13 @@ const routes = [
     path: '/create-meetup',
     name: 'CreateMeetup',
     component: MeetupCreateView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresNonGuest: true }
   },
   {
     path: '/settings',
     name: 'Settings',
     component: SettingsView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresNonGuest: true }
   },
   {
     path: '/admin',
@@ -73,6 +73,9 @@ router.beforeEach((to, from, next) => {
     next('/login')
   } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
     // 관리자 페이지에 일반 사용자 접근 시
+    next('/dashboard')
+  } else if (to.meta.requiresNonGuest && authStore.isGuest) {
+    // 게스트가 접근할 수 없는 페이지에 게스트 접근 시
     next('/dashboard')
   } else {
     next()

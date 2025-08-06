@@ -21,6 +21,7 @@
               관리자
             </router-link>
             <router-link
+              v-if="!authStore.isGuest"
               to="/settings"
               class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
             >
@@ -37,6 +38,7 @@
               </svg>
             </router-link>
             <router-link
+              v-if="!authStore.isGuest"
               to="/settings"
               class="sm:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
               title="내 모임"
@@ -48,6 +50,7 @@
             </router-link>
             <ThemeToggle />
             <span class="text-gray-700 dark:text-gray-300 hidden sm:inline">{{ authStore.user?.name }}님</span>
+            <span v-if="authStore.isGuest" class="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded-full hidden sm:inline">게스트 모드</span>
             <span class="text-gray-700 dark:text-gray-300 sm:hidden text-xs">{{ authStore.user?.name?.slice(0, 3) }}</span>
             <button
               @click="logout"
@@ -62,6 +65,22 @@
         </div>
       </div>
     </nav>
+
+    <!-- Guest Mode Banner -->
+    <div v-if="authStore.isGuest" class="bg-yellow-50 dark:bg-yellow-900 border-b border-yellow-200 dark:border-yellow-800">
+      <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              게스트 모드로 접속중입니다. 모임 조회만 가능하며, 참가 신청 및 모임 생성은 할 수 없습니다.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
       <div class="sm:px-0">
@@ -178,8 +197,10 @@
             </div>
             
             <!-- 실제 뷰 컴포넌트 -->
-            <CalendarView v-if="activeView === 'calendar'" />
-            <MeetupTable v-if="activeView === 'table'" />
+            <div :class="{ '-mx-4 sm:mx-0': activeView === 'calendar' }">
+              <CalendarView v-if="activeView === 'calendar'" />
+              <MeetupTable v-if="activeView === 'table'" />
+            </div>
           </div>
         </div>
       </div>
@@ -271,6 +292,8 @@ export default {
 
     onMounted(async () => {
       authStore.checkAuth()
+      // Small delay to ensure session is fully established after login
+      await new Promise(resolve => setTimeout(resolve, 100))
       await meetupsStore.fetchMeetups()
     })
 

@@ -6,22 +6,42 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const isLoggedIn = ref(false)
   const isAdmin = ref(false)
+  const isGuest = ref(false)
 
   const login = async (userData) => {
     user.value = userData
     isLoggedIn.value = true
     isAdmin.value = userData.is_admin || false
+    isGuest.value = userData.is_guest || false
     localStorage.setItem('user', JSON.stringify(userData))
     
-    // Reset CSRF token so next request gets fresh one
+    // Reset CSRF token immediately after login for fresh session
     resetCSRFToken()
+    
+    // Pre-fetch CSRF token for subsequent requests
+    if (!userData.is_guest) {
+      try {
+        await fetch('/api/csrf/', {
+          credentials: 'include',
+          headers: {
+            'Origin': window.location.origin,
+            'Referer': window.location.href
+          }
+        })
+      } catch (error) {
+        console.warn('Failed to pre-fetch CSRF token after login:', error)
+      }
+    }
   }
 
   const logout = async () => {
     try {
-      await fetchWithCSRF('/api/auth/logout/', {
-        method: 'POST'
-      })
+      // Only call API logout for non-guest users
+      if (!isGuest.value) {
+        await fetchWithCSRF('/api/auth/logout/', {
+          method: 'POST'
+        })
+      }
     } catch (error) {
       console.error('Logout error:', error)
     }
@@ -29,6 +49,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     isLoggedIn.value = false
     isAdmin.value = false
+    isGuest.value = false
     localStorage.removeItem('user')
   }
 
@@ -44,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isLoggedIn,
     isAdmin,
+    isGuest,
     login,
     logout,
     checkAuth

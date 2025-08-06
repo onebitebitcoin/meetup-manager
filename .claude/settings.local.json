@@ -23,7 +23,10 @@
       "Bash(find:*)",
       "Bash(npm install:*)",
       "Bash(cp:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(python:*)"
     ],
     "deny": []
   }
