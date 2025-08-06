@@ -1,0 +1,105 @@
+# =========================
+# Vue (Vite) + TypeScript
+# =========================
+node_modules/
+dist/
+.vite/
+*.log
+
+# IDE configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Local build / test files
+*.local
+*.temp
+*.tmp
+*.bak
+
+# Production files
+.env
+.env.*
+!.env.example
+
+# Npm & Yarn lockfiles
+package-lock.json
+yarn.lock
+
+# =========================
+# Python & Django
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+*.log
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django stuff
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+*.pot
+*.mo
+local_settings.py
+
+# Django migration history (optional)
+**/migrations/**/__pycache__/
+**/migrations/*.pyc
+
+# =========================
+# SQLite
+# =========================
+*.sqlite3
+*.db
+*.db-journal
+
+# =========================
+# Claude / API / Secret keys
+# =========================
+claude.json
+claude.env
+openai.env
+api_keys.json
+*.key
+*.pem
+
+# =========================
+# OS/System files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Coverage / Test
+# =========================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# =========================
+# Build tools
+# =========================
+build/
+tmp/
+pip-wheel-metadata/
+

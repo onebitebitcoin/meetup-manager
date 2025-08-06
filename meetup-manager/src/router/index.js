@@ -1,0 +1,82 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import LoginView from '@/views/LoginView.vue'
+import RegisterView from '@/views/RegisterView.vue'
+import DashboardView from '@/views/DashboardView.vue'
+import AdminView from '@/views/AdminView.vue'
+import MeetupCreateView from '@/views/MeetupCreateView.vue'
+import SettingsView from '@/views/SettingsView.vue'
+
+const routes = [
+  {
+    path: '/',
+    redirect: '/dashboard'
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginView,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: RegisterView,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: DashboardView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/create-meetup',
+    name: 'CreateMeetup',
+    component: MeetupCreateView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: SettingsView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: AdminView,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // 로그인 상태 확인
+  authStore.checkAuth()
+  
+  if (to.meta.requiresGuest && authStore.isLoggedIn) {
+    // 로그인된 사용자가 게스트 페이지 접근 시
+    if (authStore.isAdmin) {
+      next('/admin')
+    } else {
+      next('/dashboard')
+    }
+  } else if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    // 인증이 필요한 페이지에 비로그인 사용자 접근 시
+    next('/login')
+  } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    // 관리자 페이지에 일반 사용자 접근 시
+    next('/dashboard')
+  } else {
+    next()
+  }
+})
+
+export default router

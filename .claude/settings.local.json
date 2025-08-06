@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(npm init:*)",
+      "Bash(npm install express sqlite3 cors dotenv)",
+      "Bash(npm run seed:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(django-admin startproject:*)",
+      "Bash(python manage.py startapp:*)",
+      "Bash(python manage.py:*)",
+      "Bash(chmod:*)",
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(lsof:*)",
+      "Bash(find:*)",
+      "Bash(npm install:*)",
+      "Bash(cp:*)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": []
+  }
+}

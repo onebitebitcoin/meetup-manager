@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>모임 매니저</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Meetup Manager">
+    <meta name="description" content="Manage and organize meetups with friends and colleagues">
+    
+    <!-- Icons for PWA -->
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="mask-icon" href="/icons/masked-icon.svg" color="#4f46e5">
+    
+    <!-- Prevent text size adjust -->
+    <meta name="format-detection" content="telephone=no">
+    <style>
+      /* Prevent iOS zoom on input focus */
+      input, textarea, select {
+        font-size: 16px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
