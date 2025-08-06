@@ -8,12 +8,12 @@
       
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          Sign in to your account
+          계정에 로그인
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Or
+          또는
           <router-link to="/register" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-            create a new account
+            새 계정 만들기
           </router-link>
         </p>
       </div>
@@ -134,10 +134,10 @@ export default {
           }
         } else {
           const errorData = await response.json()
-          alert(errorData.error || 'Login failed')
+          alert(errorData.error || '로그인에 실패했습니다')
         }
       } catch (error) {
-        alert('Network error. Please try again.')
+        alert('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
       }
     }
 

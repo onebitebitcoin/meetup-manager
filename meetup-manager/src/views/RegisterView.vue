@@ -3,19 +3,19 @@
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          Create your account
+          계정 만들기
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          Or
+          또는
           <router-link to="/login" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-            sign in to your account
+            기존 계정으로 로그인
           </router-link>
         </p>
       </div>
       <form class="mt-8 space-y-6" @submit.prevent="handleRegister">
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
-            <label for="username" class="sr-only">Username</label>
+            <label for="username" class="sr-only">사용자명</label>
             <input
               id="username"
               v-model="form.username"
@@ -23,11 +23,11 @@
               type="text"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Username"
+              placeholder="사용자명"
             />
           </div>
           <div>
-            <label for="name" class="sr-only">Full Name</label>
+            <label for="name" class="sr-only">이름</label>
             <input
               id="name"
               v-model="form.name"
@@ -35,11 +35,11 @@
               type="text"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Full Name"
+              placeholder="이름"
             />
           </div>
           <div>
-            <label for="email" class="sr-only">Email address</label>
+            <label for="email" class="sr-only">이메일 주소</label>
             <input
               id="email"
               v-model="form.email"
@@ -47,22 +47,22 @@
               type="email"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Email address"
+              placeholder="이메일 주소"
             />
           </div>
           <div>
-            <label for="phone" class="sr-only">Phone Number</label>
+            <label for="phone" class="sr-only">전화번호</label>
             <input
               id="phone"
               v-model="form.phone"
               name="phone"
               type="tel"
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Phone Number (optional)"
+              placeholder="전화번호 (선택사항)"
             />
           </div>
           <div>
-            <label for="password" class="sr-only">Password</label>
+            <label for="password" class="sr-only">비밀번호</label>
             <input
               id="password"
               v-model="form.password"
@@ -70,7 +70,7 @@
               type="password"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Password"
+              placeholder="비밀번호"
             />
           </div>
         </div>
@@ -85,8 +85,8 @@
             :disabled="loading"
             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="!loading">Create Account</span>
-            <span v-else>Creating Account...</span>
+            <span v-if="!loading">계정 만들기</span>
+            <span v-else>계정 생성 중...</span>
           </button>
         </div>
       </form>
@@ -127,12 +127,12 @@ export default {
         const data = await response.json()
 
         if (response.ok) {
-          router.push('/login?message=Registration successful. Please log in.')
+          router.push('/login?message=회원가입이 완료되었습니다. 로그인해주세요.')
         } else {
-          error.value = data.error || 'Registration failed. Please try again.'
+          error.value = data.error || '회원가입에 실패했습니다. 다시 시도해주세요.'
         }
       } catch (err) {
-        error.value = 'Network error. Please try again.'
+        error.value = '네트워크 오류가 발생했습니다. 다시 시도해주세요.'
       } finally {
         loading.value = false
       }
