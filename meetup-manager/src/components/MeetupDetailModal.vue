@@ -107,7 +107,7 @@
       <!-- 등록/취소 버튼 -->
       <div class="mt-6 flex justify-end space-x-3">
         <button
-          v-if="authStore.isLoggedIn && !isRegistered"
+          v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered"
           @click="registerForMeetup"
           :disabled="currentMeetupData.is_full || registering"
           :class="[
@@ -125,7 +125,7 @@
         </button>
         
         <button
-          v-if="authStore.isLoggedIn && isRegistered"
+          v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
           @click="unregisterFromMeetup"
           :disabled="registering"
           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50"

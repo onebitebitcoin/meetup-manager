@@ -33,12 +33,12 @@ def register_new_user(request):
         try:
             user = serializer.save()
             return Response({
-                'message': 'User registered successfully',
+                'message': '사용자 등록이 완료되었습니다',
                 'username': user.username
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({
-                'error': 'Username or email already exists'
+                'error': '사용자명 또는 이메일이 이미 존재합니다'
             }, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -55,7 +55,7 @@ def login_user(request):
     password = request.data.get('password')
     
     if not username or not password:
-        return Response({'error': 'Username and password required'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': '사용자명과 비밀번호가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
     
     # Try to authenticate with email if it looks like an email
     if '@' in username:
@@ -71,7 +71,7 @@ def login_user(request):
         try:
             meetup_user = user.meetup_profile
             return Response({
-                'message': 'Login successful',
+                'message': '로그인 성공',
                 'user': {
                     'id': meetup_user.id,
                     'username': user.username,
@@ -81,14 +81,14 @@ def login_user(request):
                 }
             }, status=status.HTTP_200_OK)
         except MeetupUser.DoesNotExist:
-            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': '잘못된 로그인 정보입니다'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 def logout_user(request):
     logout(request)
-    return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
+    return Response({'message': '로그아웃 성공'}, status=status.HTTP_200_OK)
 
 class MeetupUserListCreateView(generics.ListCreateAPIView):
     queryset = MeetupUser.objects.all().order_by('-created_at')
@@ -114,7 +114,7 @@ def meetup_detail(request, pk):
     try:
         meetup = Meetup.objects.get(pk=pk)
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         serializer = MeetupSerializer(meetup)
@@ -122,14 +122,14 @@ def meetup_detail(request, pk):
     
     elif request.method == 'PUT':
         if not request.user.is_authenticated:
-            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             meetup_user = request.user.meetup_profile
             if meetup.creator != meetup_user and not meetup_user.is_admin:
-                return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'error': '권한이 없습니다'}, status=status.HTTP_403_FORBIDDEN)
         except MeetupUser.DoesNotExist:
-            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
         
         serializer = MeetupSerializer(meetup, data=request.data, partial=True)
         if serializer.is_valid():
@@ -139,14 +139,14 @@ def meetup_detail(request, pk):
     
     elif request.method == 'DELETE':
         if not request.user.is_authenticated:
-            return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             meetup_user = request.user.meetup_profile
             if meetup.creator != meetup_user and not meetup_user.is_admin:
-                return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'error': '권한이 없습니다'}, status=status.HTTP_403_FORBIDDEN)
         except MeetupUser.DoesNotExist:
-            return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
         
         meetup.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -154,7 +154,7 @@ def meetup_detail(request, pk):
 @api_view(['GET'])
 def user_meetups(request):
     if not request.user.is_authenticated:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
         meetup_user = request.user.meetup_profile
@@ -162,7 +162,7 @@ def user_meetups(request):
         serializer = MeetupSerializer(meetups, many=True)
         return Response(serializer.data)
     except MeetupUser.DoesNotExist:
-        return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 class RegistrationListView(generics.ListAPIView):
     queryset = Registration.objects.all().order_by('-registered_at')
@@ -179,14 +179,14 @@ def register_user(request):
         
         response_serializer = RegistrationSerializer(registration)
         return Response({
-            'message': 'Registration successful',
+            'message': '신청이 완료되었습니다',
             'registration': response_serializer.data
         }, status=status.HTTP_201_CREATED)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def health_check(request):
-    return JsonResponse({'status': 'ok', 'message': 'Django backend is running'})
+    return JsonResponse({'status': 'ok', 'message': 'Django 백엔드가 실행 중입니다'})
 
 @api_view(['GET'])
 def meetup_registrations(request, meetup_id):
@@ -214,12 +214,12 @@ def meetup_registrations(request, meetup_id):
         }, status=status.HTTP_200_OK)
         
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def register_for_meetup(request, meetup_id):
     if not request.user.is_authenticated:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
         meetup = Meetup.objects.get(id=meetup_id)
@@ -227,29 +227,29 @@ def register_for_meetup(request, meetup_id):
         
         # Check if already registered
         if Registration.objects.filter(user=meetup_user, meetup=meetup).exists():
-            return Response({'error': 'Already registered for this meetup'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': '이미 이 모임에 신청되어 있습니다'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Check if meetup is full
         if meetup.is_full:
-            return Response({'error': 'Meetup is full'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': '모임 정원이 가득 찼습니다'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Create registration
         registration = Registration.objects.create(user=meetup_user, meetup=meetup)
         
         return Response({
-            'message': 'Registration successful',
+            'message': '신청이 완료되었습니다',
             'registration_id': registration.id
         }, status=status.HTTP_201_CREATED)
         
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except MeetupUser.DoesNotExist:
-        return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['DELETE'])
 def unregister_from_meetup(request, meetup_id):
     if not request.user.is_authenticated:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
         meetup = Meetup.objects.get(id=meetup_id)
@@ -259,15 +259,15 @@ def unregister_from_meetup(request, meetup_id):
         registration.delete()
         
         return Response({
-            'message': 'Unregistration successful'
+            'message': '신청 취소가 완료되었습니다'
         }, status=status.HTTP_200_OK)
         
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except Registration.DoesNotExist:
-        return Response({'error': 'Registration not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '신청 정보를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except MeetupUser.DoesNotExist:
-        return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def check_registration_status(request, meetup_id):
@@ -286,7 +286,7 @@ def check_registration_status(request, meetup_id):
         }, status=status.HTTP_200_OK)
         
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except MeetupUser.DoesNotExist:
         return Response({'is_registered': False}, status=status.HTTP_200_OK)
 
@@ -304,7 +304,7 @@ def is_admin_user(request):
 def admin_users_list(request):
     """Get all users for admin view"""
     if not is_admin_user(request):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '관리자 권한이 필요합니다'}, status=status.HTTP_403_FORBIDDEN)
     
     users = MeetupUser.objects.all().order_by('-created_at')
     serializer = MeetupUserSerializer(users, many=True)
@@ -326,7 +326,7 @@ def admin_users_list(request):
 def admin_meetups_list(request):
     """Get all meetups for admin view"""
     if not is_admin_user(request):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '관리자 권한이 필요합니다'}, status=status.HTTP_403_FORBIDDEN)
     
     meetups = Meetup.objects.all().order_by('-created_at')
     meetups_data = []
@@ -356,14 +356,14 @@ def admin_meetups_list(request):
 def admin_delete_user(request, user_id):
     """Delete a user (admin only)"""
     if not is_admin_user(request):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '관리자 권한이 필요합니다'}, status=status.HTTP_403_FORBIDDEN)
     
     try:
         meetup_user = MeetupUser.objects.get(id=user_id)
         
         # Prevent deleting admin users
         if meetup_user.is_admin:
-            return Response({'error': 'Cannot delete admin users'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': '관리자는 삭제할 수 없습니다'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Delete associated Django user if exists
         if meetup_user.user:
@@ -371,30 +371,30 @@ def admin_delete_user(request, user_id):
         else:
             meetup_user.delete()
             
-        return Response({'message': 'User deleted successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': '사용자가 성공적으로 삭제되었습니다'}, status=status.HTTP_200_OK)
         
     except MeetupUser.DoesNotExist:
-        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '사용자를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['DELETE'])
 def admin_delete_meetup(request, meetup_id):
     """Delete a meetup (admin only)"""
     if not is_admin_user(request):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '관리자 권한이 필요합니다'}, status=status.HTTP_403_FORBIDDEN)
     
     try:
         meetup = Meetup.objects.get(id=meetup_id)
         meetup.delete()
-        return Response({'message': 'Meetup deleted successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': '모임이 성공적으로 삭제되었습니다'}, status=status.HTTP_200_OK)
         
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def admin_toggle_user_admin(request, user_id):
     """Toggle admin status for a user (admin only)"""
     if not is_admin_user(request):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '관리자 권한이 필요합니다'}, status=status.HTTP_403_FORBIDDEN)
     
     try:
         meetup_user = MeetupUser.objects.get(id=user_id)
@@ -402,18 +402,18 @@ def admin_toggle_user_admin(request, user_id):
         meetup_user.save()
         
         return Response({
-            'message': f'User admin status {"enabled" if meetup_user.is_admin else "disabled"}',
+            'message': f'사용자 관리자 권한이 {"활성화" if meetup_user.is_admin else "비활성화"}되었습니다',
             'is_admin': meetup_user.is_admin
         }, status=status.HTTP_200_OK)
         
     except MeetupUser.DoesNotExist:
-        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '사용자를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def admin_statistics(request):
     """Get dashboard statistics for admin"""
     if not is_admin_user(request):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'error': '관리자 권한이 필요합니다'}, status=status.HTTP_403_FORBIDDEN)
     
     total_users = MeetupUser.objects.count()
     total_meetups = Meetup.objects.count()
@@ -443,7 +443,7 @@ def admin_statistics(request):
 def add_participant_by_email(request, meetup_id):
     """Add a participant to meetup by email (for meetup creators)"""
     if not request.user.is_authenticated:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
         meetup = Meetup.objects.get(id=meetup_id)
@@ -451,15 +451,15 @@ def add_participant_by_email(request, meetup_id):
         
         # Check if user is the creator of the meetup
         if meetup.creator != meetup_user:
-            return Response({'error': 'Only meetup creators can add participants'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'error': '모임 생성자만 참가자를 추가할 수 있습니다'}, status=status.HTTP_403_FORBIDDEN)
         
         email = request.data.get('email')
         if not email:
-            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': '이메일이 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Check if meetup is full
         if meetup.is_full:
-            return Response({'error': 'Meetup is full'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': '모임 정원이 가득 찼습니다'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Try to find existing user with this email
         participant_user = None
@@ -481,13 +481,13 @@ def add_participant_by_email(request, meetup_id):
         
         # Check if already registered
         if Registration.objects.filter(user=participant_user, meetup=meetup).exists():
-            return Response({'error': 'User is already registered for this meetup'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': '이미 이 모임에 등록된 사용자입니다'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Create registration
         registration = Registration.objects.create(user=participant_user, meetup=meetup)
         
         return Response({
-            'message': 'Participant added successfully',
+            'message': '참가자가 성공적으로 추가되었습니다',
             'participant': {
                 'id': participant_user.id,
                 'name': participant_user.name,
@@ -497,15 +497,15 @@ def add_participant_by_email(request, meetup_id):
         }, status=status.HTTP_201_CREATED)
         
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except MeetupUser.DoesNotExist:
-        return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['DELETE'])
 def remove_participant(request, meetup_id, registration_id):
     """Remove a participant from meetup (for meetup creators)"""
     if not request.user.is_authenticated:
-        return Response({'error': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
         meetup = Meetup.objects.get(id=meetup_id)
@@ -513,16 +513,16 @@ def remove_participant(request, meetup_id, registration_id):
         
         # Check if user is the creator of the meetup
         if meetup.creator != meetup_user:
-            return Response({'error': 'Only meetup creators can remove participants'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'error': '모임 생성자만 참가자를 제거할 수 있습니다'}, status=status.HTTP_403_FORBIDDEN)
         
         registration = Registration.objects.get(id=registration_id, meetup=meetup)
         registration.delete()
         
-        return Response({'message': 'Participant removed successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': '참가자가 성공적으로 제거되었습니다'}, status=status.HTTP_200_OK)
         
     except Meetup.DoesNotExist:
-        return Response({'error': 'Meetup not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except Registration.DoesNotExist:
-        return Response({'error': 'Registration not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '신청 정보를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except MeetupUser.DoesNotExist:
-        return Response({'error': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)

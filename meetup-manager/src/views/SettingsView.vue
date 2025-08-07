@@ -650,7 +650,7 @@
           </div>
 
           <!-- Desktop view for registered meetups -->
-          <div v-else class="hidden sm:block divide-y divide-gray-200 dark:divide-gray-700">
+          <div v-if="!loadingRegistered && registeredMeetups.length > 0" class="hidden sm:block divide-y divide-gray-200 dark:divide-gray-700">
             <div
               v-for="meetup in registeredMeetups"
               :key="meetup.id"
@@ -791,70 +791,71 @@
                 </div>
               </div>
             </div>
-            
-            <!-- Mobile view for registered meetups -->
-            <div v-if="!loadingRegistered && registeredMeetups.length > 0" class="sm:hidden space-y-4 p-4">
-              <div
-                v-for="meetup in registeredMeetups"
-                :key="meetup.id"
-                class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3"
-              >
-                <div class="flex justify-between items-start">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {{ meetup.name }}
-                    </h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                      {{ meetup.description }}
-                    </p>
-                  </div>
-                  <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 flex-shrink-0">
-                    참가중
-                  </span>
+          </div>
+          
+          <!-- Mobile view for registered meetups -->
+          <div v-if="!loadingRegistered && registeredMeetups.length > 0" class="sm:hidden space-y-4 p-4">
+            <div
+              v-for="meetup in registeredMeetups"
+              :key="meetup.id"
+              class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3"
+            >
+              <div class="flex justify-between items-start">
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {{ meetup.name }}
+                  </h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                    {{ meetup.description }}
+                  </p>
                 </div>
-                
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <div class="text-gray-500 dark:text-gray-400">시간</div>
-                    <div class="text-gray-900 dark:text-white font-medium">
-                      {{ formatDateTime(meetup.date_time) }}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div class="text-gray-500 dark:text-gray-400">장소</div>
-                    <div class="text-gray-900 dark:text-white font-medium truncate">
-                      {{ meetup.location }}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div class="text-gray-500 dark:text-gray-400">생성자</div>
-                    <div class="text-gray-900 dark:text-white font-medium">
-                      {{ meetup.creator_name }}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div class="text-gray-500 dark:text-gray-400">참여자</div>
-                    <div class="text-gray-900 dark:text-white font-medium">
-                      {{ meetup.current_participants }}/{{ meetup.max_participants }}명
-                    </div>
+                <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 flex-shrink-0">
+                  참가중
+                </span>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">시간</div>
+                  <div class="text-gray-900 dark:text-white font-medium">
+                    {{ formatDateTime(meetup.date_time) }}
                   </div>
                 </div>
                 
-                <div class="flex space-x-2 pt-2">
-                  <button
-                    @click="unregisterFromMeetup(meetup.id, meetup.registration_id)"
-                    :disabled="loadingRegistered"
-                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs flex-1 disabled:opacity-50"
-                  >
-                    취소
-                  </button>
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">장소</div>
+                  <div class="text-gray-900 dark:text-white font-medium truncate">
+                    {{ meetup.location }}
+                  </div>
                 </div>
+                
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">생성자</div>
+                  <div class="text-gray-900 dark:text-white font-medium">
+                    {{ meetup.creator_name }}
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="text-gray-500 dark:text-gray-400">참여자</div>
+                  <div class="text-gray-900 dark:text-white font-medium">
+                    {{ meetup.current_participants }}/{{ meetup.max_participants }}명
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex space-x-2 pt-2">
+                <button
+                  @click="unregisterFromMeetup(meetup.id, meetup.registration_id)"
+                  :disabled="loadingRegistered"
+                  class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs flex-1 disabled:opacity-50"
+                >
+                  취소
+                </button>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -1009,7 +1010,6 @@
         </form>
       </div>
     </div>
-  </div>
 </template>
 
 <script>

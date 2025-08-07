@@ -48,12 +48,12 @@ class Registration(models.Model):
 
     def clean(self):
         if self.meetup.is_full:
-            raise ValidationError("This meetup is already full.")
+            raise ValidationError("이 모임의 정원이 가득 찼습니다.")
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
         if is_new and self.meetup.is_full:
-            raise ValidationError("This meetup is already full.")
+            raise ValidationError("이 모임의 정원이 가득 찼습니다.")
         
         super().save(*args, **kwargs)
         

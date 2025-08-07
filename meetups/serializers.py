@@ -67,15 +67,15 @@ class RegisterUserSerializer(serializers.Serializer):
             user = MeetupUser.objects.get(id=data['user_id'])
             meetup = Meetup.objects.get(id=data['meetup_id'])
         except MeetupUser.DoesNotExist:
-            raise serializers.ValidationError("User not found")
+            raise serializers.ValidationError("사용자를 찾을 수 없습니다")
         except Meetup.DoesNotExist:
-            raise serializers.ValidationError("Meetup not found")
+            raise serializers.ValidationError("모임을 찾을 수 없습니다")
         
         if Registration.objects.filter(user=user, meetup=meetup).exists():
-            raise serializers.ValidationError("User already registered for this meetup")
+            raise serializers.ValidationError("이미 이 모임에 신청되어 있습니다")
         
         if meetup.is_full:
-            raise serializers.ValidationError("Meetup is full")
+            raise serializers.ValidationError("모임 정원이 가득 찼습니다")
         
         data['user'] = user
         data['meetup'] = meetup
