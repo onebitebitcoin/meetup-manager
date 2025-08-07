@@ -377,6 +377,9 @@ export default {
           selectedMeetup.value = updatedMeetup
         }
       }
+      
+      // Refresh registration status to sync with backend changes
+      await checkRegistrationStatus()
     }
 
 

@@ -140,6 +140,7 @@
     <MeetupDetailModal 
       :selectedMeetup="selectedMeetup" 
       @close="selectedMeetup = null"
+      @meetupUpdated="onMeetupUpdated"
     />
   </div>
 </template>
@@ -263,6 +264,17 @@ export default {
       return classes[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
     }
 
+    // Handle meetup updates from modal
+    const onMeetupUpdated = async () => {
+      // Update selected meetup with latest data
+      if (selectedMeetup.value) {
+        const updatedMeetup = meetupsStore.meetups.find(m => m.id === selectedMeetup.value.id)
+        if (updatedMeetup) {
+          selectedMeetup.value = updatedMeetup
+        }
+      }
+    }
+
     return {
       meetupsStore,
       authStore,
@@ -278,7 +290,8 @@ export default {
       showDateMeetups,
       selectMeetupFromDate,
       getStatus,
-      getStatusClass
+      getStatusClass,
+      onMeetupUpdated
     }
   }
 }
