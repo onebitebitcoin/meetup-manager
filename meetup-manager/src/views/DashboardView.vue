@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <nav class="bg-white dark:bg-gray-800 shadow safe-area-top">
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -75,7 +75,7 @@
       <div class="sm:px-0">
         <!-- 통계 카드 -->
         <div class="grid grid-cols-1 gap-3 sm:gap-5 sm:grid-cols-3 lg:grid-cols-3 mb-6 sm:mb-8">
-          <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -93,7 +93,7 @@
             </div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -118,7 +118,7 @@
           <!-- 뷰 컨테이너 with toggle buttons -->
           <div class="relative">
             <!-- 뷰 토글 버튼 (오른쪽 상단) -->
-            <div class="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex space-x-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1">
+            <div class="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex space-x-1 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1">
 
               <button
                 @click="activeView = 'table'"

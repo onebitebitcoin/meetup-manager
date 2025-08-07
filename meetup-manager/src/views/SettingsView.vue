@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow safe-area-top">
+    <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -62,7 +62,7 @@
         <!-- Success Message -->
         <div
           v-if="message"
-          class="mb-6 rounded-md bg-green-50 dark:bg-green-900 p-4"
+          class="mb-6 rounded-md bg-green-100 dark:bg-green-900 p-4"
         >
           <div class="flex">
             <div class="flex-shrink-0">
@@ -89,7 +89,7 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
           <div
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
           >
             <div class="p-5">
               <div class="flex items-center">
@@ -127,7 +127,7 @@
           </div>
 
           <div
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
           >
             <div class="p-5">
               <div class="flex items-center">
@@ -165,7 +165,7 @@
           </div>
 
           <div
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
           >
             <div class="p-5">
               <div class="flex items-center">
@@ -203,7 +203,7 @@
           </div>
 
           <div
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
           >
             <div class="p-5">
               <div class="flex items-center">
@@ -242,7 +242,7 @@
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading" class="bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div v-if="loading" class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6 text-center">
             <svg
               class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-500 mx-auto"
@@ -273,7 +273,7 @@
         <!-- Empty State -->
         <div
           v-else-if="meetups.length === 0"
-          class="bg-white dark:bg-gray-800 shadow rounded-lg"
+          class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg"
         >
           <div class="px-4 py-5 sm:p-6 text-center">
             <svg
@@ -321,7 +321,7 @@
         <!-- Meetup Cards -->
         <div v-else class="space-y-6">
           <div
-            class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden"
+            class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg overflow-hidden"
           >
             <div
               class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700"
@@ -563,7 +563,7 @@
 
         <!-- 등록한 모임 목록 -->
         <div
-          class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden mt-6"
+          class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg overflow-hidden mt-6"
         >
           <div
             class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700"
@@ -867,7 +867,7 @@
       @click.self="closeEditModal"
     >
       <div
-        class="relative top-20 mx-auto p-5 border max-w-md shadow-lg rounded-lg bg-white dark:bg-gray-800"
+        class="relative top-20 mx-auto p-5 border max-w-md shadow-lg rounded-lg bg-gray-50 dark:bg-gray-800"
       >
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
@@ -974,7 +974,7 @@
             <button
               type="button"
               @click="closeEditModal"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
             >
               취소
             </button>

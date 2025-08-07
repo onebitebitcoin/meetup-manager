@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <nav class="bg-white dark:bg-gray-800 shadow">
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <nav class="bg-gray-50 dark:bg-gray-800 shadow">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
@@ -64,7 +64,7 @@
 
       <!-- Users Tab -->
       <div v-if="activeTab === 'users'" class="px-4 py-6 sm:px-0">
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg p-6">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">사용자 관리</h2>
           
           <div v-if="loadingUsers" class="text-center py-8">
@@ -73,7 +73,7 @@
           
           <div v-else class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead class="bg-gray-50 dark:bg-gray-700">
+              <thead class="bg-gray-100 dark:bg-gray-700">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     사용자
@@ -95,7 +95,7 @@
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody class="bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <tr v-for="user in users" :key="user.id">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ user.name }}</div>
@@ -155,7 +155,7 @@
 
       <!-- Meetups Tab -->
       <div v-if="activeTab === 'meetups'" class="px-4 py-6 sm:px-0">
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg p-6">
           <div class="mb-6">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">전체 모임</h2>
           </div>
@@ -166,7 +166,7 @@
 
           <div v-else class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead class="bg-gray-50 dark:bg-gray-700">
+              <thead class="bg-gray-100 dark:bg-gray-700">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     모임
@@ -188,7 +188,7 @@
                   </th>
                 </tr>
               </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody class="bg-gray-50 dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <tr v-for="meetup in allMeetups" :key="meetup.id">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ meetup.name }}</div>
@@ -230,7 +230,7 @@
 
       <!-- Statistics Tab -->
       <div v-if="activeTab === 'stats'" class="px-4 py-6 sm:px-0">
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg p-6">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">플랫폼 통계</h2>
           
           <div v-if="loadingStats" class="text-center py-8">
