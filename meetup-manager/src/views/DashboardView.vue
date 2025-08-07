@@ -1,10 +1,11 @@
+
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">모임 대시보드</h1>
+            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">오프라인 모임</h1>
           </div>
           <div class="flex items-center space-x-1 sm:space-x-4">
             <router-link
@@ -74,8 +75,8 @@
     <div class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
       <div class="sm:px-0">
         <!-- 통계 카드 -->
-        <div class="grid grid-cols-1 gap-3 sm:gap-5 sm:grid-cols-3 lg:grid-cols-3 mb-6 sm:mb-8">
-          <div class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+        <div class="grid grid-cols-1 gap-3 sm:gap-5 sm:grid-cols-2 lg:grid-cols-2 mb-6 sm:mb-8">
+          <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-gray-700">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -93,7 +94,7 @@
             </div>
           </div>
 
-          <div class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-gray-700">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -119,21 +120,6 @@
           <div class="relative">
             <!-- 뷰 토글 버튼 (오른쪽 상단) -->
             <div class="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex space-x-1 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1">
-
-              <button
-                @click="activeView = 'table'"
-                :class="[
-                  'p-2 rounded-md transition-colors',
-                  activeView === 'table' 
-                    ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
-                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                ]"
-                title="테이블 보기"
-              >
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h14a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z" />
-                </svg>
-              </button>
               <button
                 @click="activeView = 'calendar'"
                 :class="[
@@ -148,12 +134,27 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </button>
+              <button
+                @click="activeView = 'table'"
+                :class="[
+                  'p-2 rounded-md transition-colors',
+                  activeView === 'table' 
+                    ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' 
+                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                ]"
+                title="테이블 보기"
+              >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h14a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z" />
+                </svg>
+              </button>
+
             </div>
             
             <!-- 실제 뷰 컴포넌트 -->
             <div :class="{ '-mx-4 sm:mx-0': activeView === 'calendar' }">
-              <CalendarView v-if="activeView === 'calendar'" />
-              <MeetupTable v-if="activeView === 'table'" />
+              <CalendarView v-if="activeView === 'calendar'" :meetups="sortedMeetups" />
+              <MeetupTable v-if="activeView === 'table'" :meetups="sortedMeetups" tableCentered />
             </div>
           </div>
         </div>
@@ -182,19 +183,46 @@ export default {
     const router = useRouter()
     const authStore = useAuthStore()
     const meetupsStore = useMeetupsStore()
-    const activeView = ref('table')
+    const activeView = ref('calendar')
 
+
+    // 전체 모임 수
     const totalMeetups = computed(() => meetupsStore.meetups.length)
 
+    // 이번 주 모임 수
     const thisWeekMeetups = computed(() => {
       const now = new Date()
-      const weekStart = new Date(now.setDate(now.getDate() - now.getDay()))
-      const weekEnd = new Date(now.setDate(now.getDate() - now.getDay() + 6))
-      
+      const weekStart = new Date(now)
+      weekStart.setDate(now.getDate() - now.getDay())
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekStart.getDate() + 6)
       return meetupsStore.meetups.filter(meetup => {
         const meetupDate = new Date(meetup.date_time)
         return meetupDate >= weekStart && meetupDate <= weekEnd
       }).length
+    })
+
+    // 정렬된 모임 목록: 모집중(시작 임박순) -> 종료된 모임(종료일 오름차순)
+    const sortedMeetups = computed(() => {
+      const now = new Date()
+      // 모집중(아직 끝나지 않은) 모임
+      const ongoing = meetupsStore.meetups.filter(m => {
+        const end = m.end_time ? new Date(m.end_time) : new Date(m.date_time)
+        return end > now
+      })
+      // 종료된 모임
+      const ended = meetupsStore.meetups.filter(m => {
+        const end = m.end_time ? new Date(m.end_time) : new Date(m.date_time)
+        return end <= now
+      })
+      // 모집중 모임은 시작일 오름차순, 종료된 모임은 종료일 오름차순
+      ongoing.sort((a, b) => new Date(a.date_time) - new Date(b.date_time))
+      ended.sort((a, b) => {
+        const aEnd = a.end_time ? new Date(a.end_time) : new Date(a.date_time)
+        const bEnd = b.end_time ? new Date(b.end_time) : new Date(b.date_time)
+        return aEnd - bEnd
+      })
+      return [...ongoing, ...ended]
     })
 
     const upcomingMeetups = computed(() => {
@@ -264,7 +292,8 @@ export default {
       fullMeetups,
       averageAttendance,
       formatDateTime,
-      logout
+      logout,
+      sortedMeetups
     }
   }
 }

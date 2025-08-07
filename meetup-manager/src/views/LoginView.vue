@@ -8,7 +8,7 @@
       
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          로그인
+          환영합니다! 모임을 시작해볼까요?
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           또는

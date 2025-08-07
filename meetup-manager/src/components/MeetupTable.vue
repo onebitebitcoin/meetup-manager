@@ -207,7 +207,7 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
@@ -283,6 +283,11 @@ export default {
     const canRegister = (meetup) => {
       const now = new Date()
       const meetupDate = new Date(meetup.date_time)
+      // 오늘 날짜 이전(과거) 또는 오늘 23:59:59까지는 비활성화
+      const end = meetup.end_time ? new Date(meetup.end_time) : meetupDate
+      // 오늘 날짜의 23:59:59까지는 신청 가능, 그 이후는 불가
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+      if (end <= today) return false
       return meetupDate > now && !meetup.is_full && !isRegistered(meetup.id)
     }
 
@@ -360,7 +365,13 @@ export default {
       }
     }
 
-    // Check registration status when meetups are loaded
+
+    // Check registration status on mount (first load)
+    onMounted(() => {
+      checkRegistrationStatus()
+    })
+
+    // Also check when meetups are loaded/refreshed
     computed(() => {
       if (meetupsStore.meetups.length > 0) {
         checkRegistrationStatus()

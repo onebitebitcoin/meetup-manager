@@ -1,32 +1,55 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow">
+    <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-white">새 모임 만들기</h1>
+            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+              새 모임 만들기
+            </h1>
           </div>
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-1 sm:space-x-4">
+            <!-- Desktop navigation -->
             <router-link
               to="/dashboard"
-              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
+              class="hidden sm:block text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
             >
-              대시보드
+              오프라인 모임
             </router-link>
+            
+            <!-- Mobile: Dashboard icon -->
             <router-link
-              to="/settings"
-              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
+              to="/dashboard"
+              class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
+              title="오프라인 모임"
             >
-              내 모임
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5h8"></path>
+              </svg>
             </router-link>
-            <ThemeToggle />
-            <span class="text-gray-700 dark:text-gray-300">{{ authStore.user?.name }}님</span>
+            
+            <!-- Theme toggle - compact on mobile -->
+            <div class="sm:hidden">
+              <ThemeToggle />
+            </div>
+            <div class="hidden sm:block">
+              <ThemeToggle />
+            </div>
+            
+            <!-- User name - hidden on mobile -->
+            <span class="hidden sm:inline text-gray-700 dark:text-gray-300">{{ authStore.user?.name }}님</span>
+            
+            <!-- Logout button - compact on mobile -->
             <button
               @click="logout"
-              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              class="bg-red-600 hover:bg-red-700 text-white px-1 sm:px-4 py-1 sm:py-2 rounded-md text-sm font-medium"
             >
-              로그아웃
+              <span class="hidden sm:inline">로그아웃</span>
+              <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
             </button>
           </div>
         </div>
@@ -71,7 +94,7 @@
                     id="name"
                     v-model="form.name"
                     required
-                    placeholder="예: JavaScript 스터디 모임"
+                    placeholder="예: 비트코인 독서 모임"
                     class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-base"
                   />
                 </div>
@@ -148,7 +171,7 @@
                     id="location"
                     v-model="form.location"
                     required
-                    placeholder="예: 강남역 스타벅스 2층"
+                    placeholder="예: 동탄 석우동 카페"
                     class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-base"
                   />
                 </div>

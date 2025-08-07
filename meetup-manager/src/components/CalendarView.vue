@@ -29,22 +29,25 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-7 gap-px sm:gap-1 mb-2 sm:mb-4">
-      <div v-for="day in weekDays" :key="day" class="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-        {{ day }}
+    <div class="overflow-x-auto">
+      <div class="grid grid-cols-7 gap-px sm:gap-1 mb-2 sm:mb-4 min-w-[280px]">
+        <div v-for="day in weekDays" :key="day" class="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ day }}
+        </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-7 gap-px sm:gap-1">
-      <div
-        v-for="date in calendarDates"
-        :key="date.date"
-        class="relative p-1 sm:p-2 h-14 sm:min-h-[80px] border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-        :class="{
-          'bg-gray-100 dark:bg-gray-700': !date.isCurrentMonth,
-          'bg-blue-50 dark:bg-blue-900': date.isToday
-        }"
-      >
+    <div class="overflow-x-auto">
+      <div class="grid grid-cols-7 gap-px sm:gap-1 min-w-[280px]">
+        <div
+          v-for="date in calendarDates"
+          :key="date.date"
+          class="relative p-1 sm:p-2 min-h-[80px] sm:min-h-[110px] border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+          :class="{
+            'bg-gray-100 dark:bg-gray-700': !date.isCurrentMonth,
+            'bg-blue-50 dark:bg-blue-900': date.isToday
+          }"
+        >
         <div class="text-xs sm:text-sm font-medium" :class="{ 'text-gray-400 dark:text-gray-500': !date.isCurrentMonth, 'text-gray-900 dark:text-white': date.isCurrentMonth }">
           {{ date.date.getDate() }}
         </div>
@@ -142,6 +145,7 @@
       @close="selectedMeetup = null"
       @meetupUpdated="onMeetupUpdated"
     />
+  </div>
   </div>
 </template>
 

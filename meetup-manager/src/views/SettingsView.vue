@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="min-h-screen bg-gray-200 dark:bg-gray-900">
     <!-- Navigation -->
     <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,14 +15,14 @@
               to="/dashboard"
               class="hidden sm:block text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
             >
-              대시보드
+              오프라인 모임
             </router-link>
             
             <!-- Mobile: Dashboard icon -->
             <router-link
               to="/dashboard"
               class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
-              title="대시보드"
+              title="오프라인 모임"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>
@@ -89,7 +89,7 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
           <div
-            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
           >
             <div class="p-5">
               <div class="flex items-center">
@@ -127,7 +127,7 @@
           </div>
 
           <div
-            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
           >
             <div class="p-5">
               <div class="flex items-center">
@@ -163,86 +163,10 @@
               </div>
             </div>
           </div>
-
-          <div
-            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
-          >
-            <div class="p-5">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <svg
-                    class="h-8 w-8 text-yellow-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt
-                      class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
-                    >
-                      예정된 모임
-                    </dt>
-                    <dd
-                      class="text-lg font-medium text-gray-900 dark:text-white"
-                    >
-                      {{ upcomingMeetups }}개
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="bg-gray-50 dark:bg-gray-800 overflow-hidden shadow rounded-lg"
-          >
-            <div class="p-5">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <svg
-                    class="h-8 w-8 text-indigo-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt
-                      class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
-                    >
-                      평균 참여율
-                    </dt>
-                    <dd
-                      class="text-lg font-medium text-gray-900 dark:text-white"
-                    >
-                      {{ averageParticipation }}%
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading" class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg">
+        <div v-if="loading" class="bg-white dark:bg-gray-800 shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6 text-center">
             <svg
               class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-500 mx-auto"
@@ -273,7 +197,7 @@
         <!-- Empty State -->
         <div
           v-else-if="meetups.length === 0"
-          class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg"
+          class="bg-white dark:bg-gray-800 shadow rounded-lg"
         >
           <div class="px-4 py-5 sm:p-6 text-center">
             <svg
@@ -321,21 +245,35 @@
         <!-- Meetup Cards -->
         <div v-else class="space-y-6">
           <div
-            class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg overflow-hidden"
+            class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden"
           >
             <div
               class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700"
             >
-              <h3
-                class="text-lg leading-6 font-medium text-gray-900 dark:text-white"
-              >
-                내 모임 목록
-              </h3>
-              <p
-                class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400"
-              >
-                {{ meetups.length }}개의 모임을 관리하고 있습니다.
-              </p>
+              <div class="flex justify-between items-center">
+                <div>
+                  <h3
+                    class="text-lg leading-6 font-medium text-gray-900 dark:text-white"
+                  >
+                    내가 개설한 모임
+                  </h3>
+                  <p
+                    class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400"
+                  >
+                    {{ meetups.length }}개의 모임을 관리하고 있습니다.
+                  </p>
+                </div>
+                <router-link
+                  to="/create-meetup"
+                  class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="hidden sm:inline">새 모임 만들기</span>
+                  <span class="sm:hidden">새 모임</span>
+                </router-link>
+              </div>
             </div>
             <!-- Desktop view -->
             <div class="hidden sm:block divide-y divide-gray-200 dark:divide-gray-700">
@@ -503,7 +441,7 @@
               <div
                 v-for="meetup in meetups"
                 :key="meetup.id"
-                class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3"
+                class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 space-y-3"
               >
                 <div class="flex justify-between items-start">
                   <div class="flex-1 min-w-0">
@@ -563,7 +501,7 @@
 
         <!-- 등록한 모임 목록 -->
         <div
-          class="bg-gray-50 dark:bg-gray-800 shadow rounded-lg overflow-hidden mt-6"
+          class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden mt-6"
         >
           <div
             class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700"
@@ -571,7 +509,7 @@
             <h3
               class="text-lg leading-6 font-medium text-gray-900 dark:text-white"
             >
-              참가 신청한 모임
+              내가 신청한 모임
             </h3>
             <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
               {{ registeredMeetups.length }}개의 모임에 참가 신청했습니다.
@@ -624,7 +562,7 @@
               />
             </svg>
             <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-              참가 신청한 모임이 없습니다
+              내가 신청한 모임이 없습니다
             </h3>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               관심 있는 모임에 참가 신청해보세요.
@@ -798,7 +736,7 @@
             <div
               v-for="meetup in registeredMeetups"
               :key="meetup.id"
-              class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3"
+              class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 space-y-3"
             >
               <div class="flex justify-between items-start">
                 <div class="flex-1 min-w-0">
