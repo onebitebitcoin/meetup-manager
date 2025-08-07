@@ -1,31 +1,55 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow">
+    <nav class="bg-white dark:bg-gray-800 shadow safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
               내 모임 관리
             </h1>
           </div>
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-1 sm:space-x-4">
+            <!-- Desktop navigation -->
             <router-link
               to="/dashboard"
-              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
+              class="hidden sm:block text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
             >
               대시보드
             </router-link>
             
-            <ThemeToggle />
-            <span class="text-gray-700 dark:text-gray-300"
-              >{{ authStore.user?.name }}님</span
+            <!-- Mobile: Dashboard icon -->
+            <router-link
+              to="/dashboard"
+              class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
+              title="대시보드"
             >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5h8"></path>
+              </svg>
+            </router-link>
+            
+            <!-- Theme toggle - compact on mobile -->
+            <div class="sm:hidden">
+              <ThemeToggle />
+            </div>
+            <div class="hidden sm:block">
+              <ThemeToggle />
+            </div>
+            
+            <!-- User name - hidden on mobile -->
+            <span class="hidden sm:inline text-gray-700 dark:text-gray-300">{{ authStore.user?.name }}님</span>
+            
+            <!-- Logout button - compact on mobile -->
             <button
               @click="logout"
-              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              class="bg-red-600 hover:bg-red-700 text-white px-1 sm:px-4 py-1 sm:py-2 rounded-md text-sm font-medium"
             >
-              로그아웃
+              <span class="hidden sm:inline">로그아웃</span>
+              <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
             </button>
           </div>
         </div>
@@ -305,25 +329,16 @@
               <h3
                 class="text-lg leading-6 font-medium text-gray-900 dark:text-white"
               >
-                내가 주최한 모임
+                내 모임 목록
               </h3>
               <p
                 class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400"
               >
                 {{ meetups.length }}개의 모임을 관리하고 있습니다.
               </p>
-
-              <!-- 새 모임 만들기 버튼 (타이틀 오른쪽) -->
-              <router-link
-                to="/create-meetup"
-                class="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium inline-flex items-center"
-                style="float: right; margin-top: -2.5rem;"
-              >
-                새 모임 만들기
-              </router-link>
-
             </div>
-            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <!-- Desktop view -->
+            <div class="hidden sm:block divide-y divide-gray-200 dark:divide-gray-700">
               <div
                 v-for="meetup in meetups"
                 :key="meetup.id"
@@ -440,25 +455,6 @@
                     </span>
                     <div class="flex items-center space-x-1">
                       <button
-                        @click="manageParticipants(meetup)"
-                        class="p-2 text-green-600 hover:text-green-900 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 rounded-md"
-                        title="참가자 관리"
-                      >
-                        <svg
-                          class="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
-                      </button>
-                      <button
                         @click="editMeetup(meetup)"
                         class="p-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900 rounded-md"
                         title="수정"
@@ -501,6 +497,67 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Mobile view for created meetups -->
+            <div class="sm:hidden space-y-4 p-4">
+              <div
+                v-for="meetup in meetups"
+                :key="meetup.id"
+                class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3"
+              >
+                <div class="flex justify-between items-start">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {{ meetup.name }}
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                      {{ meetup.description }}
+                    </p>
+                  </div>
+                  <span 
+                    class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0"
+                    :class="[
+                      meetup.is_full
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                    ]"
+                  >
+                    {{ meetup.is_full ? "마감" : "모집중" }}
+                  </span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <div class="text-gray-500 dark:text-gray-400">시간</div>
+                    <div class="text-gray-900 dark:text-white font-medium">
+                      {{ formatDateTime(meetup.date_time) }}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div class="text-gray-500 dark:text-gray-400">참여자</div>
+                    <div class="text-gray-900 dark:text-white font-medium">
+                      {{ meetup.current_participants }}/{{ meetup.max_participants }}명
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex space-x-2 pt-2">
+                  <button
+                    @click="editMeetup(meetup)"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex-1"
+                  >
+                    수정
+                  </button>
+                  <button
+                    @click="deleteMeetup(meetup.id)"
+                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs flex-1"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -514,7 +571,7 @@
             <h3
               class="text-lg leading-6 font-medium text-gray-900 dark:text-white"
             >
-              내가 신청한 모임
+              참가 신청한 모임
             </h3>
             <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
               {{ registeredMeetups.length }}개의 모임에 참가 신청했습니다.
@@ -567,7 +624,7 @@
               />
             </svg>
             <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-              내가 신청한 모임이 없습니다
+              참가 신청한 모임이 없습니다
             </h3>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               관심 있는 모임에 참가 신청해보세요.
@@ -592,8 +649,8 @@
             </div>
           </div>
 
-          <!-- 등록한 모임 카드들 -->
-          <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
+          <!-- Desktop view for registered meetups -->
+          <div v-else class="hidden sm:block divide-y divide-gray-200 dark:divide-gray-700">
             <div
               v-for="meetup in registeredMeetups"
               :key="meetup.id"
@@ -734,6 +791,69 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Mobile view for registered meetups -->
+            <div v-if="!loadingRegistered && registeredMeetups.length > 0" class="sm:hidden space-y-4 p-4">
+              <div
+                v-for="meetup in registeredMeetups"
+                :key="meetup.id"
+                class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3"
+              >
+                <div class="flex justify-between items-start">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {{ meetup.name }}
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                      {{ meetup.description }}
+                    </p>
+                  </div>
+                  <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 flex-shrink-0">
+                    참가중
+                  </span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <div class="text-gray-500 dark:text-gray-400">시간</div>
+                    <div class="text-gray-900 dark:text-white font-medium">
+                      {{ formatDateTime(meetup.date_time) }}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div class="text-gray-500 dark:text-gray-400">장소</div>
+                    <div class="text-gray-900 dark:text-white font-medium truncate">
+                      {{ meetup.location }}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div class="text-gray-500 dark:text-gray-400">생성자</div>
+                    <div class="text-gray-900 dark:text-white font-medium">
+                      {{ meetup.creator_name }}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div class="text-gray-500 dark:text-gray-400">참여자</div>
+                    <div class="text-gray-900 dark:text-white font-medium">
+                      {{ meetup.current_participants }}/{{ meetup.max_participants }}명
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex space-x-2 pt-2">
+                  <button
+                    @click="unregisterFromMeetup(meetup.id, meetup.registration_id)"
+                    :disabled="loadingRegistered"
+                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs flex-1 disabled:opacity-50"
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -746,7 +866,7 @@
       @click.self="closeEditModal"
     >
       <div
-        class="relative top-10 mx-auto p-6 border max-w-2xl shadow-lg rounded-lg bg-white dark:bg-gray-800"
+        class="relative top-20 mx-auto p-5 border max-w-md shadow-lg rounded-lg bg-white dark:bg-gray-800"
       >
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
@@ -771,110 +891,81 @@
             </svg>
           </button>
         </div>
-        <form @submit.prevent="updateMeetup" class="space-y-6">
+        <form @submit.prevent="updateMeetup" class="space-y-4">
           <div>
             <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >모임 이름</label
             >
             <input
               v-model="editForm.name"
               type="text"
               required
-              class="block w-full px-4 py-3 text-base border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
-              placeholder="모임 이름을 입력하세요"
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
             />
           </div>
           <div>
             <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >설명</label
             >
             <textarea
               v-model="editForm.description"
-              rows="5"
-              class="block w-full px-4 py-3 text-base border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400 resize-y"
-              placeholder="모임에 대한 설명을 작성하세요"
+              rows="3"
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
             ></textarea>
           </div>
           <div>
             <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >장소</label
             >
             <input
               v-model="editForm.location"
               type="text"
               required
-              class="block w-full px-4 py-3 text-base border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
-              placeholder="모임 장소를 입력하세요"
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
             />
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >날짜</label
-              >
-              <input
-                v-model="editForm.date"
-                type="date"
-                required
-                class="block w-full px-4 py-3 text-base border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >시작 시간</label
-              >
-              <input
-                v-model="editForm.time"
-                type="time"
-                required
-                class="block w-full px-4 py-3 text-base border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
-              />
-            </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >시작 시간</label
+            >
+            <input
+              v-model="editForm.date_time"
+              type="datetime-local"
+              required
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+            />
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >모임 진행 시간</label
-              >
-              <select
-                v-model.number="editForm.duration"
-                required
-                class="block w-full px-4 py-3 text-base border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
-              >
-                <option value="0.5">30분</option>
-                <option value="1">1시간</option>
-                <option value="1.5">1시간 30분</option>
-                <option value="2">2시간</option>
-                <option value="2.5">2시간 30분</option>
-                <option value="3">3시간</option>
-                <option value="3.5">3시간 30분</option>
-                <option value="4">4시간</option>
-                <option value="5">5시간</option>
-                <option value="6">6시간</option>
-                <option value="8">8시간</option>
-              </select>
-            </div>
-            <div>
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >최대 참여 인원</label
-              >
-              <input
-                v-model.number="editForm.max_participants"
-                type="number"
-                min="1"
-                max="100"
-                required
-                class="block w-full px-4 py-3 text-base border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
-                placeholder="최대 인원"
-              />
-            </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >모임 진행 시간 (시간)</label
+            >
+            <input
+              v-model.number="editForm.duration"
+              type="number"
+              min="0.5"
+              step="0.5"
+              placeholder="예: 2 (2시간)"
+              required
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >최대 참여 인원</label
+            >
+            <input
+              v-model.number="editForm.max_participants"
+              type="number"
+              min="1"
+              required
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+            />
           </div>
           <div
             class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700"
@@ -918,143 +1009,6 @@
         </form>
       </div>
     </div>
-
-    <!-- Participants Management Modal -->
-    <div
-      v-if="showParticipantsModal"
-      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
-      @click.self="closeParticipantsModal"
-    >
-      <div
-        class="relative top-10 mx-auto p-6 border max-w-4xl shadow-lg rounded-lg bg-white dark:bg-gray-800"
-      >
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-            {{ selectedMeetupForParticipants?.name }} - 참가자 관리
-          </h3>
-          <button
-            @click="closeParticipantsModal"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div class="space-y-6">
-          <!-- Add Participant Section -->
-          <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-            <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">참가자 추가</h4>
-            <div class="flex space-x-3">
-              <input
-                v-model="newParticipantEmail"
-                type="email"
-                placeholder="참가자 이메일 입력"
-                class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                @keyup.enter="addParticipant"
-              />
-              <button
-                @click="addParticipant"
-                :disabled="!newParticipantEmail || addingParticipant"
-                class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg v-if="addingParticipant" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {{ addingParticipant ? '추가 중...' : '추가' }}
-              </button>
-            </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              이메일로 참가자를 직접 추가할 수 있습니다. 기존 사용자가 아닌 경우 게스트로 추가됩니다.
-            </p>
-          </div>
-
-          <!-- Current Participants List -->
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <h4 class="text-md font-medium text-gray-900 dark:text-white">
-                현재 참가자 ({{ participants.length }} / {{ selectedMeetupForParticipants?.max_participants }}명)
-              </h4>
-              <button
-                @click="refreshParticipants"
-                :disabled="loadingParticipants"
-                class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                title="참가자 목록 새로고침"
-              >
-                <svg 
-                  :class="['w-4 h-4', { 'animate-spin': loadingParticipants }]" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-              </button>
-            </div>
-
-            <div v-if="loadingParticipants" class="text-center py-4">
-              <div class="text-gray-600 dark:text-gray-400">참가자 목록을 불러오는 중...</div>
-            </div>
-
-            <div v-else-if="participants.length === 0" class="text-center py-8">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">참가자가 없습니다</h3>
-              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">위에서 이메일로 참가자를 추가해보세요.</p>
-            </div>
-
-            <div v-else class="space-y-2 max-h-64 overflow-y-auto">
-              <div 
-                v-for="participant in participants" 
-                :key="participant.id"
-                class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-semibold">
-                    {{ participant.user_name.charAt(0).toUpperCase() }}
-                  </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ participant.user_name }}</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ participant.user_email }}</div>
-                  </div>
-                </div>
-                <button
-                  @click="removeParticipant(participant.id)"
-                  class="text-red-600 hover:text-red-900 dark:text-red-400 p-1 hover:bg-red-50 dark:hover:bg-red-900 rounded"
-                  title="참가자 제거"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-end">
-          <button
-            @click="closeParticipantsModal"
-            class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium"
-          >
-            닫기
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -1083,14 +1037,6 @@ export default {
     const editForm = ref({});
     const updating = ref(false);
     const currentEditId = ref(null);
-
-    // Participants management
-    const showParticipantsModal = ref(false);
-    const selectedMeetupForParticipants = ref(null);
-    const participants = ref([]);
-    const newParticipantEmail = ref('');
-    const addingParticipant = ref(false);
-    const loadingParticipants = ref(false);
 
     // Computed values for stats
     const totalParticipants = computed(() => {
@@ -1229,21 +1175,18 @@ export default {
         duration = (endTime - startTime) / (1000 * 60 * 60); // convert to hours
       }
 
-      // Convert date_time to separate date and time fields
-      let dateValue = "";
-      let timeValue = "";
+      // Convert date_time to local datetime-local format
+      let localDateTime = "";
       if (meetup.date_time) {
         const date = new Date(meetup.date_time);
-        dateValue = date.toISOString().split('T')[0]; // YYYY-MM-DD
-        timeValue = date.toTimeString().slice(0, 5); // HH:MM
+        localDateTime = date.toISOString().slice(0, 16);
       }
 
       editForm.value = {
         name: meetup.name,
         description: meetup.description,
         location: meetup.location,
-        date: dateValue,
-        time: timeValue,
+        date_time: localDateTime,
         duration: duration,
         max_participants: meetup.max_participants,
       };
@@ -1260,11 +1203,8 @@ export default {
     const updateMeetup = async () => {
       updating.value = true;
       try {
-        // Combine date and time fields into datetime
-        const dateTimeString = `${editForm.value.date}T${editForm.value.time}`;
-        const startTime = new Date(dateTimeString);
-        
         // Calculate end time from start time and duration
+        const startTime = new Date(editForm.value.date_time);
         const endTime = new Date(
           startTime.getTime() + editForm.value.duration * 60 * 60 * 1000
         );
@@ -1330,95 +1270,6 @@ export default {
       }
     };
 
-    // Participant management functions
-    const manageParticipants = async (meetup) => {
-      selectedMeetupForParticipants.value = meetup;
-      showParticipantsModal.value = true;
-      await refreshParticipants();
-    };
-
-    const closeParticipantsModal = () => {
-      showParticipantsModal.value = false;
-      selectedMeetupForParticipants.value = null;
-      participants.value = [];
-      newParticipantEmail.value = '';
-    };
-
-    const refreshParticipants = async () => {
-      if (!selectedMeetupForParticipants.value) return;
-      
-      loadingParticipants.value = true;
-      try {
-        const response = await fetch(`/api/meetups/${selectedMeetupForParticipants.value.id}/registrations/`, {
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          participants.value = data.registrations;
-        }
-      } catch (error) {
-        console.error('참가자 목록 불러오기 실패:', error);
-      } finally {
-        loadingParticipants.value = false;
-      }
-    };
-
-    const addParticipant = async () => {
-      if (!newParticipantEmail.value || !selectedMeetupForParticipants.value) return;
-      
-      addingParticipant.value = true;
-      try {
-        const response = await fetchWithCSRF(`/api/meetups/${selectedMeetupForParticipants.value.id}/add-participant/`, {
-          method: 'POST',
-          body: JSON.stringify({
-            email: newParticipantEmail.value
-          })
-        });
-
-        if (response.ok) {
-          newParticipantEmail.value = '';
-          await Promise.all([refreshParticipants(), loadMeetups()]);
-          message.value = '참가자가 성공적으로 추가되었습니다';
-          setTimeout(() => {
-            message.value = '';
-          }, 3000);
-        } else {
-          const data = await response.json();
-          alert(data.error || '참가자 추가에 실패했습니다');
-        }
-      } catch (error) {
-        console.error('참가자 추가 실패:', error);
-        alert('네트워크 오류가 발생했습니다');
-      } finally {
-        addingParticipant.value = false;
-      }
-    };
-
-    const removeParticipant = async (registrationId) => {
-      if (!confirm('정말로 이 참가자를 제거하시겠습니까?')) return;
-      
-      try {
-        const response = await fetchWithCSRF(`/api/meetups/${selectedMeetupForParticipants.value.id}/remove-participant/${registrationId}/`, {
-          method: 'DELETE'
-        });
-
-        if (response.ok) {
-          await Promise.all([refreshParticipants(), loadMeetups()]);
-          message.value = '참가자가 성공적으로 제거되었습니다';
-          setTimeout(() => {
-            message.value = '';
-          }, 3000);
-        } else {
-          const data = await response.json();
-          alert(data.error || '참가자 제거에 실패했습니다');
-        }
-      } catch (error) {
-        console.error('참가자 제거 실패:', error);
-        alert('네트워크 오류가 발생했습니다');
-      }
-    };
-
     const logout = () => {
       authStore.logout();
       router.push("/login");
@@ -1443,18 +1294,6 @@ export default {
       updateMeetup,
       deleteMeetup,
       unregisterFromMeetup,
-      // Participant management
-      showParticipantsModal,
-      selectedMeetupForParticipants,
-      participants,
-      newParticipantEmail,
-      addingParticipant,
-      loadingParticipants,
-      manageParticipants,
-      closeParticipantsModal,
-      refreshParticipants,
-      addParticipant,
-      removeParticipant,
       logout,
     };
   },

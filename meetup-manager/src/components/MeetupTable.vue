@@ -69,12 +69,30 @@
               </span>
             </td>
             <td class="px-3 py-4">
-              <button
-                @click="showMeetupDetail(meetup)"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
-              >
-                상세
-              </button>
+              <div class="flex space-x-1">
+                <button
+                  @click="showMeetupDetail(meetup)"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
+                >
+                  상세
+                </button>
+                <button
+                  v-if="!authStore.isGuest && canRegister(meetup)"
+                  @click="registerForMeetup(meetup.id)"
+                  :disabled="registering"
+                  class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
+                >
+                  신청
+                </button>
+                <button
+                  v-if="!authStore.isGuest && isRegistered(meetup.id)"
+                  @click="unregisterFromMeetup(meetup.id)"
+                  :disabled="registering"
+                  class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
+                >
+                  취소
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -136,16 +154,36 @@
           </div>
         </div>
         
-        <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-          <span class="text-xs text-gray-500 dark:text-gray-400">
-            생성자: {{ meetup.creator_name }}
-          </span>
-          <button
-            @click="showMeetupDetail(meetup)"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
-          >
-            상세보기
-          </button>
+        <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              생성자: {{ meetup.creator_name }}
+            </span>
+          </div>
+          <div class="flex space-x-2">
+            <button
+              @click="showMeetupDetail(meetup)"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex-1"
+            >
+              상세보기
+            </button>
+            <button
+              v-if="!authStore.isGuest && canRegister(meetup)"
+              @click="registerForMeetup(meetup.id)"
+              :disabled="registering"
+              class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50 flex-1"
+            >
+              신청
+            </button>
+            <button
+              v-if="!authStore.isGuest && isRegistered(meetup.id)"
+              @click="unregisterFromMeetup(meetup.id)"
+              :disabled="registering"
+              class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50 flex-1"
+            >
+              취소
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -160,64 +198,11 @@
     </div>
 
     <!-- 모임 상세 모달 -->
-    <div v-if="selectedMeetup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="selectedMeetup = null">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4" @click.stop>
-        <div class="flex justify-between items-start mb-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedMeetup.name }}</h3>
-          <button @click="selectedMeetup = null" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-        <div class="space-y-3">
-          <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">시간:</span>
-            <span class="ml-2 text-gray-600 dark:text-gray-400">
-              {{ formatDateTime(selectedMeetup.date_time) }}
-              <span v-if="selectedMeetup.end_time"> - {{ formatTime(selectedMeetup.end_time) }}</span>
-            </span>
-          </div>
-          <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">장소:</span>
-            <span class="ml-2 text-gray-600 dark:text-gray-400">{{ selectedMeetup.location }}</span>
-          </div>
-          <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">참여 현황:</span>
-            <div class="ml-2 mt-1 space-y-1">
-              <div class="text-gray-600 dark:text-gray-400">
-                <span class="font-semibold text-indigo-600">등록된 멤버: {{ selectedMeetup.current_participants }}명</span>
-              </div>
-              <div class="text-gray-600 dark:text-gray-400">
-                <span class="font-semibold text-green-600">남은 자리: {{ selectedMeetup.available_spots }}석</span>
-                <span v-if="selectedMeetup.is_full" class="text-red-600 font-semibold ml-2">(마감)</span>
-              </div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">
-                총 정원: {{ selectedMeetup.max_participants }}명
-              </div>
-            </div>
-          </div>
-          <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">생성자:</span>
-            <span class="ml-2 text-gray-600 dark:text-gray-400">{{ selectedMeetup.creator_name }}</span>
-          </div>
-          <div>
-            <span class="font-medium text-gray-700 dark:text-gray-300">상세 정보:</span>
-            <p class="mt-1 text-gray-600 dark:text-gray-400">{{ selectedMeetup.description }}</p>
-          </div>
-        </div>
-        
-        <!-- 닫기 버튼 -->
-        <div class="mt-6 flex justify-end">
-          <button
-            @click="selectedMeetup = null"
-            class="bg-gray-300 hover:bg-gray-400 text-gray-700 dark:text-gray-800 px-4 py-2 rounded-md text-sm font-medium"
-          >
-            닫기
-          </button>
-        </div>
-      </div>
-    </div>
+    <MeetupDetailModal 
+      :selectedMeetup="selectedMeetup" 
+      @close="selectedMeetup = null"
+      @meetupUpdated="onMeetupUpdated"
+    />
   </div>
 </template>
 
@@ -225,13 +210,20 @@
 import { computed, ref } from 'vue'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
+import { fetchWithCSRF } from '@/utils/csrf'
+import MeetupDetailModal from './MeetupDetailModal.vue'
 
 export default {
   name: 'MeetupTable',
+  components: {
+    MeetupDetailModal
+  },
   setup() {
     const meetupsStore = useMeetupsStore()
     const authStore = useAuthStore()
     const selectedMeetup = ref(null)
+    const registering = ref(false)
+    const userRegistrations = ref(new Set())
 
     const sortedMeetups = computed(() => {
       return [...meetupsStore.meetups].sort((a, b) => new Date(a.date_time) - new Date(b.date_time))
@@ -288,18 +280,123 @@ export default {
       selectedMeetup.value = meetup
     }
 
+    const canRegister = (meetup) => {
+      const now = new Date()
+      const meetupDate = new Date(meetup.date_time)
+      return meetupDate > now && !meetup.is_full && !isRegistered(meetup.id)
+    }
+
+    const isRegistered = (meetupId) => {
+      return userRegistrations.value.has(meetupId)
+    }
+
+    const registerForMeetup = async (meetupId) => {
+      if (registering.value) return
+      
+      registering.value = true
+      try {
+        const response = await fetchWithCSRF(`/api/meetups/${meetupId}/register/`, {
+          method: 'POST'
+        })
+        
+        if (response.ok) {
+          userRegistrations.value.add(meetupId)
+          await meetupsStore.fetchMeetups() // Refresh meetups data
+          alert('모임 신청이 완료되었습니다!')
+        } else {
+          const data = await response.json()
+          alert(data.error || '신청에 실패했습니다.')
+        }
+      } catch (error) {
+        alert('네트워크 오류가 발생했습니다.')
+      } finally {
+        registering.value = false
+      }
+    }
+
+    const unregisterFromMeetup = async (meetupId) => {
+      if (registering.value) return
+      
+      registering.value = true
+      try {
+        const response = await fetchWithCSRF(`/api/meetups/${meetupId}/unregister/`, {
+          method: 'DELETE'
+        })
+        
+        if (response.ok) {
+          userRegistrations.value.delete(meetupId)
+          await meetupsStore.fetchMeetups() // Refresh meetups data
+          alert('모임 신청이 취소되었습니다.')
+        } else {
+          const data = await response.json()
+          alert(data.error || '취소에 실패했습니다.')
+        }
+      } catch (error) {
+        alert('네트워크 오류가 발생했습니다.')
+      } finally {
+        registering.value = false
+      }
+    }
+
+    // Check registration status for all meetups on component mount
+    const checkRegistrationStatus = async () => {
+      if (!authStore.isLoggedIn || authStore.isGuest) return
+      
+      for (const meetup of meetupsStore.meetups) {
+        try {
+          const response = await fetchWithCSRF(`/api/meetups/${meetup.id}/status/`, {
+            method: 'GET'
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            if (data.is_registered) {
+              userRegistrations.value.add(meetup.id)
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check registration status for meetup', meetup.id)
+        }
+      }
+    }
+
+    // Check registration status when meetups are loaded
+    computed(() => {
+      if (meetupsStore.meetups.length > 0) {
+        checkRegistrationStatus()
+      }
+      return meetupsStore.meetups
+    })
+
+    // Handle meetup updates from modal
+    const onMeetupUpdated = async () => {
+      // Update selected meetup with latest data
+      if (selectedMeetup.value) {
+        const updatedMeetup = meetupsStore.meetups.find(m => m.id === selectedMeetup.value.id)
+        if (updatedMeetup) {
+          selectedMeetup.value = updatedMeetup
+        }
+      }
+    }
+
 
     return {
       meetupsStore,
       authStore,
       selectedMeetup,
       sortedMeetups,
+      registering,
       formatDate,
       formatTime,
       formatDateTime,
       getStatus,
       getStatusClass,
-      showMeetupDetail
+      showMeetupDetail,
+      canRegister,
+      isRegistered,
+      registerForMeetup,
+      unregisterFromMeetup,
+      onMeetupUpdated
     }
   }
 }
