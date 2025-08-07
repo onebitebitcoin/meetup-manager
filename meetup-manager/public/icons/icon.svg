@@ -1,11 +1,20 @@
 <svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="192" height="192" rx="24" fill="#4f46e5"/>
-<g transform="translate(32, 32)">
-  <path d="M16 14V10m8 4V10m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="24" cy="40" r="12" fill="white"/>
-  <circle cx="48" cy="40" r="12" fill="white"/>
-  <circle cx="72" cy="40" r="12" fill="white"/>
-  <circle cx="96" cy="40" r="12" fill="white"/>
-  <path d="M80 60v20m8-4V60m-9 8h10M75 81h14a2 2 0 002-2V67a2 2 0 00-2-2H75a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
+  <!-- Background with rounded corners -->
+  <rect width="192" height="192" rx="32" fill="#e5b413"/>
+  
+  <!-- Main circle representing people gathering -->
+  <circle cx="96" cy="96" r="60" fill="none" stroke="white" stroke-width="8"/>
+  
+  <!-- People dots arranged in a circle -->
+  <circle cx="96" cy="45" r="8" fill="white"/>
+  <circle cx="66" cy="60" r="8" fill="white"/>
+  <circle cx="45" cy="96" r="8" fill="white"/>
+  <circle cx="66" cy="132" r="8" fill="white"/>
+  <circle cx="96" cy="147" r="8" fill="white"/>
+  <circle cx="126" cy="132" r="8" fill="white"/>
+  <circle cx="147" cy="96" r="8" fill="white"/>
+  <circle cx="126" cy="60" r="8" fill="white"/>
+  
+  <!-- Central bite mark -->
+  <path d="M96 96 Q75 85 60 96 Q75 107 96 96" fill="white"/>
 </svg>
