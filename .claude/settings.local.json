@@ -27,7 +27,9 @@
       "Bash(git add:*)",
       "Bash(git push:*)",
       "Bash(python:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run:*)"
     ],
     "deny": []
   }

@@ -430,6 +430,25 @@
                           />
                         </svg>
                       </button>
+                      <button
+                        @click="openManageParticipants(meetup)"
+                        class="p-2 text-green-600 hover:text-green-900 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 rounded-md"
+                        title="참가자 관리"
+                      >
+                        <svg
+                          class="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -480,16 +499,22 @@
                   </div>
                 </div>
                 
-                <div class="flex space-x-2 pt-2">
+                <div class="grid grid-cols-3 gap-2 pt-2">
                   <button
                     @click="editMeetup(meetup)"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex-1"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
                   >
                     수정
                   </button>
                   <button
+                    @click="openManageParticipants(meetup)"
+                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                  >
+                    참가자
+                  </button>
+                  <button
                     @click="deleteMeetup(meetup.id)"
-                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs flex-1"
+                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
                   >
                     삭제
                   </button>
@@ -948,6 +973,156 @@
         </form>
       </div>
     </div>
+
+    <!-- Manage Participants Modal -->
+    <div
+      v-if="showParticipantsModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+      @click.self="closeParticipantsModal"
+    >
+      <div
+        class="relative top-10 mx-auto p-5 border max-w-2xl shadow-lg rounded-lg bg-gray-50 dark:bg-gray-800"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+              참가자 관리: {{ selectedMeetup?.name }}
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ selectedMeetup?.current_participants }} / {{ selectedMeetup?.max_participants }}명 등록
+            </p>
+          </div>
+          <button
+            @click="closeParticipantsModal"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Manual Registration Form -->
+        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 mb-4">
+          <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">
+            수동 참가자 등록
+          </h4>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            다른 채널을 통해 등록한 참가자를 수동으로 추가할 수 있습니다.
+          </p>
+          <form @submit.prevent="addParticipantManually" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  이름 *
+                </label>
+                <input
+                  v-model="manualRegistrationForm.name"
+                  type="text"
+                  required
+                  placeholder="참가자 이름"
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  이메일 *
+                </label>
+                <input
+                  v-model="manualRegistrationForm.email"
+                  type="email"
+                  required
+                  placeholder="참가자 이메일"
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
+                />
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button
+                type="submit"
+                :disabled="addingParticipant"
+                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg v-if="addingParticipant" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ addingParticipant ? "추가 중..." : "참가자 추가" }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Participants List -->
+        <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+          <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">
+            등록된 참가자
+          </h4>
+          
+          <!-- Loading State -->
+          <div v-if="loadingParticipants" class="text-center py-4">
+            <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">참가자 목록을 불러오는 중...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else-if="participants.length === 0" class="text-center py-4">
+            <p class="text-gray-500 dark:text-gray-400">등록된 참가자가 없습니다.</p>
+          </div>
+
+          <!-- Participants List -->
+          <div v-else class="space-y-2 max-h-60 overflow-y-auto">
+            <div
+              v-for="participant in participants"
+              :key="participant.id"
+              class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-600 rounded-lg"
+            >
+              <div class="flex-1">
+                <div class="flex items-center space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
+                      <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {{ participant.user_name }}
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {{ participant.user_email }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button
+                @click="removeParticipant(participant.id)"
+                :disabled="removingParticipant"
+                class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md disabled:opacity-50"
+                title="참가자 제거"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-4">
+          <button
+            @click="closeParticipantsModal"
+            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-500"
+          >
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script>
@@ -975,6 +1150,18 @@ export default {
     const editForm = ref({});
     const updating = ref(false);
     const currentEditId = ref(null);
+    
+    // Participants management
+    const showParticipantsModal = ref(false);
+    const selectedMeetup = ref(null);
+    const participants = ref([]);
+    const loadingParticipants = ref(false);
+    const addingParticipant = ref(false);
+    const removingParticipant = ref(false);
+    const manualRegistrationForm = ref({
+      name: '',
+      email: ''
+    });
 
     // Computed values for stats
     const totalParticipants = computed(() => {
@@ -1213,6 +1400,117 @@ export default {
       router.push("/login");
     };
 
+    const openManageParticipants = async (meetup) => {
+      selectedMeetup.value = meetup;
+      showParticipantsModal.value = true;
+      await loadParticipants(meetup.id);
+    };
+
+    const closeParticipantsModal = () => {
+      showParticipantsModal.value = false;
+      selectedMeetup.value = null;
+      participants.value = [];
+      manualRegistrationForm.value = { name: '', email: '' };
+    };
+
+    const loadParticipants = async (meetupId) => {
+      loadingParticipants.value = true;
+      try {
+        const response = await fetch(`/api/meetups/${meetupId}/registrations/`, {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const data = await response.json();
+          participants.value = data.registrations || [];
+        }
+      } catch (error) {
+        console.error("참가자 목록을 불러오는데 실패했습니다:", error);
+        participants.value = [];
+      } finally {
+        loadingParticipants.value = false;
+      }
+    };
+
+    const addParticipantManually = async () => {
+      if (!selectedMeetup.value) return;
+      
+      addingParticipant.value = true;
+      try {
+        const response = await fetchWithCSRF(
+          `/api/meetups/${selectedMeetup.value.id}/add-participant/`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              name: manualRegistrationForm.value.name,
+              email: manualRegistrationForm.value.email
+            }),
+          }
+        );
+
+        if (response.ok) {
+          await loadParticipants(selectedMeetup.value.id);
+          await loadMeetups(); // Refresh meetup data to update participant count
+          
+          // Update selected meetup with latest data
+          const updatedMeetup = meetups.value.find(m => m.id === selectedMeetup.value.id);
+          if (updatedMeetup) {
+            selectedMeetup.value = updatedMeetup;
+          }
+          
+          manualRegistrationForm.value = { name: '', email: '' };
+          message.value = "참가자가 성공적으로 추가되었습니다";
+          setTimeout(() => {
+            message.value = "";
+          }, 3000);
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || '참가자 추가에 실패했습니다');
+        }
+      } catch (error) {
+        console.error("참가자 추가 실패:", error);
+        alert(error.message || '참가자 추가에 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        addingParticipant.value = false;
+      }
+    };
+
+    const removeParticipant = async (registrationId) => {
+      if (!selectedMeetup.value) return;
+      
+      if (confirm("정말로 이 참가자를 제거하시겠습니까?")) {
+        removingParticipant.value = true;
+        try {
+          const response = await fetchWithCSRF(
+            `/api/meetups/${selectedMeetup.value.id}/remove-participant/${registrationId}/`,
+            {
+              method: "DELETE",
+            }
+          );
+
+          if (response.ok) {
+            await loadParticipants(selectedMeetup.value.id);
+            await loadMeetups(); // Refresh meetup data to update participant count
+            
+            // Update selected meetup with latest data
+            const updatedMeetup = meetups.value.find(m => m.id === selectedMeetup.value.id);
+            if (updatedMeetup) {
+              selectedMeetup.value = updatedMeetup;
+            }
+            
+            message.value = "참가자가 성공적으로 제거되었습니다";
+            setTimeout(() => {
+              message.value = "";
+            }, 3000);
+          }
+        } catch (error) {
+          console.error("참가자 제거 실패:", error);
+          alert('참가자 제거에 실패했습니다. 다시 시도해주세요.');
+        } finally {
+          removingParticipant.value = false;
+        }
+      }
+    };
+
     return {
       authStore,
       meetups,
@@ -1233,6 +1531,19 @@ export default {
       deleteMeetup,
       unregisterFromMeetup,
       logout,
+      // Participants management
+      showParticipantsModal,
+      selectedMeetup,
+      participants,
+      loadingParticipants,
+      addingParticipant,
+      removingParticipant,
+      manualRegistrationForm,
+      openManageParticipants,
+      closeParticipantsModal,
+      loadParticipants,
+      addParticipantManually,
+      removeParticipant,
     };
   },
 };
