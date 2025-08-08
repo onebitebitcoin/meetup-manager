@@ -40,12 +40,14 @@ class MeetupSerializer(serializers.ModelSerializer):
     is_full = serializers.ReadOnlyField()
     available_spots = serializers.ReadOnlyField()
     creator_name = serializers.CharField(source='creator.name', read_only=True)
+    image_display_url = serializers.ReadOnlyField()
     
     class Meta:
         model = Meetup
         fields = ['id', 'name', 'description', 'date_time', 'end_time', 'location', 
                  'max_participants', 'current_participants', 'created_at',
-                 'is_full', 'available_spots', 'creator', 'creator_name']
+                 'is_full', 'available_spots', 'creator', 'creator_name', 
+                 'image', 'image_url', 'image_display_url']
 
 class RegistrationSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.name', read_only=True)

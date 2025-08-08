@@ -23,6 +23,10 @@ class Meetup(models.Model):
     current_participants = models.IntegerField(default=0)
     creator = models.ForeignKey(MeetupUser, on_delete=models.CASCADE, related_name='created_meetups', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Image fields
+    image = models.ImageField(upload_to='meetups/', blank=True, null=True, help_text="Upload an image for the meetup")
+    image_url = models.URLField(blank=True, null=True, help_text="Or provide an image URL")
 
     def __str__(self):
         return self.name
@@ -34,6 +38,15 @@ class Meetup(models.Model):
     @property
     def available_spots(self):
         return self.max_participants - self.current_participants
+    
+    @property
+    def image_display_url(self):
+        """Return the image URL - either from uploaded file or external URL"""
+        if self.image:
+            return self.image.url
+        elif self.image_url:
+            return self.image_url
+        return ''
 
 class Registration(models.Model):
     user = models.ForeignKey(MeetupUser, on_delete=models.CASCADE)

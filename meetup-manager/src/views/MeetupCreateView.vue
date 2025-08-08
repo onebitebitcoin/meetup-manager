@@ -15,14 +15,14 @@
               to="/dashboard"
               class="hidden sm:block text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
             >
-              오프라인 모임
+              한번 모임
             </router-link>
             
             <!-- Mobile: Dashboard icon -->
             <router-link
               to="/dashboard"
               class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
-              title="오프라인 모임"
+              title="한번 모임"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>
@@ -113,6 +113,72 @@
                   <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     모임의 목적, 진행 방식, 준비물 등을 포함해주세요.
                   </p>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    모임 이미지
+                  </label>
+                  <div class="space-y-4">
+                    <!-- Image Upload Options -->
+                    <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+                      <!-- File Upload -->
+                      <div class="flex-1">
+                        <label for="image-upload" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          파일 업로드
+                        </label>
+                        <input
+                          type="file"
+                          id="image-upload"
+                          ref="imageInput"
+                          @change="handleImageUpload"
+                          accept="image/*"
+                          class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300"
+                        />
+                      </div>
+                      
+                      <!-- URL Input -->
+                      <div class="flex-1">
+                        <label for="image-url" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          또는 이미지 URL
+                        </label>
+                        <input
+                          type="url"
+                          id="image-url"
+                          v-model="form.imageUrl"
+                          placeholder="https://example.com/image.jpg"
+                          class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div v-if="imagePreview" class="mt-4">
+                      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">미리보기</p>
+                      <div class="relative inline-block">
+                        <img 
+                          :src="imagePreview" 
+                          alt="미리보기" 
+                          class="h-32 w-48 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                          @error="handleImageError"
+                        />
+                        <button
+                          type="button"
+                          @click="removeImage"
+                          class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      JPG, PNG, GIF 형식의 이미지를 업로드하거나 이미지 URL을 입력하세요. (최대 5MB)
+                    </p>
+                  </div>
                 </div>
 
                 <div>
@@ -237,7 +303,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
@@ -261,8 +327,74 @@ export default {
       time: '',
       duration: 2,
       location: '',
-      max_participants: 10
+      max_participants: 10,
+      imageUrl: '',
+      imageFile: null
     })
+
+    const imageInput = ref(null)
+    const imagePreview = ref('')
+
+    // Image handling functions
+    const handleImageUpload = (event) => {
+      const file = event.target.files[0]
+      if (file) {
+        // Check file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+          error.value = '이미지 파일 크기가 너무 큽니다. 5MB 이하의 파일을 선택해주세요.'
+          return
+        }
+        
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+          error.value = '이미지 파일만 업로드 가능합니다.'
+          return
+        }
+        
+        form.value.imageFile = file
+        form.value.imageUrl = '' // Clear URL when file is selected
+        
+        // Create preview
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          imagePreview.value = e.target.result
+        }
+        reader.readAsDataURL(file)
+        error.value = ''
+      }
+    }
+
+    // Watch for URL changes to show preview
+    const updateImagePreview = () => {
+      if (form.value.imageUrl && !form.value.imageFile) {
+        imagePreview.value = form.value.imageUrl
+      }
+    }
+
+    // Watch imageUrl changes
+    const unwatchImageUrl = ref(null)
+    const watchImageUrl = () => {
+      if (unwatchImageUrl.value) unwatchImageUrl.value()
+      unwatchImageUrl.value = watch(() => form.value.imageUrl, updateImagePreview)
+    }
+    
+    watchImageUrl()
+
+    const handleImageError = () => {
+      imagePreview.value = ''
+      if (!form.value.imageFile) {
+        error.value = '이미지를 불러올 수 없습니다. URL을 확인해주세요.'
+      }
+    }
+
+    const removeImage = () => {
+      form.value.imageFile = null
+      form.value.imageUrl = ''
+      imagePreview.value = ''
+      if (imageInput.value) {
+        imageInput.value.value = ''
+      }
+    }
 
     const handleSubmit = async () => {
       loading.value = true
@@ -282,6 +414,7 @@ export default {
         const endDate = new Date(startDate.getTime() + (form.value.duration * 60 * 60 * 1000))
         const endDateTime = endDate.toISOString()
         
+        // Prepare meetup data
         const meetupData = {
           name: form.value.name,
           description: form.value.description,
@@ -291,14 +424,38 @@ export default {
           max_participants: form.value.max_participants
         }
 
+        // Add image URL if provided and no file is selected
+        if (form.value.imageUrl && !form.value.imageFile) {
+          meetupData.image_url = form.value.imageUrl
+        }
+
         console.log('Creating meetup with data:', meetupData)
         console.log('User auth status:', authStore.isLoggedIn)
         console.log('User data:', authStore.user)
 
-        const response = await fetchWithCSRF('/api/meetups/', {
-          method: 'POST',
-          body: JSON.stringify(meetupData)
-        })
+        // Use FormData if there's an image file, otherwise JSON
+        let response
+        if (form.value.imageFile) {
+          const formData = new FormData()
+          
+          // Add all meetup data to FormData
+          Object.keys(meetupData).forEach(key => {
+            formData.append(key, meetupData[key])
+          })
+          
+          // Add image file
+          formData.append('image', form.value.imageFile)
+          
+          response = await fetchWithCSRF('/api/meetups/', {
+            method: 'POST',
+            body: formData
+          })
+        } else {
+          response = await fetchWithCSRF('/api/meetups/', {
+            method: 'POST',
+            body: JSON.stringify(meetupData)
+          })
+        }
 
         console.log('Response status:', response.status)
         console.log('Response headers:', response.headers)
@@ -335,7 +492,12 @@ export default {
       loading,
       error,
       handleSubmit,
-      logout
+      logout,
+      imageInput,
+      imagePreview,
+      handleImageUpload,
+      handleImageError,
+      removeImage
     }
   }
 }

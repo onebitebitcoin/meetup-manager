@@ -1,11 +1,10 @@
-
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">오프라인 모임</h1>
+            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">한번 모임</h1>
           </div>
           <div class="flex items-center space-x-1 sm:space-x-4">
             <router-link

@@ -9,6 +9,17 @@
           </svg>
         </button>
       </div>
+      
+      <!-- Meetup Image -->
+      <div v-if="selectedMeetup.image_display_url" class="mb-4">
+        <img 
+          :src="selectedMeetup.image_display_url" 
+          :alt="selectedMeetup.name"
+          class="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+          @error="handleImageError"
+        />
+      </div>
+      
       <div class="space-y-3">
         <div>
           <span class="font-medium text-gray-700 dark:text-gray-300">시간:</span>
@@ -288,6 +299,10 @@ export default {
       }
     }, { immediate: true })
 
+    const handleImageError = (event) => {
+      event.target.style.display = 'none'
+    }
+
     return {
       meetupsStore,
       authStore,
@@ -302,7 +317,8 @@ export default {
       maskUserName,
       refreshMeetupData,
       registerForMeetup,
-      unregisterFromMeetup
+      unregisterFromMeetup,
+      handleImageError
     }
   }
 }

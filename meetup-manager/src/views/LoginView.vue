@@ -1,21 +1,35 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 safe-area-top safe-area-bottom">
+  <div
+    class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 safe-area-top safe-area-bottom"
+  >
     <div class="max-w-md w-full space-y-6 sm:space-y-8">
       <!-- 테마 토글 버튼 -->
       <div class="flex justify-end">
         <ThemeToggle />
       </div>
-      
+
       <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          환영합니다! 모임을 시작해볼까요?
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+        <div class="text-center mb-6 tablet:mb-8">
+          <h1
+            class="text-2xl xs:text-3xl tablet:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+          >
+            한번 모임
+          </h1>
+          <p class="text-sm xs:text-base text-gray-600 dark:text-gray-400">
+            환영합니다! 계속하려면 로그인해주세요
+          </p>
+          <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           또는
-          <router-link to="/register" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+          <router-link
+            to="/register"
+            class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+          >
             새 계정 만들기
           </router-link>
         </p>
+        </div>
+
+        
       </div>
       <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
         <div class="rounded-md shadow-sm space-y-3">
@@ -54,7 +68,10 @@
               type="checkbox"
               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
             />
-            <label for="remember-me" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+            <label
+              for="remember-me"
+              class="ml-2 block text-sm text-gray-900 dark:text-gray-300"
+            >
               로그인 상태 유지
             </label>
           </div>
@@ -67,7 +84,7 @@
           >
             로그인
           </button>
-          
+
           <button
             type="button"
             @click="handleGuestLogin"
@@ -88,94 +105,94 @@
 </template>
 
 <script>
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import ThemeToggle from '@/components/ThemeToggle.vue'
-import { fetchWithCSRF } from '@/utils/csrf'
+import { reactive } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import ThemeToggle from "@/components/ThemeToggle.vue";
+import { fetchWithCSRF } from "@/utils/csrf";
 
 export default {
-  name: 'LoginView',
+  name: "LoginView",
   components: {
-    ThemeToggle
+    ThemeToggle,
   },
   setup() {
-    const router = useRouter()
-    const authStore = useAuthStore()
+    const router = useRouter();
+    const authStore = useAuthStore();
 
     const form = reactive({
-      email: '',
-      password: '',
-      remember: false
-    })
+      email: "",
+      password: "",
+      remember: false,
+    });
 
     const handleLogin = async () => {
       try {
-        console.log('Starting login process...')
-        
-        const response = await fetchWithCSRF('/api/auth/login/', {
-          method: 'POST',
+        console.log("Starting login process...");
+
+        const response = await fetchWithCSRF("/api/auth/login/", {
+          method: "POST",
           body: JSON.stringify({
             username: form.email,
-            password: form.password
-          })
-        })
-        
-        console.log('Login response status:', response.status)
+            password: form.password,
+          }),
+        });
+
+        console.log("Login response status:", response.status);
 
         if (response.ok) {
-          const data = await response.json()
+          const data = await response.json();
           const userData = {
             id: data.user.id,
             name: data.user.name,
             email: data.user.email,
             username: data.user.username,
             is_admin: data.user.is_admin,
-            is_guest: false
-          }
+            is_guest: false,
+          };
 
-          await authStore.login(userData)
-          
+          await authStore.login(userData);
+
           // Small delay to ensure authentication state is fully established
-          await new Promise(resolve => setTimeout(resolve, 100))
-          
+          await new Promise((resolve) => setTimeout(resolve, 100));
+
           if (userData.is_admin) {
-            router.push('/admin')
+            router.push("/admin");
           } else {
-            router.push('/dashboard')
+            router.push("/dashboard");
           }
         } else {
-          const errorData = await response.json()
-          alert(errorData.error || '로그인에 실패했습니다')
+          const errorData = await response.json();
+          alert(errorData.error || "로그인에 실패했습니다");
         }
       } catch (error) {
-        alert('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
+        alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
       }
-    }
+    };
 
     const handleGuestLogin = async () => {
       try {
         const guestUserData = {
-          id: 'guest',
-          name: '게스트 사용자',
-          email: 'guest@example.com',
-          username: 'guest',
+          id: "guest",
+          name: "게스트 사용자",
+          email: "guest@example.com",
+          username: "guest",
           is_admin: false,
-          is_guest: true
-        }
+          is_guest: true,
+        };
 
-        await authStore.login(guestUserData)
-        router.push('/dashboard')
+        await authStore.login(guestUserData);
+        router.push("/dashboard");
       } catch (error) {
-        alert('게스트 로그인에 실패했습니다.')
+        alert("게스트 로그인에 실패했습니다.");
       }
-    }
+    };
 
     return {
       form,
       handleLogin,
-      handleGuestLogin
-    }
-  }
-}
+      handleGuestLogin,
+    };
+  },
+};
 </script>

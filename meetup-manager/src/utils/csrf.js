@@ -64,9 +64,14 @@ export async function fetchWithCSRF(url, options = {}) {
   console.log('Making request to:', url, 'with method:', options.method || 'GET', 'needsCSRF:', needsCSRF)
   
   const headers = {
-    'Content-Type': 'application/json',
     'Accept': 'application/json',
     ...options.headers
+  }
+  
+  // Only set Content-Type to application/json if we're not sending FormData
+  // FormData should not have Content-Type set (browser will set it with boundary)
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json'
   }
   
   // Only add CSRF token for requests that need it
@@ -95,11 +100,12 @@ export async function fetchWithCSRF(url, options = {}) {
       console.log('Got 403, retrying with fresh CSRF token...')
       const freshToken = await getCSRFToken(true)
       if (freshToken) {
-        headers['X-CSRFToken'] = freshToken
+        const retryHeaders = { ...headers }
+        retryHeaders['X-CSRFToken'] = freshToken
         const retryResponse = await fetch(url, {
           credentials: 'include',
           ...options,
-          headers
+          headers: retryHeaders
         })
         console.log('Retry response status:', retryResponse.status)
         return retryResponse

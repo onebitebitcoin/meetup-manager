@@ -15,14 +15,14 @@
               to="/dashboard"
               class="hidden sm:block text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
             >
-              오프라인 모임
+              한번 모임
             </router-link>
             
             <!-- Mobile: Dashboard icon -->
             <router-link
               to="/dashboard"
               class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
-              title="오프라인 모임"
+              title="한번 모임"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>
@@ -286,7 +286,16 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-3">
                       <div class="flex-shrink-0">
+                        <div v-if="meetup.image_display_url" class="w-10 h-10 rounded-lg overflow-hidden">
+                          <img 
+                            :src="meetup.image_display_url" 
+                            :alt="meetup.name"
+                            class="w-10 h-10 object-cover"
+                            @error="handleImageError"
+                          />
+                        </div>
                         <div
+                          v-else
                           class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center"
                         >
                           <svg
@@ -463,13 +472,23 @@
                 class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 space-y-3"
               >
                 <div class="flex justify-between items-start">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {{ meetup.name }}
-                    </h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                      {{ meetup.description }}
-                    </p>
+                  <div class="flex items-start space-x-3 flex-1 min-w-0">
+                    <div v-if="meetup.image_display_url" class="flex-shrink-0">
+                      <img 
+                        :src="meetup.image_display_url" 
+                        :alt="meetup.name"
+                        class="w-12 h-12 object-cover rounded-lg"
+                        @error="handleImageError"
+                      />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {{ meetup.name }}
+                      </h3>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                        {{ meetup.description }}
+                      </p>
+                    </div>
                   </div>
                   <span 
                     class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0"
@@ -931,6 +950,77 @@
               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
             />
           </div>
+
+          <!-- Image Upload Section -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              모임 이미지
+            </label>
+            <div class="space-y-3">
+              <!-- Current Image Display -->
+              <div v-if="editForm.currentImageUrl" class="relative inline-block">
+                <img 
+                  :src="editForm.currentImageUrl" 
+                  alt="현재 이미지" 
+                  class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                  @error="handleImageError"
+                />
+                <span class="absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded">현재</span>
+              </div>
+
+              <!-- New Image Options -->
+              <div class="flex flex-col space-y-2">
+                <!-- File Upload -->
+                <div>
+                  <label for="edit-image-upload" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    새 이미지 파일 업로드
+                  </label>
+                  <input
+                    type="file"
+                    id="edit-image-upload"
+                    ref="editImageInput"
+                    @change="handleEditImageUpload"
+                    accept="image/*"
+                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300"
+                  />
+                </div>
+                
+                <!-- URL Input -->
+                <div>
+                  <label for="edit-image-url" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    또는 새 이미지 URL
+                  </label>
+                  <input
+                    type="url"
+                    id="edit-image-url"
+                    v-model="editForm.imageUrl"
+                    placeholder="https://example.com/image.jpg"
+                    class="block w-full px-2 py-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm"
+                  />
+                </div>
+              </div>
+
+              <!-- New Image Preview -->
+              <div v-if="editImagePreview" class="relative inline-block">
+                <img 
+                  :src="editImagePreview" 
+                  alt="새 이미지 미리보기" 
+                  class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                  @error="handleImageError"
+                />
+                <span class="absolute top-0 left-0 bg-green-500 text-white text-xs px-1 rounded">새 이미지</span>
+                <button
+                  type="button"
+                  @click="removeEditImage"
+                  class="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                >
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
           <div
             class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700"
           >
@@ -1150,6 +1240,8 @@ export default {
     const editForm = ref({});
     const updating = ref(false);
     const currentEditId = ref(null);
+    const editImageInput = ref(null);
+    const editImagePreview = ref('');
     
     // Participants management
     const showParticipantsModal = ref(false);
@@ -1314,6 +1406,9 @@ export default {
         date_time: localDateTime,
         duration: duration,
         max_participants: meetup.max_participants,
+        currentImageUrl: meetup.image_display_url,
+        imageUrl: '',
+        imageFile: null,
       };
       currentEditId.value = meetup.id;
       showEditModal.value = true;
@@ -1323,6 +1418,10 @@ export default {
       showEditModal.value = false;
       editForm.value = {};
       currentEditId.value = null;
+      editImagePreview.value = '';
+      if (editImageInput.value) {
+        editImageInput.value.value = '';
+      }
     };
 
     const updateMeetup = async () => {
@@ -1344,13 +1443,40 @@ export default {
           max_participants: editForm.value.max_participants,
         };
 
-        const response = await fetchWithCSRF(
-          `/api/meetups/${currentEditId.value}/`,
-          {
-            method: "PUT",
-            body: JSON.stringify(updateData),
-          }
-        );
+        // Add image URL if provided and no file is selected
+        if (editForm.value.imageUrl && !editForm.value.imageFile) {
+          updateData.image_url = editForm.value.imageUrl;
+        }
+
+        // Use FormData if there's an image file, otherwise JSON
+        let response;
+        if (editForm.value.imageFile) {
+          const formData = new FormData();
+          
+          // Add all meetup data to FormData
+          Object.keys(updateData).forEach(key => {
+            formData.append(key, updateData[key]);
+          });
+          
+          // Add image file
+          formData.append('image', editForm.value.imageFile);
+          
+          response = await fetchWithCSRF(
+            `/api/meetups/${currentEditId.value}/`,
+            {
+              method: "PUT",
+              body: formData
+            }
+          );
+        } else {
+          response = await fetchWithCSRF(
+            `/api/meetups/${currentEditId.value}/`,
+            {
+              method: "PUT",
+              body: JSON.stringify(updateData),
+            }
+          );
+        }
 
         if (response.ok) {
           await loadMeetups();
@@ -1398,6 +1524,46 @@ export default {
     const logout = () => {
       authStore.logout();
       router.push("/login");
+    };
+
+    const handleImageError = (event) => {
+      event.target.style.display = 'none';
+    };
+
+    const handleEditImageUpload = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        // Check file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('이미지 파일 크기가 너무 큽니다. 5MB 이하의 파일을 선택해주세요.');
+          return;
+        }
+        
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+          alert('이미지 파일만 업로드 가능합니다.');
+          return;
+        }
+        
+        editForm.value.imageFile = file;
+        editForm.value.imageUrl = ''; // Clear URL when file is selected
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          editImagePreview.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const removeEditImage = () => {
+      editForm.value.imageFile = null;
+      editForm.value.imageUrl = '';
+      editImagePreview.value = '';
+      if (editImageInput.value) {
+        editImageInput.value.value = '';
+      }
     };
 
     const openManageParticipants = async (meetup) => {
@@ -1544,6 +1710,11 @@ export default {
       loadParticipants,
       addParticipantManually,
       removeParticipant,
+      handleImageError,
+      editImageInput,
+      editImagePreview,
+      handleEditImageUpload,
+      removeEditImage,
     };
   },
 };
