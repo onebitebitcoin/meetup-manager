@@ -12,8 +12,8 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: '한입 모임',
-        short_name: '한입 모임',
+        name: '한번 모임',
+        short_name: '한번 모임',
         description: '같은 관심사를 가진 사람들과의 오프라인 모임을 관리하세요.',
         theme_color: '#e5b413ff',
         background_color: '#ffffff',

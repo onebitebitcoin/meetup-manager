@@ -289,24 +289,25 @@
                 :key="meetup.id"
                 class="px-4 py-6 sm:px-6 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-150"
               >
-                <div class="flex items-center justify-between">
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center space-x-3">
+                <div class="space-y-4">
+                  <!-- Main content row -->
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-center space-x-3 flex-1 min-w-0">
                       <div class="flex-shrink-0">
-                        <div v-if="meetup.image_display_url" class="w-10 h-10 rounded-lg overflow-hidden">
+                        <div v-if="meetup.image_display_url" class="w-12 h-12 rounded-lg overflow-hidden">
                           <img 
                             :src="meetup.image_display_url" 
                             :alt="meetup.name"
-                            class="w-10 h-10 object-cover"
+                            class="w-12 h-12 object-cover"
                             @error="handleImageError"
                           />
                         </div>
                         <div
                           v-else
-                          class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center"
+                          class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center"
                         >
                           <svg
-                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                            class="w-7 h-7 text-blue-600 dark:text-blue-400"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -321,150 +322,103 @@
                         </div>
                       </div>
                       <div class="flex-1 min-w-0">
-                        <h4
-                          class="text-lg font-medium text-gray-900 dark:text-white truncate"
-                        >
-                          {{ meetup.name }}
-                        </h4>
-                        <p
-                          class="text-sm text-gray-500 dark:text-gray-400 mt-1"
-                        >
-                          {{ meetup.description }}
-                        </p>
-                        <div
-                          class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-4"
-                        >
-                          <div class="flex items-center">
-                            <svg
-                              class="mr-1.5 h-4 w-4 text-gray-400"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                            {{ formatDateTime(meetup.date_time) }}
+                        <div class="flex items-center justify-between">
+                          <div class="flex-1 min-w-0">
+                            <h4 class="text-lg font-medium text-gray-900 dark:text-white truncate">
+                              {{ meetup.name }}
+                            </h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                              {{ meetup.description }}
+                            </p>
                           </div>
-                          <div class="flex items-center">
-                            <svg
-                              class="mr-1.5 h-4 w-4 text-gray-400"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
+                          <div class="flex items-center space-x-2 ml-4">
+                            <span
+                              :class="[
+                                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                                meetup.is_full
+                                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                  : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                              ]"
                             >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                              />
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                            </svg>
-                            {{ meetup.location }}
-                          </div>
-                          <div class="flex items-center">
-                            <svg
-                              class="mr-1.5 h-4 w-4 text-gray-400"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                              />
-                            </svg>
-                            {{ meetup.current_participants }} /
-                            {{ meetup.max_participants }}명
-                            <span class="ml-1 text-xs text-gray-400">
-                              ({{ meetup.available_spots }}석 남음)
+                              {{ meetup.is_full ? "마감" : "모집중" }}
                             </span>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div class="flex items-center space-x-2">
-                    <span
-                      :class="[
-                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                        meetup.is_full
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-                      ]"
-                    >
-                      {{ meetup.is_full ? "마감" : "모집중" }}
-                    </span>
-                    <div class="flex items-center space-x-1">
-                      <button
-                        @click="editMeetup(meetup)"
-                        class="p-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900 rounded-md"
-                        title="수정"
-                      >
-                        <svg
-                          class="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          />
+
+                  <!-- Details and hashtags row -->
+                  <div class="pl-15 space-y-3">
+                    <!-- Meeting details -->
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                      <div class="flex items-center">
+                        <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                      </button>
-                      <button
-                        @click="deleteMeetup(meetup.id)"
-                        class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md"
-                        title="삭제"
-                      >
-                        <svg
-                          class="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
+                        {{ formatDateTime(meetup.date_time) }}
+                      </div>
+                      <div class="flex items-center">
+                        <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                      </button>
-                      <button
-                        @click="openManageParticipants(meetup)"
-                        class="p-2 text-green-600 hover:text-green-900 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 rounded-md"
-                        title="참가자 관리"
-                      >
-                        <svg
-                          class="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
+                        {{ meetup.location }}
+                      </div>
+                      <div class="flex items-center">
+                        <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                      </button>
+                        {{ meetup.current_participants }}/{{ meetup.max_participants }}명
+                        <span class="ml-1 text-xs text-gray-400">({{ meetup.available_spots }}석 남음)</span>
+                      </div>
+                    </div>
+
+                    <!-- Hashtags and Actions row -->
+                    <div class="flex items-center justify-between">
+                      <!-- Hashtags -->
+                      <div class="flex-1">
+                        <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="flex flex-wrap gap-1">
+                          <span v-for="hashtag in meetup.hashtags_list" :key="hashtag" 
+                                class="inline-flex px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
+                            {{ hashtag }}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <!-- Action buttons -->
+                      <div class="flex items-center space-x-1 ml-4">
+                        <button
+                          @click="editMeetup(meetup)"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-800 rounded-md transition-colors"
+                          title="수정"
+                        >
+                          <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          수정
+                        </button>
+                        <button
+                          @click="openManageParticipants(meetup)"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 rounded-md transition-colors"
+                          title="참가자 관리"
+                        >
+                          <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                          </svg>
+                          참가자
+                        </button>
+                        <button
+                          @click="deleteMeetup(meetup.id)"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 rounded-md transition-colors"
+                          title="삭제"
+                        >
+                          <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          삭제
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -525,22 +479,30 @@
                   </div>
                 </div>
                 
-                <div class="grid grid-cols-3 gap-2 pt-2">
+                <!-- Hashtags display for mobile -->
+                <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="flex flex-wrap gap-1 mb-2">
+                  <span v-for="hashtag in meetup.hashtags_list" :key="hashtag" 
+                        class="inline-flex px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
+                    {{ hashtag }}
+                  </span>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-blue-200 dark:border-blue-700">
                   <button
                     @click="editMeetup(meetup)"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                   >
                     수정
                   </button>
                   <button
                     @click="openManageParticipants(meetup)"
-                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                   >
                     참가자
                   </button>
                   <button
                     @click="deleteMeetup(meetup.id)"
-                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
+                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                   >
                     삭제
                   </button>
@@ -658,11 +620,20 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
+                      <div v-if="meetup.image_display_url" class="w-12 h-12 rounded-lg overflow-hidden">
+                        <img 
+                          :src="meetup.image_display_url" 
+                          :alt="meetup.name"
+                          class="w-12 h-12 object-cover"
+                          @error="handleImageError"
+                        />
+                      </div>
                       <div
-                        class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center"
+                        v-else
+                        class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center"
                       >
                         <svg
-                          class="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+                          class="w-7 h-7 text-emerald-600 dark:text-emerald-400"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -671,7 +642,7 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                           />
                         </svg>
                       </div>
@@ -769,22 +740,13 @@
                     @click="
                       unregisterFromMeetup(meetup.id, meetup.registration_id)
                     "
-                    class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md"
+                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 rounded-md transition-colors"
                     title="참가 취소"
                   >
-                    <svg
-                      class="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
+                    <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
+                    취소
                   </button>
                 </div>
               </div>
@@ -799,13 +761,23 @@
               class="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-800/40 dark:to-emerald-800/40 rounded-lg p-4 space-y-3 border border-green-200 dark:border-green-700"
             >
               <div class="flex justify-between items-start">
-                <div class="flex-1 min-w-0">
-                  <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {{ meetup.name }}
-                  </h3>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                    {{ meetup.description }}
-                  </p>
+                <div class="flex items-start space-x-3 flex-1 min-w-0">
+                  <div v-if="meetup.image_display_url" class="flex-shrink-0">
+                    <img 
+                      :src="meetup.image_display_url" 
+                      :alt="meetup.name"
+                      class="w-12 h-12 object-cover rounded-lg"
+                      @error="handleImageError"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {{ meetup.name }}
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                      {{ meetup.description }}
+                    </p>
+                  </div>
                 </div>
                 <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 flex-shrink-0">
                   참가중
@@ -853,7 +825,6 @@
               </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
@@ -965,6 +936,22 @@
               required
               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
             />
+          </div>
+
+          <!-- Hashtags Section -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              해시태그
+            </label>
+            <input
+              v-model="editForm.hashtags"
+              type="text"
+              placeholder="#개발,#네트워킹,#스타트업 (쉼표로 구분)"
+              class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-sm"
+            />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              해시태그를 쉼표로 구분하여 입력하세요. 예: #개발,#네트워킹,#스타트업
+            </p>
           </div>
 
           <!-- Image Upload Section -->
@@ -1229,6 +1216,7 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -1428,6 +1416,7 @@ export default {
         date_time: localDateTime,
         duration: duration,
         max_participants: meetup.max_participants,
+        hashtags: meetup.hashtags || '',
         currentImageUrl: meetup.image_display_url,
         imageUrl: '',
         imageFile: null,
@@ -1463,6 +1452,7 @@ export default {
           date_time: startTime.toISOString(),
           end_time: endTime.toISOString(),
           max_participants: editForm.value.max_participants,
+          hashtags: editForm.value.hashtags,
         };
 
         // Add image URL if provided and no file is selected

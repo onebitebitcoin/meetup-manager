@@ -10,6 +10,9 @@
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              이미지
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               모임명
             </th>
             <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -34,6 +37,24 @@
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           <tr v-for="meetup in sortedMeetups" :key="meetup.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <!-- 이미지 컬럼 -->
+            <td class="px-4 py-4">
+              <div class="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
+                <img 
+                  v-if="meetup.image_display_url" 
+                  :src="meetup.image_display_url" 
+                  :alt="meetup.name"
+                  class="w-full h-full object-cover"
+                  @error="handleImageError"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              </div>
+            </td>
+            <!-- 모임명 컬럼 -->
             <td class="px-4 py-4">
               <div class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ meetup.name }}
@@ -124,28 +145,47 @@
         :key="meetup.id"
         class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3 hover:bg-gray-50 dark:hover:bg-gray-700"
       >
-        <div class="flex justify-between items-start">
-          <div class="flex-1 min-w-0">
-            <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
-              {{ meetup.name }}
-            </h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-              {{ meetup.description }}
-            </p>
-            <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="flex flex-wrap gap-1 mt-2">
-              <span v-for="hashtag in meetup.hashtags_list.slice(0, 3)" :key="hashtag" 
-                    class="inline-flex px-1.5 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
-                {{ hashtag }}
-              </span>
-              <span v-if="meetup.hashtags_list.length > 3" class="text-xs text-gray-400">+{{ meetup.hashtags_list.length - 3 }}</span>
+        <div class="flex gap-3">
+          <!-- 이미지 섹션 -->
+          <div class="relative w-20 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
+            <img 
+              v-if="meetup.image_display_url" 
+              :src="meetup.image_display_url" 
+              :alt="meetup.name"
+              class="w-full h-full object-cover"
+              @error="handleImageError"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
             </div>
           </div>
-          <span 
-            class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0"
-            :class="getStatusClass(meetup.date_time)"
-          >
-            {{ getStatus(meetup.date_time) }}
-          </span>
+          
+          <!-- 컨텐츠 섹션 -->
+          <div class="flex-1 min-w-0 flex justify-between items-start">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {{ meetup.name }}
+              </h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                {{ meetup.description }}
+              </p>
+              <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="flex flex-wrap gap-1 mt-2">
+                <span v-for="hashtag in meetup.hashtags_list.slice(0, 2)" :key="hashtag" 
+                      class="inline-flex px-1.5 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
+                  {{ hashtag }}
+                </span>
+                <span v-if="meetup.hashtags_list.length > 2" class="text-xs text-gray-400">+{{ meetup.hashtags_list.length - 2 }}</span>
+              </div>
+            </div>
+            <span 
+              class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0"
+              :class="getStatusClass(meetup.date_time)"
+            >
+              {{ getStatus(meetup.date_time) }}
+            </span>
+          </div>
         </div>
         
         <div class="grid grid-cols-2 gap-3 text-xs">
@@ -312,6 +352,11 @@ export default {
       return new Date(dateString).toLocaleString('ko-KR')
     }
 
+    const handleImageError = (event) => {
+      // Hide broken image and show placeholder
+      event.target.style.display = 'none'
+    }
+
     const showMeetupDetail = (meetup) => {
       selectedMeetup.value = meetup
     }
@@ -439,6 +484,7 @@ export default {
       formatDate,
       formatTime,
       formatDateTime,
+      handleImageError,
       getStatus,
       getStatusClass,
       showMeetupDetail,

@@ -7,7 +7,7 @@
         </svg>
       </div>
       <div>
-        <p class="font-medium text-sm sm:text-base">한입 모임 설치</p>
+        <p class="font-medium text-sm sm:text-base">한번 모임 설치</p>
         <p class="text-xs sm:text-sm opacity-90">홈 화면에서 바로 실행하세요!</p>
       </div>
     </div>
