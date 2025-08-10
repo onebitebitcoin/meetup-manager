@@ -40,14 +40,33 @@ class MeetupSerializer(serializers.ModelSerializer):
     is_full = serializers.ReadOnlyField()
     available_spots = serializers.ReadOnlyField()
     creator_name = serializers.CharField(source='creator.name', read_only=True)
-    image_display_url = serializers.ReadOnlyField()
+    creator_email = serializers.CharField(source='creator.email', read_only=True)
+    image_display_url = serializers.SerializerMethodField()
+    hashtags_list = serializers.ReadOnlyField()
     
     class Meta:
         model = Meetup
         fields = ['id', 'name', 'description', 'date_time', 'end_time', 'location', 
                  'max_participants', 'current_participants', 'created_at',
-                 'is_full', 'available_spots', 'creator', 'creator_name', 
-                 'image', 'image_url', 'image_display_url']
+                 'is_full', 'available_spots', 'creator', 'creator_name', 'creator_email',
+                 'image', 'image_url', 'image_display_url', 'hashtags', 'hashtags_list']
+    
+    def get_image_display_url(self, obj):
+        """Return the full image URL - either from uploaded file or external URL"""
+        if obj.image:
+            # Build absolute URL for uploaded images
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            # Fallback: use SITE_URL from settings or just relative URL
+            from django.conf import settings
+            site_url = getattr(settings, 'SITE_URL', '')
+            if site_url:
+                return f"{site_url.rstrip('/')}{obj.image.url}"
+            return obj.image.url  # Return relative URL as fallback
+        elif obj.image_url:
+            return obj.image_url
+        return ''
 
 class RegistrationSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.name', read_only=True)

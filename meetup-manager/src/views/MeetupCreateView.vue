@@ -268,6 +268,22 @@
                     모임에 참여할 수 있는 최대 인원을 설정해주세요.
                   </p>
                 </div>
+
+                <div>
+                  <label for="hashtags" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
+                    해시태그
+                  </label>
+                  <input
+                    type="text"
+                    id="hashtags"
+                    v-model="form.hashtags"
+                    placeholder="예: #개발,#네트워킹,#스타트업 (쉼표로 구분)"
+                    class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 sm:text-base"
+                  />
+                  <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                    모임과 관련된 해시태그를 쉼표로 구분하여 입력하세요. # 기호는 자동으로 추가됩니다.
+                  </p>
+                </div>
               </div>
 
               <div v-if="error" class="rounded-md bg-red-50 dark:bg-red-900 p-4">
@@ -338,7 +354,8 @@ export default {
       location: '',
       max_participants: 10,
       imageUrl: '',
-      imageFile: null
+      imageFile: null,
+      hashtags: ''
     })
 
     const imageInput = ref(null)
@@ -423,6 +440,16 @@ export default {
         const endDate = new Date(startDate.getTime() + (form.value.duration * 60 * 60 * 1000))
         const endDateTime = endDate.toISOString()
         
+        // Process hashtags - ensure they start with # and are comma-separated
+        let processedHashtags = ''
+        if (form.value.hashtags.trim()) {
+          const hashtags = form.value.hashtags.split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0)
+            .map(tag => tag.startsWith('#') ? tag : '#' + tag)
+          processedHashtags = hashtags.join(',')
+        }
+
         // Prepare meetup data
         const meetupData = {
           name: form.value.name,
@@ -430,7 +457,8 @@ export default {
           date_time: new Date(dateTime).toISOString(),
           end_time: endDateTime,
           location: form.value.location,
-          max_participants: form.value.max_participants
+          max_participants: form.value.max_participants,
+          hashtags: processedHashtags
         }
 
         // Add image URL if provided and no file is selected

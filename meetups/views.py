@@ -77,7 +77,7 @@ def login_user(request):
                     'username': user.username,
                     'name': meetup_user.name,
                     'email': meetup_user.email,
-                    'is_admin': meetup_user.is_admin
+                    'is_admin': meetup_user.is_admin or user.is_staff
                 }
             }, status=status.HTTP_200_OK)
         except MeetupUser.DoesNotExist:
@@ -99,6 +99,11 @@ class MeetupListCreateView(generics.ListCreateAPIView):
     queryset = Meetup.objects.all().order_by('date_time')
     serializer_class = MeetupSerializer
     
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+    
     def perform_create(self, serializer):
         if self.request.user.is_authenticated:
             try:
@@ -117,7 +122,7 @@ def meetup_detail(request, pk):
         return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = MeetupSerializer(meetup)
+        serializer = MeetupSerializer(meetup, context={'request': request})
         return Response(serializer.data)
     
     elif request.method == 'PUT':
@@ -131,7 +136,7 @@ def meetup_detail(request, pk):
         except MeetupUser.DoesNotExist:
             return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = MeetupSerializer(meetup, data=request.data, partial=True)
+        serializer = MeetupSerializer(meetup, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -159,7 +164,7 @@ def user_meetups(request):
     try:
         meetup_user = request.user.meetup_profile
         meetups = meetup_user.created_meetups.all().order_by('date_time')
-        serializer = MeetupSerializer(meetups, many=True)
+        serializer = MeetupSerializer(meetups, many=True, context={'request': request})
         return Response(serializer.data)
     except MeetupUser.DoesNotExist:
         return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
@@ -296,9 +301,10 @@ def is_admin_user(request):
     if not request.user.is_authenticated:
         return False
     try:
-        return request.user.meetup_profile.is_admin
+        # Check Django user is_staff OR meetup_profile is_admin
+        return request.user.is_staff or request.user.meetup_profile.is_admin
     except MeetupUser.DoesNotExist:
-        return False
+        return request.user.is_staff
 
 @api_view(['GET'])
 def admin_users_list(request):

@@ -161,7 +161,13 @@ export default {
   components: {
     MeetupDetailModal
   },
-  setup() {
+  props: {
+    meetups: {
+      type: Array,
+      default: () => []
+    }
+  },
+  setup(props) {
     const meetupsStore = useMeetupsStore()
     const authStore = useAuthStore()
     const currentMonth = ref(new Date())
@@ -187,7 +193,7 @@ export default {
         const isCurrentMonth = dateObj.getMonth() === month
         const isToday = dateObj.toDateString() === new Date().toDateString()
         
-        const dayMeetups = meetupsStore.meetups.filter(meetup => {
+        const dayMeetups = props.meetups.filter(meetup => {
           const meetupDate = new Date(meetup.date_time)
           return meetupDate.toDateString() === dateObj.toDateString()
         })
@@ -272,7 +278,7 @@ export default {
     const onMeetupUpdated = async () => {
       // Update selected meetup with latest data
       if (selectedMeetup.value) {
-        const updatedMeetup = meetupsStore.meetups.find(m => m.id === selectedMeetup.value.id)
+        const updatedMeetup = props.meetups.find(m => m.id === selectedMeetup.value.id)
         if (updatedMeetup) {
           selectedMeetup.value = updatedMeetup
         }

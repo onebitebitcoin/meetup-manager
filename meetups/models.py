@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+import os
 
 class MeetupUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='meetup_profile', null=True, blank=True)
@@ -12,6 +14,24 @@ class MeetupUser(models.Model):
 
     def __str__(self):
         return self.name
+
+def validate_image_file_size(file):
+    """Validate that the uploaded file is not too large"""
+    limit = 5 * 1024 * 1024  # 5MB
+    if file.size > limit:
+        raise ValidationError(f'파일 크기가 너무 큽니다. 최대 {limit // (1024*1024)}MB까지 업로드 가능합니다.')
+
+def meetup_image_path(instance, filename):
+    """Generate upload path for meetup images"""
+    # Get file extension
+    ext = filename.split('.')[-1].lower()
+    # Generate filename based on meetup name and timestamp
+    import time
+    timestamp = str(int(time.time()))
+    safe_name = "".join(c for c in instance.name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+    safe_name = safe_name.replace(' ', '_')[:50]  # Limit length
+    new_filename = f"{safe_name}_{timestamp}.{ext}"
+    return os.path.join('meetups', new_filename)
 
 class Meetup(models.Model):
     name = models.CharField(max_length=200)
@@ -25,8 +45,20 @@ class Meetup(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     # Image fields
-    image = models.ImageField(upload_to='meetups/', blank=True, null=True, help_text="Upload an image for the meetup")
+    image = models.ImageField(
+        upload_to=meetup_image_path, 
+        blank=True, 
+        null=True, 
+        help_text="Upload an image for the meetup",
+        validators=[
+            validate_image_file_size,
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'webp'])
+        ]
+    )
     image_url = models.URLField(blank=True, null=True, help_text="Or provide an image URL")
+    
+    # Hashtags field - stored as comma-separated string
+    hashtags = models.TextField(blank=True, null=True, help_text="Comma-separated hashtags (e.g., #개발,#네트워킹,#스타트업)")
 
     def __str__(self):
         return self.name
@@ -47,6 +79,35 @@ class Meetup(models.Model):
         elif self.image_url:
             return self.image_url
         return ''
+    
+    @property
+    def hashtags_list(self):
+        """Return hashtags as a list"""
+        if self.hashtags:
+            return [tag.strip() for tag in self.hashtags.split(',') if tag.strip()]
+        return []
+    
+    def add_hashtag(self, hashtag):
+        """Add a hashtag to the meetup"""
+        hashtag = hashtag.strip()
+        if not hashtag.startswith('#'):
+            hashtag = '#' + hashtag
+        
+        current_hashtags = self.hashtags_list
+        if hashtag not in current_hashtags:
+            current_hashtags.append(hashtag)
+            self.hashtags = ','.join(current_hashtags)
+    
+    def remove_hashtag(self, hashtag):
+        """Remove a hashtag from the meetup"""
+        hashtag = hashtag.strip()
+        if not hashtag.startswith('#'):
+            hashtag = '#' + hashtag
+        
+        current_hashtags = self.hashtags_list
+        if hashtag in current_hashtags:
+            current_hashtags.remove(hashtag)
+            self.hashtags = ','.join(current_hashtags) if current_hashtags else None
 
 class Registration(models.Model):
     user = models.ForeignKey(MeetupUser, on_delete=models.CASCADE)

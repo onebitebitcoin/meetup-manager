@@ -1,159 +1,191 @@
 <template>
   <div v-if="selectedMeetup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click="$emit('close')">
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto" @click.stop>
-      <div class="flex justify-between items-start mb-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedMeetup.name }}</h3>
-        <button @click="$emit('close')" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden" @click.stop>
+      <!-- Header with Image Background -->
+      <div class="relative">
+        <div v-if="selectedMeetup.image_display_url" class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 overflow-hidden">
+          <img 
+            :src="selectedMeetup.image_display_url" 
+            :alt="selectedMeetup.name"
+            class="w-full h-full object-cover"
+            @error="handleImageError"
+          />
+          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        </div>
+        <div v-else class="h-32 bg-gradient-to-br from-indigo-500 to-purple-600"></div>
+        
+        <!-- Close Button -->
+        <button @click="$emit('close')" class="absolute top-4 right-4 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm rounded-full p-2 text-white transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
-      </div>
-      
-      <!-- Meetup Image -->
-      <div v-if="selectedMeetup.image_display_url" class="mb-4">
-        <img 
-          :src="selectedMeetup.image_display_url" 
-          :alt="selectedMeetup.name"
-          class="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-          @error="handleImageError"
-        />
-      </div>
-      
-      <div class="space-y-3">
-        <div>
-          <span class="font-medium text-gray-700 dark:text-gray-300">시간:</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400">
-            {{ formatDateTime(selectedMeetup.date_time) }}
-            <span v-if="selectedMeetup.end_time"> - {{ formatTime(selectedMeetup.end_time) }}</span>
-          </span>
-        </div>
-        <div>
-          <span class="font-medium text-gray-700 dark:text-gray-300">장소:</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400">{{ selectedMeetup.location }}</span>
-        </div>
-        <div>
-          <div class="flex items-center justify-between">
-            <span class="font-medium text-gray-700 dark:text-gray-300">참여 현황:</span>
-            <button
-              @click="refreshMeetupData"
-              :disabled="refreshing"
-              class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
-              title="참여 현황 새로고침"
-            >
-              <svg 
-                :class="['w-4 h-4', { 'animate-spin': refreshing }]" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div>
-          <span class="font-medium text-gray-700 dark:text-gray-300">생성자:</span>
-          <span class="ml-2 text-gray-600 dark:text-gray-400">{{ selectedMeetup.creator_name }}</span>
-        </div>
-        <div>
-          <span class="font-medium text-gray-700 dark:text-gray-300">상세 정보:</span>
-          <p class="mt-1 text-gray-600 dark:text-gray-400">{{ selectedMeetup.description }}</p>
-        </div>
         
-        <!-- 빈 자리 표시 -->
-        <div v-if="!currentMeetupData.is_full" class="border-t pt-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="font-medium text-gray-700 dark:text-gray-300">남은 자리</span>
-            <span class="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-full">
-              {{ currentMeetupData.available_spots }}석 남음
-            </span>
-          </div>
-          <div class="grid grid-cols-5 gap-1">
-            <div 
-              v-for="n in currentMeetupData.available_spots" 
-              :key="'empty-' + n"
-              class="w-8 h-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded flex items-center justify-center"
-            >
-              <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-              </svg>
+        <!-- Title Overlay -->
+        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+          <h3 class="text-2xl font-bold mb-2 drop-shadow-lg">{{ selectedMeetup.name }}</h3>
+        </div>
+      </div>
+      
+      <!-- Content -->
+      <div class="p-6 overflow-y-auto max-h-[calc(90vh-12rem)]">
+        <div class="space-y-6">
+          <!-- Time and Location Row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+              <div class="bg-indigo-100 dark:bg-indigo-900 rounded-full p-2 flex-shrink-0">
+                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">시간</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatDateTime(selectedMeetup.date_time) }}
+                  <span v-if="selectedMeetup.end_time" class="block"> - {{ formatTime(selectedMeetup.end_time) }}</span>
+                </p>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+              <div class="bg-green-100 dark:bg-green-900 rounded-full p-2 flex-shrink-0">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">장소</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ selectedMeetup.location }}</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <!-- 등록된 참가자 목록 -->
-        <div v-if="registrations.length > 0" class="border-t pt-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="font-medium text-gray-700 dark:text-gray-300">등록된 참가자</span>
-            <span class="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-2 py-1 rounded-full">
-              {{ registrations.length }}명
-            </span>
-          </div>
-          <div class="max-h-32 overflow-y-auto">
-            <div class="space-y-2">
-              <div 
-                v-for="(registration, index) in registrations" 
-                :key="registration.id"
-                class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-2 rounded-lg"
-              >
+          
+          <!-- Participants and Creator Row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+              <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-2 flex-shrink-0">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">참가 인원</p>
                 <div class="flex items-center space-x-2">
-                  <div class="w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-semibold">
-                    {{ index + 1 }}
-                  </div>
-                  <div>
-                    <span class="text-sm text-gray-700 dark:text-gray-300 font-medium">{{ maskUserName(registration.user_name) }}</span>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ registration.user_email }}</div>
-                  </div>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                    {{ currentMeetupData.current_participants || selectedMeetup.current_participants }}/{{ currentMeetupData.max_participants || selectedMeetup.max_participants }}명
+                  </span>
+                  <span v-if="currentMeetupData.is_full" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                    마감
+                  </span>
                 </div>
-                <span class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ formatRegistrationDate(registration.registered_at) }}
-                </span>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+              <div class="bg-purple-100 dark:bg-purple-900 rounded-full p-2 flex-shrink-0">
+                <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">생성자</p>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ selectedMeetup.creator_name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ selectedMeetup.creator_email }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Description -->
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div class="flex items-start space-x-3">
+              <div class="bg-orange-100 dark:bg-orange-900 rounded-full p-2 flex-shrink-0">
+                <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-2">상세 정보</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">{{ selectedMeetup.description }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Hashtags -->
+          <div v-if="selectedMeetup.hashtags_list && selectedMeetup.hashtags_list.length > 0" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div class="flex items-start space-x-3">
+              <div class="bg-pink-100 dark:bg-pink-900 rounded-full p-2 flex-shrink-0">
+                <svg class="w-5 h-5 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-3">태그</p>
+                <div class="flex flex-wrap gap-2">
+                  <span 
+                    v-for="hashtag in selectedMeetup.hashtags_list" 
+                    :key="hashtag"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700"
+                  >
+                    #{{ hashtag }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- 등록/취소 버튼 -->
-      <div class="mt-6 flex justify-end space-x-3">
-        <button
-          v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered"
-          @click="registerForMeetup"
-          :disabled="currentMeetupData.is_full || registering"
-          :class="[
-            'px-4 py-2 rounded-md text-sm font-medium',
-            currentMeetupData.is_full || registering
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-          ]"
-        >
-          <svg v-if="registering" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '마감' : '참가 신청') }}
-        </button>
         
-        <button
-          v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
-          @click="unregisterFromMeetup"
-          :disabled="registering"
-          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50"
-        >
-          <svg v-if="registering" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          {{ registering ? '취소 중...' : '참가 취소' }}
-        </button>
-        
-        <button
-          @click="$emit('close')"
-          class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium"
-        >
-          닫기
-        </button>
+        <!-- Action Buttons -->
+        <div class="border-t border-gray-200 dark:border-gray-600 pt-6 mt-6">
+          <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <button
+              v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered"
+              @click="registerForMeetup"
+              :disabled="currentMeetupData.is_full || registering"
+              :class="[
+                'flex items-center justify-center px-6 py-3 rounded-lg text-sm font-medium shadow-sm transition-all duration-200',
+                currentMeetupData.is_full || registering
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transform hover:scale-105'
+              ]"
+            >
+              <svg v-if="registering" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '마감' : '참가 신청') }}
+            </button>
+            
+            <button
+              v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
+              @click="unregisterFromMeetup"
+              :disabled="registering"
+              class="flex items-center justify-center bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg text-sm font-medium shadow-sm transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+            >
+              <svg v-if="registering" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              {{ registering ? '취소 중...' : '참가 취소' }}
+            </button>
+            
+            <button
+              @click="$emit('close')"
+              class="flex items-center justify-center bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg text-sm font-medium shadow-sm transition-all duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              닫기
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -177,9 +209,7 @@ export default {
   setup(props, { emit }) {
     const meetupsStore = useMeetupsStore()
     const authStore = useAuthStore()
-    const registrations = ref([])
     const registering = ref(false)
-    const refreshing = ref(false)
     
     // Get current meetup data from store (for real-time updates)
     const currentMeetupData = computed(() => {
@@ -188,11 +218,8 @@ export default {
       return storeMeetup || props.selectedMeetup
     })
     
-    const isRegistered = computed(() => {
-      return registrations.value.some(reg => 
-        reg.user_email === authStore.user?.email
-      )
-    })
+    // Check if current user is registered (will be updated by parent component)
+    const isRegistered = ref(false)
 
     const formatDateTime = (dateString) => {
       return new Date(dateString).toLocaleString('ko-KR')
@@ -205,42 +232,22 @@ export default {
       })
     }
 
-    const formatRegistrationDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString('ko-KR', {
-        month: 'short',
-        day: 'numeric'
-      })
-    }
-
-    const maskUserName = (name) => {
-      if (!name || name.length <= 2) return name
-      return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1]
-    }
-
-    const fetchRegistrations = async () => {
-      if (!props.selectedMeetup) return
+    // Check registration status for current meetup
+    const checkRegistrationStatus = async () => {
+      if (!props.selectedMeetup || !authStore.isLoggedIn || authStore.isGuest) {
+        isRegistered.value = false
+        return
+      }
       
       try {
-        const response = await fetchWithCSRF(`/api/meetups/${props.selectedMeetup.id}/registrations/`)
+        const response = await fetchWithCSRF(`/api/meetups/${props.selectedMeetup.id}/status/`)
         if (response.ok) {
           const data = await response.json()
-          registrations.value = data.registrations || []
+          isRegistered.value = data.is_registered
         }
       } catch (error) {
-        console.error('Failed to fetch registrations:', error)
-      }
-    }
-
-    const refreshMeetupData = async () => {
-      refreshing.value = true
-      try {
-        await meetupsStore.fetchMeetups()
-        await fetchRegistrations()
-        emit('meetupUpdated')
-      } catch (error) {
-        console.error('Failed to refresh meetup data:', error)
-      } finally {
-        refreshing.value = false
+        console.error('Failed to check registration status:', error)
+        isRegistered.value = false
       }
     }
 
@@ -254,7 +261,9 @@ export default {
         })
         
         if (response.ok) {
-          await refreshMeetupData()
+          isRegistered.value = true
+          await meetupsStore.fetchMeetups()
+          emit('meetupUpdated')
           alert('모임 신청이 완료되었습니다!')
         } else {
           const data = await response.json()
@@ -277,7 +286,9 @@ export default {
         })
         
         if (response.ok) {
-          await refreshMeetupData()
+          isRegistered.value = false
+          await meetupsStore.fetchMeetups()
+          emit('meetupUpdated')
           alert('모임 신청이 취소되었습니다.')
         } else {
           const data = await response.json()
@@ -290,12 +301,12 @@ export default {
       }
     }
 
-    // Watch for selectedMeetup changes to fetch registrations
+    // Watch for selectedMeetup changes to check registration status
     watch(() => props.selectedMeetup, (newMeetup) => {
       if (newMeetup) {
-        fetchRegistrations()
+        checkRegistrationStatus()
       } else {
-        registrations.value = []
+        isRegistered.value = false
       }
     }, { immediate: true })
 
@@ -306,16 +317,11 @@ export default {
     return {
       meetupsStore,
       authStore,
-      registrations,
       registering,
-      refreshing,
       currentMeetupData,
       isRegistered,
       formatDateTime,
       formatTime,
-      formatRegistrationDate,
-      maskUserName,
-      refreshMeetupData,
       registerForMeetup,
       unregisterFromMeetup,
       handleImageError

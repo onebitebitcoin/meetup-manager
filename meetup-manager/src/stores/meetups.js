@@ -28,8 +28,14 @@ export const useMeetupsStore = defineStore('meetups', () => {
           max_participants: meetup.max_participants,
           current_participants: meetup.current_participants,
           creator_name: meetup.creator_name,
+          creator_email: meetup.creator_email,
           is_full: meetup.is_full,
-          available_spots: meetup.available_spots
+          available_spots: meetup.available_spots,
+          image: meetup.image,
+          image_url: meetup.image_url,
+          image_display_url: meetup.image_display_url,
+          hashtags: meetup.hashtags,
+          hashtags_list: meetup.hashtags_list
         }))
       } else {
         error.value = '모임 데이터를 불러오는데 실패했습니다'

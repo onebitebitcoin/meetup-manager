@@ -21,6 +21,17 @@
             >
               내 모임
             </router-link>
+            <!-- Mobile: Admin navigation -->
+            <router-link
+              v-if="authStore.isAdmin"
+              to="/admin"
+              class="sm:hidden p-1 text-purple-500 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 rounded-md"
+              title="관리자 패널"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </router-link>
             <!-- Mobile: Only show essential navigation -->
             <router-link
               v-if="!authStore.isGuest"
@@ -113,6 +124,194 @@
           </div>
 
 
+        <!-- 필터 섹션 -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 mb-6">
+          <div class="p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-0">모임 필터</h3>
+              <div class="flex space-x-2">
+                <button
+                  @click="applyFilters"
+                  class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  필터 적용
+                </button>
+                <button
+                  @click="clearFilters"
+                  class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline"
+                >
+                  필터 초기화
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <!-- 년도 필터 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">년도</label>
+                <select
+                  v-model="filters.year"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
+                >
+                  <option value="">모든 년도</option>
+                  <option v-for="year in availableYears" :key="year" :value="year.toString()">
+                    {{ year }}년
+                  </option>
+                </select>
+              </div>
+
+              <!-- 월 필터 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">월</label>
+                <select
+                  v-model="filters.month"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
+                >
+                  <option value="">모든 월</option>
+                  <option v-for="month in months" :key="month.value" :value="month.value">
+                    {{ month.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- 상태 필터 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">상태</label>
+                <select
+                  v-model="filters.status"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
+                >
+                  <option value="">모든 상태</option>
+                  <option value="upcoming">예정된 모임</option>
+                  <option value="ongoing">진행 중</option>
+                  <option value="completed">완료된 모임</option>
+                  <option value="available">참가 가능</option>
+                  <option value="full">정원 마감</option>
+                </select>
+              </div>
+
+              <!-- 해시태그 필터 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">해시태그</label>
+                <select
+                  v-model="filters.hashtag"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
+                >
+                  <option value="">모든 해시태그</option>
+                  <option v-for="hashtag in availableHashtags" :key="hashtag" :value="hashtag">
+                    {{ hashtag }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- 검색 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">검색</label>
+                <input
+                  v-model="filters.search"
+                  type="text"
+                  placeholder="모임명 또는 장소 검색"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
+                />
+              </div>
+            </div>
+            
+            <!-- 필터 결과 표시 -->
+            <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <span class="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      {{ filteredMeetups.length }}개 모임 발견
+                    </span>
+                    <span class="text-xs text-blue-600 dark:text-blue-400 ml-1">
+                      (전체 {{ sortedMeetups.length }}개 중)
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- 적용된 필터 태그들 -->
+                <div v-if="hasActiveFilters" class="flex flex-wrap gap-1.5">
+                  <!-- 년도 필터 -->
+                  <div v-if="appliedFilters.year" class="inline-flex items-center bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-800 rounded-md px-2 py-1 shadow-sm hover:shadow transition-all duration-200">
+                    <svg class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-xs font-medium text-amber-700 dark:text-amber-300">{{ appliedFilters.year }}년</span>
+                    <button @click="appliedFilters.year = ''; filters.year = ''" class="ml-1.5 p-0.5 rounded-full hover:bg-amber-200 dark:hover:bg-amber-800 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 transition-colors">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- 월 필터 -->
+                  <div v-if="appliedFilters.month" class="inline-flex items-center bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200 dark:border-emerald-800 rounded-md px-2 py-1 shadow-sm hover:shadow transition-all duration-200">
+                    <svg class="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-xs font-medium text-emerald-700 dark:text-emerald-300">{{ getMonthLabel(appliedFilters.month) }}</span>
+                    <button @click="appliedFilters.month = ''; filters.month = ''" class="ml-1.5 p-0.5 rounded-full hover:bg-emerald-200 dark:hover:bg-emerald-800 text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200 transition-colors">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- 상태 필터 -->
+                  <div v-if="appliedFilters.status" class="inline-flex items-center bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 border border-violet-200 dark:border-violet-800 rounded-md px-2 py-1 shadow-sm hover:shadow transition-all duration-200">
+                    <svg class="w-2.5 h-2.5 text-violet-600 dark:text-violet-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                    <span class="text-xs font-medium text-violet-700 dark:text-violet-300">{{ getStatusLabel(appliedFilters.status) }}</span>
+                    <button @click="appliedFilters.status = ''; filters.status = ''" class="ml-1.5 p-0.5 rounded-full hover:bg-violet-200 dark:hover:bg-violet-800 text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-200 transition-colors">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- 검색 필터 -->
+                  <div v-if="appliedFilters.search" class="inline-flex items-center bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/30 dark:to-pink-900/30 border border-rose-200 dark:border-rose-800 rounded-md px-2 py-1 shadow-sm hover:shadow transition-all duration-200">
+                    <svg class="w-2.5 h-2.5 text-rose-600 dark:text-rose-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <span class="text-xs font-medium text-rose-700 dark:text-rose-300">"{{ appliedFilters.search }}"</span>
+                    <button @click="appliedFilters.search = ''; filters.search = ''" class="ml-1.5 p-0.5 rounded-full hover:bg-rose-200 dark:hover:bg-rose-800 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition-colors">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- 해시태그 필터 -->
+                  <div v-if="appliedFilters.hashtag" class="inline-flex items-center bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 border border-indigo-200 dark:border-indigo-800 rounded-md px-2 py-1 shadow-sm hover:shadow transition-all duration-200">
+                    <svg class="w-2.5 h-2.5 text-indigo-600 dark:text-indigo-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                    <span class="text-xs font-medium text-indigo-700 dark:text-indigo-300">{{ appliedFilters.hashtag }}</span>
+                    <button @click="appliedFilters.hashtag = ''; filters.hashtag = ''" class="ml-1.5 p-0.5 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors">
+                      <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- 모든 필터 초기화 버튼 -->
+                  <button
+                    @click="clearFilters"
+                    class="inline-flex items-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 shadow-sm hover:shadow transition-all duration-200"
+                  >
+                    <svg class="w-2.5 h-2.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    모두 지우기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 메인 컨텐츠 -->
         <div class="space-y-6">
           <!-- 뷰 컨테이너 with toggle buttons -->
@@ -152,8 +351,8 @@
             
             <!-- 실제 뷰 컴포넌트 -->
             <div :class="{ '-mx-4 sm:mx-0': activeView === 'calendar' }">
-              <CalendarView v-if="activeView === 'calendar'" :meetups="sortedMeetups" />
-              <MeetupTable v-if="activeView === 'table'" :meetups="sortedMeetups" tableCentered />
+              <CalendarView v-if="activeView === 'calendar'" :meetups="filteredMeetups" />
+              <MeetupTable v-if="activeView === 'table'" :meetups="filteredMeetups" tableCentered />
             </div>
           </div>
         </div>
@@ -184,6 +383,202 @@ export default {
     const meetupsStore = useMeetupsStore()
     const activeView = ref('calendar')
 
+    // 필터 상태 - 사용자가 입력하는 값
+    const filters = ref({
+      year: '',
+      month: '',
+      status: '',
+      search: '',
+      hashtag: ''
+    })
+
+    // 실제로 적용된 필터 - 버튼을 눌렀을 때만 업데이트
+    const appliedFilters = ref({
+      year: '',
+      month: '',
+      status: '',
+      search: '',
+      hashtag: ''
+    })
+
+    // 월 데이터
+    const months = [
+      { value: '1', label: '1월' },
+      { value: '2', label: '2월' },
+      { value: '3', label: '3월' },
+      { value: '4', label: '4월' },
+      { value: '5', label: '5월' },
+      { value: '6', label: '6월' },
+      { value: '7', label: '7월' },
+      { value: '8', label: '8월' },
+      { value: '9', label: '9월' },
+      { value: '10', label: '10월' },
+      { value: '11', label: '11월' },
+      { value: '12', label: '12월' }
+    ]
+
+    // 사용 가능한 년도 목록
+    const availableYears = computed(() => {
+      const years = new Set()
+      meetupsStore.meetups.forEach((meetup) => {
+        const year = new Date(meetup.date_time).getFullYear()
+        years.add(year)
+      })
+      return Array.from(years).sort((a, b) => b - a)
+    })
+
+    // 사용 가능한 해시태그 목록
+    const availableHashtags = computed(() => {
+      const hashtags = new Set()
+      meetupsStore.meetups.forEach(meetup => {
+        if (meetup.hashtags_list && Array.isArray(meetup.hashtags_list)) {
+          meetup.hashtags_list.forEach(hashtag => {
+            hashtags.add(hashtag)
+          })
+        }
+      })
+      return Array.from(hashtags).sort()
+    })
+
+    // 필터링된 모임 목록
+    const filteredMeetups = computed(() => {
+      let filtered = [...sortedMeetups.value]
+      
+      console.log('Original meetups count:', filtered.length)
+      console.log('Applied filters:', appliedFilters.value)
+
+      // 년도 필터
+      if (appliedFilters.value.year) {
+        const beforeCount = filtered.length
+        console.log('Year filter debug:')
+        console.log('- Applied year filter:', appliedFilters.value.year, 'type:', typeof appliedFilters.value.year)
+        
+        filtered = filtered.filter(meetup => {
+          const meetupYear = new Date(meetup.date_time).getFullYear().toString()
+          const matches = meetupYear === appliedFilters.value.year
+          console.log(`- Meetup: ${meetup.name}, date_time: ${meetup.date_time}, parsed year: ${meetupYear} (type: ${typeof meetupYear}), matches: ${matches}`)
+          return matches
+        })
+        console.log(`Year filter (${appliedFilters.value.year}): ${beforeCount} -> ${filtered.length}`)
+      }
+
+      // 월 필터
+      if (appliedFilters.value.month) {
+        const beforeCount = filtered.length
+        filtered = filtered.filter(meetup => {
+          const meetupMonth = (new Date(meetup.date_time).getMonth() + 1).toString()
+          return meetupMonth === appliedFilters.value.month
+        })
+        console.log(`Month filter (${appliedFilters.value.month}): ${beforeCount} -> ${filtered.length}`)
+      }
+
+      // 상태 필터
+      if (appliedFilters.value.status) {
+        const beforeCount = filtered.length
+        const now = new Date()
+        filtered = filtered.filter(meetup => {
+          const meetupDate = new Date(meetup.date_time)
+          const meetupEndDate = meetup.end_time ? new Date(meetup.end_time) : new Date(meetup.date_time)
+
+          switch (appliedFilters.value.status) {
+            case 'upcoming':
+              return meetupDate > now
+            case 'ongoing':
+              return meetupDate <= now && meetupEndDate > now
+            case 'completed':
+              return meetupEndDate <= now
+            case 'available':
+              return (meetup.current_participants || 0) < (meetup.max_participants || 0)
+            case 'full':
+              return (meetup.current_participants || 0) >= (meetup.max_participants || 0)
+            default:
+              return true
+          }
+        })
+        console.log(`Status filter (${appliedFilters.value.status}): ${beforeCount} -> ${filtered.length}`)
+      }
+
+      // 검색 필터
+      if (appliedFilters.value.search) {
+        const beforeCount = filtered.length
+        const searchTerm = appliedFilters.value.search.toLowerCase().trim()
+        if (searchTerm) {
+          filtered = filtered.filter(meetup => 
+            (meetup.name && meetup.name.toLowerCase().includes(searchTerm)) ||
+            (meetup.location && meetup.location.toLowerCase().includes(searchTerm)) ||
+            (meetup.description && meetup.description.toLowerCase().includes(searchTerm))
+          )
+        }
+        console.log(`Search filter (${appliedFilters.value.search}): ${beforeCount} -> ${filtered.length}`)
+      }
+
+      // 해시태그 필터
+      if (appliedFilters.value.hashtag) {
+        const beforeCount = filtered.length
+        filtered = filtered.filter(meetup => {
+          if (meetup.hashtags_list && Array.isArray(meetup.hashtags_list)) {
+            return meetup.hashtags_list.includes(appliedFilters.value.hashtag)
+          }
+          return false
+        })
+        console.log(`Hashtag filter (${appliedFilters.value.hashtag}): ${beforeCount} -> ${filtered.length}`)
+      }
+
+      console.log('Final filtered count:', filtered.length)
+      return filtered
+    })
+
+    // 필터 적용
+    const applyFilters = () => {
+      appliedFilters.value = {
+        year: filters.value.year,
+        month: filters.value.month,
+        status: filters.value.status,
+        search: filters.value.search,
+        hashtag: filters.value.hashtag
+      }
+      console.log('Filters applied:', appliedFilters.value)
+    }
+
+    // 필터 초기화
+    const clearFilters = () => {
+      filters.value = {
+        year: '',
+        month: '',
+        status: '',
+        search: '',
+        hashtag: ''
+      }
+      appliedFilters.value = {
+        year: '',
+        month: '',
+        status: '',
+        search: '',
+        hashtag: ''
+      }
+    }
+
+    // 활성 필터가 있는지 확인
+    const hasActiveFilters = computed(() => {
+      return !!(appliedFilters.value.year || appliedFilters.value.month || appliedFilters.value.status || appliedFilters.value.search || appliedFilters.value.hashtag)
+    })
+
+    // 라벨 헬퍼 함수들
+    const getMonthLabel = (monthValue) => {
+      const month = months.find(m => m.value === monthValue)
+      return month ? month.label : monthValue
+    }
+
+    const getStatusLabel = (status) => {
+      const statusLabels = {
+        'upcoming': '예정된 모임',
+        'ongoing': '진행 중',
+        'completed': '완료된 모임',
+        'available': '참가 가능',
+        'full': '정원 마감'
+      }
+      return statusLabels[status] || status
+    }
 
     // 전체 모임 수
     const totalMeetups = computed(() => meetupsStore.meetups.length)
@@ -292,7 +687,19 @@ export default {
       averageAttendance,
       formatDateTime,
       logout,
-      sortedMeetups
+      sortedMeetups,
+      // 필터 관련
+      filters,
+      appliedFilters,
+      filteredMeetups,
+      availableYears,
+      availableHashtags,
+      months,
+      applyFilters,
+      clearFilters,
+      getMonthLabel,
+      getStatusLabel,
+      hasActiveFilters
     }
   }
 }

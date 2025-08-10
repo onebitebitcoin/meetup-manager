@@ -30,7 +30,9 @@
       "Bash(git commit:*)",
       "Bash(npm run lint)",
       "Bash(npm run:*)",
-      "Bash(pip3 list:*)"
+      "Bash(pip3 list:*)",
+      "WebFetch(domain:www.pexels.com)",
+      "Bash(kill:*)"
     ],
     "deny": []
   }
