@@ -1,13 +1,20 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:to-gray-900">
     <!-- Navigation -->
-    <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
+    <nav class="bg-gradient-to-r from-slate-100 to-gray-100 dark:bg-gradient-to-r dark:from-slate-800 dark:to-gray-800 shadow safe-area-top border-b border-slate-200 dark:border-slate-600">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-              새 모임 만들기
-            </h1>
+            <div class="flex items-center space-x-2">
+              <div class="p-1 bg-slate-200 dark:bg-slate-600 rounded-lg">
+                <svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <h1 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-50">
+                새 모임 만들기
+              </h1>
+            </div>
           </div>
           <div class="flex items-center space-x-1 sm:space-x-4">
             <!-- Desktop navigation -->
@@ -39,7 +46,7 @@
             </div>
             
             <!-- User name - hidden on mobile -->
-            <span class="hidden sm:inline text-gray-700 dark:text-gray-300">{{ authStore.user?.name }}님</span>
+            <span class="hidden sm:inline text-slate-800 dark:text-slate-200">{{ authStore.user?.name }}님</span>
             
             <!-- Logout button - compact on mobile -->
             <button
@@ -60,19 +67,21 @@
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
         <!-- Header Card -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg mb-6">
+        <div class="bg-gradient-to-r from-slate-100 to-gray-100 dark:bg-gradient-to-r dark:from-slate-800 dark:to-gray-800 overflow-hidden shadow rounded-lg mb-6 border border-slate-200 dark:border-slate-600">
           <div class="px-4 py-5 sm:p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
+                <div class="p-3 bg-slate-200 dark:bg-slate-600 rounded-full">
+                  <svg class="h-8 w-8 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
               </div>
               <div class="ml-5">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                <h3 class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-50">
                   새로운 모임을 만들어보세요
                 </h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                <p class="mt-1 max-w-2xl text-sm text-slate-700 dark:text-slate-300">
                   사람들과 함께할 멋진 모임을 계획하고 공유하세요.
                 </p>
               </div>
@@ -81,12 +90,12 @@
         </div>
 
         <!-- Form Card -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div class="bg-gradient-to-br from-white to-slate-50 dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 shadow rounded-lg border border-slate-200 dark:border-slate-600">
           <div class="px-4 py-5 sm:p-6">
             <form @submit.prevent="handleSubmit" class="space-y-6">
               <div class="grid grid-cols-1 gap-6">
                 <div>
-                  <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label for="name" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                     모임 이름 *
                   </label>
                   <input
@@ -95,12 +104,12 @@
                     v-model="form.name"
                     required
                     placeholder="예: 비트코인 독서 모임"
-                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-base"
+                    class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label for="description" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                     상세 설명
                   </label>
                   <textarea
@@ -108,16 +117,16 @@
                     v-model="form.description"
                     rows="5"
                     placeholder="모임에 대한 자세한 설명을 작성해주세요..."
-                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-base resize-y"
+                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 sm:text-base resize-y"
                   ></textarea>
-                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
                     모임의 목적, 진행 방식, 준비물 등을 포함해주세요.
                   </p>
                 </div>
 
                 <!-- Image Upload Section -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label class="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-2">
                     모임 이미지
                   </label>
                   <div class="space-y-4">
@@ -125,7 +134,7 @@
                     <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
                       <!-- File Upload -->
                       <div class="flex-1">
-                        <label for="image-upload" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                        <label for="image-upload" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
                           파일 업로드
                         </label>
                         <input
@@ -134,13 +143,13 @@
                           ref="imageInput"
                           @change="handleImageUpload"
                           accept="image/*"
-                          class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300"
+                          class="block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 dark:file:bg-slate-600 dark:file:text-slate-300"
                         />
                       </div>
                       
                       <!-- URL Input -->
                       <div class="flex-1">
-                        <label for="image-url" class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                        <label for="image-url" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
                           또는 이미지 URL
                         </label>
                         <input
@@ -148,19 +157,19 @@
                           id="image-url"
                           v-model="form.imageUrl"
                           placeholder="https://example.com/image.jpg"
-                          class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm"
+                          class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 text-sm"
                         />
                       </div>
                     </div>
 
                     <!-- Image Preview -->
                     <div v-if="imagePreview" class="mt-4">
-                      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">미리보기</p>
+                      <p class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-2">미리보기</p>
                       <div class="relative inline-block">
                         <img 
                           :src="imagePreview" 
                           alt="미리보기" 
-                          class="h-32 w-48 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                          class="h-32 w-48 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
                           @error="handleImageError"
                         />
                         <button
@@ -175,14 +184,14 @@
                       </div>
                     </div>
                     
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <p class="text-xs text-slate-600 dark:text-slate-300">
                       JPG, PNG, GIF 형식의 이미지를 업로드하거나 이미지 URL을 입력하세요. (최대 5MB)
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label for="date" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                     날짜 *
                   </label>
                   <input
@@ -190,13 +199,13 @@
                     id="date"
                     v-model="form.date"
                     required
-                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-base"
+                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 sm:text-base"
                   />
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label for="time" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="time" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                       시작 시간 *
                     </label>
                     <input
@@ -204,12 +213,12 @@
                       id="time"
                       v-model="form.time"
                       required
-                      class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-base"
+                      class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 sm:text-base"
                     />
                   </div>
 
                   <div>
-                    <label for="duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="duration" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                       모임 진행 시간 (시간) *
                     </label>
                     <input
@@ -220,16 +229,16 @@
                       step="0.5"
                       placeholder="예: 2 (2시간)"
                       required
-                      class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-base"
+                      class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 sm:text-base"
                     />
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p class="mt-1 text-xs text-slate-600 dark:text-slate-300">
                       모임이 진행될 시간을 입력하세요
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label for="location" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                     장소 *
                   </label>
                   <input
@@ -238,12 +247,12 @@
                     v-model="form.location"
                     required
                     placeholder="예: 동탄 석우동 카페"
-                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-base"
+                    class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label for="max_participants" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label for="max_participants" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                     최대 참여 인원 *
                   </label>
                   <input
@@ -253,9 +262,9 @@
                     min="1"
                     max="100"
                     required
-                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-base"
+                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 sm:text-base"
                   />
-                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
                     모임에 참여할 수 있는 최대 인원을 설정해주세요.
                   </p>
                 </div>
@@ -274,18 +283,18 @@
                 </div>
               </div>
 
-              <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex justify-end space-x-3 pt-6 border-t border-slate-200 dark:border-slate-600">
                 <button
                   type="button"
                   @click="$router.go(-1)"
-                  class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm py-2 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-slate-600 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

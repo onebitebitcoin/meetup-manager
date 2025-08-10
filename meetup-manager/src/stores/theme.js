@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
-  const isDarkMode = ref(true) // 다크 모드를 기본값으로 설정
+  const isDarkMode = ref(false) // 라이트 모드를 기본값으로 설정
 
   // 로컬 스토리지에서 테마 설정 불러오기
   const loadTheme = () => {
