@@ -836,11 +836,11 @@
       @click.self="closeEditModal"
     >
       <div
-        class="relative top-20 mx-auto p-5 border max-w-md shadow-lg rounded-lg bg-gray-50 dark:bg-gray-800"
+        class="relative top-20 mx-auto p-6 max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700"
       >
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-            모임 수정
+            수정
           </h3>
           <button
             @click="closeEditModal"
@@ -871,7 +871,7 @@
               v-model="editForm.name"
               type="text"
               required
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
           <div>
@@ -881,8 +881,8 @@
             >
             <textarea
               v-model="editForm.description"
-              rows="3"
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+              rows="4"
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             ></textarea>
           </div>
           <div>
@@ -894,7 +894,7 @@
               v-model="editForm.location"
               type="text"
               required
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
           <div>
@@ -906,7 +906,7 @@
               v-model="editForm.date_time"
               type="datetime-local"
               required
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
           <div>
@@ -934,7 +934,7 @@
               type="number"
               min="1"
               required
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
 
@@ -947,7 +947,7 @@
               v-model="editForm.hashtags"
               type="text"
               placeholder="#개발,#네트워킹,#스타트업 (쉼표로 구분)"
-              class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 sm:text-sm"
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-base"
             />
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               해시태그를 쉼표로 구분하여 입력하세요. 예: #개발,#네트워킹,#스타트업
@@ -1499,7 +1499,7 @@ export default {
           }, 3000);
         }
       } catch (error) {
-        console.error("모임 수정에 실패했습니다:", error);
+        console.error("수정에 실패했습니다:", error);
       } finally {
         updating.value = false;
       }

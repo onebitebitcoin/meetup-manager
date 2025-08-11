@@ -32,7 +32,8 @@
       "Bash(npm run:*)",
       "Bash(pip3 list:*)",
       "WebFetch(domain:www.pexels.com)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

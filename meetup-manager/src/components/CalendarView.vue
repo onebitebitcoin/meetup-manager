@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
     <div class="flex items-center justify-between mb-3 sm:mb-6">
-      <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">모임 달력</h2>
+      <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">달력</h2>
     </div>
     
     <!-- Centered year/month navigation -->
