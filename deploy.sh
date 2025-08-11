@@ -110,8 +110,25 @@ if [ -d "$FRONTEND_DIR" ]; then
         npm run build
         
         echo "Deploying to $FRONTEND_DEPLOY_DIR..."
-        sudo rm -rf $FRONTEND_DEPLOY_DIR/*
+        # Preserve media directory while removing other content
+        sudo mkdir -p $FRONTEND_DEPLOY_DIR/media/meetups
+        if [ -d "$FRONTEND_DEPLOY_DIR/media" ]; then
+            echo "Backing up existing media files..."
+            sudo cp -r $FRONTEND_DEPLOY_DIR/media /tmp/meet-media-backup 2>/dev/null || true
+        fi
+        
+        # Remove all files except media directory
+        sudo find $FRONTEND_DEPLOY_DIR -mindepth 1 -maxdepth 1 ! -name 'media' -exec rm -rf {} +
+        
+        # Deploy new frontend files
         sudo cp -r dist/* $FRONTEND_DEPLOY_DIR/
+        
+        # Restore media directory if it was backed up
+        if [ -d "/tmp/meet-media-backup" ]; then
+            echo "Restoring media files..."
+            sudo cp -r /tmp/meet-media-backup $FRONTEND_DEPLOY_DIR/media
+            sudo rm -rf /tmp/meet-media-backup
+        fi
         sudo chown -R www-data:www-data $FRONTEND_DEPLOY_DIR/
         sudo chmod -R 755 $FRONTEND_DEPLOY_DIR/
         
