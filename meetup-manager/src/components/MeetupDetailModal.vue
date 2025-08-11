@@ -28,7 +28,7 @@
       </div>
       
       <!-- Content -->
-      <div class="p-6 overflow-y-auto max-h-[calc(90vh-12rem)]">
+      <div class="px-4 py-6 overflow-y-auto max-h-[calc(90vh-12rem)]">
         <div class="space-y-6">
           <!-- Time and Location Row -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
