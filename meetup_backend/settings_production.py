@@ -36,6 +36,9 @@ MIDDLEWARE = [
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Override media files path for production
+MEDIA_ROOT = '/var/www/meet/media'
+
 # Database - Update for production database
 # DATABASES = {
 #     'default': {

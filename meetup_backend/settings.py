@@ -129,7 +129,7 @@ STATICFILES_DIRS = [
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/var/www/meet/media'
 
 # Site URL for absolute URL generation
 SITE_URL = 'http://localhost:8000' if DEBUG else 'https://meet.onebitebitcoin.com'
