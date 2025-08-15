@@ -1,9 +1,26 @@
-<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="192" height="192" fill="#4f46e5"/>
-<g transform="translate(48, 48)">
-  <path d="M16 14V10m8 4V10m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="24" cy="48" r="6" fill="white"/>
-  <circle cx="48" cy="48" r="6" fill="white"/>
-  <circle cx="72" cy="48" r="6" fill="white"/>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background rounded rectangle for masking -->
+  <rect x="80" y="120" width="352" height="320" rx="24" ry="24" fill="#000000"/>
+  
+  <!-- Calendar binding rings -->
+  <rect x="160" y="80" width="12" height="80" rx="6" ry="6" fill="#000000"/>
+  <rect x="200" y="80" width="12" height="80" rx="6" ry="6" fill="#000000"/>
+  <rect x="300" y="80" width="12" height="80" rx="6" ry="6" fill="#000000"/>
+  <rect x="340" y="80" width="12" height="80" rx="6" ry="6" fill="#000000"/>
+  
+  <!-- Calendar grid lines -->
+  <line x1="80" y1="240" x2="432" y2="240" stroke="#ffffff" stroke-width="2"/>
+  <line x1="80" y1="280" x2="432" y2="280" stroke="#ffffff" stroke-width="2"/>
+  <line x1="80" y1="320" x2="432" y2="320" stroke="#ffffff" stroke-width="2"/>
+  <line x1="80" y1="360" x2="432" y2="360" stroke="#ffffff" stroke-width="2"/>
+  
+  <line x1="130" y1="200" x2="130" y2="440" stroke="#ffffff" stroke-width="2"/>
+  <line x1="180" y1="200" x2="180" y2="440" stroke="#ffffff" stroke-width="2"/>
+  <line x1="230" y1="200" x2="230" y2="440" stroke="#ffffff" stroke-width="2"/>
+  <line x1="280" y1="200" x2="280" y2="440" stroke="#ffffff" stroke-width="2"/>
+  <line x1="330" y1="200" x2="330" y2="440" stroke="#ffffff" stroke-width="2"/>
+  <line x1="380" y1="200" x2="380" y2="440" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Today highlight -->
+  <rect x="181" y="241" width="48" height="38" fill="#ffffff" rx="4" ry="4"/>
 </svg>
