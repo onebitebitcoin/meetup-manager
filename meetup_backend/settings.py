@@ -182,3 +182,7 @@ REST_FRAMEWORK = {
 # Disable CSRF for development
 CSRF_COOKIE_SECURE = False
 CSRF_USE_SESSIONS = False
+
+# Email configuration - disabled (no SMTP server available)
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+DEFAULT_FROM_EMAIL = 'Meetup Manager <noreply@meetup.com>'

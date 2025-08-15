@@ -32,7 +32,7 @@
         <div class="space-y-6">
           <!-- Time and Location Row -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+            <div class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-4 flex items-start space-x-3">
               <div class="bg-indigo-100 dark:bg-indigo-900 rounded-full p-2 flex-shrink-0">
                 <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -47,7 +47,7 @@
               </div>
             </div>
             
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+            <div class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-4 flex items-start space-x-3">
               <div class="bg-green-100 dark:bg-green-900 rounded-full p-2 flex-shrink-0">
                 <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -63,7 +63,7 @@
           
           <!-- Participants and Creator Row -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+            <div class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-4 flex items-start space-x-3">
               <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-2 flex-shrink-0">
                 <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -78,11 +78,14 @@
                   <span v-if="currentMeetupData.is_full" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
                     마감
                   </span>
+                  <span v-if="isWaitlisted" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 ml-2">
+                    대기열 {{ waitlistPosition }}번째
+                  </span>
                 </div>
               </div>
             </div>
             
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-start space-x-3">
+            <div class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-4 flex items-start space-x-3">
               <div class="bg-purple-100 dark:bg-purple-900 rounded-full p-2 flex-shrink-0">
                 <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -138,15 +141,18 @@
         <!-- Action Buttons -->
         <div class="border-t border-gray-200 dark:border-gray-600 pt-6 mt-6">
           <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <!-- Regular registration button -->
             <button
-              v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered"
+              v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered && !isWaitlisted"
               @click="registerForMeetup"
-              :disabled="currentMeetupData.is_full || registering"
+              :disabled="registering"
               :class="[
                 'flex items-center justify-center px-6 py-3 rounded-lg text-sm font-medium shadow-sm transition-all duration-200',
-                currentMeetupData.is_full || registering
+                registering
                   ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transform hover:scale-105'
+                  : currentMeetupData.is_full
+                    ? 'bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white transform hover:scale-105'
+                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transform hover:scale-105'
               ]"
             >
               <svg v-if="registering" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -156,7 +162,25 @@
               <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
-              {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '마감' : '참가 신청') }}
+              {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '대기열 등록' : '참가 신청') }}
+            </button>
+
+            
+            <!-- Leave waitlist button -->
+            <button
+              v-if="authStore.isLoggedIn && !authStore.isGuest && isWaitlisted"
+              @click="leaveWaitlist"
+              :disabled="registering"
+              class="flex items-center justify-center bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-3 rounded-lg text-sm font-medium shadow-sm transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+            >
+              <svg v-if="registering" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              {{ registering ? '취소 중...' : '대기열 취소' }}
             </button>
             
             <button
@@ -217,6 +241,8 @@ export default {
     
     // Check if current user is registered (will be updated by parent component)
     const isRegistered = ref(false)
+    const isWaitlisted = ref(false)
+    const waitlistPosition = ref(0)
 
     const formatDateTime = (dateString) => {
       return new Date(dateString).toLocaleString('ko-KR')
@@ -229,22 +255,30 @@ export default {
       })
     }
 
-    // Check registration status for current meetup
+    // Check registration and waitlist status for current meetup
     const checkRegistrationStatus = async () => {
       if (!props.selectedMeetup || !authStore.isLoggedIn || authStore.isGuest) {
         isRegistered.value = false
+        isWaitlisted.value = false
         return
       }
       
       try {
+        // Check registration status
         const response = await fetchWithCSRF(`/api/meetups/${props.selectedMeetup.id}/status/`)
         if (response.ok) {
           const data = await response.json()
           isRegistered.value = data.is_registered
         }
+        
+        // Check waitlist status
+        const waitlistData = await meetupsStore.checkWaitlistStatus(props.selectedMeetup.id)
+        isWaitlisted.value = waitlistData.is_waitlisted
+        waitlistPosition.value = waitlistData.position || 0
       } catch (error) {
-        console.error('Failed to check registration status:', error)
+        console.error('Failed to check status:', error)
         isRegistered.value = false
+        isWaitlisted.value = false
       }
     }
 
@@ -264,10 +298,64 @@ export default {
           alert('모임 신청이 완료되었습니다!')
         } else {
           const data = await response.json()
-          alert(data.error || '신청에 실패했습니다.')
+          
+          // If meetup is full and can join waitlist, ask user
+          if (data.can_waitlist) {
+            const joinWaitlist = confirm(`${data.error}\n\n${data.message}`)
+            if (joinWaitlist) {
+              try {
+                const waitlistData = await meetupsStore.addToWaitlist(props.selectedMeetup.id)
+                isWaitlisted.value = true
+                waitlistPosition.value = waitlistData.position
+                await meetupsStore.fetchMeetups()
+                emit('meetupUpdated')
+                alert(`대기열 ${waitlistData.position}번째로 등록되었습니다!`)
+              } catch (waitlistError) {
+                alert(waitlistError.message)
+              }
+            }
+          } else {
+            alert(data.error || '신청에 실패했습니다.')
+          }
         }
       } catch (error) {
         alert('네트워크 오류가 발생했습니다.')
+      } finally {
+        registering.value = false
+      }
+    }
+
+    const joinWaitlist = async () => {
+      if (registering.value || !props.selectedMeetup) return
+      
+      registering.value = true
+      try {
+        const waitlistData = await meetupsStore.addToWaitlist(props.selectedMeetup.id)
+        isWaitlisted.value = true
+        waitlistPosition.value = waitlistData.position
+        await meetupsStore.fetchMeetups()
+        emit('meetupUpdated')
+        alert(`대기열 ${waitlistData.position}번째로 등록되었습니다!`)
+      } catch (error) {
+        alert(error.message)
+      } finally {
+        registering.value = false
+      }
+    }
+
+    const leaveWaitlist = async () => {
+      if (registering.value || !props.selectedMeetup) return
+      
+      registering.value = true
+      try {
+        await meetupsStore.removeFromWaitlist(props.selectedMeetup.id)
+        isWaitlisted.value = false
+        waitlistPosition.value = 0
+        await meetupsStore.fetchMeetups()
+        emit('meetupUpdated')
+        alert('대기열에서 제거되었습니다.')
+      } catch (error) {
+        alert(error.message)
       } finally {
         registering.value = false
       }
@@ -304,6 +392,8 @@ export default {
         checkRegistrationStatus()
       } else {
         isRegistered.value = false
+        isWaitlisted.value = false
+        waitlistPosition.value = 0
       }
     }, { immediate: true })
 
@@ -317,10 +407,14 @@ export default {
       registering,
       currentMeetupData,
       isRegistered,
+      isWaitlisted,
+      waitlistPosition,
       formatDateTime,
       formatTime,
       registerForMeetup,
       unregisterFromMeetup,
+      joinWaitlist,
+      leaveWaitlist,
       handleImageError
     }
   }

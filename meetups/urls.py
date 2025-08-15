@@ -29,4 +29,18 @@ urlpatterns = [
     # Manual participant management
     path('api/meetups/<int:meetup_id>/add-participant/', views.add_participant_by_email, name='add-participant-by-email'),
     path('api/meetups/<int:meetup_id>/remove-participant/<int:registration_id>/', views.remove_participant, name='remove-participant'),
+    
+    # Waitlist endpoints
+    path('api/meetups/<int:meetup_id>/waitlist/', views.add_to_waitlist, name='add-to-waitlist'),
+    path('api/meetups/<int:meetup_id>/waitlist/remove/', views.remove_from_waitlist, name='remove-from-waitlist'),
+    path('api/meetups/<int:meetup_id>/waitlist/status/', views.check_waitlist_status, name='check-waitlist-status'),
+    path('api/meetups/<int:meetup_id>/waitlist/list/', views.meetup_waitlist, name='meetup-waitlist'),
+    path('api/my-waitlists/', views.user_waitlists, name='user-waitlists'),
+    
+    # Notification endpoints
+    path('api/notifications/', views.user_notifications, name='user-notifications'),
+    path('api/notifications/<int:notification_id>/read/', views.mark_notification_read, name='mark-notification-read'),
+    path('api/notifications/mark-all-read/', views.mark_all_notifications_read, name='mark-all-notifications-read'),
+    path('api/notifications/<int:notification_id>/delete/', views.delete_notification, name='delete-notification'),
+    path('api/meetups/<int:meetup_id>/send-notification/', views.send_notification_to_participants, name='send-notification-to-participants'),
 ]

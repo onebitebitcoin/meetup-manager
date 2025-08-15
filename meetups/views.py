@@ -8,13 +8,15 @@ from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.middleware.csrf import get_token
-from .models import MeetupUser, Meetup, Registration
+from .models import MeetupUser, Meetup, Registration, Waitlist, Notification
 from .serializers import (
     MeetupUserSerializer, 
     MeetupSerializer, 
     RegistrationSerializer,
     RegisterUserSerializer,
-    UserRegistrationSerializer
+    UserRegistrationSerializer,
+    WaitlistSerializer,
+    NotificationSerializer
 )
 
 @ensure_csrf_cookie
@@ -234,9 +236,17 @@ def register_for_meetup(request, meetup_id):
         if Registration.objects.filter(user=meetup_user, meetup=meetup).exists():
             return Response({'error': '이미 이 모임에 신청되어 있습니다'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Check if meetup is full
+        # Check if already in waitlist
+        if Waitlist.objects.filter(user=meetup_user, meetup=meetup).exists():
+            return Response({'error': '이미 이 모임 대기열에 등록되어 있습니다'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if meetup is full - if so, suggest joining waitlist
         if meetup.is_full:
-            return Response({'error': '모임 정원이 가득 찼습니다'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error': '모임 정원이 가득 찼습니다',
+                'can_waitlist': True,
+                'message': '대기열에 등록하시겠습니까?'
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         # Create registration
         registration = Registration.objects.create(user=meetup_user, meetup=meetup)
@@ -530,5 +540,275 @@ def remove_participant(request, meetup_id, registration_id):
         return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except Registration.DoesNotExist:
         return Response({'error': '신청 정보를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Waitlist API endpoints
+@api_view(['POST'])
+def add_to_waitlist(request, meetup_id):
+    """Add user to meetup waitlist"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup = Meetup.objects.get(id=meetup_id)
+        meetup_user = request.user.meetup_profile
+        
+        # Check if already registered
+        if Registration.objects.filter(user=meetup_user, meetup=meetup).exists():
+            return Response({'error': '이미 이 모임에 신청되어 있습니다'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if already in waitlist
+        if Waitlist.objects.filter(user=meetup_user, meetup=meetup).exists():
+            return Response({'error': '이미 이 모임 대기열에 등록되어 있습니다'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Add to waitlist
+        waitlist_entry = Waitlist.objects.create(user=meetup_user, meetup=meetup)
+        
+        return Response({
+            'message': f'대기열 {waitlist_entry.position}번째로 등록되었습니다',
+            'position': waitlist_entry.position,
+            'waitlist_id': waitlist_entry.id
+        }, status=status.HTTP_201_CREATED)
+        
+    except Meetup.DoesNotExist:
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['DELETE'])
+def remove_from_waitlist(request, meetup_id):
+    """Remove user from meetup waitlist"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup = Meetup.objects.get(id=meetup_id)
+        meetup_user = request.user.meetup_profile
+        
+        waitlist_entry = Waitlist.objects.get(user=meetup_user, meetup=meetup)
+        waitlist_entry.delete()
+        
+        return Response({
+            'message': '대기열에서 제거되었습니다'
+        }, status=status.HTTP_200_OK)
+        
+    except Meetup.DoesNotExist:
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except Waitlist.DoesNotExist:
+        return Response({'error': '대기열에 등록되지 않았습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def check_waitlist_status(request, meetup_id):
+    """Check if user is in waitlist and their position"""
+    if not request.user.is_authenticated:
+        return Response({'is_waitlisted': False}, status=status.HTTP_200_OK)
+    
+    try:
+        meetup = Meetup.objects.get(id=meetup_id)
+        meetup_user = request.user.meetup_profile
+        
+        try:
+            waitlist_entry = Waitlist.objects.get(user=meetup_user, meetup=meetup)
+            return Response({
+                'is_waitlisted': True,
+                'position': waitlist_entry.position,
+                'waitlist_id': waitlist_entry.id,
+                'meetup_id': meetup_id
+            }, status=status.HTTP_200_OK)
+        except Waitlist.DoesNotExist:
+            return Response({
+                'is_waitlisted': False,
+                'meetup_id': meetup_id
+            }, status=status.HTTP_200_OK)
+        
+    except Meetup.DoesNotExist:
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except MeetupUser.DoesNotExist:
+        return Response({'is_waitlisted': False}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def meetup_waitlist(request, meetup_id):
+    """Get waitlist for a meetup (for creators and admins)"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup = Meetup.objects.get(id=meetup_id)
+        meetup_user = request.user.meetup_profile
+        
+        # Check if user is creator or admin
+        if meetup.creator != meetup_user and not meetup_user.is_admin:
+            return Response({'error': '권한이 없습니다'}, status=status.HTTP_403_FORBIDDEN)
+        
+        waitlist_entries = Waitlist.objects.filter(meetup=meetup).select_related('user')
+        
+        waitlist_data = []
+        for entry in waitlist_entries:
+            # Mask email for privacy
+            email = entry.user.email
+            username, domain = email.split('@')
+            masked_email = username[:3] + '***@' + domain if len(username) > 3 else username[0] + '***@' + domain
+            
+            waitlist_data.append({
+                'id': entry.id,
+                'position': entry.position,
+                'user_name': entry.user.name,
+                'user_email': masked_email,
+                'waitlisted_at': entry.waitlisted_at
+            })
+        
+        return Response({
+            'meetup_id': meetup_id,
+            'waitlist': waitlist_data,
+            'total_waitlisted': len(waitlist_data)
+        }, status=status.HTTP_200_OK)
+        
+    except Meetup.DoesNotExist:
+        return Response({'error': '모임을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def user_waitlists(request):
+    """Get all waitlists for the current user"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup_user = request.user.meetup_profile
+        waitlists = Waitlist.objects.filter(user=meetup_user).select_related('meetup').order_by('meetup__date_time')
+        serializer = WaitlistSerializer(waitlists, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Notification API endpoints
+@api_view(['GET'])
+def user_notifications(request):
+    """Get all notifications for the current user"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup_user = request.user.meetup_profile
+        notifications = Notification.objects.filter(user=meetup_user).select_related('meetup')
+        serializer = NotificationSerializer(notifications, many=True)
+        
+        # Also return unread count
+        unread_count = notifications.filter(is_read=False).count()
+        
+        return Response({
+            'notifications': serializer.data,
+            'unread_count': unread_count
+        }, status=status.HTTP_200_OK)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def mark_notification_read(request, notification_id):
+    """Mark a notification as read"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup_user = request.user.meetup_profile
+        notification = Notification.objects.get(id=notification_id, user=meetup_user)
+        notification.is_read = True
+        notification.save()
+        
+        return Response({'message': '알림이 읽음 처리되었습니다'}, status=status.HTTP_200_OK)
+    except Notification.DoesNotExist:
+        return Response({'error': '알림을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def mark_all_notifications_read(request):
+    """Mark all notifications as read for the current user"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup_user = request.user.meetup_profile
+        updated_count = Notification.objects.filter(user=meetup_user, is_read=False).update(is_read=True)
+        
+        return Response({
+            'message': f'{updated_count}개의 알림이 읽음 처리되었습니다',
+            'updated_count': updated_count
+        }, status=status.HTTP_200_OK)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['DELETE'])
+def delete_notification(request, notification_id):
+    """Delete a notification"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup_user = request.user.meetup_profile
+        notification = Notification.objects.get(id=notification_id, user=meetup_user)
+        notification.delete()
+        
+        return Response({'message': '알림이 삭제되었습니다'}, status=status.HTTP_200_OK)
+    except Notification.DoesNotExist:
+        return Response({'error': '알림을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except MeetupUser.DoesNotExist:
+        return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def send_notification_to_participants(request, meetup_id):
+    """Send notification to all participants of a meetup"""
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        meetup_user = request.user.meetup_profile
+        meetup = Meetup.objects.get(id=meetup_id, creator=meetup_user)
+        
+        title = request.data.get('title')
+        message = request.data.get('message')
+        
+        if not title or not message:
+            return Response({'error': '제목과 메시지를 입력해주세요'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get all participants of this meetup
+        registrations = Registration.objects.filter(meetup=meetup)
+        
+        if not registrations.exists():
+            return Response({'error': '참가자가 없습니다'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create notifications for all participants
+        notifications_created = []
+        for registration in registrations:
+            notification = Notification.objects.create(
+                user=registration.user,
+                title=title,
+                message=message,
+                notification_type='general',
+                meetup=meetup
+            )
+            notifications_created.append(notification)
+        
+        return Response({
+            'message': '알림이 성공적으로 전송되었습니다',
+            'sent_count': len(notifications_created)
+        }, status=status.HTTP_200_OK)
+        
+    except Meetup.DoesNotExist:
+        return Response({'error': '모임을 찾을 수 없거나 권한이 없습니다'}, status=status.HTTP_404_NOT_FOUND)
     except MeetupUser.DoesNotExist:
         return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)

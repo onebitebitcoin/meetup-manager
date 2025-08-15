@@ -1,8 +1,33 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-    <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">모임 목록</h2>
-    </div>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+      <div class="flex items-center justify-between mb-3 sm:mb-6">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">목록</h2>
+      </div>
+      
+      <!-- Centered year/month navigation -->
+      <div class="flex items-center justify-center mb-3 sm:mb-6">
+        <div class="flex items-center space-x-3 sm:space-x-6">
+          <button
+            @click="previousMonth"
+            class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-900 dark:text-white transition-colors"
+          >
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white min-w-[140px] sm:min-w-[200px] text-center">
+            {{ currentMonth.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' }) }}
+          </h3>
+          <button
+            @click="nextMonth"
+            class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-900 dark:text-white transition-colors"
+          >
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
     
     <!-- Desktop table view -->
     <div class="hidden sm:block overflow-x-auto">
@@ -36,7 +61,7 @@
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="meetup in sortedMeetups" :key="meetup.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <tr v-for="meetup in filteredMeetups" :key="meetup.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
             <!-- 이미지 컬럼 -->
             <td class="px-4 py-4">
               <div class="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
@@ -138,12 +163,12 @@
       </table>
     </div>
 
-    <!-- Mobile card view -->
-    <div class="sm:hidden space-y-3 p-4">
+    <!-- Mobile list view -->
+    <div class="sm:hidden space-y-3">
       <div
-        v-for="meetup in sortedMeetups"
+        v-for="meetup in filteredMeetups"
         :key="meetup.id"
-        class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+        class="p-3 space-y-3 hover:bg-gray-50 dark:hover:bg-gray-700"
       >
         <div class="flex gap-3">
           <!-- 이미지 섹션 -->
@@ -229,7 +254,7 @@
           </div>
         </div>
         
-        <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+        <div class="pt-2">
           <div class="flex space-x-2">
             <button
               @click="showMeetupDetail(meetup)"
@@ -259,12 +284,12 @@
     </div>
     
     <!-- Empty state - only show when no data -->
-    <div v-if="meetups.length === 0" class="text-center py-12">
+    <div v-if="filteredMeetups.length === 0" class="text-center py-12">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">등록된 모임이 없습니다</h3>
-      <p class="mt-1 text-sm text-gray-500">관리자에게 문의하여 새로운 모임을 등록해 보세요.</p>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ currentMonth.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' }) }}에 등록된 모임이 없습니다</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">다른 월을 선택하거나 관리자에게 문의하여 새로운 모임을 등록해 보세요.</p>
     </div>
 
     <!-- 모임 상세 모달 -->
@@ -300,10 +325,30 @@ export default {
     const selectedMeetup = ref(null)
     const registering = ref(false)
     const userRegistrations = ref(new Set())
+    const currentMonth = ref(new Date())
 
     const sortedMeetups = computed(() => {
       return [...props.meetups].sort((a, b) => new Date(a.date_time) - new Date(b.date_time))
     })
+
+    // Filter meetups by current selected month
+    const filteredMeetups = computed(() => {
+      const year = currentMonth.value.getFullYear()
+      const month = currentMonth.value.getMonth()
+      
+      return sortedMeetups.value.filter(meetup => {
+        const meetupDate = new Date(meetup.date_time)
+        return meetupDate.getFullYear() === year && meetupDate.getMonth() === month
+      })
+    })
+
+    const previousMonth = () => {
+      currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() - 1, 1)
+    }
+
+    const nextMonth = () => {
+      currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + 1, 1)
+    }
 
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleDateString('ko-KR', {
@@ -480,6 +525,10 @@ export default {
       authStore,
       selectedMeetup,
       sortedMeetups,
+      filteredMeetups,
+      currentMonth,
+      previousMonth,
+      nextMonth,
       registering,
       formatDate,
       formatTime,

@@ -136,6 +136,68 @@ class Registration(models.Model):
             self.meetup.save()
 
     def delete(self, *args, **kwargs):
+        meetup = self.meetup
         super().delete(*args, **kwargs)
-        self.meetup.current_participants -= 1
-        self.meetup.save()
+        meetup.current_participants -= 1
+        meetup.save()
+        
+        # Check for waitlist and promote the first person
+        if not meetup.is_full:
+            from .utils import promote_from_waitlist
+            promote_from_waitlist(meetup)
+
+
+class Waitlist(models.Model):
+    user = models.ForeignKey(MeetupUser, on_delete=models.CASCADE)
+    meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE)
+    waitlisted_at = models.DateTimeField(auto_now_add=True)
+    position = models.IntegerField()
+
+    class Meta:
+        unique_together = ('user', 'meetup')
+        ordering = ['position']
+
+    def __str__(self):
+        return f"{self.user.name} - {self.meetup.name} (Position: {self.position})"
+
+    def save(self, *args, **kwargs):
+        if not self.position:
+            # Auto-assign position based on waitlist length
+            max_position = Waitlist.objects.filter(meetup=self.meetup).aggregate(
+                max_pos=models.Max('position')
+            )['max_pos']
+            self.position = (max_position or 0) + 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        meetup = self.meetup
+        position = self.position
+        super().delete(*args, **kwargs)
+        
+        # Adjust positions of remaining waitlist entries
+        Waitlist.objects.filter(
+            meetup=meetup, 
+            position__gt=position
+        ).update(position=models.F('position') - 1)
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('waitlist_promotion', '대기열 승격'),
+        ('meetup_reminder', '모임 알림'),
+        ('general', '일반 알림'),
+    ]
+    
+    user = models.ForeignKey(MeetupUser, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='general')
+    meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.name} - {self.title}"

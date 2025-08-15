@@ -88,6 +88,74 @@ export const useMeetupsStore = defineStore('meetups', () => {
     return false
   }
 
+  const addToWaitlist = async (meetupId) => {
+    try {
+      const response = await fetchWithCSRF(`/api/meetups/${meetupId}/waitlist/`, {
+        method: 'POST'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        await fetchMeetups() // Refresh meetups data
+        return data
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to join waitlist')
+      }
+    } catch (err) {
+      throw new Error(err.message || 'Network error occurred')
+    }
+  }
+
+  const removeFromWaitlist = async (meetupId) => {
+    try {
+      const response = await fetchWithCSRF(`/api/meetups/${meetupId}/waitlist/remove/`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        await fetchMeetups() // Refresh meetups data
+        return data
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to leave waitlist')
+      }
+    } catch (err) {
+      throw new Error(err.message || 'Network error occurred')
+    }
+  }
+
+  const checkWaitlistStatus = async (meetupId) => {
+    try {
+      const response = await fetchWithCSRF(`/api/meetups/${meetupId}/waitlist/status/`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        return data
+      } else {
+        return { is_waitlisted: false }
+      }
+    } catch (err) {
+      return { is_waitlisted: false }
+    }
+  }
+
+  const getUserWaitlists = async () => {
+    try {
+      const response = await fetchWithCSRF('/api/my-waitlists/')
+      
+      if (response.ok) {
+        const data = await response.json()
+        return data
+      } else {
+        throw new Error('Failed to fetch waitlists')
+      }
+    } catch (err) {
+      throw new Error(err.message || 'Network error occurred')
+    }
+  }
+
   const getRegistrationCount = (meetupId) => {
     const meetup = meetups.value.find(m => m.id === meetupId)
     return meetup ? meetup.current_participants : 0
@@ -110,6 +178,10 @@ export const useMeetupsStore = defineStore('meetups', () => {
     unregisterFromMeetup,
     isUserRegistered,
     getRegistrationCount,
-    isMeetupFull
+    isMeetupFull,
+    addToWaitlist,
+    removeFromWaitlist,
+    checkWaitlistStatus,
+    getUserWaitlists
   }
 })

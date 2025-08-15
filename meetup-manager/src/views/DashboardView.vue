@@ -395,33 +395,24 @@
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
                   />
                 </div>
+              </div>
 
-                <!-- 필터 결과 표시 -->
-                <div
-                  class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4"
-                >
-                  <div
-                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-                  >
-                    <div class="flex items-center gap-2">
-                      <div
-                        class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800"
-                      >
-                        <span
-                          class="text-sm font-medium text-blue-700 dark:text-blue-300"
-                        >
-                          {{ filteredMeetups.length }}개 모임 발견
-                        </span>
-                        <span
-                          class="text-xs text-blue-600 dark:text-blue-400 ml-1"
-                        >
-                          (전체 {{ sortedMeetups.length }}개 중)
-                        </span>
-                      </div>
+              <!-- 필터 결과 표시 -->
+              <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <span class="text-sm font-medium text-blue-700 dark:text-blue-300">
+                        {{ filteredMeetups.length }}개 모임 발견
+                      </span>
+                      <span class="text-xs text-blue-600 dark:text-blue-400 ml-1">
+                        (전체 {{ totalMeetups }}개 중)
+                      </span>
                     </div>
+                  </div>
 
-                    <!-- 적용된 필터 태그들 -->
-                    <div v-if="hasActiveFilters" class="flex flex-wrap gap-1.5">
+                  <!-- 적용된 필터 태그들 -->
+                  <div v-if="hasActiveFilters" class="flex flex-wrap gap-1.5">
                       <!-- 년도 필터 -->
                       <div
                         v-if="appliedFilters.year"
@@ -449,10 +440,10 @@
                             appliedFilters.year = '';
                             filters.year = '';
                           "
-                          class="ml-1.5 p-0.5 rounded-full hover:bg-amber-200 dark:hover:bg-amber-800 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 transition-colors"
+                          class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-amber-200 dark:hover:bg-amber-800 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 transition-colors"
                         >
                           <svg
-                            class="w-2.5 h-2.5"
+                            class="w-3 h-3"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -494,10 +485,10 @@
                             appliedFilters.month = '';
                             filters.month = '';
                           "
-                          class="ml-1.5 p-0.5 rounded-full hover:bg-emerald-200 dark:hover:bg-emerald-800 text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200 transition-colors"
+                          class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-emerald-200 dark:hover:bg-emerald-800 text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200 transition-colors"
                         >
                           <svg
-                            class="w-2.5 h-2.5"
+                            class="w-3 h-3"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -539,10 +530,10 @@
                             appliedFilters.status = '';
                             filters.status = '';
                           "
-                          class="ml-1.5 p-0.5 rounded-full hover:bg-violet-200 dark:hover:bg-violet-800 text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-200 transition-colors"
+                          class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-violet-200 dark:hover:bg-violet-800 text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-200 transition-colors"
                         >
                           <svg
-                            class="w-2.5 h-2.5"
+                            class="w-3 h-3"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -584,10 +575,10 @@
                             appliedFilters.search = '';
                             filters.search = '';
                           "
-                          class="ml-1.5 p-0.5 rounded-full hover:bg-rose-200 dark:hover:bg-rose-800 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition-colors"
+                          class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-rose-200 dark:hover:bg-rose-800 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition-colors"
                         >
                           <svg
-                            class="w-2.5 h-2.5"
+                            class="w-3 h-3"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -629,10 +620,10 @@
                             appliedFilters.hashtag = '';
                             filters.hashtag = '';
                           "
-                          class="ml-1.5 p-0.5 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors"
+                          class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors"
                         >
                           <svg
-                            class="w-2.5 h-2.5"
+                            class="w-3 h-3"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -672,80 +663,77 @@
                 </div>
               </div>
             </div>
-
-            <!-- 메인 컨텐츠 -->
-            <div class="space-y-6">
-              <!-- 뷰 컨테이너 with toggle buttons -->
-              <div class="relative">
-                <!-- 뷰 토글 버튼 (오른쪽 상단) -->
-                <div
-                  class="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex space-x-1 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1"
-                >
-                  <button
-                    @click="activeView = 'calendar'"
-                    :class="[
-                      'p-2 rounded-md transition-colors',
-                      activeView === 'calendar'
-                        ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300'
-                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
-                    ]"
-                    title="캘린더 보기"
-                  >
-                    <svg
-                      class="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    @click="activeView = 'table'"
-                    :class="[
-                      'p-2 rounded-md transition-colors',
-                      activeView === 'table'
-                        ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300'
-                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
-                    ]"
-                    title="테이블 보기"
-                  >
-                    <svg
-                      class="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h14a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                <!-- 실제 뷰 컴포넌트 -->
-                <div :class="{ '-mx-4 sm:mx-0': activeView === 'calendar' }">
-                  <CalendarView
-                    v-if="activeView === 'calendar'"
-                    :meetups="filteredMeetups"
-                  />
-                  <MeetupTable
-                    v-if="activeView === 'table'"
-                    :meetups="filteredMeetups"
-                    tableCentered
-                  />
-                </div>
-              </div>
-            </div>
           </div>
+        </div>
+
+        <!-- 메인 컨텐츠 -->
+        <div class="space-y-6">
+          <!-- 뷰 컨테이너 with toggle buttons -->
+          <div class="relative">
+            <!-- 뷰 토글 버튼 (오른쪽 상단) -->
+            <div class="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex space-x-1 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1">
+              <button
+                @click="activeView = 'calendar'"
+                :class="[
+                  'p-2 rounded-md transition-colors',
+                  activeView === 'calendar'
+                    ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
+                ]"
+                title="캘린더 보기"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </button>
+              <button
+                @click="activeView = 'table'"
+                :class="[
+                  'p-2 rounded-md transition-colors',
+                  activeView === 'table'
+                    ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
+                ]"
+                title="테이블 보기"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 10h18M3 14h18m-9-4v8m-7 0V4a1 1 0 011-1h14a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <!-- 실제 뷰 컴포넌트 -->
+            <div :class="{ '-mx-4 sm:mx-0': activeView === 'calendar' }">
+              <CalendarView
+                v-if="activeView === 'calendar'"
+                :meetups="filteredMeetups"
+              />
+              <MeetupTable
+                v-if="activeView === 'table'"
+                :meetups="filteredMeetups"
+                tableCentered
+              />
+            </div>
         </div>
       </div>
     </div>

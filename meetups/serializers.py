@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import MeetupUser, Meetup, Registration
+from .models import MeetupUser, Meetup, Registration, Waitlist, Notification
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -101,3 +101,44 @@ class RegisterUserSerializer(serializers.Serializer):
         data['user'] = user
         data['meetup'] = meetup
         return data
+
+
+class WaitlistSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.name', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    meetup_name = serializers.CharField(source='meetup.name', read_only=True)
+    meetup_date_time = serializers.DateTimeField(source='meetup.date_time', read_only=True)
+    
+    class Meta:
+        model = Waitlist
+        fields = ['id', 'user', 'meetup', 'position', 'waitlisted_at',
+                 'user_name', 'user_email', 'meetup_name', 'meetup_date_time']
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    meetup_name = serializers.CharField(source='meetup.name', read_only=True)
+    time_ago = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Notification
+        fields = ['id', 'title', 'message', 'notification_type', 'meetup', 'meetup_name', 
+                 'is_read', 'created_at', 'time_ago']
+    
+    def get_time_ago(self, obj):
+        """Get human-readable time difference"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        now = timezone.now()
+        diff = now - obj.created_at
+        
+        if diff.days > 0:
+            return f"{diff.days}일 전"
+        elif diff.seconds >= 3600:
+            hours = diff.seconds // 3600
+            return f"{hours}시간 전"
+        elif diff.seconds >= 60:
+            minutes = diff.seconds // 60
+            return f"{minutes}분 전"
+        else:
+            return "방금 전"
