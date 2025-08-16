@@ -19,6 +19,12 @@
               관리자
             </router-link>
             <router-link
+              to="/help"
+              class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
+            >
+              사용 가이드
+            </router-link>
+            <router-link
               v-if="!authStore.isGuest"
               to="/settings"
               class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
@@ -43,6 +49,26 @@
                   stroke-linejoin="round"
                   stroke-width="2"
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                ></path>
+              </svg>
+            </router-link>
+            <!-- Mobile: Help navigation -->
+            <router-link
+              to="/help"
+              class="sm:hidden p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 rounded-md"
+              title="사용 가이드"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 ></path>
               </svg>
             </router-link>

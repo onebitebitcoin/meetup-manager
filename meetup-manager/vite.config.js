@@ -10,7 +10,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}']
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
         name: '한번 모임',
         short_name: '한번 모임',
@@ -23,17 +23,17 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'icons/icon-192.png',
+            src: 'icons/logo.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'icons/icon-512.png',
+            src: 'icons/logo.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: 'icons/icon-512.png',
+            src: 'icons/logo.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'

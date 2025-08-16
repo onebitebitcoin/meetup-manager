@@ -94,10 +94,18 @@
           </button>
         </div>
 
-        <div class="text-center">
+        <div class="text-center space-y-2">
           <p class="text-xs text-gray-500 dark:text-gray-400">
             게스트 모드: 모임 조회만 가능, 생성/참가 불가
           </p>
+          <div>
+            <router-link
+              to="/help"
+              class="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline"
+            >
+              📚 사용 가이드 보기
+            </router-link>
+          </div>
         </div>
       </form>
     </div>

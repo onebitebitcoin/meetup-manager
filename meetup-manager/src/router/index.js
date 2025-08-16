@@ -6,6 +6,7 @@ import DashboardView from '@/views/DashboardView.vue'
 import AdminView from '@/views/AdminView.vue'
 import MeetupCreateView from '@/views/MeetupCreateView.vue'
 import SettingsView from '@/views/SettingsView.vue'
+import HelpView from '@/views/HelpView.vue'
 
 const routes = [
   {
@@ -47,6 +48,11 @@ const routes = [
     name: 'Admin',
     component: AdminView,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/help',
+    name: 'Help',
+    component: HelpView
   }
 ]
 

@@ -66,6 +66,15 @@
             <span v-else>계정 생성 중...</span>
           </button>
         </div>
+        
+        <div class="text-center">
+          <router-link
+            to="/help"
+            class="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline"
+          >
+            📚 사용 가이드 보기
+          </router-link>
+        </div>
       </form>
     </div>
   </div>
