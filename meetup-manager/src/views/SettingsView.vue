@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+  <div class="min-h-screen bg-beige-100 dark:bg-neutral-950">
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 safe-area-top">
+    <nav class="bg-beige-200 dark:bg-neutral-900 border-b border-beige-300 dark:border-neutral-800 safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center space-x-3">

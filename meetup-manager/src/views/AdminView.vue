@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-200">
     <!-- Header -->
-    <header class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 transition-colors duration-200">
+    <header class="bg-beige-200 dark:bg-neutral-900 border-b border-beige-300 dark:border-neutral-800 transition-colors duration-200">
       <div class="container mx-auto px-4 py-3">
         <div class="flex justify-between items-center">
           <!-- Left side -->

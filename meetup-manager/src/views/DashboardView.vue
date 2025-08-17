@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-    <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 safe-area-top">
+  <div class="min-h-screen bg-beige-100 dark:bg-neutral-950">
+    <nav class="bg-beige-200 dark:bg-neutral-900 border-b border-beige-300 dark:border-neutral-800 safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center space-x-3">
@@ -185,13 +185,13 @@
         >
           <div class="p-4 sm:p-6">
             <div
-              class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4"
+              class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-4"
             >
               <!-- Mobile: Collapsible header -->
               <div class="sm:hidden w-full">
                 <button
                   @click="showMobileFilters = !showMobileFilters"
-                  class="flex items-center justify-between w-full text-lg font-medium text-gray-900 dark:text-white py-2"
+                  class="flex items-center justify-between w-full text-base sm:text-lg font-medium text-gray-900 dark:text-white py-1.5 sm:py-2"
                 >
                   <span>필터</span>
                   <svg
@@ -239,22 +239,22 @@
             <!-- Filter content - collapsible on mobile -->
             <div v-show="showMobileFilters" class="sm:!block">
               <!-- Mobile: Action buttons (shown when expanded) -->
-              <div class="sm:hidden flex space-x-2 mb-4">
+              <div class="sm:hidden flex space-x-2 mb-3">
                 <button
                   @click="applyFilters"
-                  class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1"
+                  class="bg-slate-600 hover:bg-slate-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex-1"
                 >
                   필터 적용
                 </button>
                 <button
                   @click="clearFilters"
-                  class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline px-4 py-2"
+                  class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline px-3 py-2"
                 >
                   필터 초기화
                 </button>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
                 <!-- 년도 필터 -->
                 <div>
                   <label
@@ -923,6 +923,8 @@ export default {
         hashtag: filters.value.hashtag,
       };
       console.log("Filters applied:", appliedFilters.value);
+      // Collapse on mobile after applying to reduce header height
+      showMobileFilters.value = false;
     };
 
     // 필터 초기화
@@ -1063,24 +1065,27 @@ export default {
     
     // Handle ads banner click
     const handleBannerClick = (adData) => {
-      // Find the corresponding meetup in the store by matching title keywords
-      // or create a mock meetup object for demonstration
-      const mockMeetup = {
-        id: adData.id,
-        name: adData.title,
-        description: adData.description,
-        date_time: adData.dateTime,
-        location: adData.location,
-        current_participants: adData.currentParticipants,
-        max_participants: adData.maxParticipants,
-        creator_name: "한번 모임",
-        creator_email: "contact@hangbeon.com",
-        hashtags_list: adData.hashtags || [],
-        image_display_url: null,
-        end_time: null
+      // Prefer full meetup data from store to include image, etc.
+      const storeMeetup = meetupsStore.meetups.find(m => m.id === adData.id)
+      if (storeMeetup) {
+        selectedMeetup.value = storeMeetup
+      } else {
+        // Fallback to minimal object from banner
+        selectedMeetup.value = {
+          id: adData.id,
+          name: adData.title,
+          description: adData.description,
+          date_time: adData.dateTime,
+          location: adData.location,
+          current_participants: adData.currentParticipants,
+          max_participants: adData.maxParticipants,
+          creator_name: "한번 모임",
+          creator_email: "contact@hangbeon.com",
+          hashtags_list: adData.hashtags || [],
+          image_display_url: null,
+          end_time: null
+        }
       }
-      
-      selectedMeetup.value = mockMeetup
       showMeetupModal.value = true
     }
     

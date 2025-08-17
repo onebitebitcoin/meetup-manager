@@ -14,6 +14,16 @@
         <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pr-8">{{ selectedMeetup.name }}</h3>
       </div>
       
+      <!-- Image (if available) -->
+      <div v-if="selectedMeetup.image_display_url" class="w-full bg-neutral-100 dark:bg-neutral-900">
+        <img
+          :src="selectedMeetup.image_display_url"
+          :alt="selectedMeetup.name"
+          class="w-full h-48 object-cover"
+          @error="handleImageError"
+        />
+      </div>
+
       <!-- Content -->
       <div class="px-6 py-4 overflow-y-auto max-h-[calc(90vh-12rem)]">
         <div class="space-y-4">

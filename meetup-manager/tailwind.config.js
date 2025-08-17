@@ -22,6 +22,13 @@ export default {
           900: '#14532d',
           950: '#052e16',
         },
+        // Soft beige palette for light-mode backgrounds
+        beige: {
+          50: '#fdfaf5',
+          100: '#f7efe3',
+          200: '#ecdfc7',
+          300: '#e0cfac',
+        },
         // Warm neutral palette - easy on the eyes
         neutral: {
           50: '#fafaf9',
