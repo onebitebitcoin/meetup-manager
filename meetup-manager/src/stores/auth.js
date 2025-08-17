@@ -35,22 +35,23 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const logout = async () => {
-    try {
-      // Only call API logout for non-guest users
-      if (!isGuest.value) {
-        await fetchWithCSRF('/api/auth/logout/', {
-          method: 'POST'
-        })
-      }
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
-    
+    // Clear client state immediately to avoid guard redirect loops
+    const wasGuest = isGuest.value
     user.value = null
     isLoggedIn.value = false
     isAdmin.value = false
     isGuest.value = false
     localStorage.removeItem('user')
+
+    // Fire-and-forget server logout for non-guest users
+    if (!wasGuest) {
+      try {
+        fetchWithCSRF('/api/auth/logout/', { method: 'POST' })
+          .catch(err => console.warn('Logout API error (ignored):', err))
+      } catch (error) {
+        console.warn('Logout scheduling error (ignored):', error)
+      }
+    }
   }
 
   const checkAuth = () => {

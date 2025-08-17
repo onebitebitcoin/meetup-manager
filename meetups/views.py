@@ -59,15 +59,8 @@ def login_user(request):
     if not username or not password:
         return Response({'error': '사용자명과 비밀번호가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
     
-    # Try to authenticate with email if it looks like an email
-    if '@' in username:
-        try:
-            user_obj = User.objects.get(email=username)
-            user = authenticate(username=user_obj.username, password=password)
-        except User.DoesNotExist:
-            user = None
-    else:
-        user = authenticate(username=username, password=password)
+    # Authenticate strictly by username (no email fallback)
+    user = authenticate(username=username, password=password)
     if user:
         login(request, user)
         try:

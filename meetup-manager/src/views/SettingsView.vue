@@ -10,7 +10,7 @@
               alt="한번 모임 로고" 
               class="h-8 w-8 rounded-lg"
             />
-            <h1 class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            <h1 class="text-lg sm:text-xl font-semibold text-black dark:text-neutral-100">
               내 모임 관리
             </h1>
           </div>
@@ -67,12 +67,12 @@
         <!-- Success Message -->
         <div
           v-if="message"
-          class="mb-6 rounded-lg bg-primary-100 dark:bg-primary-900/20 p-4 border border-primary-200 dark:border-primary-800"
+          class="mb-6 rounded-lg bg-beige-100 dark:bg-neutral-900 p-4 border border-beige-300 dark:border-neutral-800"
         >
           <div class="flex">
             <div class="flex-shrink-0">
               <svg
-                class="h-5 w-5 text-primary-600 dark:text-primary-400"
+                class="h-5 w-5 text-neutral-700 dark:text-neutral-300"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -84,7 +84,7 @@
               </svg>
             </div>
             <div class="ml-3">
-              <p class="text-sm text-primary-700 dark:text-primary-300">
+              <p class="text-sm text-neutral-700 dark:text-neutral-300">
                 {{ message }}
               </p>
             </div>
@@ -100,7 +100,7 @@
               <div class="flex items-center">
                 <div class="flex-shrink-0">
                   <svg
-                    class="h-8 w-8 text-green-400"
+                    class="h-8 w-8 text-neutral-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -186,7 +186,7 @@
         <div v-if="loading" class="bg-white dark:bg-gray-800 shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6 text-center">
             <svg
-              class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-500 mx-auto"
+              class="animate-spin -ml-1 mr-3 h-8 w-8 text-neutral-500 mx-auto"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -211,55 +211,45 @@
           </div>
         </div>
 
-        <!-- Empty State for Created Meetups -->
-        <div
-          v-else-if="meetups.length === 0"
-          class="px-4 py-5 sm:px-6 text-center"
-        >
-          <svg
-            class="mx-auto h-12 w-12 text-neutral-400"
-            stroke="currentColor"
-            fill="none"
-            viewBox="0 0 48 48"
-          >
-            <path
-              d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m-16-5c9.837 0 16-3.582 16-8"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M16 22V6a2 2 0 012-2h4a2 2 0 012 2v16"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
-            아직 만든 모임이 없습니다
-          </h3>
-          <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            첫 번째 모임을 만들어 사람들과 함께하는 시간을 가져보세요.
-          </p>
-          <div class="mt-6">
-            <router-link
-              to="/create-meetup"
-              class="btn-primary"
-            >
-              <svg
-                class="-ml-1 mr-2 h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clip-rule="evenodd"
-                />
+        <!-- Empty State for Created Meetups (keep card layout) -->
+        <div v-else-if="meetups.length === 0" class="space-y-6">
+          <div class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
+            <div class="px-4 py-5 sm:px-6 border-b border-beige-300 dark:border-neutral-800 bg-beige-200 dark:bg-neutral-800">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                  <div class="p-2 bg-beige-200 dark:bg-neutral-800 rounded-full">
+                    <svg class="w-5 h-5 text-neutral-700 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-lg leading-6 font-medium text-black dark:text-neutral-100">
+                      내가 개설한 모임
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
+                      아직 만든 모임이 없습니다
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="px-4 py-8 sm:px-6 text-center">
+              <svg class="mx-auto h-12 w-12 text-neutral-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <path d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m-16-5c9.837 0 16-3.582 16-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 22V6a2 2 0 012-2h4a2 2 0 012 2v16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              첫 모임 만들기
-            </router-link>
+              <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+                첫 번째 모임을 만들어 사람들과 함께하는 시간을 가져보세요.
+              </p>
+              <div class="mt-6">
+                <router-link to="/create-meetup" class="btn-primary">
+                  <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                  </svg>
+                  새 모임 만들기
+                </router-link>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -269,23 +259,23 @@
             class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800"
           >
             <div
-              class="px-4 py-5 sm:px-6 border-b border-primary-200 dark:border-primary-800 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/20"
+              class="px-4 py-5 sm:px-6 border-b border-beige-300 dark:border-neutral-800 bg-beige-200 dark:bg-neutral-800"
             >
               <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                  <div class="p-2 bg-primary-200 dark:bg-primary-800 rounded-full">
-                    <svg class="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="p-2 bg-beige-200 dark:bg-neutral-800 rounded-full">
+                    <svg class="w-5 h-5 text-neutral-700 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                   </div>
                   <div>
                     <h3
-                      class="text-lg leading-6 font-medium text-primary-900 dark:text-primary-100"
+                      class="text-lg leading-6 font-medium text-black dark:text-neutral-100"
                     >
                       내가 개설한 모임
                     </h3>
                     <p
-                      class="mt-1 max-w-2xl text-sm text-primary-700 dark:text-primary-300"
+                      class="mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300"
                     >
                       {{ meetups.length }}개의 모임을 관리하고 있습니다.
                     </p>
@@ -308,7 +298,7 @@
               <div
                 v-for="meetup in meetups"
                 :key="meetup.id"
-                class="px-4 py-6 sm:px-6 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors duration-150"
+                class="px-4 py-6 sm:px-6 hover:bg-beige-100 dark:hover:bg-neutral-800/20 transition-colors duration-150"
               >
                 <div class="space-y-4">
                   <!-- Main content row -->
@@ -325,10 +315,10 @@
                         </div>
                         <div
                           v-else
-                          class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center"
+                          class="w-12 h-12 bg-beige-200 dark:bg-neutral-800 rounded-lg flex items-center justify-center"
                         >
                           <svg
-                            class="w-7 h-7 text-blue-600 dark:text-blue-400"
+                            class="w-7 h-7 text-neutral-600 dark:text-neutral-300"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -345,7 +335,7 @@
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between">
                           <div class="flex-1 min-w-0">
-                            <h4 class="text-lg font-medium text-gray-900 dark:text-white truncate">
+                            <h4 class="text-lg font-medium text-black dark:text-white truncate">
                               {{ meetup.name }}
                             </h4>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
@@ -358,7 +348,7 @@
                                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                                 meetup.is_full
                                   ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                  : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                                  : 'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200',
                               ]"
                             >
                               {{ meetup.is_full ? "마감" : "모집중" }}
@@ -411,7 +401,7 @@
                       <div class="flex items-center space-x-1 ml-4">
                         <button
                           @click="editMeetup(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-800 rounded-md transition-colors"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-neutral-800 bg-beige-200 hover:bg-beige-300 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 rounded-md transition-colors"
                           title="수정"
                         >
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -421,7 +411,7 @@
                         </button>
                         <button
                           @click="openManageParticipants(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 rounded-md transition-colors"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-neutral-800 bg-beige-200 hover:bg-beige-300 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 rounded-md transition-colors"
                           title="참가자 관리"
                         >
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -451,7 +441,7 @@
               <div
                 v-for="meetup in meetups"
                 :key="meetup.id"
-                class="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-800/40 dark:to-indigo-800/40 rounded-lg p-4 space-y-3 border border-blue-200 dark:border-blue-700"
+              class="bg-gradient-to-r from-beige-100 to-beige-50 dark:from-neutral-800/30 dark:to-neutral-800/10 rounded-lg p-4 space-y-3 border border-beige-300 dark:border-neutral-700"
               >
                 <div class="flex justify-between items-start">
                   <div class="flex items-start space-x-3 flex-1 min-w-0">
@@ -464,7 +454,7 @@
                       />
                     </div>
                     <div class="flex-1 min-w-0">
-                      <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <h3 class="text-sm font-medium text-black dark:text-white truncate">
                         {{ meetup.name }}
                       </h3>
                       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
@@ -477,7 +467,7 @@
                     :class="[
                       meetup.is_full
                         ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                        : 'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200',
                     ]"
                   >
                     {{ meetup.is_full ? "마감" : "모집중" }}
@@ -508,16 +498,16 @@
                   </span>
                 </div>
                 
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-blue-200 dark:border-blue-700">
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
                   <button
                     @click="editMeetup(meetup)"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                    class="bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                   >
                     수정
                   </button>
                   <button
                     @click="openManageParticipants(meetup)"
-                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                    class="bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                   >
                     참가자
                   </button>
@@ -538,21 +528,21 @@
           class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden mt-6 border border-neutral-200 dark:border-neutral-800"
         >
           <div
-            class="px-4 py-5 sm:px-6 border-b border-primary-200 dark:border-primary-800 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/20"
+            class="px-4 py-5 sm:px-6 border-b border-beige-300 dark:border-neutral-800 bg-beige-200 dark:bg-neutral-800"
           >
             <div class="flex items-center space-x-2">
-              <div class="p-2 bg-primary-200 dark:bg-primary-800 rounded-full">
-                <svg class="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="p-2 bg-beige-200 dark:bg-neutral-800 rounded-full">
+                <svg class="w-5 h-5 text-neutral-700 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
               </div>
               <div>
                 <h3
-                  class="text-lg leading-6 font-medium text-primary-900 dark:text-primary-100"
+                  class="text-lg leading-6 font-medium text-black dark:text-neutral-100"
                 >
                   내 모임 현황
                 </h3>
-                <p class="mt-1 max-w-2xl text-sm text-primary-700 dark:text-primary-300">
+                <p class="mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
                   참가 확정 {{ registeredMeetups.length }}개, 대기 중 {{ waitlistMeetups.length }}개 총 {{ allMyMeetups.length }}개의 모임
                 </p>
               </div>
@@ -562,7 +552,7 @@
           <!-- 모임 로딩 상태 -->
           <div v-if="loadingRegistered || loadingWaitlist" class="px-4 py-5 sm:px-6 text-center">
             <svg
-              class="animate-spin -ml-1 mr-3 h-8 w-8 text-primary-500 mx-auto"
+              class="animate-spin -ml-1 mr-3 h-8 w-8 text-neutral-500 mx-auto"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -604,7 +594,7 @@
                 stroke-linejoin="round"
               />
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <h3 class="mt-2 text-sm font-medium text-black dark:text-neutral-100">
               참가한 모임이 없습니다
             </h3>
             <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
@@ -636,7 +626,7 @@
               v-for="meetup in allMyMeetups"
               :key="meetup.id + '-' + meetup.status"
               class="px-4 py-6 sm:px-6 transition-colors duration-150"
-              :class="meetup.status === 'registered' ? 'hover:bg-green-50 dark:hover:bg-green-900/30' : 'hover:bg-yellow-50 dark:hover:bg-yellow-900/30'"
+              :class="meetup.status === 'registered' ? 'hover:bg-beige-100 dark:hover:bg-neutral-800/30' : 'hover:bg-beige-100 dark:hover:bg-neutral-800/30'"
             >
               <div class="flex items-center justify-between">
                 <div class="flex-1 min-w-0">
@@ -676,7 +666,7 @@
                         >
                           {{ meetup.name }}
                         </h4>
-                        <span v-if="meetup.status === 'registered'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        <span v-if="meetup.status === 'registered'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
                           참가 확정
                         </span>
                         <span v-else class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
@@ -763,7 +753,7 @@
                       'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                       meetup.is_full
                         ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                        : 'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200',
                     ]"
                   >
                     {{ meetup.is_full ? "마감" : "모집중" }}
@@ -800,7 +790,7 @@
             <div
               v-for="meetup in allMyMeetups"
               :key="meetup.id + '-' + meetup.status"
-              :class="meetup.status === 'registered' ? 'bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-800/40 dark:to-emerald-800/40 rounded-lg p-4 space-y-3 border border-green-200 dark:border-green-700' : 'bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-800/40 dark:to-orange-800/40 rounded-lg p-4 space-y-3 border border-yellow-200 dark:border-yellow-700'"
+              :class="meetup.status === 'registered' ? 'bg-gradient-to-r from-beige-100 to-beige-50 dark:from-neutral-800/30 dark:to-neutral-800/10 rounded-lg p-4 space-y-3 border border-beige-300 dark:border-neutral-700' : 'bg-gradient-to-r from-beige-100 to-beige-50 dark:from-neutral-800/30 dark:to-neutral-800/10 rounded-lg p-4 space-y-3 border border-beige-300 dark:border-neutral-700'"
             >
               <div class="flex justify-between items-start">
                 <div class="flex items-start space-x-3 flex-1 min-w-0">
@@ -814,10 +804,10 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-2">
-                      <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <h3 class="text-sm font-medium text-black dark:text-white truncate">
                         {{ meetup.name }}
                       </h3>
-                      <span v-if="meetup.status === 'registered'" class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 flex-shrink-0">
+                      <span v-if="meetup.status === 'registered'" class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 flex-shrink-0">
                         참가 확정
                       </span>
                       <span v-else class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 flex-shrink-0">
@@ -902,7 +892,7 @@
         class="relative top-20 mx-auto p-6 max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700"
       >
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+          <h3 class="text-lg font-medium text-black dark:text-white">
             수정
           </h3>
           <button
@@ -934,7 +924,7 @@
               v-model="editForm.name"
               type="text"
               required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
+  class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
           <div>
@@ -945,7 +935,7 @@
             <textarea
               v-model="editForm.description"
               rows="4"
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
+  class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             ></textarea>
           </div>
           <div>
@@ -957,7 +947,7 @@
               v-model="editForm.location"
               type="text"
               required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
+  class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
           <div>
@@ -969,7 +959,7 @@
               v-model="editForm.date_time"
               type="datetime-local"
               required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
+  class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
           <div>
@@ -984,7 +974,7 @@
               step="0.5"
               placeholder="예: 2 (2시간)"
               required
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
+  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm"
             />
           </div>
           <div>
@@ -997,7 +987,7 @@
               type="number"
               min="1"
               required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
+  class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"
             />
           </div>
 
@@ -1010,7 +1000,7 @@
               v-model="editForm.hashtags"
               type="text"
               placeholder="#개발,#네트워킹,#스타트업 (쉼표로 구분)"
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-base"
+  class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-base"
             />
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               해시태그를 쉼표로 구분하여 입력하세요. 예: #개발,#네트워킹,#스타트업
@@ -1031,7 +1021,7 @@
                   class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
                   @error="handleImageError"
                 />
-                <span class="absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded">현재</span>
+                <span class="absolute top-0 left-0 bg-neutral-700 text-white text-xs px-1 rounded">현재</span>
               </div>
 
               <!-- New Image Options -->
@@ -1047,7 +1037,7 @@
                     ref="editImageInput"
                     @change="handleEditImageUpload"
                     accept="image/*"
-                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300"
+                    class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200 dark:file:bg-neutral-800 dark:file:text-neutral-300"
                   />
                 </div>
                 
@@ -1061,7 +1051,7 @@
                     id="edit-image-url"
                     v-model="editForm.imageUrl"
                     placeholder="https://example.com/image.jpg"
-                    class="block w-full px-2 py-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm"
+                    class="block w-full px-2 py-1 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm"
                   />
                 </div>
               </div>
@@ -1074,7 +1064,7 @@
                   class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
                   @error="handleImageError"
                 />
-                <span class="absolute top-0 left-0 bg-green-500 text-white text-xs px-1 rounded">새 이미지</span>
+                <span class="absolute top-0 left-0 bg-neutral-700 text-white text-xs px-1 rounded">새 이미지</span>
                 <button
                   type="button"
                   @click="removeEditImage"
@@ -1100,7 +1090,7 @@
             <button
               type="submit"
               :disabled="updating"
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
                 v-if="updating"
@@ -1141,7 +1131,7 @@
       >
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+            <h3 class="text-lg font-medium text-black dark:text-white">
               참가자 관리: {{ selectedMeetup?.name }}
             </h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -1160,7 +1150,7 @@
 
         <!-- Manual Registration Form -->
         <div class="bg-white dark:bg-gray-700 rounded-lg p-4 mb-4">
-          <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">
+          <h4 class="text-md font-medium text-black dark:text-white mb-3">
             수동 참가자 등록
           </h4>
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -1177,7 +1167,7 @@
                   type="text"
                   required
                   placeholder="참가자 이름"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
                 />
               </div>
               <div>
@@ -1189,7 +1179,7 @@
                   type="email"
                   required
                   placeholder="참가자 이메일"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
                 />
               </div>
             </div>
@@ -1197,7 +1187,7 @@
               <button
                 type="submit"
                 :disabled="addingParticipant"
-                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg v-if="addingParticipant" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1211,13 +1201,13 @@
 
         <!-- Participants List -->
         <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-          <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">
+          <h4 class="text-md font-medium text-black dark:text-white mb-3">
             등록된 참가자
           </h4>
           
           <!-- Loading State -->
           <div v-if="loadingParticipants" class="text-center py-4">
-            <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-neutral-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -1239,8 +1229,8 @@
               <div class="flex-1">
                 <div class="flex items-center space-x-3">
                   <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
-                      <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="w-8 h-8 bg-beige-200 dark:bg-neutral-800 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-neutral-700 dark:text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
@@ -1271,7 +1261,7 @@
 
         <!-- Send Notification Section -->
         <div class="bg-white dark:bg-gray-700 rounded-lg p-4 mt-4">
-          <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">
+          <h4 class="text-md font-medium text-black dark:text-white mb-3">
             참가자에게 알림 보내기
           </h4>
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -1287,7 +1277,7 @@
                 type="text"
                 required
                 placeholder="알림 제목"
-                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
               />
             </div>
             <div>
@@ -1299,14 +1289,14 @@
                 required
                 rows="3"
                 placeholder="알림 내용"
-                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"
               ></textarea>
             </div>
             <div class="flex justify-end">
               <button
                 type="submit"
                 :disabled="sendingNotification || participants.length === 0"
-                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg v-if="sendingNotification" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1338,10 +1328,10 @@
   >
     <div class="relative top-4 mx-auto p-0 max-w-6xl bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col">
       <!-- Modal Header -->
-      <div class="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 rounded-t-lg border-b border-blue-200 dark:border-blue-800">
+      <div class="bg-beige-100 dark:bg-neutral-900 px-6 py-4 rounded-t-lg border-b border-beige-300 dark:border-neutral-800">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">알림 관리</h3>
+            <h3 class="text-xl font-semibold text-black dark:text-white">알림 관리</h3>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               총 {{ notificationPagination.total }}개 알림 ({{ unreadNotificationCount }}개 읽지 않음)
             </p>
@@ -1351,7 +1341,7 @@
               v-if="unreadNotificationCount > 0"
               @click="markAllNotificationsRead"
               :disabled="loadingNotifications"
-              class="bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-200 px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-50 flex items-center space-x-1"
+              class="bg-beige-200 hover:bg-beige-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-50 flex items-center space-x-1"
             >
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -1377,25 +1367,23 @@
           <div class="flex items-start justify-between mb-4">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                   :class="selectedNotification.notification_type === 'waitlist_promotion' ? 'bg-green-100 dark:bg-green-900/40' : 'bg-blue-100 dark:bg-blue-900/40'">
-                <svg v-if="selectedNotification.notification_type === 'waitlist_promotion'" class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   :class="'bg-beige-200 dark:bg-neutral-800'">
+                <svg v-if="selectedNotification.notification_type === 'waitlist_promotion'" class="w-5 h-5 text-neutral-700 dark:text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <svg v-else class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg v-else class="w-5 h-5 text-neutral-700 dark:text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedNotification.title }}</h4>
+                <h4 class="text-lg font-semibold text-black dark:text-white">{{ selectedNotification.title }}</h4>
                 <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mt-1">
                   <span>{{ selectedNotification.time_ago }}</span>
-                  <span v-if="selectedNotification.meetup_name" class="text-blue-600 dark:text-blue-400 font-medium">
+                  <span v-if="selectedNotification.meetup_name" class="text-neutral-800 dark:text-neutral-300 font-medium">
                     {{ selectedNotification.meetup_name }}
                   </span>
                   <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                        :class="selectedNotification.notification_type === 'waitlist_promotion' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
-                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'">
+                        :class="'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-300'">
                     {{ selectedNotification.notification_type === 'waitlist_promotion' ? '대기열 승격' : '일반 알림' }}
                   </span>
                 </div>
@@ -1418,7 +1406,7 @@
         <div class="p-6">
           <!-- Loading state -->
           <div v-if="loadingNotifications" class="py-12 text-center">
-            <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-neutral-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -1430,7 +1418,7 @@
             <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM15 17H9a2 2 0 01-2-2V5a2 2 0 012-2h6a2 2 0 012 2v10z" />
             </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">알림이 없습니다</h3>
+            <h3 class="mt-4 text-lg font-medium text-black dark:text-white">알림이 없습니다</h3>
             <p class="mt-2 text-gray-500 dark:text-gray-400">
               대기열에서 승격되거나 모임 관련 알림이 있을 때 여기에 표시됩니다.
             </p>
@@ -1458,17 +1446,17 @@
                   v-for="notification in paginatedNotifications"
                   :key="notification.id"
                   class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  :class="{ 'bg-blue-50 dark:bg-blue-900/20': !notification.is_read }"
+                  :class="{ 'bg-beige-100 dark:bg-neutral-900': !notification.is_read }"
                   @click="selectNotification(notification)"
                 >
                   <!-- Status -->
                   <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                     <div class="flex items-center">
-                      <div v-if="!notification.is_read" class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                      <div v-if="!notification.is_read" class="w-2 h-2 bg-neutral-500 rounded-full mr-3"></div>
                       <div v-else class="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full mr-3"></div>
                       <span class="text-xs font-medium px-2 py-1 rounded-full"
                             :class="!notification.is_read 
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' 
+                              ? 'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-300' 
                               : 'bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-300'">
                         {{ !notification.is_read ? '읽지 않음' : '읽음' }}
                       </span>
@@ -1478,11 +1466,11 @@
                   <td class="whitespace-nowrap px-3 py-4 text-sm">
                     <div class="flex items-center">
                       <div class="w-8 h-8 rounded-full flex items-center justify-center mr-3"
-                           :class="notification.notification_type === 'waitlist_promotion' ? 'bg-green-100 dark:bg-green-900/40' : 'bg-blue-100 dark:bg-blue-900/40'">
-                        <svg v-if="notification.notification_type === 'waitlist_promotion'" class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           :class="'bg-beige-200 dark:bg-neutral-800'">
+                        <svg v-if="notification.notification_type === 'waitlist_promotion'" class="w-4 h-4 text-neutral-700 dark:text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <svg v-else class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg v-else class="w-4 h-4 text-neutral-700 dark:text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
@@ -1497,7 +1485,7 @@
                   </td>
                   <!-- Meetup -->
                   <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span v-if="notification.meetup_name" class="truncate max-w-xs text-blue-600 dark:text-blue-400" :title="notification.meetup_name">
+                    <span v-if="notification.meetup_name" class="truncate max-w-xs text-neutral-800 dark:text-neutral-300" :title="notification.meetup_name">
                       {{ notification.meetup_name }}
                     </span>
                     <span v-else>-</span>
@@ -1511,7 +1499,7 @@
                     <button
                       v-if="!notification.is_read"
                       @click.stop="markNotificationRead(notification.id)"
-                      class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                      class="text-neutral-800 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100"
                     >
                       읽음 표시
                     </button>
@@ -1570,7 +1558,7 @@
                     :class="[
                       'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                       page === notificationPagination.current_page
-                        ? 'z-10 bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-600 dark:text-blue-400'
+                        ? 'z-10 bg-beige-100 dark:bg-neutral-900 border-beige-300 text-neutral-800 dark:text-neutral-300'
                         : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'
                     ]"
                   >
@@ -2160,8 +2148,8 @@ export default {
       }
     };
 
-    const logout = () => {
-      authStore.logout();
+    const logout = async () => {
+      await authStore.logout();
       router.push("/login");
     };
 

@@ -1,15 +1,15 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 safe-area-top safe-area-bottom transition-all duration-300">
-    <!-- Subtle background decoration with green accent -->
+  <div class="min-h-screen flex items-center justify-center bg-beige-50 dark:bg-neutral-950 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 safe-area-top safe-area-bottom transition-all duration-300">
+    <!-- Subtle background decoration with beige accent -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-100/30 dark:bg-primary-900/10 rounded-full blur-3xl"></div>
-      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-200/20 dark:bg-primary-800/10 rounded-full blur-3xl"></div>
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-beige-100/50 dark:bg-neutral-800/20 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-beige-200/40 dark:bg-neutral-800/20 rounded-full blur-3xl"></div>
     </div>
 
     <div class="relative z-10 max-w-md w-full">
       <!-- Theme toggle positioned at top right -->
       <div class="flex justify-end mb-8">
-        <ThemeToggle />
+        <ThemeToggle variant="neutral" />
       </div>
 
       <!-- Main login card -->
@@ -17,7 +17,7 @@
         <!-- Header section -->
         <div class="text-center mb-8">
           <div class="mb-6">
-            <h1 class="text-4xl font-bold text-gradient mb-3 text-balance">
+            <h1 class="text-4xl font-bold mb-3 text-neutral-900 dark:text-neutral-100 text-balance">
               한번 모임
             </h1>
             <p class="text-neutral-600 dark:text-neutral-400 text-balance">
@@ -29,7 +29,7 @@
             또는
             <router-link
               to="/register"
-              class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors ml-1"
+              class="font-semibold text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline underline-offset-2 transition-colors ml-1"
             >
               새 계정 만들기
             </router-link>
@@ -40,18 +40,18 @@
         <form class="space-y-6" @submit.prevent="handleLogin">
           <div class="space-y-4">
             <div>
-              <label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                이메일 주소
+              <label for="username" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                사용자명
               </label>
               <input
-                id="email"
-                v-model="form.email"
-                name="email"
-                type="email"
+                id="username"
+                v-model="form.username"
+                name="username"
+                type="text"
                 required
-                autocomplete="email"
-                class="input-primary"
-                placeholder="이메일을 입력해주세요"
+                autocomplete="username"
+                class="input-primary focus:ring-neutral-500 focus:border-neutral-500"
+                placeholder="사용자명을 입력해주세요"
               />
             </div>
             
@@ -66,7 +66,7 @@
                 type="password"
                 required
                 autocomplete="current-password"
-                class="input-primary"
+                class="input-primary focus:ring-neutral-500 focus:border-neutral-500"
                 placeholder="비밀번호를 입력해주세요"
               />
             </div>
@@ -79,7 +79,7 @@
               v-model="form.remember"
               name="remember-me"
               type="checkbox"
-              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-900"
+              class="h-4 w-4 text-neutral-700 focus:ring-neutral-500 border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-900"
             />
             <label for="remember-me" class="ml-3 block text-sm text-neutral-700 dark:text-neutral-300">
               로그인 상태 유지
@@ -90,8 +90,8 @@
           <div class="space-y-3">
             <button
               type="submit"
-              class="btn-primary w-full"
-              :disabled="!form.email || !form.password"
+              class="w-full inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 disabled:opacity-60 disabled:cursor-not-allowed"
+              :disabled="!form.username || !form.password"
             >
               로그인
             </button>
@@ -119,7 +119,7 @@
 
           <!-- Help and info -->
           <div class="text-center space-y-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
-            <div class="status-warning">
+            <div class="status-info">
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
@@ -128,7 +128,7 @@
             
             <router-link
               to="/help"
-              class="inline-flex items-center text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+              class="inline-flex items-center text-sm text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline underline-offset-2 transition-colors"
             >
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -159,7 +159,7 @@ export default {
     const authStore = useAuthStore();
 
     const form = reactive({
-      email: "",
+      username: "",
       password: "",
       remember: false,
     });
@@ -171,7 +171,7 @@ export default {
         const response = await fetchWithCSRF("/api/auth/login/", {
           method: "POST",
           body: JSON.stringify({
-            username: form.email,
+            username: form.username,
             password: form.password,
           }),
         });

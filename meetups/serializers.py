@@ -68,6 +68,14 @@ class MeetupSerializer(serializers.ModelSerializer):
             return obj.image_url
         return ''
 
+    def validate(self, attrs):
+        hashtags = attrs.get('hashtags')
+        if hashtags:
+            parts = [p.strip() for p in hashtags.split(',') if p.strip()]
+            if len(parts) > 5:
+                raise serializers.ValidationError({'hashtags': '해시태그는 최대 5개까지 입력할 수 있습니다.'})
+        return attrs
+
 class RegistrationSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.name', read_only=True)
     user_email = serializers.CharField(source='user.email', read_only=True)

@@ -288,7 +288,7 @@
                     class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 sm:text-base"
                   />
                   <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                    모임과 관련된 해시태그를 쉼표로 구분하여 입력하세요. # 기호는 자동으로 추가됩니다.
+                    모임과 관련된 해시태그를 쉼표로 구분하여 입력하세요. # 기호는 자동으로 추가됩니다. 최대 5개까지 입력 가능합니다.
                   </p>
                 </div>
               </div>
@@ -454,6 +454,11 @@ export default {
             .map(tag => tag.trim())
             .filter(tag => tag.length > 0)
             .map(tag => tag.startsWith('#') ? tag : '#' + tag)
+          if (hashtags.length > 5) {
+            error.value = '해시태그는 최대 5개까지 입력할 수 있습니다.'
+            loading.value = false
+            return
+          }
           processedHashtags = hashtags.join(',')
         }
 
@@ -525,8 +530,8 @@ export default {
       }
     }
 
-    const logout = () => {
-      authStore.logout()
+    const logout = async () => {
+      await authStore.logout()
       router.push('/login')
     }
 
