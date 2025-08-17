@@ -495,7 +495,7 @@
               관심 있는 모임에 참가 신청하거나 대기열에 등록해보세요.
             </p>
             <div class="mt-6">
-              <router-link to="/dashboard" class="btn-primary">
+              <router-link to="/dashboard" class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">
                 <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                   fill="currentColor">
                   <path

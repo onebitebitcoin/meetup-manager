@@ -85,6 +85,49 @@
               </span>
             </div>
           </div>
+
+          <!-- Participants -->
+          <div class="pt-4 border-t border-neutral-200 dark:border-neutral-700">
+            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">참가자 목록</h4>
+            
+            <!-- Loading state -->
+            <div v-if="loadingParticipants" class="flex justify-center py-4">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+            </div>
+            
+            <!-- Participants list -->
+            <div v-else-if="participants.length > 0" class="space-y-2 max-h-40 overflow-y-auto">
+              <div 
+                v-for="(participant, index) in participants" 
+                :key="participant.id"
+                class="flex items-center justify-between p-2 bg-beige-50 dark:bg-neutral-800 rounded-lg"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="flex-shrink-0 w-6 h-6 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                    <span class="text-xs font-medium text-primary-700 dark:text-primary-300">{{ index + 1 }}</span>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                      {{ maskUsername(participant.user_name) }}
+                    </p>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                      {{ maskEmail(participant.user_email) }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex-shrink-0">
+                  <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                    {{ formatDateTime(participant.registered_at) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Empty state -->
+            <div v-else class="text-center py-4">
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">아직 참가자가 없습니다.</p>
+            </div>
+          </div>
         </div>
         
         <!-- Action Buttons -->
@@ -152,6 +195,8 @@ export default {
     const meetupsStore = useMeetupsStore()
     const authStore = useAuthStore()
     const registering = ref(false)
+    const participants = ref([])
+    const loadingParticipants = ref(false)
     
     // Get current meetup data from store (for real-time updates)
     const currentMeetupData = computed(() => {
@@ -174,6 +219,48 @@ export default {
         hour: '2-digit',
         minute: '2-digit'
       })
+    }
+
+    // Mask email addresses for privacy
+    const maskEmail = (email) => {
+      if (!email) return ''
+      const [localPart, domain] = email.split('@')
+      if (!domain) return email
+      
+      const maskedLocal = localPart.length <= 2 
+        ? localPart 
+        : localPart.substring(0, 2) + '*'.repeat(localPart.length - 2)
+      
+      return `${maskedLocal}@${domain}`
+    }
+
+    // Mask usernames for privacy
+    const maskUsername = (username) => {
+      if (!username) return ''
+      if (username.length <= 2) return username
+      
+      return username.substring(0, 2) + '*'.repeat(username.length - 2)
+    }
+
+    // Fetch participants data
+    const fetchParticipants = async () => {
+      if (!props.selectedMeetup) return
+      
+      loadingParticipants.value = true
+      try {
+        const response = await fetch(`/api/meetups/${props.selectedMeetup.id}/registrations/`, {
+          credentials: 'include'
+        })
+        if (response.ok) {
+          const data = await response.json()
+          participants.value = data.registrations || []
+        }
+      } catch (error) {
+        console.error('Failed to fetch participants:', error)
+        participants.value = []
+      } finally {
+        loadingParticipants.value = false
+      }
     }
 
     // Check registration and waitlist status for current meetup
@@ -307,14 +394,16 @@ export default {
       }
     }
 
-    // Watch for selectedMeetup changes to check registration status
+    // Watch for selectedMeetup changes to check registration status and fetch participants
     watch(() => props.selectedMeetup, (newMeetup) => {
       if (newMeetup) {
         checkRegistrationStatus()
+        fetchParticipants()
       } else {
         isRegistered.value = false
         isWaitlisted.value = false
         waitlistPosition.value = 0
+        participants.value = []
       }
     }, { immediate: true })
 
@@ -330,8 +419,12 @@ export default {
       isRegistered,
       isWaitlisted,
       waitlistPosition,
+      participants,
+      loadingParticipants,
       formatDateTime,
       formatTime,
+      maskEmail,
+      maskUsername,
       registerForMeetup,
       unregisterFromMeetup,
       joinWaitlist,
