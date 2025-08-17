@@ -197,11 +197,10 @@
                 {{ meetup.description }}
               </p>
               <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="flex flex-wrap gap-1 mt-2">
-                <span v-for="hashtag in meetup.hashtags_list.slice(0, 2)" :key="hashtag" 
+                <span v-for="hashtag in meetup.hashtags_list" :key="hashtag" 
                       class="inline-flex px-1.5 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
                   {{ hashtag }}
                 </span>
-                <span v-if="meetup.hashtags_list.length > 2" class="text-xs text-gray-400">+{{ meetup.hashtags_list.length - 2 }}</span>
               </div>
             </div>
             <span 

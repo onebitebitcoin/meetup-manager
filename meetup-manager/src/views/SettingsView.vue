@@ -187,13 +187,13 @@
               <div class="mt-6">
                 <router-link to="/create-meetup"
                   class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
-                  <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                  <svg class="h-5 w-5 sm:-ml-1 sm:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                     fill="currentColor">
                     <path fill-rule="evenodd"
                       d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                       clip-rule="evenodd" />
                   </svg>
-                  새 모임 만들기
+                  <span class="hidden sm:inline">새 모임 만들기</span>
                 </router-link>
               </div>
             </div>
@@ -236,13 +236,13 @@
                 </router-link> -->
                 <router-link to="/create-meetup"
                   class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
-                  <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                  <svg class="h-5 w-5 sm:-ml-1 sm:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                     fill="currentColor">
                     <path fill-rule="evenodd"
                       d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                       clip-rule="evenodd" />
                   </svg>
-                  새 모임 만들기
+                  <span class="hidden sm:inline">새 모임 만들기</span>
                 </router-link>
               </div>
             </div>

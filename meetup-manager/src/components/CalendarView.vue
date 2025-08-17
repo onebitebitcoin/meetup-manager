@@ -89,42 +89,44 @@
 
     <!-- 날짜별 모임 목록 모달 -->
     <div v-if="selectedDateMeetups" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click="selectedDateMeetups = null">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto" @click.stop>
-        <div class="flex justify-between items-start mb-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ selectedDateMeetups.date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) }} 모임 목록
-          </h3>
-          <button @click="selectedDateMeetups = null" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-beige-50 dark:bg-neutral-800 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden" @click.stop>
+        <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-600 bg-beige-200 dark:bg-neutral-700">
+          <button @click="selectedDateMeetups = null" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
+          <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pr-8">
+            {{ selectedDateMeetups.date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) }} 모임 목록
+          </h3>
         </div>
-        <div class="space-y-3">
-          <div 
-            v-for="meetup in selectedDateMeetups.meetups" 
-            :key="meetup.id"
-            @click="selectMeetupFromDate(meetup)"
-            class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <div class="flex justify-between items-start mb-2">
-              <h4 class="font-medium text-gray-900 dark:text-white">{{ meetup.name }}</h4>
-              <span 
-                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                :class="getStatusClass(meetup.date_time)"
-              >
-                {{ getStatus(meetup.date_time) }}
-              </span>
-            </div>
-            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-              <div>
-                <span class="font-medium">시간:</span> 
-                {{ formatTime(meetup.date_time) }}
-                <span v-if="meetup.end_time"> - {{ formatTime(meetup.end_time) }}</span>
+        <div class="px-6 py-4 overflow-y-auto max-h-[calc(90vh-12rem)]">
+          <div class="space-y-3">
+            <div 
+              v-for="meetup in selectedDateMeetups.meetups" 
+              :key="meetup.id"
+              @click="selectMeetupFromDate(meetup)"
+              class="p-4 border border-neutral-200 dark:border-neutral-600 rounded-lg cursor-pointer hover:bg-beige-100 dark:hover:bg-neutral-700 transition-colors"
+            >
+              <div class="flex justify-between items-start gap-3 mb-2">
+                <h4 class="font-medium text-neutral-900 dark:text-neutral-100 min-w-0 flex-1 truncate">{{ meetup.name }}</h4>
+                <span 
+                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap flex-shrink-0"
+                  :class="getStatusClass(meetup)"
+                >
+                  {{ getStatus(meetup) }}
+                </span>
               </div>
-              <div><span class="font-medium">장소:</span> {{ meetup.location }}</div>
-              <div><span class="font-medium">참여:</span> {{ meetup.current_participants }} / {{ meetup.max_participants }}명</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ meetup.description }}</div>
+              <div class="text-sm text-neutral-600 dark:text-neutral-400 space-y-1">
+                <div>
+                  <span class="font-medium">시간:</span> 
+                  {{ formatTime(meetup.date_time) }}
+                  <span v-if="meetup.end_time"> - {{ formatTime(meetup.end_time) }}</span>
+                </div>
+                <div><span class="font-medium">장소:</span> {{ meetup.location }}</div>
+                <div><span class="font-medium">참여:</span> {{ meetup.current_participants }} / {{ meetup.max_participants }}명</div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400 truncate">{{ meetup.description }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -239,13 +241,15 @@ export default {
       selectedMeetup.value = meetup
     }
 
-    const getStatus = (dateString) => {
-      const meetupDate = new Date(dateString)
+    const getStatus = (meetup) => {
+      const meetupDate = new Date(meetup.date_time)
       const now = new Date()
       const diffHours = (meetupDate - now) / (1000 * 60 * 60)
 
       if (diffHours < 0) {
         return '종료'
+      } else if (meetup.current_participants >= meetup.max_participants) {
+        return '마감'
       } else if (diffHours < 24) {
         return '임박'
       } else if (diffHours < 72) {
@@ -255,11 +259,12 @@ export default {
       }
     }
 
-    const getStatusClass = (dateString) => {
-      const status = getStatus(dateString)
+    const getStatusClass = (meetup) => {
+      const status = getStatus(meetup)
       const classes = {
         '종료': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-        '임박': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        '마감': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        '임박': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
         '예정': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
         '모집중': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       }

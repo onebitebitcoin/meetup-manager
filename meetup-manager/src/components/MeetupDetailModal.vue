@@ -100,20 +100,20 @@
               <div 
                 v-for="(participant, index) in participants" 
                 :key="participant.id"
-                class="flex items-center justify-between p-2 bg-beige-50 dark:bg-neutral-800 rounded-lg"
+                class="flex items-center gap-3 p-2 bg-beige-50 dark:bg-neutral-800 rounded-lg"
               >
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 flex-1 min-w-0">
                   <div class="flex-shrink-0 w-6 h-6 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
                     <span class="text-xs font-medium text-primary-700 dark:text-primary-300">{{ index + 1 }}</span>
                   </div>
-                  <div class="min-w-0">
-                    <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate" :title="maskEmail(participant.user_email)">
                       {{ maskEmail(participant.user_email) }}
                     </p>
                   </div>
                 </div>
-                <div class="flex-shrink-0">
-                  <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                <div class="flex-shrink-0 ml-auto">
+                  <span class="text-xs text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
                     {{ formatDateTime(participant.registered_at) }}
                   </span>
                 </div>
