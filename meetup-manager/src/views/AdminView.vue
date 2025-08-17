@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-200">
     <!-- Header -->
-    <header class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700 transition-colors duration-200">
+    <header class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 transition-colors duration-200">
       <div class="container mx-auto px-4 py-3">
         <div class="flex justify-between items-center">
           <!-- Left side -->
@@ -14,7 +14,12 @@
               <span class="text-lg sm:text-xl">←</span>
             </button>
             <div class="flex items-center space-x-2">
-              <h1 class="text-lg sm:text-2xl font-bold text-gray-800 dark:text-white">
+              <img 
+                src="/icons/logo.png" 
+                alt="한번 모임 로고" 
+                class="h-8 w-8 rounded-lg"
+              />
+              <h1 class="text-lg sm:text-2xl font-bold text-neutral-800 dark:text-neutral-100">
                 <span class="hidden sm:inline">관리자 패널</span>
                 <span class="sm:hidden">관리자</span>
               </h1>

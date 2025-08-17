@@ -1,113 +1,143 @@
 <template>
-  <div
-    class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 safe-area-top safe-area-bottom"
-  >
-    <div class="max-w-md w-full space-y-6 sm:space-y-8">
-      <!-- 테마 토글 버튼 -->
-      <div class="flex justify-end">
+  <div class="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 safe-area-top safe-area-bottom transition-all duration-300">
+    <!-- Subtle background decoration with green accent -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-100/30 dark:bg-primary-900/10 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-200/20 dark:bg-primary-800/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 max-w-md w-full">
+      <!-- Theme toggle positioned at top right -->
+      <div class="flex justify-end mb-8">
         <ThemeToggle />
       </div>
 
-      <div>
-        <div class="text-center mb-6 tablet:mb-8">
-          <h1
-            class="text-2xl xs:text-3xl tablet:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2"
-          >
-            한번 모임
-          </h1>
-          <p class="text-sm xs:text-base text-gray-600 dark:text-gray-400">
-            환영합니다! 계속하려면 로그인해주세요
-          </p>
-          <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-          또는
-          <router-link
-            to="/register"
-            class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-          >
-            새 계정 만들기
-          </router-link>
-        </p>
-        </div>
-
-        
-      </div>
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="rounded-md shadow-sm space-y-3">
-          <div>
-            <label for="email" class="sr-only">이메일</label>
-            <input
-              id="email"
-              v-model="form.email"
-              name="email"
-              type="email"
-              required
-              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="이메일 주소"
-            />
+      <!-- Main login card -->
+      <div class="card card-elevated p-8 animate-slide-up">
+        <!-- Header section -->
+        <div class="text-center mb-8">
+          <div class="mb-6">
+            <h1 class="text-4xl font-bold text-gradient mb-3 text-balance">
+              한번 모임
+            </h1>
+            <p class="text-neutral-600 dark:text-neutral-400 text-balance">
+              환영합니다! 계속하려면 로그인해주세요
+            </p>
           </div>
-          <div>
-            <label for="password" class="sr-only">비밀번호</label>
-            <input
-              id="password"
-              v-model="form.password"
-              name="password"
-              type="password"
-              required
-              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="비밀번호"
-            />
+          
+          <div class="text-sm text-neutral-500 dark:text-neutral-500">
+            또는
+            <router-link
+              to="/register"
+              class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors ml-1"
+            >
+              새 계정 만들기
+            </router-link>
           </div>
         </div>
 
-        <div class="flex items-center justify-between">
+        <!-- Login form -->
+        <form class="space-y-6" @submit.prevent="handleLogin">
+          <div class="space-y-4">
+            <div>
+              <label for="email" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                이메일 주소
+              </label>
+              <input
+                id="email"
+                v-model="form.email"
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                class="input-primary"
+                placeholder="이메일을 입력해주세요"
+              />
+            </div>
+            
+            <div>
+              <label for="password" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                비밀번호
+              </label>
+              <input
+                id="password"
+                v-model="form.password"
+                name="password"
+                type="password"
+                required
+                autocomplete="current-password"
+                class="input-primary"
+                placeholder="비밀번호를 입력해주세요"
+              />
+            </div>
+          </div>
+
+          <!-- Remember me checkbox -->
           <div class="flex items-center">
             <input
               id="remember-me"
               v-model="form.remember"
               name="remember-me"
               type="checkbox"
-              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded bg-white dark:bg-neutral-900"
             />
-            <label
-              for="remember-me"
-              class="ml-2 block text-sm text-gray-900 dark:text-gray-300"
-            >
+            <label for="remember-me" class="ml-3 block text-sm text-neutral-700 dark:text-neutral-300">
               로그인 상태 유지
             </label>
           </div>
-        </div>
 
-        <div class="space-y-3">
-          <button
-            type="submit"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            로그인
-          </button>
+          <!-- Action buttons -->
+          <div class="space-y-3">
+            <button
+              type="submit"
+              class="btn-primary w-full"
+              :disabled="!form.email || !form.password"
+            >
+              로그인
+            </button>
 
-          <button
-            type="button"
-            @click="handleGuestLogin"
-            class="group relative w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            게스트로 입장
-          </button>
-        </div>
+            <div class="relative">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-neutral-200 dark:border-neutral-700"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-3 bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400">또는</span>
+              </div>
+            </div>
 
-        <div class="text-center space-y-2">
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            게스트 모드: 모임 조회만 가능, 생성/참가 불가
-          </p>
-          <div>
+            <button
+              type="button"
+              @click="handleGuestLogin"
+              class="btn-secondary w-full"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              게스트로 입장
+            </button>
+          </div>
+
+          <!-- Help and info -->
+          <div class="text-center space-y-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+            <div class="status-warning">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              게스트 모드: 모임 조회만 가능
+            </div>
+            
             <router-link
               to="/help"
-              class="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 underline"
+              class="inline-flex items-center text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
             >
-              📚 사용 가이드 보기
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              사용 가이드 보기
             </router-link>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 </template>

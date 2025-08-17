@@ -1,11 +1,16 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-          <div class="flex items-center">
+          <div class="flex items-center space-x-3">
+            <img 
+              src="/icons/logo.png" 
+              alt="한번 모임 로고" 
+              class="h-8 w-8 rounded-lg"
+            />
             <h1
-              class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white"
+              class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100"
             >
               한번 모임
             </h1>

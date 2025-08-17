@@ -1,19 +1,26 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:to-gray-900">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <!-- Navigation -->
-    <nav class="bg-gradient-to-r from-slate-100 to-gray-100 dark:bg-gradient-to-r dark:from-slate-800 dark:to-gray-800 shadow safe-area-top border-b border-slate-200 dark:border-slate-600">
+    <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center">
-            <div class="flex items-center space-x-2">
-              <div class="p-1 bg-slate-200 dark:bg-slate-600 rounded-lg">
-                <svg class="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
+            <div class="flex items-center space-x-3">
+              <img 
+                src="/icons/logo.png" 
+                alt="한번 모임 로고" 
+                class="h-8 w-8 rounded-lg"
+              />
+              <div class="flex items-center space-x-2">
+                <div class="p-1 bg-primary-200 dark:bg-primary-800 rounded-lg">
+                  <svg class="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h1 class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  새 모임 만들기
+                </h1>
               </div>
-              <h1 class="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-50">
-                새 모임 만들기
-              </h1>
             </div>
           </div>
           <div class="flex items-center space-x-1 sm:space-x-4">

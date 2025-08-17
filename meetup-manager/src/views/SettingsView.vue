@@ -1,11 +1,16 @@
 <template>
-  <div class="min-h-screen bg-gray-200 dark:bg-gray-900">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <!-- Navigation -->
-    <nav class="bg-gray-50 dark:bg-gray-800 shadow safe-area-top">
+    <nav class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 safe-area-top">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-          <div class="flex items-center">
-            <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+          <div class="flex items-center space-x-3">
+            <img 
+              src="/icons/logo.png" 
+              alt="한번 모임 로고" 
+              class="h-8 w-8 rounded-lg"
+            />
+            <h1 class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100">
               내 모임 관리
             </h1>
           </div>
@@ -13,7 +18,7 @@
             <!-- Desktop navigation -->
             <router-link
               to="/dashboard"
-              class="hidden sm:block text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
+              class="hidden sm:block text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-3 py-2 rounded-md text-sm font-medium"
             >
               한번 모임
             </router-link>
@@ -21,7 +26,7 @@
             <!-- Mobile: Dashboard icon -->
             <router-link
               to="/dashboard"
-              class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
+              class="sm:hidden p-1 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 rounded-md"
               title="한번 모임"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,12 +44,12 @@
             </div>
             
             <!-- User name - hidden on mobile -->
-            <span class="hidden sm:inline text-gray-700 dark:text-gray-300">{{ authStore.user?.name }}님</span>
+            <span class="hidden sm:inline text-neutral-700 dark:text-neutral-300">{{ authStore.user?.name }}님</span>
             
             <!-- Logout button - compact on mobile -->
             <button
               @click="logout"
-              class="bg-red-600 hover:bg-red-700 text-white px-1 sm:px-4 py-1 sm:py-2 rounded-md text-sm font-medium"
+              class="btn-danger px-1 sm:px-4 py-1 sm:py-2 text-sm"
             >
               <span class="hidden sm:inline">로그아웃</span>
               <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,12 +67,12 @@
         <!-- Success Message -->
         <div
           v-if="message"
-          class="mb-6 rounded-md bg-green-100 dark:bg-green-900 p-4"
+          class="mb-6 rounded-lg bg-primary-100 dark:bg-primary-900/20 p-4 border border-primary-200 dark:border-primary-800"
         >
           <div class="flex">
             <div class="flex-shrink-0">
               <svg
-                class="h-5 w-5 text-green-400"
+                class="h-5 w-5 text-primary-600 dark:text-primary-400"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -79,7 +84,7 @@
               </svg>
             </div>
             <div class="ml-3">
-              <p class="text-sm text-green-700 dark:text-green-200">
+              <p class="text-sm text-primary-700 dark:text-primary-300">
                 {{ message }}
               </p>
             </div>
@@ -88,44 +93,6 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
-          >
-            <div class="p-5">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <svg
-                    class="h-8 w-8 text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt
-                      class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
-                    >
-                      내가 만든 모임
-                    </dt>
-                    <dd
-                      class="text-lg font-medium text-gray-900 dark:text-white"
-                    >
-                      {{ meetups.length }}개
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div
             class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
           >
@@ -193,7 +160,7 @@
                     {{ unreadNotificationCount > 9 ? '9+' : unreadNotificationCount }}
                   </span>
                 </div>
-                <div class="ml-5 w-0 flex-1">
+                <div class="ml-5 w-0 flex-1 text-left">
                   <dl>
                     <dt
                       class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
@@ -244,77 +211,81 @@
           </div>
         </div>
 
-        <!-- Empty State -->
+        <!-- Empty State for Created Meetups -->
         <div
           v-else-if="meetups.length === 0"
-          class="bg-white dark:bg-gray-800 shadow rounded-lg"
+          class="px-4 py-5 sm:px-6 text-center"
         >
-          <div class="px-4 py-5 sm:p-6 text-center">
-            <svg
-              class="mx-auto h-12 w-12 text-gray-400"
-              stroke="currentColor"
-              fill="none"
-              viewBox="0 0 48 48"
+          <svg
+            class="mx-auto h-12 w-12 text-neutral-400"
+            stroke="currentColor"
+            fill="none"
+            viewBox="0 0 48 48"
+          >
+            <path
+              d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m-16-5c9.837 0 16-3.582 16-8"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M16 22V6a2 2 0 012-2h4a2 2 0 012 2v16"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            아직 만든 모임이 없습니다
+          </h3>
+          <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            첫 번째 모임을 만들어 사람들과 함께하는 시간을 가져보세요.
+          </p>
+          <div class="mt-6">
+            <router-link
+              to="/create-meetup"
+              class="btn-primary"
             >
-              <path
-                d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.713-3.714M14 40v-4c0-1.313.253-2.566.713-3.714m0 0A10.003 10.003 0 0124 26c4.21 0 7.813 2.602 9.288 6.286M30 14a6 6 0 11-12 0 6 6 0 0112 0zm12 6a4 4 0 11-8 0 4 4 0 018 0zm-28 0a4 4 0 11-8 0 4 4 0 018 0z"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-              아직 만든 모임이 없습니다
-            </h3>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              첫 번째 모임을 만들어 사람들과 함께하는 시간을 가져보세요.
-            </p>
-            <div class="mt-6">
-              <router-link
-                to="/create-meetup"
-                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              <svg
+                class="-ml-1 mr-2 h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
               >
-                <svg
-                  class="-ml-1 mr-2 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                첫 모임 만들기
-              </router-link>
-            </div>
+                <path
+                  fill-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              첫 모임 만들기
+            </router-link>
           </div>
         </div>
 
         <!-- Meetup Cards -->
         <div v-else class="space-y-6">
           <div
-            class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow rounded-lg overflow-hidden border border-blue-200 dark:border-blue-800"
+            class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800"
           >
             <div
-              class="px-4 py-5 sm:px-6 border-b border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-800/30 dark:to-indigo-800/30"
+              class="px-4 py-5 sm:px-6 border-b border-primary-200 dark:border-primary-800 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/20"
             >
               <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                  <div class="p-2 bg-blue-200 dark:bg-blue-800 rounded-full">
-                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="p-2 bg-primary-200 dark:bg-primary-800 rounded-full">
+                    <svg class="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                   </div>
                   <div>
                     <h3
-                      class="text-lg leading-6 font-medium text-blue-900 dark:text-blue-100"
+                      class="text-lg leading-6 font-medium text-primary-900 dark:text-primary-100"
                     >
                       내가 개설한 모임
                     </h3>
                     <p
-                      class="mt-1 max-w-2xl text-sm text-blue-700 dark:text-blue-300"
+                      class="mt-1 max-w-2xl text-sm text-primary-700 dark:text-primary-300"
                     >
                       {{ meetups.length }}개의 모임을 관리하고 있습니다.
                     </p>
@@ -322,7 +293,7 @@
                 </div>
                 <router-link
                   to="/create-meetup"
-                  class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="btn-primary text-sm leading-4"
                 >
                   <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -333,11 +304,11 @@
               </div>
             </div>
             <!-- Desktop view -->
-            <div class="hidden sm:block divide-y divide-blue-200 dark:divide-blue-700">
+            <div class="hidden sm:block divide-y divide-neutral-200 dark:divide-neutral-700">
               <div
                 v-for="meetup in meetups"
                 :key="meetup.id"
-                class="px-4 py-6 sm:px-6 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-150"
+                class="px-4 py-6 sm:px-6 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors duration-150"
               >
                 <div class="space-y-4">
                   <!-- Main content row -->
@@ -564,24 +535,24 @@
 
         <!-- 내 모임 목록 (등록 + 대기열) -->
         <div
-          class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow rounded-lg overflow-hidden mt-6 border border-blue-200 dark:border-blue-800"
+          class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden mt-6 border border-neutral-200 dark:border-neutral-800"
         >
           <div
-            class="px-4 py-5 sm:px-6 border-b border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-800/30 dark:to-indigo-800/30"
+            class="px-4 py-5 sm:px-6 border-b border-primary-200 dark:border-primary-800 bg-gradient-to-r from-primary-100 to-primary-50 dark:from-primary-900/30 dark:to-primary-800/20"
           >
             <div class="flex items-center space-x-2">
-              <div class="p-2 bg-blue-200 dark:bg-blue-800 rounded-full">
-                <svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="p-2 bg-primary-200 dark:bg-primary-800 rounded-full">
+                <svg class="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
               </div>
               <div>
                 <h3
-                  class="text-lg leading-6 font-medium text-blue-900 dark:text-blue-100"
+                  class="text-lg leading-6 font-medium text-primary-900 dark:text-primary-100"
                 >
                   내 모임 현황
                 </h3>
-                <p class="mt-1 max-w-2xl text-sm text-blue-700 dark:text-blue-300">
+                <p class="mt-1 max-w-2xl text-sm text-primary-700 dark:text-primary-300">
                   참가 확정 {{ registeredMeetups.length }}개, 대기 중 {{ waitlistMeetups.length }}개 총 {{ allMyMeetups.length }}개의 모임
                 </p>
               </div>
@@ -591,7 +562,7 @@
           <!-- 모임 로딩 상태 -->
           <div v-if="loadingRegistered || loadingWaitlist" class="px-4 py-5 sm:px-6 text-center">
             <svg
-              class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500 mx-auto"
+              class="animate-spin -ml-1 mr-3 h-8 w-8 text-primary-500 mx-auto"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -615,13 +586,13 @@
             </p>
           </div>
 
-          <!-- 모임이 없는 경우 -->
+          <!-- Empty State for Registered Meetups -->
           <div
             v-else-if="allMyMeetups.length === 0"
             class="px-4 py-5 sm:px-6 text-center"
           >
             <svg
-              class="mx-auto h-12 w-12 text-gray-400"
+              class="mx-auto h-12 w-12 text-neutral-400"
               stroke="currentColor"
               fill="none"
               viewBox="0 0 48 48"
@@ -633,16 +604,16 @@
                 stroke-linejoin="round"
               />
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+            <h3 class="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
               참가한 모임이 없습니다
             </h3>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
               관심 있는 모임에 참가 신청하거나 대기열에 등록해보세요.
             </p>
             <div class="mt-6">
               <router-link
                 to="/dashboard"
-                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="btn-primary"
               >
                 <svg
                   class="-ml-1 mr-2 h-5 w-5"
@@ -660,7 +631,7 @@
           </div>
 
           <!-- Desktop view for all meetups -->
-          <div v-if="!loadingRegistered && !loadingWaitlist && allMyMeetups.length > 0" class="hidden sm:block divide-y divide-blue-200 dark:divide-blue-700">
+          <div v-if="!loadingRegistered && !loadingWaitlist && allMyMeetups.length > 0" class="hidden sm:block divide-y divide-neutral-200 dark:divide-neutral-700">
             <div
               v-for="meetup in allMyMeetups"
               :key="meetup.id + '-' + meetup.status"
