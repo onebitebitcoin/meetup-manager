@@ -336,13 +336,7 @@
                       <!-- Action buttons -->
                       <div class="flex items-center space-x-1 ml-4">
                         <button @click="editMeetup(meetup)"
-                          :disabled="isMeetupPast(meetup)"
-                          :class="[
-                            'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
-                            isMeetupPast(meetup)
-                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-                              : 'text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800'
-                          ]"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
                           title="수정">
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -351,13 +345,7 @@
                           수정
                         </button>
                         <button @click="openManageParticipants(meetup)"
-                          :disabled="isMeetupPast(meetup)"
-                          :class="[
-                            'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
-                            isMeetupPast(meetup)
-                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-                              : 'text-orange-700 bg-orange-200 hover:bg-orange-300 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800'
-                          ]"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-orange-700 bg-orange-200 hover:bg-orange-300 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800"
                           title="참가자 관리">
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -366,13 +354,7 @@
                           참가자 추가
                         </button>
                         <button @click="deleteMeetup(meetup.id)"
-                          :disabled="isMeetupPast(meetup)"
-                          :class="[
-                            'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
-                            isMeetupPast(meetup)
-                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-                              : 'text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
-                          ]"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
                           title="삭제">
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -437,33 +419,15 @@
 
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
                   <button @click="editMeetup(meetup)"
-                    :disabled="isMeetupPast(meetup)"
-                    :class="[
-                      'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
-                      isMeetupPast(meetup)
-                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-                        : 'text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800'
-                    ]">
+                    class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
                     수정
                   </button>
                   <button @click="openManageParticipants(meetup)"
-                    :disabled="isMeetupPast(meetup)"
-                    :class="[
-                      'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
-                      isMeetupPast(meetup)
-                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-                        : 'text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800'
-                    ]">
+                    class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800">
                     참가자
                   </button>
                   <button @click="deleteMeetup(meetup.id)"
-                    :disabled="isMeetupPast(meetup)"
-                    :class="[
-                      'px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1',
-                      isMeetupPast(meetup)
-                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-                        : 'text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
-                    ]">
+                    class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800">
                     삭제
                   </button>
                 </div>
@@ -899,7 +863,7 @@
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
 
           <!-- Manual Registration Form -->
-          <div v-if="!isMeetupPast(selectedMeetup)" class="mb-6">
+          <div class="mb-6">
             <h4 class="text-md font-medium text-neutral-900 dark:text-neutral-100 mb-3">
               수동 참가자 등록
             </h4>
@@ -939,12 +903,6 @@
             </form>
           </div>
 
-          <!-- Message for past meetups -->
-          <div v-if="isMeetupPast(selectedMeetup)" class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-              이 모임은 이미 종료되어 참가자를 추가하거나 제거할 수 없습니다. 참가자 목록은 조회만 가능합니다.
-            </p>
-          </div>
 
           <!-- Participants List -->
           <div class="mb-6">
@@ -995,7 +953,7 @@
                     </div>
                   </div>
                 </div>
-                <button v-if="!isMeetupPast(selectedMeetup)" @click="removeParticipant(participant.id)" :disabled="removingParticipant"
+                <button @click="removeParticipant(participant.id)" :disabled="removingParticipant"
                   class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md disabled:opacity-50"
                   title="참가자 제거">
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1769,10 +1727,6 @@ export default {
     };
 
     const editMeetup = (meetup) => {
-      // Don't allow editing past meetups
-      if (isMeetupPast(meetup)) {
-        return
-      }
       
       // Calculate duration from start and end time
       let duration = 2; // default 2 hours
@@ -1892,11 +1846,6 @@ export default {
     };
 
     const deleteMeetup = async (meetupId) => {
-      // Find the meetup to check if it's past
-      const meetup = meetups.value.find(m => m.id === meetupId)
-      if (meetup && isMeetupPast(meetup)) {
-        return
-      }
       
       if (
         confirm(
@@ -2048,10 +1997,6 @@ export default {
     const removeParticipant = async (registrationId) => {
       if (!selectedMeetup.value) return;
       
-      // Don't allow removing participants from past meetups
-      if (isMeetupPast(selectedMeetup.value)) {
-        return
-      }
 
       if (confirm("정말로 이 참가자를 제거하시겠습니까?")) {
         removingParticipant.value = true;
