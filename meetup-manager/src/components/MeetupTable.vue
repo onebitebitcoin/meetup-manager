@@ -127,9 +127,9 @@
             <td class="px-3 py-4">
               <span 
                 class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                :class="getStatusClass(meetup.date_time)"
+                :class="getStatusClass(meetup)"
               >
-                {{ getStatus(meetup.date_time) }}
+                {{ getStatus(meetup) }}
               </span>
             </td>
             <td class="px-3 py-4">
@@ -206,9 +206,9 @@
             </div>
             <span 
               class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0"
-              :class="getStatusClass(meetup.date_time)"
+              :class="getStatusClass(meetup)"
             >
-              {{ getStatus(meetup.date_time) }}
+              {{ getStatus(meetup) }}
             </span>
           </div>
         </div>
@@ -366,8 +366,8 @@ export default {
       })
     }
 
-    const getStatus = (dateString) => {
-      const meetupDate = new Date(dateString)
+    const getStatus = (meetup) => {
+      const meetupDate = new Date(meetup.date_time || meetup)
       const now = new Date()
       const diffHours = (meetupDate - now) / (1000 * 60 * 60)
 
@@ -377,18 +377,21 @@ export default {
         return '임박'
       } else if (diffHours < 72) {
         return '예정'
+      } else if (meetup.is_full) {
+        return '마감'
       } else {
         return '모집중'
       }
     }
 
-    const getStatusClass = (dateString) => {
-      const status = getStatus(dateString)
+    const getStatusClass = (meetup) => {
+      const status = getStatus(meetup)
       const classes = {
         '종료': 'bg-gray-100 text-gray-800',
         '임박': 'bg-red-100 text-red-800',
         '예정': 'bg-yellow-100 text-yellow-800',
-        '모집중': 'bg-green-100 text-green-800'
+        '모집중': 'bg-green-100 text-green-800',
+        '마감': 'bg-red-100 text-red-800'
       }
       return classes[status] || 'bg-gray-100 text-gray-800'
     }

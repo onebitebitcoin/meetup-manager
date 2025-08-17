@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center space-x-3">
-            <img src="/icons/logo.png" alt="한번 모임 로고" class="h-8 w-8 rounded-lg" />
+            <img src="/icons/logo.png" alt="한입 모임 로고" class="h-8 w-8 rounded-lg" />
             <h1 class="text-lg sm:text-xl font-semibold text-black dark:text-neutral-100">
               내 모임 관리
             </h1>
@@ -14,13 +14,13 @@
             <!-- Desktop navigation -->
             <router-link to="/dashboard"
               class="hidden sm:block text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-3 py-2 rounded-md text-sm font-medium">
-              한번 모임
+              한입 모임
             </router-link>
 
             <!-- Mobile: Dashboard icon -->
             <router-link to="/dashboard"
               class="sm:hidden p-1 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 rounded-md"
-              title="한번 모임">
+              title="한입 모임">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>

@@ -16,7 +16,7 @@
             <div class="flex items-center space-x-2">
               <img 
                 src="/icons/logo.png" 
-                alt="한번 모임 로고" 
+                alt="한입 모임 로고" 
                 class="h-8 w-8 rounded-lg"
               />
               <h1 class="text-lg sm:text-2xl font-bold text-neutral-800 dark:text-neutral-100">

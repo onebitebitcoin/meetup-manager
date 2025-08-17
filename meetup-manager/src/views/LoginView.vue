@@ -18,7 +18,7 @@
         <div class="text-center mb-8">
           <div class="mb-6">
             <h1 class="text-4xl font-bold mb-3 text-neutral-900 dark:text-neutral-100 text-balance">
-              한번 모임
+              한입 모임
             </h1>
             <p class="text-neutral-600 dark:text-neutral-400 text-balance">
               환영합니다! 계속하려면 로그인해주세요

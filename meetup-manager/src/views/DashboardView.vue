@@ -6,13 +6,13 @@
           <div class="flex items-center space-x-3">
             <img 
               src="/icons/logo.png" 
-              alt="한번 모임 로고" 
+              alt="한입 모임 로고" 
               class="h-8 w-8 rounded-lg"
             />
             <h1
               class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100"
             >
-              한번 모임
+              한입 모임
             </h1>
           </div>
           <div class="flex items-center space-x-1 sm:space-x-4">
@@ -1073,7 +1073,7 @@ export default {
           location: adData.location,
           current_participants: adData.currentParticipants,
           max_participants: adData.maxParticipants,
-          creator_name: "한번 모임",
+          creator_name: "한입 모임",
           creator_email: "contact@hangbeon.com",
           hashtags_list: adData.hashtags || [],
           image_display_url: null,
