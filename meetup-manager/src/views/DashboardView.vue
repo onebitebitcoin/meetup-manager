@@ -174,85 +174,9 @@
 
     <div class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
       <div class="sm:px-0">
-        <!-- 통계 카드 -->
-        <div
-          class="grid grid-cols-1 gap-3 sm:gap-5 sm:grid-cols-2 lg:grid-cols-2 mb-6 sm:mb-8"
-        >
-          <div
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-gray-700"
-          >
-            <div class="p-5">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <svg
-                    class="h-8 w-8 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt
-                      class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
-                    >
-                      전체 모임
-                    </dt>
-                    <dd
-                      class="text-lg font-medium text-gray-900 dark:text-white"
-                    >
-                      {{ totalMeetups }}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-gray-700"
-          >
-            <div class="p-5">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <svg
-                    class="h-8 w-8 text-green-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt
-                      class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
-                    >
-                      이번 주 모임
-                    </dt>
-                    <dd
-                      class="text-lg font-medium text-gray-900 dark:text-white"
-                    >
-                      {{ thisWeekMeetups }}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- Ads Banner (replacing statistics cards) -->
+        <div class="mb-6 sm:mb-8">
+          <AdsBanner :meetups="bannerMeetups" @banner-click="handleBannerClick" />
         </div>
 
         <!-- 필터 섹션 -->
@@ -768,6 +692,14 @@
         </div>
       </div>
     </div>
+    
+    <!-- Meetup Detail Modal -->
+    <MeetupDetailModal
+      v-if="showMeetupModal"
+      :selectedMeetup="selectedMeetup"
+      @close="closeMeetupModal"
+      @meetupUpdated="handleMeetupUpdated"
+    />
   </div>
 </template>
 
@@ -779,6 +711,8 @@ import { useMeetupsStore } from "@/stores/meetups";
 import CalendarView from "@/components/CalendarView.vue";
 import MeetupTable from "@/components/MeetupTable.vue";
 import ThemeToggle from "@/components/ThemeToggle.vue";
+import AdsBanner from "@/components/AdsBanner.vue";
+import MeetupDetailModal from "@/components/MeetupDetailModal.vue";
 
 export default {
   name: "DashboardView",
@@ -786,6 +720,8 @@ export default {
     CalendarView,
     MeetupTable,
     ThemeToggle,
+    AdsBanner,
+    MeetupDetailModal,
   },
   setup() {
     const router = useRouter();
@@ -793,6 +729,10 @@ export default {
     const meetupsStore = useMeetupsStore();
     const activeView = ref("calendar");
     const showMobileFilters = ref(false); // Collapsed by default on mobile
+    
+    // Modal state
+    const selectedMeetup = ref(null)
+    const showMeetupModal = ref(false)
 
     // 필터 상태 - 사용자가 입력하는 값
     const filters = ref({
@@ -1031,21 +971,19 @@ export default {
       return statusLabels[status] || status;
     };
 
-    // 전체 모임 수
+    // 전체 모임 수 (for filter display)
     const totalMeetups = computed(() => meetupsStore.meetups.length);
 
-    // 이번 주 모임 수
-    const thisWeekMeetups = computed(() => {
-      const now = new Date();
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay());
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      return meetupsStore.meetups.filter((meetup) => {
-        const meetupDate = new Date(meetup.date_time);
-        return meetupDate >= weekStart && meetupDate <= weekEnd;
-      }).length;
-    });
+    // 배너용: 종료되지 않은(미종료) 모임만 선택, 시작일 오름차순으로 최대 5개
+    const bannerMeetups = computed(() => {
+      const now = new Date()
+      const open = meetupsStore.meetups.filter((m) => {
+        const end = m.end_time ? new Date(m.end_time) : new Date(m.date_time)
+        return end > now
+      })
+      open.sort((a, b) => new Date(a.date_time) - new Date(b.date_time))
+      return open.slice(0, 5)
+    })
 
     // 정렬된 모임 목록: 모집중(시작 임박순) -> 종료된 모임(종료일 오름차순)
     const sortedMeetups = computed(() => {
@@ -1122,6 +1060,41 @@ export default {
       authStore.logout();
       router.push("/login");
     };
+    
+    // Handle ads banner click
+    const handleBannerClick = (adData) => {
+      // Find the corresponding meetup in the store by matching title keywords
+      // or create a mock meetup object for demonstration
+      const mockMeetup = {
+        id: adData.id,
+        name: adData.title,
+        description: adData.description,
+        date_time: adData.dateTime,
+        location: adData.location,
+        current_participants: adData.currentParticipants,
+        max_participants: adData.maxParticipants,
+        creator_name: "한번 모임",
+        creator_email: "contact@hangbeon.com",
+        hashtags_list: adData.hashtags || [],
+        image_display_url: null,
+        end_time: null
+      }
+      
+      selectedMeetup.value = mockMeetup
+      showMeetupModal.value = true
+    }
+    
+    // Handle modal close
+    const closeMeetupModal = () => {
+      showMeetupModal.value = false
+      selectedMeetup.value = null
+    }
+    
+    // Handle meetup updates from modal
+    const handleMeetupUpdated = () => {
+      // Refresh meetups data if needed
+      meetupsStore.fetchMeetups()
+    }
 
     onMounted(async () => {
       authStore.checkAuth();
@@ -1135,13 +1108,7 @@ export default {
       meetupsStore,
       activeView,
       totalMeetups,
-      thisWeekMeetups,
-      upcomingMeetups,
-      totalCapacity,
-      totalRegistered,
-      availableSeats,
-      fullMeetups,
-      averageAttendance,
+      bannerMeetups,
       formatDateTime,
       logout,
       sortedMeetups,
@@ -1158,6 +1125,12 @@ export default {
       getStatusLabel,
       hasActiveFilters,
       showMobileFilters,
+      // Modal
+      selectedMeetup,
+      showMeetupModal,
+      handleBannerClick,
+      closeMeetupModal,
+      handleMeetupUpdated,
     };
   },
 };
