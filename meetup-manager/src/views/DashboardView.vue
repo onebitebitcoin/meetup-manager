@@ -25,7 +25,7 @@
             </router-link>
             <router-link
               to="/help"
-              class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
+              class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
             >
               사용 가이드
             </router-link>
@@ -60,7 +60,7 @@
             <!-- Mobile: Help navigation -->
             <router-link
               to="/help"
-              class="sm:hidden p-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 rounded-md"
+              class="sm:hidden p-1 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 rounded-md"
               title="사용 가이드"
             >
               <svg
@@ -220,41 +220,12 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                   필터
                 </h3>
-                <div class="flex space-x-2">
-                  <button
-                    @click="applyFilters"
-                    class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    필터 적용
-                  </button>
-                  <button
-                    @click="clearFilters"
-                    class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline"
-                  >
-                    필터 초기화
-                  </button>
-                </div>
               </div>
             </div>
             <!-- Filter content - collapsible on mobile -->
             <div v-show="showMobileFilters" class="sm:!block">
-              <!-- Mobile: Action buttons (shown when expanded) -->
-              <div class="sm:hidden flex space-x-2 mb-3">
-                <button
-                  @click="applyFilters"
-                  class="bg-slate-600 hover:bg-slate-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex-1"
-                >
-                  필터 적용
-                </button>
-                <button
-                  @click="clearFilters"
-                  class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 underline px-3 py-2"
-                >
-                  필터 초기화
-                </button>
-              </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
                 <!-- 년도 필터 -->
                 <div>
                   <label
@@ -349,6 +320,28 @@
                     placeholder="모임명 또는 장소 검색"
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
                   />
+                </div>
+
+                <!-- 필터 액션 버튼들 -->
+                <div class="flex items-end gap-2">
+                  <button
+                    @click="applyFilters"
+                    class="flex-1 px-3 py-2 text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v18" />
+                    </svg>
+                    적용
+                  </button>
+                  <button
+                    @click="clearFilters"
+                    class="flex-1 px-3 py-2 text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    초기화
+                  </button>
                 </div>
               </div>
 
@@ -617,6 +610,7 @@
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>

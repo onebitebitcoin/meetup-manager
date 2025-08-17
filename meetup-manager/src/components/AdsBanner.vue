@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Modern Simple Banner Container -->
     <div 
-      class="relative bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 cursor-pointer group"
+      class="relative bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg sm:rounded-xl p-3 sm:p-4 cursor-pointer group"
       @click="handleBannerClick"
     >
       <!-- Banner Content -->
@@ -59,7 +59,7 @@
           <!-- Previous Arrow -->
           <button
             @click.stop="previousSlide"
-            class="p-1.5 text-neutral-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all duration-200"
+            class="p-1.5 text-neutral-400 rounded-lg"
             :disabled="currentAdIndex === 0"
             :class="{ 'opacity-50 cursor-not-allowed': currentAdIndex === 0 }"
           >
@@ -76,7 +76,7 @@
           <!-- Next Arrow -->
           <button
             @click.stop="nextSlide"
-            class="p-1.5 text-neutral-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all duration-200"
+            class="p-1.5 text-neutral-400 rounded-lg"
             :disabled="currentAdIndex === adBanners.length - 1"
             :class="{ 'opacity-50 cursor-not-allowed': currentAdIndex === adBanners.length - 1 }"
           >

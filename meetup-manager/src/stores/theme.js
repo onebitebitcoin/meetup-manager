@@ -36,9 +36,9 @@ export const useThemeStore = defineStore('theme', () => {
     } else if (savedTheme !== null) {
       isDarkMode.value = savedTheme === 'dark'
     } else {
-      // 저장된 테마가 없으면 시스템 설정 감지 후 다크 모드 기본값
+      // 저장된 테마가 없으면 라이트 모드를 기본값으로 설정
       detectSystemTheme()
-      isDarkMode.value = systemPreference.value === 'dark'
+      isDarkMode.value = false
     }
     
     applyTheme()

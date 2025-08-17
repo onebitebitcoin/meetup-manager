@@ -152,7 +152,7 @@
                   v-if="!authStore.isGuest && isRegistered(meetup.id)"
                   @click="unregisterFromMeetup(meetup.id)"
                   :disabled="registering"
-                  class="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors disabled:opacity-50"
+                  class="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 rounded-md transition-colors disabled:opacity-50"
                 >
                   취소
                 </button>
@@ -274,7 +274,7 @@
               v-if="!authStore.isGuest && isRegistered(meetup.id)"
               @click="unregisterFromMeetup(meetup.id)"
               :disabled="registering"
-              class="inline-flex items-center justify-center px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors disabled:opacity-50 flex-1"
+              class="inline-flex items-center justify-center px-3 py-1 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 rounded-md transition-colors disabled:opacity-50 flex-1"
             >
               참가 취소
             </button>

@@ -128,14 +128,6 @@
             </div>
           </div>
         </div>
-        <div class="mt-6 flex justify-end">
-          <button
-            @click="selectedDateMeetups = null"
-            class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium"
-          >
-            닫기
-          </button>
-        </div>
       </div>
     </div>
 
