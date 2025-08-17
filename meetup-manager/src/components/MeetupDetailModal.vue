@@ -2,7 +2,7 @@
   <div v-if="selectedMeetup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click="$emit('close')">
     <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden" @click.stop>
       <!-- Simple Header -->
-      <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-700">
+      <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-700 bg-beige-200 dark:bg-beige-300">
         <!-- Close Button -->
         <button @click="$emit('close')" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@
                   ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
                   : currentMeetupData.is_full
                     ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                    : 'bg-primary-600 hover:bg-primary-700 text-white'
+                    : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
               ]"
             >
               {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '대기열 등록' : '참가 신청') }}
@@ -125,14 +125,6 @@
               class="w-full py-3 px-4 rounded-lg text-sm font-medium bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 disabled:opacity-50"
             >
               {{ registering ? '취소 중...' : '참가 취소' }}
-            </button>
-            
-            <!-- Close Button -->
-            <button
-              @click="$emit('close')"
-              class="w-full py-3 px-4 rounded-lg text-sm font-medium bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-300 transition-colors duration-200"
-            >
-              닫기
             </button>
           </div>
         </div>

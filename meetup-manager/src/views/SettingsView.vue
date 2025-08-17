@@ -234,15 +234,14 @@
               </div>
             </div>
             <div class="px-4 py-8 sm:px-6 text-center">
-              <svg class="mx-auto h-12 w-12 text-neutral-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                <path d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m-16-5c9.837 0 16-3.582 16-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M16 22V6a2 2 0 012-2h4a2 2 0 012 2v16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg class="mx-auto h-12 w-12 text-neutral-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="currentColor">
+                <path d="M31.2 14.4a7.2 7.2 0 11-14.4 0 7.2 7.2 0 0114.4 0zM43.2 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM33.6 36a9.6 9.6 0 00-19.2 0v7.2h19.2V36zM14.4 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM38.4 43.2V36a14.333 14.333 0 00-1.8-6.973A7.212 7.212 0 0145.6 36v7.2h-7.2zM11.4 29.027A14.353 14.353 0 009.6 36v7.2H2.4V36a7.2 7.2 0 019-6.973z"/>
               </svg>
               <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
                 첫 번째 모임을 만들어 사람들과 함께하는 시간을 가져보세요.
               </p>
               <div class="mt-6">
-                <router-link to="/create-meetup" class="btn-primary">
+                <router-link to="/create-meetup" class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
                   <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                   </svg>
@@ -298,7 +297,7 @@
               <div
                 v-for="meetup in meetups"
                 :key="meetup.id"
-                class="px-4 py-6 sm:px-6 hover:bg-beige-100 dark:hover:bg-neutral-800/20 transition-colors duration-150"
+                class="px-4 py-6 sm:px-6 transition-colors duration-150"
               >
                 <div class="space-y-4">
                   <!-- Main content row -->
@@ -348,7 +347,7 @@
                                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                                 meetup.is_full
                                   ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                  : 'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200',
+                                  : 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200',
                               ]"
                             >
                               {{ meetup.is_full ? "마감" : "모집중" }}
@@ -401,7 +400,7 @@
                       <div class="flex items-center space-x-1 ml-4">
                         <button
                           @click="editMeetup(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-neutral-800 bg-beige-200 hover:bg-beige-300 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 rounded-md transition-colors"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors"
                           title="수정"
                         >
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -411,13 +410,13 @@
                         </button>
                         <button
                           @click="openManageParticipants(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-neutral-800 bg-beige-200 hover:bg-beige-300 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 rounded-md transition-colors"
+                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 rounded-md transition-colors"
                           title="참가자 관리"
                         >
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                           </svg>
-                          참가자
+                          참가자 추가
                         </button>
                         <button
                           @click="deleteMeetup(meetup.id)"
@@ -467,7 +466,7 @@
                     :class="[
                       meetup.is_full
                         ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200',
+                        : 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200',
                     ]"
                   >
                     {{ meetup.is_full ? "마감" : "모집중" }}
@@ -501,19 +500,19 @@
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
                   <button
                     @click="editMeetup(meetup)"
-                    class="bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                    class="text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                   >
                     수정
                   </button>
                   <button
                     @click="openManageParticipants(meetup)"
-                    class="bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                    class="text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                   >
                     참가자
                   </button>
                   <button
                     @click="deleteMeetup(meetup.id)"
-                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                      class="text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     삭제
                   </button>
@@ -626,7 +625,6 @@
               v-for="meetup in allMyMeetups"
               :key="meetup.id + '-' + meetup.status"
               class="px-4 py-6 sm:px-6 transition-colors duration-150"
-              :class="meetup.status === 'registered' ? 'hover:bg-beige-100 dark:hover:bg-neutral-800/30' : 'hover:bg-beige-100 dark:hover:bg-neutral-800/30'"
             >
               <div class="flex items-center justify-between">
                 <div class="flex-1 min-w-0">
@@ -753,7 +751,7 @@
                       'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                       meetup.is_full
                         ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-beige-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200',
+                        : 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200',
                     ]"
                   >
                     {{ meetup.is_full ? "마감" : "모집중" }}
@@ -863,7 +861,7 @@
                   v-if="meetup.status === 'registered'"
                   @click="unregisterFromMeetup(meetup.id, meetup.registration_id)"
                   :disabled="loadingRegistered"
-                  class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs flex-1 disabled:opacity-50"
+                    class="text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   참가 취소
                 </button>
@@ -871,7 +869,7 @@
                   v-else
                   @click="removeFromWaitlist(meetup.meetup, meetup.id)"
                   :disabled="loadingWaitlist"
-                  class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-xs flex-1 disabled:opacity-50"
+                    class="text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   대기 취소
                 </button>

@@ -136,7 +136,7 @@
               <div class="flex space-x-1">
                 <button
                   @click="showMeetupDetail(meetup)"
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
+                  class="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors"
                 >
                   상세
                 </button>
@@ -144,7 +144,7 @@
                   v-if="!authStore.isGuest && !isRegistered(meetup.id) && canRegister(meetup)"
                   @click="registerForMeetup(meetup.id)"
                   :disabled="registering"
-                  class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
+                  class="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 rounded-md transition-colors disabled:opacity-50"
                 >
                   신청
                 </button>
@@ -152,7 +152,7 @@
                   v-if="!authStore.isGuest && isRegistered(meetup.id)"
                   @click="unregisterFromMeetup(meetup.id)"
                   :disabled="registering"
-                  class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs disabled:opacity-50"
+                  class="inline-flex items-center justify-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors disabled:opacity-50"
                 >
                   취소
                 </button>
@@ -258,7 +258,7 @@
           <div class="flex space-x-2">
             <button
               @click="showMeetupDetail(meetup)"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex-1"
+              class="inline-flex items-center justify-center px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors flex-1"
             >
               상세보기
             </button>
@@ -266,7 +266,7 @@
               v-if="!authStore.isGuest && !isRegistered(meetup.id) && canRegister(meetup)"
               @click="registerForMeetup(meetup.id)"
               :disabled="registering"
-              class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50 flex-1"
+              class="inline-flex items-center justify-center px-3 py-1 text-xs font-medium text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 rounded-md transition-colors disabled:opacity-50 flex-1"
             >
               참가 신청
             </button>
@@ -274,7 +274,7 @@
               v-if="!authStore.isGuest && isRegistered(meetup.id)"
               @click="unregisterFromMeetup(meetup.id)"
               :disabled="registering"
-              class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50 flex-1"
+              class="inline-flex items-center justify-center px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors disabled:opacity-50 flex-1"
             >
               참가 취소
             </button>
