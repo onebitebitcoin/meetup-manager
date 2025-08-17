@@ -198,29 +198,24 @@
                 </div>
 
                 <div>
-                  <label for="date" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
+                  <label for="date" class="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-1">
                     날짜 *
                   </label>
-                  <input
-                    type="date"
-                    id="date"
+                  <CustomDateInput
                     v-model="form.date"
-                    required
-                    class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 sm:text-base"
+                    :required="true"
+                    :min-date="new Date().toISOString().split('T')[0]"
                   />
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label for="time" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
+                    <label for="time" class="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-1">
                       시작 시간 *
                     </label>
-                    <input
-                      type="time"
-                      id="time"
+                    <CustomTimeSelect
                       v-model="form.time"
-                      required
-                      class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 sm:text-base"
+                      :required="true"
                     />
                   </div>
 
@@ -228,15 +223,11 @@
                     <label for="duration" class="block text-sm font-medium text-slate-800 dark:text-slate-200">
                       모임 진행 시간 (시간) *
                     </label>
-                    <input
-                      type="number"
-                      id="duration"
-                      v-model.number="form.duration"
-                      min="0.5"
-                      step="0.5"
-                      placeholder="예: 2 (2시간)"
-                      required
-                      class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400 sm:text-base"
+                    <CustomSelect
+                      v-model="form.duration"
+                      :options="durationOptions"
+                      placeholder="진행 시간을 선택하세요"
+                      :required="true"
                     />
                     <p class="mt-1 text-xs text-slate-600 dark:text-slate-300">
                       모임이 진행될 시간을 입력하세요
@@ -335,16 +326,22 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import CustomDateInput from '@/components/CustomDateInput.vue'
+import CustomTimeSelect from '@/components/CustomTimeSelect.vue'
+import CustomSelect from '@/components/CustomSelect.vue'
 
 export default {
   name: 'MeetupCreateView',
   components: {
-    ThemeToggle
+    ThemeToggle,
+    CustomDateInput,
+    CustomTimeSelect,
+    CustomSelect
   },
   setup() {
     const router = useRouter()
@@ -364,6 +361,21 @@ export default {
       imageFile: null,
       hashtags: ''
     })
+
+    // Duration options for CustomSelect
+    const durationOptions = computed(() => [
+      { value: 0.5, label: '30분' },
+      { value: 1, label: '1시간' },
+      { value: 1.5, label: '1시간 30분' },
+      { value: 2, label: '2시간' },
+      { value: 2.5, label: '2시간 30분' },
+      { value: 3, label: '3시간' },
+      { value: 3.5, label: '3시간 30분' },
+      { value: 4, label: '4시간' },
+      { value: 5, label: '5시간' },
+      { value: 6, label: '6시간' },
+      { value: 8, label: '8시간' }
+    ])
 
     const imageInput = ref(null)
     const imagePreview = ref('')
@@ -546,7 +558,8 @@ export default {
       imagePreview,
       handleImageUpload,
       handleImageError,
-      removeImage
+      removeImage,
+      durationOptions
     }
   }
 }

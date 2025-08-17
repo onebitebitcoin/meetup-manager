@@ -232,19 +232,11 @@
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >년도</label
                   >
-                  <select
+                  <CustomSelect
                     v-model="filters.year"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
-                  >
-                    <option value="">모든 년도</option>
-                    <option
-                      v-for="year in availableYears"
-                      :key="year"
-                      :value="year.toString()"
-                    >
-                      {{ year }}년
-                    </option>
-                  </select>
+                    :options="yearOptions"
+                    placeholder="모든 년도"
+                  />
                 </div>
 
                 <!-- 월 필터 -->
@@ -253,19 +245,11 @@
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >월</label
                   >
-                  <select
+                  <CustomSelect
                     v-model="filters.month"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
-                  >
-                    <option value="">모든 월</option>
-                    <option
-                      v-for="month in months"
-                      :key="month.value"
-                      :value="month.value"
-                    >
-                      {{ month.label }}
-                    </option>
-                  </select>
+                    :options="monthOptions"
+                    placeholder="모든 월"
+                  />
                 </div>
 
                 <!-- 상태 필터 -->
@@ -274,17 +258,11 @@
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >상태</label
                   >
-                  <select
+                  <CustomSelect
                     v-model="filters.status"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
-                  >
-                    <option value="">모든 상태</option>
-                    <option value="upcoming">예정된 모임</option>
-                    <option value="ongoing">진행 중</option>
-                    <option value="completed">완료된 모임</option>
-                    <option value="available">참가 가능</option>
-                    <option value="full">정원 마감</option>
-                  </select>
+                    :options="statusOptions"
+                    placeholder="모든 상태"
+                  />
                 </div>
 
                 <!-- 해시태그 필터 -->
@@ -293,19 +271,11 @@
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >해시태그</label
                   >
-                  <select
+                  <CustomSelect
                     v-model="filters.hashtag"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100"
-                  >
-                    <option value="">모든 해시태그</option>
-                    <option
-                      v-for="hashtag in availableHashtags"
-                      :key="hashtag"
-                      :value="hashtag"
-                    >
-                      {{ hashtag }}
-                    </option>
-                  </select>
+                    :options="hashtagOptions"
+                    placeholder="모든 해시태그"
+                  />
                 </div>
 
                 <!-- 검색 -->
@@ -707,6 +677,7 @@ import MeetupTable from "@/components/MeetupTable.vue";
 import ThemeToggle from "@/components/ThemeToggle.vue";
 import AdsBanner from "@/components/AdsBanner.vue";
 import MeetupDetailModal from "@/components/MeetupDetailModal.vue";
+import CustomSelect from "@/components/CustomSelect.vue";
 
 export default {
   name: "DashboardView",
@@ -716,6 +687,7 @@ export default {
     ThemeToggle,
     AdsBanner,
     MeetupDetailModal,
+    CustomSelect,
   },
   setup() {
     const router = useRouter();
@@ -784,6 +756,37 @@ export default {
       });
       return Array.from(hashtags).sort();
     });
+
+    // CustomSelect용 포맷된 옵션들
+    const yearOptions = computed(() => [
+      { value: "", label: "모든 년도" },
+      ...availableYears.value.map(year => ({
+        value: year.toString(),
+        label: `${year}년`
+      }))
+    ]);
+
+    const monthOptions = computed(() => [
+      { value: "", label: "모든 월" },
+      ...months
+    ]);
+
+    const statusOptions = computed(() => [
+      { value: "", label: "모든 상태" },
+      { value: "upcoming", label: "예정된 모임" },
+      { value: "ongoing", label: "진행 중" },
+      { value: "completed", label: "완료된 모임" },
+      { value: "available", label: "참가 가능" },
+      { value: "full", label: "정원 마감" }
+    ]);
+
+    const hashtagOptions = computed(() => [
+      { value: "", label: "모든 해시태그" },
+      ...availableHashtags.value.map(hashtag => ({
+        value: hashtag,
+        label: hashtag
+      }))
+    ]);
 
     // 필터링된 모임 목록
     const filteredMeetups = computed(() => {
@@ -1118,6 +1121,11 @@ export default {
       availableYears,
       availableHashtags,
       months,
+      // CustomSelect용 옵션들
+      yearOptions,
+      monthOptions,
+      statusOptions,
+      hashtagOptions,
       applyFilters,
       clearFilters,
       getMonthLabel,

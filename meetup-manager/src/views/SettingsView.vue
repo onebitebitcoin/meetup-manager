@@ -733,15 +733,32 @@
               class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">시작 시간</label>
-            <input v-model="editForm.date_time" type="datetime-local" required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">날짜 *</label>
+            <CustomDateInput
+              v-model="editForm.date"
+              :required="true"
+              :min-date="new Date().toISOString().split('T')[0]"
+            />
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">모임 진행 시간 (시간)</label>
-            <input v-model.number="editForm.duration" type="number" min="0.5" step="0.5" placeholder="예: 2 (2시간)"
-              required
-              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm" />
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">시작 시간 *</label>
+              <CustomTimeSelect
+                v-model="editForm.time"
+                :required="true"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">모임 진행 시간 (시간)</label>
+              <CustomSelect
+                v-model="editForm.duration"
+                :options="durationOptions"
+                placeholder="진행 시간을 선택하세요"
+                :required="true"
+              />
+            </div>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">최대 참여 인원</label>
@@ -1284,11 +1301,17 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { fetchWithCSRF } from "@/utils/csrf";
 import ThemeToggle from "@/components/ThemeToggle.vue";
+import CustomDateInput from "@/components/CustomDateInput.vue";
+import CustomTimeSelect from "@/components/CustomTimeSelect.vue";
+import CustomSelect from "@/components/CustomSelect.vue";
 
 export default {
   name: "SettingsView",
   components: {
     ThemeToggle,
+    CustomDateInput,
+    CustomTimeSelect,
+    CustomSelect,
   },
   setup() {
     const route = useRoute();
@@ -1307,6 +1330,21 @@ export default {
     const currentEditId = ref(null);
     const editImageInput = ref(null);
     const editImagePreview = ref('');
+
+    // Duration options for CustomSelect
+    const durationOptions = computed(() => [
+      { value: 0.5, label: '30분' },
+      { value: 1, label: '1시간' },
+      { value: 1.5, label: '1시간 30분' },
+      { value: 2, label: '2시간' },
+      { value: 2.5, label: '2시간 30분' },
+      { value: 3, label: '3시간' },
+      { value: 3.5, label: '3시간 30분' },
+      { value: 4, label: '4시간' },
+      { value: 5, label: '5시간' },
+      { value: 6, label: '6시간' },
+      { value: 8, label: '8시간' }
+    ]);
 
     // Participants management
     const showParticipantsModal = ref(false);
@@ -1736,24 +1774,28 @@ export default {
         duration = (endTime - startTime) / (1000 * 60 * 60); // convert to hours
       }
 
-      // Convert date_time to local datetime-local format
-      let localDateTime = "";
+      // Convert date_time to separate date and time fields
+      let dateValue = "";
+      let timeValue = "";
       if (meetup.date_time) {
         const date = new Date(meetup.date_time);
-        // Convert to local time for datetime-local input
+        // Extract date and time separately
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
-        localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        dateValue = `${year}-${month}-${day}`;
+        timeValue = `${hours}:${minutes}`;
       }
 
       editForm.value = {
         name: meetup.name,
         description: meetup.description,
         location: meetup.location,
-        date_time: localDateTime,
+        date: dateValue,
+        time: timeValue,
         duration: duration,
         max_participants: meetup.max_participants,
         hashtags: meetup.hashtags || '',
@@ -1778,8 +1820,9 @@ export default {
     const updateMeetup = async () => {
       updating.value = true;
       try {
-        // Calculate end time from start time and duration
-        const startTime = new Date(editForm.value.date_time);
+        // Construct datetime from separate date and time fields
+        const dateTime = `${editForm.value.date}T${editForm.value.time}:00`;
+        const startTime = new Date(dateTime);
         const endTime = new Date(
           startTime.getTime() + editForm.value.duration * 60 * 60 * 1000
         );
@@ -2120,6 +2163,7 @@ export default {
       editImagePreview,
       handleEditImageUpload,
       removeEditImage,
+      durationOptions,
       // Notifications
       notifications,
       loadingNotifications,
