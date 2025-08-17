@@ -108,9 +108,6 @@
                   </div>
                   <div class="min-w-0">
                     <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
-                      {{ maskUsername(participant.user_name) }}
-                    </p>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
                       {{ maskEmail(participant.user_email) }}
                     </p>
                   </div>
