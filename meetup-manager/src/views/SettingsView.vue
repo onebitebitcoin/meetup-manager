@@ -280,11 +280,9 @@
                           <div class="flex items-center space-x-2 ml-4">
                             <span :class="[
                               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                              meetup.is_full
-                                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                : 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200',
+                              getMeetupStatusClass(meetup)
                             ]">
-                              {{ meetup.is_full ? "마감" : "모집중" }}
+                              {{ getMeetupStatus(meetup) }}
                             </span>
                           </div>
                         </div>
@@ -338,7 +336,13 @@
                       <!-- Action buttons -->
                       <div class="flex items-center space-x-1 ml-4">
                         <button @click="editMeetup(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 rounded-md transition-colors"
+                          :disabled="isMeetupPast(meetup)"
+                          :class="[
+                            'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
+                            isMeetupPast(meetup)
+                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                              : 'text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800'
+                          ]"
                           title="수정">
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -347,7 +351,13 @@
                           수정
                         </button>
                         <button @click="openManageParticipants(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-200 hover:bg-orange-300 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 rounded-md transition-colors"
+                          :disabled="isMeetupPast(meetup)"
+                          :class="[
+                            'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
+                            isMeetupPast(meetup)
+                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                              : 'text-orange-700 bg-orange-200 hover:bg-orange-300 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800'
+                          ]"
                           title="참가자 관리">
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -356,7 +366,13 @@
                           참가자 추가
                         </button>
                         <button @click="deleteMeetup(meetup.id)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 rounded-md transition-colors"
+                          :disabled="isMeetupPast(meetup)"
+                          :class="[
+                            'inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
+                            isMeetupPast(meetup)
+                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                              : 'text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
+                          ]"
                           title="삭제">
                           <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -390,12 +406,8 @@
                       </p>
                     </div>
                   </div>
-                  <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0" :class="[
-                    meetup.is_full
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      : 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200',
-                  ]">
-                    {{ meetup.is_full ? "마감" : "모집중" }}
+                  <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0" :class="getMeetupStatusClass(meetup)">
+                    {{ getMeetupStatus(meetup) }}
                   </span>
                 </div>
 
@@ -425,15 +437,33 @@
 
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
                   <button @click="editMeetup(meetup)"
-                    class="text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
+                    :disabled="isMeetupPast(meetup)"
+                    :class="[
+                      'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
+                      isMeetupPast(meetup)
+                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                        : 'text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800'
+                    ]">
                     수정
                   </button>
                   <button @click="openManageParticipants(meetup)"
-                    class="text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
+                    :disabled="isMeetupPast(meetup)"
+                    :class="[
+                      'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
+                      isMeetupPast(meetup)
+                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                        : 'text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800'
+                    ]">
                     참가자
                   </button>
                   <button @click="deleteMeetup(meetup.id)"
-                    class="text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                    :disabled="isMeetupPast(meetup)"
+                    :class="[
+                      'px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1',
+                      isMeetupPast(meetup)
+                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                        : 'text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
+                    ]">
                     삭제
                   </button>
                 </div>
@@ -869,7 +899,7 @@
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
 
           <!-- Manual Registration Form -->
-          <div class="mb-6">
+          <div v-if="!isMeetupPast(selectedMeetup)" class="mb-6">
             <h4 class="text-md font-medium text-neutral-900 dark:text-neutral-100 mb-3">
               수동 참가자 등록
             </h4>
@@ -907,6 +937,13 @@
                 </button>
               </div>
             </form>
+          </div>
+
+          <!-- Message for past meetups -->
+          <div v-if="isMeetupPast(selectedMeetup)" class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              이 모임은 이미 종료되어 참가자를 추가하거나 제거할 수 없습니다. 참가자 목록은 조회만 가능합니다.
+            </p>
           </div>
 
           <!-- Participants List -->
@@ -958,7 +995,7 @@
                     </div>
                   </div>
                 </div>
-                <button @click="removeParticipant(participant.id)" :disabled="removingParticipant"
+                <button v-if="!isMeetupPast(selectedMeetup)" @click="removeParticipant(participant.id)" :disabled="removingParticipant"
                   class="p-2 text-red-600 hover:text-red-900 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md disabled:opacity-50"
                   title="참가자 제거">
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1404,6 +1441,37 @@ export default {
       );
     });
 
+    // Helper function to check if meetup is in the past
+    const isMeetupPast = (meetup) => {
+      const now = new Date()
+      const meetupDate = new Date(meetup.date_time)
+      const endDate = meetup.end_time ? new Date(meetup.end_time) : meetupDate
+      return endDate < now
+    }
+
+    // Helper function to get meetup status
+    const getMeetupStatus = (meetup) => {
+      if (isMeetupPast(meetup)) {
+        return '종료'
+      } else if (meetup.is_full) {
+        return '마감'
+      } else {
+        return '모집중'
+      }
+    }
+
+    // Helper function to get status class
+    const getMeetupStatusClass = (meetup) => {
+      const status = getMeetupStatus(meetup)
+      if (status === '종료') {
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      } else if (status === '마감') {
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      } else {
+        return 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
+      }
+    }
+
     onMounted(() => {
       if (route.query.message) {
         message.value = route.query.message;
@@ -1701,6 +1769,11 @@ export default {
     };
 
     const editMeetup = (meetup) => {
+      // Don't allow editing past meetups
+      if (isMeetupPast(meetup)) {
+        return
+      }
+      
       // Calculate duration from start and end time
       let duration = 2; // default 2 hours
       if (meetup.date_time && meetup.end_time) {
@@ -1819,6 +1892,12 @@ export default {
     };
 
     const deleteMeetup = async (meetupId) => {
+      // Find the meetup to check if it's past
+      const meetup = meetups.value.find(m => m.id === meetupId)
+      if (meetup && isMeetupPast(meetup)) {
+        return
+      }
+      
       if (
         confirm(
           "정말로 이 모임을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
@@ -1892,6 +1971,7 @@ export default {
     };
 
     const openManageParticipants = async (meetup) => {
+      // For past meetups, still allow viewing but disable adding participants
       selectedMeetup.value = meetup;
       showParticipantsModal.value = true;
       await loadParticipants(meetup.id);
@@ -1967,6 +2047,11 @@ export default {
 
     const removeParticipant = async (registrationId) => {
       if (!selectedMeetup.value) return;
+      
+      // Don't allow removing participants from past meetups
+      if (isMeetupPast(selectedMeetup.value)) {
+        return
+      }
 
       if (confirm("정말로 이 참가자를 제거하시겠습니까?")) {
         removingParticipant.value = true;
@@ -2057,6 +2142,10 @@ export default {
       averageParticipation,
       allMyMeetups,
       formatDateTime,
+      // Helper functions for meetup status
+      isMeetupPast,
+      getMeetupStatus,
+      getMeetupStatusClass,
       editMeetup,
       closeEditModal,
       updateMeetup,
