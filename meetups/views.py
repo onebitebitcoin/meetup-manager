@@ -59,8 +59,23 @@ def login_user(request):
     if not username or not password:
         return Response({'error': '사용자명과 비밀번호가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
     
-    # Authenticate strictly by username (no email fallback)
+    # Try to authenticate - first by username, then by email
     user = authenticate(username=username, password=password)
+    
+    if not user:
+        # If username authentication fails, try to find user by email and authenticate
+        try:
+            # Check if input looks like email
+            if '@' in username:
+                # Handle multiple users with same email by trying each one
+                django_users = User.objects.filter(email=username)
+                for django_user in django_users:
+                    user = authenticate(username=django_user.username, password=password)
+                    if user:
+                        break
+        except User.DoesNotExist:
+            pass
+    
     if user:
         login(request, user)
         try:

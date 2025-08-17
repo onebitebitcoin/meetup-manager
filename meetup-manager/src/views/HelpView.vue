@@ -219,11 +219,11 @@
         </section>
 
         <!-- 추가 팁 -->
-        <section class="bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 p-6">
-          <h2 class="text-2xl font-semibold text-blue-900 dark:text-blue-200 mb-4 flex items-center">
+        <section id="additional-tips" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             💡 추가 팁
           </h2>
-          <div class="space-y-3 text-blue-800 dark:text-blue-300">
+          <div class="space-y-4 text-gray-600 dark:text-gray-400">
             <p>• <strong>모바일 친화적:</strong> 모든 기능이 모바일에서도 원활하게 작동합니다</p>
             <p>• <strong>실시간 업데이트:</strong> 다른 사용자의 참가/취소가 실시간으로 반영됩니다</p>
             <p>• <strong>검색 활용:</strong> 키워드 검색으로 원하는 모임을 빠르게 찾을 수 있습니다</p>

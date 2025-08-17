@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
-  const isDarkMode = ref(true) // 다크 모드를 기본값으로 설정
+  const isDarkMode = ref(false) // 라이트 모드를 기본값으로 설정
   const systemPreference = ref('dark')
   const isAutoMode = ref(false)
 
@@ -38,7 +38,7 @@ export const useThemeStore = defineStore('theme', () => {
     } else {
       // 저장된 테마가 없으면 시스템 설정 감지 후 다크 모드 기본값
       detectSystemTheme()
-      isDarkMode.value = systemPreference.value === 'dark' || true
+      isDarkMode.value = systemPreference.value === 'dark'
     }
     
     applyTheme()

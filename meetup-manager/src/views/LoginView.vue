@@ -41,7 +41,7 @@
           <div class="space-y-4">
             <div>
               <label for="username" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                사용자명
+                사용자명 또는 이메일
               </label>
               <input
                 id="username"
@@ -51,7 +51,7 @@
                 required
                 autocomplete="username"
                 class="input-primary focus:ring-neutral-500 focus:border-neutral-500"
-                placeholder="사용자명을 입력해주세요"
+                placeholder="사용자명 또는 이메일을 입력해주세요"
               />
             </div>
             

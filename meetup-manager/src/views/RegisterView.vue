@@ -53,6 +53,18 @@
               placeholder="비밀번호"
             />
           </div>
+          <div>
+            <label for="password-confirm" class="sr-only">비밀번호 확인</label>
+            <input
+              id="password-confirm"
+              v-model="form.passwordConfirm"
+              name="password-confirm"
+              type="password"
+              required
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              placeholder="비밀번호 확인"
+            />
+          </div>
         </div>
 
         <div v-if="error" class="text-red-600 text-sm text-center">
@@ -98,17 +110,27 @@ export default {
     const form = ref({
       username: '',
       email: '',
-      password: ''
+      password: '',
+      passwordConfirm: ''
     })
 
     const handleRegister = async () => {
+      if (form.value.password !== form.value.passwordConfirm) {
+        error.value = '비밀번호가 일치하지 않습니다.'
+        return
+      }
+
       loading.value = true
       error.value = ''
 
       try {
         const response = await fetchWithCSRF('/api/auth/register/', {
           method: 'POST',
-          body: JSON.stringify(form.value)
+          body: JSON.stringify({
+            username: form.value.username,
+            email: form.value.email,
+            password: form.value.password
+          })
         })
 
         const data = await response.json()
