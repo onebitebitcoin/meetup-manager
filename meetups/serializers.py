@@ -19,8 +19,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Check if MeetupUser already exists with this email (manually created by admin)
         try:
             meetup_user = MeetupUser.objects.get(email=validated_data['email'])
-            # Link existing MeetupUser to the new Django User
+            # Link existing MeetupUser to the new Django User and update name
             meetup_user.user = user
+            meetup_user.name = validated_data['username']  # Update to user-defined name
             meetup_user.save()
         except MeetupUser.DoesNotExist:
             # Create new MeetupUser if it doesn't exist
