@@ -78,20 +78,29 @@ def login_user(request):
     
     if user:
         login(request, user)
+        # Use only Django User table - find linked MeetupUser if exists
+        meetup_user = None
         try:
             meetup_user = user.meetup_profile
-            return Response({
-                'message': '로그인 성공',
-                'user': {
-                    'id': meetup_user.id,
-                    'username': user.username,
-                    'name': meetup_user.name,
-                    'email': meetup_user.email,
-                    'is_admin': meetup_user.is_admin or user.is_staff
-                }
-            }, status=status.HTTP_200_OK)
         except MeetupUser.DoesNotExist:
-            return Response({'error': '사용자 프로필을 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+            # Create linked MeetupUser if it doesn't exist
+            meetup_user = MeetupUser.objects.create(
+                user=user,
+                name=user.username,
+                email=user.email,
+                is_admin=user.is_staff
+            )
+        
+        return Response({
+            'message': '로그인 성공',
+            'user': {
+                'id': meetup_user.id,
+                'username': user.username,
+                'name': meetup_user.name,
+                'email': user.email,  # Use Django User email as authoritative
+                'is_admin': meetup_user.is_admin or user.is_staff
+            }
+        }, status=status.HTTP_200_OK)
     else:
         return Response({'error': '잘못된 로그인 정보입니다'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -389,10 +398,12 @@ def admin_delete_user(request, user_id):
         if meetup_user.is_admin:
             return Response({'error': '관리자는 삭제할 수 없습니다'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Delete associated Django user if exists
+        # Delete the Django User first if it exists (this will cascade to MeetupUser due to OneToOneField)
         if meetup_user.user:
-            meetup_user.user.delete()
+            django_user = meetup_user.user
+            django_user.delete()  # This deletes both User and linked MeetupUser
         else:
+            # Delete standalone MeetupUser (not linked to Django User)
             meetup_user.delete()
             
         return Response({'message': '사용자가 성공적으로 삭제되었습니다'}, status=status.HTTP_200_OK)
@@ -488,20 +499,28 @@ def add_participant_by_email(request, meetup_id):
         # Try to find existing user with this email
         participant_user = None
         try:
-            # First try to find by MeetupUser email
-            participant_user = MeetupUser.objects.get(email=email)
-        except MeetupUser.DoesNotExist:
+            # First try to find by Django User email (prioritize linked users)
+            django_user = User.objects.get(email=email)
+            participant_user = django_user.meetup_profile
+        except User.DoesNotExist:
             try:
-                # Then try to find by Django User email
-                django_user = User.objects.get(email=email)
-                participant_user = django_user.meetup_profile
-            except (User.DoesNotExist, MeetupUser.DoesNotExist):
+                # Then try to find by MeetupUser email (unlinked users)
+                participant_user = MeetupUser.objects.get(email=email, user__isnull=True)
+            except MeetupUser.DoesNotExist:
                 # Create a new MeetupUser without Django User (guest user)
                 participant_user = MeetupUser.objects.create(
                     name=f"Guest ({email})",
                     email=email,
                     is_admin=False
                 )
+        except MeetupUser.DoesNotExist:
+            # Django user exists but no MeetupUser profile - create one
+            participant_user = MeetupUser.objects.create(
+                user=django_user,
+                name=django_user.username,
+                email=django_user.email,
+                is_admin=django_user.is_staff
+            )
         
         # Check if already registered
         if Registration.objects.filter(user=participant_user, meetup=meetup).exists():

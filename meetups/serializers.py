@@ -17,14 +17,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
         
         # Check if MeetupUser already exists with this email (manually created by admin)
+        # and has no user_id link yet
         try:
-            meetup_user = MeetupUser.objects.get(email=validated_data['email'])
+            meetup_user = MeetupUser.objects.get(email=validated_data['email'], user__isnull=True)
             # Link existing MeetupUser to the new Django User and update name
             meetup_user.user = user
             meetup_user.name = validated_data['username']  # Update to user-defined name
             meetup_user.save()
         except MeetupUser.DoesNotExist:
-            # Create new MeetupUser if it doesn't exist
+            # Create new MeetupUser if it doesn't exist or if one exists but is already linked
             meetup_user = MeetupUser.objects.create(
                 user=user,
                 name=validated_data['username'],  # Use username as name
