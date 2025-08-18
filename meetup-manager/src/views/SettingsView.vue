@@ -76,7 +76,7 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+          <div class="bg-white dark:bg-neutral-800 overflow-hidden shadow rounded-lg">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -101,7 +101,7 @@
 
           <!-- Notifications Card -->
           <button @click="openNotificationsModal"
-            class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500">
+            class="bg-white dark:bg-neutral-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500">
             <div class="p-5">
               <div class="flex items-center">
                 <div class="flex-shrink-0 relative">
@@ -134,7 +134,7 @@
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading" class="bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div v-if="loading" class="bg-white dark:bg-neutral-800 shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6 text-center">
             <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-neutral-500 mx-auto" xmlns="http://www.w3.org/2000/svg"
               fill="none" viewBox="0 0 24 24">
@@ -720,17 +720,17 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">모임 이름</label>
             <input v-model="editForm.name" type="text" required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base" />
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white text-base" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">설명</label>
             <textarea v-model="editForm.description" rows="4"
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base"></textarea>
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white text-base"></textarea>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">장소</label>
             <input v-model="editForm.location" type="text" required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base" />
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white text-base" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">날짜 *</label>
@@ -763,7 +763,7 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">최대 참여 인원</label>
             <input v-model.number="editForm.max_participants" type="number" min="1" required
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base" />
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white text-base" />
           </div>
 
           <!-- Hashtags Section -->
@@ -772,7 +772,7 @@
               해시태그
             </label>
             <input v-model="editForm.hashtags" type="text" placeholder="#개발,#네트워킹,#스타트업 (쉼표로 구분)"
-              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-base" />
+              class="block w-full px-4 py-3 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white dark:placeholder-gray-400 text-base" />
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               해시태그를 쉼표로 구분하여 입력하세요. 예: #개발,#네트워킹,#스타트업
             </p>
@@ -787,7 +787,7 @@
               <!-- Current Image Display -->
               <div v-if="editForm.currentImageUrl" class="relative inline-block">
                 <img :src="editForm.currentImageUrl" alt="현재 이미지"
-                  class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                  class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-neutral-600"
                   @error="handleImageError" />
                 <span class="absolute top-0 left-0 bg-neutral-700 text-white text-xs px-1 rounded">현재</span>
               </div>
@@ -812,14 +812,14 @@
                   </label>
                   <input type="url" id="edit-image-url" v-model="editForm.imageUrl"
                     placeholder="https://example.com/image.jpg"
-                    class="block w-full px-2 py-1 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm" />
+                    class="block w-full px-2 py-1 border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white dark:placeholder-gray-400 text-sm" />
                 </div>
               </div>
 
               <!-- New Image Preview -->
               <div v-if="editImagePreview" class="relative inline-block">
                 <img :src="editImagePreview" alt="새 이미지 미리보기"
-                  class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                  class="h-20 w-32 object-cover rounded-lg border border-gray-300 dark:border-neutral-600"
                   @error="handleImageError" />
                 <span class="absolute top-0 left-0 bg-neutral-700 text-white text-xs px-1 rounded">새 이미지</span>
                 <button type="button" @click="removeEditImage"
@@ -831,9 +831,9 @@
               </div>
             </div>
           </div>
-          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-neutral-700">
             <button type="button" @click="closeEditModal"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-neutral-700 dark:text-gray-300 dark:border-neutral-600 dark:hover:bg-neutral-600">
               취소
             </button>
             <button type="submit" :disabled="updating"
@@ -894,14 +894,14 @@
                     이름 *
                   </label>
                   <input v-model="manualRegistrationForm.name" type="text" required placeholder="참가자 이름"
-                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm" />
+                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-sm" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     이메일 *
                   </label>
                   <input v-model="manualRegistrationForm.email" type="email" required placeholder="참가자 이메일"
-                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm" />
+                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-sm" />
                 </div>
               </div>
               <div class="flex justify-end">
@@ -982,7 +982,7 @@
           </div>
 
           <!-- Send Notification Section -->
-          <div class="bg-white dark:bg-gray-700 rounded-lg p-4 mt-4">
+          <div class="bg-white dark:bg-neutral-700 rounded-lg p-4 mt-4">
             <h4 class="text-md font-medium text-black dark:text-white mb-3">
               참가자에게 알림 보내기
             </h4>
@@ -995,14 +995,14 @@
                   제목 *
                 </label>
                 <input v-model="notificationForm.title" type="text" required placeholder="알림 제목"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm" />
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-sm" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   메시지 *
                 </label>
                 <textarea v-model="notificationForm.message" required rows="3" placeholder="알림 내용"
-                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white sm:text-sm"></textarea>
+                  class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-neutral-500 focus:border-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-sm"></textarea>
               </div>
               <div class="flex justify-end">
                 <button type="submit" :disabled="sendingNotification || participants.length === 0"
@@ -1028,7 +1028,7 @@
       class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
       @click.self="closeNotificationsModal">
       <div
-        class="relative top-4 mx-auto p-0 max-w-6xl bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col">
+        class="relative top-4 mx-auto p-0 max-w-6xl bg-white dark:bg-neutral-800 rounded-lg shadow-xl border border-gray-200 dark:border-neutral-700 max-h-[90vh] flex flex-col">
         <!-- Modal Header -->
         <div
           class="bg-beige-100 dark:bg-neutral-900 px-6 py-4 rounded-t-lg border-b border-beige-300 dark:border-neutral-800">
@@ -1049,7 +1049,7 @@
                 <span>모두 읽음</span>
               </button>
               <button @click="closeNotificationsModal"
-                class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none rounded-full hover:bg-gray-100 dark:hover:bg-neutral-600 transition-colors">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -1062,7 +1062,7 @@
         <div class="flex-1 overflow-y-auto">
           <!-- Selected Notification Detail View -->
           <div v-if="selectedNotification"
-            class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6">
+            class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-neutral-700 p-6">
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-full flex items-center justify-center"
@@ -1095,13 +1095,13 @@
                 </div>
               </div>
               <button @click="closeNotificationDetail"
-                class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-600 transition-colors">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+            <div class="bg-white dark:bg-neutral-800 rounded-lg p-4 border border-gray-200 dark:border-neutral-600">
               <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{{
                 selectedNotification.message }}</p>
             </div>
@@ -1136,7 +1136,7 @@
             <div v-else class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
               <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
                 <!-- Table Header -->
-                <thead class="bg-gray-50 dark:bg-gray-700">
+                <thead class="bg-gray-50 dark:bg-neutral-700">
                   <tr>
                     <th scope="col"
                       class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6">상태
@@ -1155,9 +1155,9 @@
                   </tr>
                 </thead>
                 <!-- Table Body -->
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-600 bg-white dark:bg-gray-800">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-600 bg-white dark:bg-neutral-800">
                   <tr v-for="notification in paginatedNotifications" :key="notification.id"
-                    class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                    class="hover:bg-gray-50 dark:hover:bg-neutral-700 cursor-pointer transition-colors"
                     :class="{ 'bg-beige-100 dark:bg-neutral-900': !notification.is_read }"
                     @click="selectNotification(notification)">
                     <!-- Status -->
@@ -1226,17 +1226,17 @@
 
             <!-- Pagination -->
             <div v-if="notificationPagination.total > notificationPagination.per_page"
-              class="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6">
+              class="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-neutral-700 pt-6">
               <div class="flex-1 flex justify-between sm:hidden">
                 <!-- Mobile pagination buttons -->
                 <button @click="goToPage(notificationPagination.current_page - 1)"
                   :disabled="notificationPagination.current_page <= 1"
-                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-neutral-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed">
                   이전
                 </button>
                 <button @click="goToPage(notificationPagination.current_page + 1)"
                   :disabled="notificationPagination.current_page >= notificationPagination.total_pages"
-                  class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-neutral-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed">
                   다음
                 </button>
               </div>
@@ -1256,7 +1256,7 @@
                     <!-- Previous button -->
                     <button @click="goToPage(notificationPagination.current_page - 1)"
                       :disabled="notificationPagination.current_page <= 1"
-                      class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed">
                       <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                           d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
@@ -1269,7 +1269,7 @@
                       'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                       page === notificationPagination.current_page
                         ? 'z-10 bg-beige-100 dark:bg-neutral-900 border-beige-300 text-neutral-800 dark:text-neutral-300'
-                        : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'
+                        : 'bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-600'
                     ]">
                       {{ page }}
                     </button>
@@ -1277,7 +1277,7 @@
                     <!-- Next button -->
                     <button @click="goToPage(notificationPagination.current_page + 1)"
                       :disabled="notificationPagination.current_page >= notificationPagination.total_pages"
-                      class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed">
                       <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                           d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"

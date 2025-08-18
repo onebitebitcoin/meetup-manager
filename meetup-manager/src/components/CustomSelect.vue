@@ -22,17 +22,17 @@
       @click="toggleDropdown"
       @blur="handleBlur"
       :disabled="disabled"
-      class="relative w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm pl-3 pr-10 py-2.5 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 hover:border-gray-400 dark:hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+      class="relative w-full bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 rounded-lg shadow-sm pl-3 pr-10 py-2.5 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 hover:border-gray-400 dark:hover:border-neutral-500 disabled:opacity-50 disabled:cursor-not-allowed"
       :class="{
         'ring-2 ring-slate-500 border-slate-500': isOpen
       }"
     >
-      <span class="block truncate text-sm text-gray-900 dark:text-gray-100">
+      <span class="block truncate text-sm text-gray-900 dark:text-neutral-100">
         {{ selectedOption?.label || placeholder }}
       </span>
       <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
         <svg
-          class="h-5 w-5 text-gray-400 transition-transform duration-200"
+          class="h-5 w-5 text-neutral-400 transition-transform duration-200"
           :class="{ 'rotate-180': isOpen }"
           fill="none"
           stroke="currentColor"
@@ -54,16 +54,16 @@
     >
       <div
         v-if="isOpen"
-        class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none border border-gray-200 dark:border-gray-600"
+        class="absolute z-50 mt-1 w-full bg-white dark:bg-neutral-700 shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none border border-gray-200 dark:border-neutral-600"
       >
         <div
           v-for="option in options"
           :key="option.value"
           @click="selectOption(option)"
-          class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-150"
+          class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-neutral-600 transition-colors duration-150"
           :class="{
-            'bg-slate-100 dark:bg-slate-600 text-slate-900 dark:text-slate-100': option.value === selectedValue,
-            'text-gray-900 dark:text-gray-100': option.value !== selectedValue
+            'bg-slate-100 dark:bg-neutral-600 text-slate-900 dark:text-neutral-100': option.value === selectedValue,
+            'text-gray-900 dark:text-neutral-100': option.value !== selectedValue
           }"
         >
           <span
@@ -79,7 +79,7 @@
           <!-- Checkmark for selected option -->
           <span
             v-if="option.value === selectedValue"
-            class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-600 dark:text-slate-300"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-600 dark:text-neutral-300"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

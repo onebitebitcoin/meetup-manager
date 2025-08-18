@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+  <div class="bg-white dark:bg-neutral-800 rounded-lg shadow p-3 sm:p-6">
     <div class="flex items-center justify-between mb-3 sm:mb-6">
       <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">달력</h2>
     </div>
@@ -9,7 +9,7 @@
       <div class="flex items-center space-x-3 sm:space-x-6">
         <button
           @click="previousMonth"
-          class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-900 dark:text-white transition-colors"
+          class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-neutral-700 rounded-full text-gray-900 dark:text-white transition-colors"
         >
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -20,7 +20,7 @@
         </h3>
         <button
           @click="nextMonth"
-          class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-900 dark:text-white transition-colors"
+          class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-neutral-700 rounded-full text-gray-900 dark:text-white transition-colors"
         >
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -31,7 +31,7 @@
 
     <div class="overflow-x-auto">
       <div class="grid grid-cols-7 gap-px sm:gap-1 mb-2 sm:mb-4 min-w-[280px]">
-        <div v-for="day in weekDays" :key="day" class="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div v-for="day in weekDays" :key="day" class="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-gray-700 dark:text-neutral-300">
           {{ day }}
         </div>
       </div>
@@ -42,13 +42,13 @@
         <div
           v-for="date in calendarDates"
           :key="date.date"
-          class="relative p-1 sm:p-2 min-h-[80px] sm:min-h-[110px] border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+          class="relative p-1 sm:p-2 min-h-[80px] sm:min-h-[110px] border border-gray-200 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-700"
           :class="{
-            'bg-gray-100 dark:bg-gray-700': !date.isCurrentMonth,
-            'bg-blue-50 dark:bg-blue-900': date.isToday
+            'bg-gray-100 dark:bg-neutral-700': !date.isCurrentMonth,
+            'bg-blue-50 dark:bg-neutral-600': date.isToday
           }"
         >
-        <div class="text-xs sm:text-sm font-medium" :class="{ 'text-gray-400 dark:text-gray-500': !date.isCurrentMonth, 'text-gray-900 dark:text-white': date.isCurrentMonth }">
+        <div class="text-xs sm:text-sm font-medium" :class="{ 'text-gray-400 dark:text-neutral-400': !date.isCurrentMonth, 'text-gray-900 dark:text-white': date.isCurrentMonth }">
           {{ date.date.getDate() }}
         </div>
         
@@ -57,7 +57,7 @@
             v-for="meetup in date.meetups.slice(0, 1)"
             :key="meetup.id"
             @click="selectedMeetup = meetup"
-            class="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-indigo-800 truncate block sm:hidden"
+            class="text-xs bg-indigo-100 dark:bg-neutral-600 text-indigo-800 dark:text-neutral-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-neutral-500 truncate block sm:hidden"
           >
             {{ meetup.name.length > 6 ? meetup.name.substring(0, 6) + '...' : meetup.name }}
           </div>
@@ -65,21 +65,21 @@
             v-for="meetup in date.meetups.slice(0, 2)"
             :key="meetup.id"
             @click="selectedMeetup = meetup"
-            class="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-indigo-800 truncate hidden sm:block"
+            class="text-xs bg-indigo-100 dark:bg-neutral-600 text-indigo-800 dark:text-neutral-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-neutral-500 truncate hidden sm:block"
           >
             {{ meetup.name }}
           </div>
           <div 
             v-if="date.meetups.length > 1" 
             @click="showDateMeetups(date)"
-            class="text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 sm:hidden"
+            class="text-xs text-gray-500 dark:text-neutral-400 cursor-pointer hover:text-gray-700 dark:hover:text-neutral-300 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-gray-100 dark:hover:bg-neutral-600 sm:hidden"
           >
             +{{ date.meetups.length - 1 }}개
           </div>
           <div 
             v-if="date.meetups.length > 2" 
             @click="showDateMeetups(date)"
-            class="text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 hidden sm:block"
+            class="text-xs text-gray-500 dark:text-neutral-400 cursor-pointer hover:text-gray-700 dark:hover:text-neutral-300 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-gray-100 dark:hover:bg-neutral-600 hidden sm:block"
           >
             +{{ date.meetups.length - 2 }}개 더
           </div>

@@ -181,7 +181,7 @@
 
         <!-- 필터 섹션 -->
         <div
-          class="bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 mb-6"
+          class="bg-white dark:bg-neutral-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-neutral-700 mb-6"
         >
           <div class="p-4 sm:p-6">
             <div
@@ -229,7 +229,7 @@
                 <!-- 년도 필터 -->
                 <div>
                   <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2"
                     >년도</label
                   >
                   <CustomSelect
@@ -242,7 +242,7 @@
                 <!-- 월 필터 -->
                 <div>
                   <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2"
                     >월</label
                   >
                   <CustomSelect
@@ -255,7 +255,7 @@
                 <!-- 상태 필터 -->
                 <div>
                   <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2"
                     >상태</label
                   >
                   <CustomSelect
@@ -268,7 +268,7 @@
                 <!-- 해시태그 필터 -->
                 <div>
                   <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2"
                     >해시태그</label
                   >
                   <CustomSelect
@@ -281,14 +281,14 @@
                 <!-- 검색 -->
                 <div>
                   <label
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2"
                     >검색</label
                   >
                   <input
                     v-model="filters.search"
                     type="text"
                     placeholder="모임명 또는 장소 검색"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-neutral-700 dark:text-neutral-100 dark:placeholder-neutral-400"
                   />
                 </div>
 
@@ -316,7 +316,7 @@
               </div>
 
               <!-- 필터 결과 표시 -->
-              <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div class="mt-6 border-t border-gray-200 dark:border-neutral-700 pt-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div class="flex items-center gap-2">
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -559,7 +559,7 @@
                       <!-- 모든 필터 초기화 버튼 -->
                       <button
                         @click="clearFilters"
-                        class="inline-flex items-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 shadow-sm hover:shadow transition-all duration-200"
+                        class="inline-flex items-center bg-gray-100 dark:bg-neutral-700 hover:bg-gray-200 dark:hover:bg-neutral-600 border border-gray-300 dark:border-neutral-600 rounded-md px-2 py-1 text-xs font-medium text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-neutral-100 shadow-sm hover:shadow transition-all duration-200"
                       >
                         <svg
                           class="w-2.5 h-2.5 mr-1"

@@ -6,7 +6,7 @@
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
           📚 <한입 모임> 사용 가이드
         </h1>
-        <p class="text-lg text-gray-600 dark:text-gray-400">
+        <p class="text-lg text-gray-600 dark:text-neutral-300">
           모임 관리 플랫폼의 다양한 기능을 알아보세요
         </p>
         <div class="mt-4">
@@ -23,7 +23,7 @@
       </div>
 
       <!-- 목차 -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6 mb-8">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">📋 목차</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <a href="#getting-started" class="text-blue-600 dark:text-blue-400 hover:underline">1. 시작하기</a>
@@ -39,11 +39,11 @@
       <!-- 섹션들 -->
       <div class="space-y-8">
         <!-- 시작하기 -->
-        <section id="getting-started" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="getting-started" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             🚀 1. 시작하기
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white mb-2">회원가입</h3>
               <p>• 이름, 이메일, 비밀번호를 입력하여 계정을 생성하세요</p>
@@ -63,11 +63,11 @@
         </section>
 
         <!-- 대시보드 -->
-        <section id="dashboard" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="dashboard" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             🏠 2. 대시보드 사용법
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white mb-2">모임 보기 방식</h3>
               <p>• <strong>달력 보기:</strong> 월별 캘린더에서 모임 일정을 한눈에 확인</p>
@@ -88,11 +88,11 @@
         </section>
 
         <!-- 모임 만들기 -->
-        <section id="create-meetup" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="create-meetup" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             ➕ 3. 모임 만들기
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white mb-2">모임 생성 폼</h3>
               <p>• <strong>모임 이름:</strong> 명확하고 매력적인 제목을 작성하세요</p>
@@ -116,11 +116,11 @@
         </section>
 
         <!-- 모임 참가하기 -->
-        <section id="join-meetup" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="join-meetup" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             🤝 4. 모임 참가하기
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white mb-2">참가 신청</h3>
               <p>• 관심 있는 모임을 클릭하여 상세 정보를 확인</p>
@@ -141,11 +141,11 @@
         </section>
 
         <!-- 대기열 시스템 -->
-        <section id="waitlist" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="waitlist" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             ⏳ 5. 대기열 시스템
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white mb-2">대기열 등록</h3>
               <p>• 모임 정원이 가득 찬 경우 자동으로 대기열에 등록됩니다</p>
@@ -165,11 +165,11 @@
         </section>
 
         <!-- 알림 관리 -->
-        <section id="notifications" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="notifications" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             🔔 6. 알림 관리
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white mb-2">알림 유형</h3>
               <p>• <strong>대기열 승격:</strong> 대기열에서 참가자로 승격된 경우</p>
@@ -192,11 +192,11 @@
         </section>
 
         <!-- 설정 관리 -->
-        <section id="settings" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="settings" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             ⚙️ 7. 설정 관리
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <div>
               <h3 class="font-semibold text-gray-900 dark:text-white mb-2">계정 정보</h3>
               <p>• 내 계정 정보를 확인하고 필요시 수정할 수 있습니다</p>
@@ -219,11 +219,11 @@
         </section>
 
         <!-- 추가 팁 -->
-        <section id="additional-tips" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <section id="additional-tips" class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             💡 추가 팁
           </h2>
-          <div class="space-y-4 text-gray-600 dark:text-gray-400">
+          <div class="space-y-4 text-gray-600 dark:text-neutral-300">
             <p>• <strong>모바일 친화적:</strong> 모든 기능이 모바일에서도 원활하게 작동합니다</p>
             <p>• <strong>실시간 업데이트:</strong> 다른 사용자의 참가/취소가 실시간으로 반영됩니다</p>
             <p>• <strong>검색 활용:</strong> 키워드 검색으로 원하는 모임을 빠르게 찾을 수 있습니다</p>
@@ -233,11 +233,11 @@
         </section>
 
         <!-- 문의 -->
-        <section class="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center">
+        <section class="bg-gray-50 dark:bg-neutral-800/50 rounded-lg border border-gray-200 dark:border-neutral-700 p-6 text-center">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
             ❓ 더 궁금한 것이 있으신가요?
           </h2>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">
+          <p class="text-gray-600 dark:text-neutral-300 mb-4">
             사용 중 문제가 발생하거나 추가 문의사항이 있으시면 언제든지 연락주세요.
           </p>
           <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 mb-4">
@@ -249,7 +249,7 @@
               📧 <a href="mailto:onebitebitcoin@proton.me" class="text-blue-600 dark:text-blue-400 hover:underline">onebitebitcoin@proton.me</a>
             </p>
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-500">
+          <p class="text-sm text-gray-500 dark:text-neutral-400">
             이 가이드는 계속 업데이트되며, 새로운 기능이 추가되면 반영됩니다.
           </p>
         </section>
