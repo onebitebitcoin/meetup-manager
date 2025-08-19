@@ -18,6 +18,8 @@ from .serializers import (
     WaitlistSerializer,
     NotificationSerializer
 )
+from .utils.keyboard_converter import korean_to_english, has_korean_characters
+from .utils.secure_logging import log_korean_conversion, log_authentication_attempt
 
 @ensure_csrf_cookie
 def get_csrf_token(request):
@@ -58,6 +60,12 @@ def login_user(request):
     
     if not username or not password:
         return Response({'error': '사용자명과 비밀번호가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Convert Korean password input to English if necessary
+    if has_korean_characters(password):
+        password = korean_to_english(password)
+        # Security: Use secure logging that doesn't expose sensitive data
+        log_korean_conversion(username, action="login")
     
     # Try to authenticate - first by username, then by email
     user = authenticate(username=username, password=password)

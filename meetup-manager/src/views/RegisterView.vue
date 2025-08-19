@@ -99,6 +99,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { convertPasswordInput } from '@/utils/keyboardConverter'
 
 export default {
   name: 'RegisterView',
@@ -115,7 +116,11 @@ export default {
     })
 
     const handleRegister = async () => {
-      if (form.value.password !== form.value.passwordConfirm) {
+      // Convert Korean passwords to English
+      const convertedPassword = convertPasswordInput(form.value.password)
+      const convertedPasswordConfirm = convertPasswordInput(form.value.passwordConfirm)
+      
+      if (convertedPassword !== convertedPasswordConfirm) {
         error.value = '비밀번호가 일치하지 않습니다.'
         return
       }
@@ -129,7 +134,7 @@ export default {
           body: JSON.stringify({
             username: form.value.username,
             email: form.value.email,
-            password: form.value.password
+            password: convertedPassword
           })
         })
 

@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import MeetupUser, Meetup, Registration, Waitlist, Notification
+from .utils.keyboard_converter import korean_to_english, has_korean_characters
+from .utils.secure_logging import log_korean_conversion
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -10,10 +12,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password']
     
     def create(self, validated_data):
+        # Convert Korean password to English if necessary
+        password = validated_data['password']
+        if has_korean_characters(password):
+            password = korean_to_english(password)
+            # Security: Use secure logging that doesn't expose sensitive data
+            log_korean_conversion(validated_data['username'], action="registration")
+        
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=password
         )
         
         # Check if MeetupUser already exists with this email (manually created by admin)

@@ -148,6 +148,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import ThemeToggle from "@/components/ThemeToggle.vue";
 import { fetchWithCSRF } from "@/utils/csrf";
+import { convertPasswordInput } from "@/utils/keyboardConverter";
 
 export default {
   name: "LoginView",
@@ -168,11 +169,14 @@ export default {
       try {
         console.log("Starting login process...");
 
+        // Convert Korean password input to English if necessary
+        const convertedPassword = convertPasswordInput(form.password);
+
         const response = await fetchWithCSRF("/api/auth/login/", {
           method: "POST",
           body: JSON.stringify({
             username: form.username,
-            password: form.password,
+            password: convertedPassword,
           }),
         });
 
