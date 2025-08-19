@@ -13,8 +13,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         min_length=3,
         validators=[
             RegexValidator(
-                regex=r'^[a-zA-Z0-9_-]+$',
-                message='사용자명은 영문, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.'
+                regex=r'^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_-]+$',
+                message='사용자명은 영문, 한글, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.'
             )
         ]
     )
@@ -54,8 +54,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("사용자명에는 공백을 사용할 수 없습니다.")
         
         # Check for invalid characters
-        if not re.match(r'^[a-zA-Z0-9_-]+$', value):
-            raise serializers.ValidationError("사용자명은 영문, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.")
+        if not re.match(r'^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_-]+$', value):
+            raise serializers.ValidationError("사용자명은 영문, 한글, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.")
         
         # Check if username starts or ends with special characters
         if value.startswith('-') or value.startswith('_') or value.endswith('-') or value.endswith('_'):

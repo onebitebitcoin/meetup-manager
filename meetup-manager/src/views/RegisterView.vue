@@ -33,7 +33,7 @@
                     'border-green-500 text-green-900 focus:ring-green-500 focus:border-green-500 dark:border-green-400 dark:text-white' :
                     'border-gray-300 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 dark:border-gray-600 dark:text-white'
               ]"
-              placeholder="사용자명 (영문, 숫자, _, - 사용가능)"
+              placeholder="사용자명 (영문, 한글, 숫자, _, - 사용가능)"
             />
             <!-- Username validation message -->
             <div v-if="usernameError && form.username" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -178,8 +178,8 @@ export default {
       }
 
       // Check for invalid characters
-      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-        usernameError.value = '사용자명은 영문, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.'
+      if (!/^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_-]+$/.test(username)) {
+        usernameError.value = '사용자명은 영문, 한글, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.'
         usernameValid.value = false
         return false
       }
