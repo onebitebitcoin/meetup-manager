@@ -923,9 +923,19 @@
 
           <!-- Participants List -->
           <div class="mb-6">
-            <h4 class="text-md font-medium text-neutral-900 dark:text-neutral-100 mb-3">
-              등록된 참가자
-            </h4>
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-md font-medium text-neutral-900 dark:text-neutral-100">
+                등록된 참가자
+              </h4>
+              <button v-if="participants.length > 0" @click="copyParticipantEmails"
+                class="copy-email-btn px-3 py-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 rounded-md border border-neutral-300 dark:border-neutral-600 transition-colors flex items-center space-x-1">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>이메일 복사</span>
+              </button>
+            </div>
 
             <!-- Loading State -->
             <div v-if="loadingParticipants" class="text-center py-4">
@@ -2112,6 +2122,36 @@ export default {
         sendingNotification.value = false;
       }
     };
+    const copyParticipantEmails = async () => {
+      if (participants.value.length === 0) return;
+      
+      const emailList = participants.value
+        .map(participant => participant.user_email)
+        .filter(email => email) // Filter out any null/empty emails
+        .join(', ');
+      
+      try {
+        await navigator.clipboard.writeText(emailList);
+        // Show success message
+        alert(`${participants.value.length}명의 이메일 주소가 클립보드에 복사되었습니다.`);
+      } catch (err) {
+        console.error('Failed to copy emails: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = emailList;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          alert(`${participants.value.length}명의 이메일 주소가 클립보드에 복사되었습니다.`);
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed: ', fallbackErr);
+          alert('이메일 목록을 복사하지 못했습니다.');
+        }
+        document.body.removeChild(textArea);
+      }
+    };
 
     return {
       authStore,
@@ -2158,6 +2198,7 @@ export default {
       notificationForm,
       sendingNotification,
       sendNotificationToParticipants,
+      copyParticipantEmails,
       handleImageError,
       editImageInput,
       editImagePreview,

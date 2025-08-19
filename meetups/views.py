@@ -220,15 +220,10 @@ def meetup_registrations(request, meetup_id):
         
         registration_data = []
         for reg in registrations:
-            # Mask email for privacy: show first 3 chars + *** + domain
-            email = reg.user.email
-            username, domain = email.split('@')
-            masked_email = username[:3] + '***@' + domain if len(username) > 3 else username[0] + '***@' + domain
-            
             registration_data.append({
                 'id': reg.id,
                 'user_name': reg.user.name,
-                'user_email': masked_email,
+                'user_email': reg.user.email,
                 'registered_at': reg.registered_at
             })
         
@@ -398,18 +393,41 @@ def admin_delete_user(request, user_id):
         if meetup_user.is_admin:
             return Response({'error': '관리자는 삭제할 수 없습니다'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Delete the Django User first if it exists (this will cascade to MeetupUser due to OneToOneField)
-        if meetup_user.user:
-            django_user = meetup_user.user
-            django_user.delete()  # This deletes both User and linked MeetupUser
-        else:
-            # Delete standalone MeetupUser (not linked to Django User)
-            meetup_user.delete()
+        # Handle foreign key relationships before deletion
+        from django.db import transaction
+        
+        with transaction.atomic():
+            # 1. Handle meetups created by this user - set creator to None
+            meetup_user.created_meetups.update(creator=None)
+            
+            # 2. Delete registrations (will auto-update meetup participant counts)
+            registrations = Registration.objects.filter(user=meetup_user)
+            for registration in registrations:
+                registration.delete()  # This will properly update meetup.current_participants
+            
+            # 3. Delete waitlist entries (will auto-update positions)
+            waitlist_entries = Waitlist.objects.filter(user=meetup_user)
+            for waitlist_entry in waitlist_entries:
+                waitlist_entry.delete()  # This will properly update positions
+            
+            # 4. Delete notifications
+            Notification.objects.filter(user=meetup_user).delete()
+            
+            # 5. Finally delete the user
+            if meetup_user.user:
+                # Delete Django User (this will cascade to MeetupUser)
+                django_user = meetup_user.user
+                django_user.delete()
+            else:
+                # Delete standalone MeetupUser
+                meetup_user.delete()
             
         return Response({'message': '사용자가 성공적으로 삭제되었습니다'}, status=status.HTTP_200_OK)
         
     except MeetupUser.DoesNotExist:
         return Response({'error': '사용자를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': f'삭제 중 오류가 발생했습니다: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['DELETE'])
 def admin_delete_meetup(request, meetup_id):
@@ -678,16 +696,11 @@ def meetup_waitlist(request, meetup_id):
         
         waitlist_data = []
         for entry in waitlist_entries:
-            # Mask email for privacy
-            email = entry.user.email
-            username, domain = email.split('@')
-            masked_email = username[:3] + '***@' + domain if len(username) > 3 else username[0] + '***@' + domain
-            
             waitlist_data.append({
                 'id': entry.id,
                 'position': entry.position,
                 'user_name': entry.user.name,
-                'user_email': masked_email,
+                'user_email': entry.user.email,
                 'waitlisted_at': entry.waitlisted_at
             })
         
