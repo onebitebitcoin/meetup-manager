@@ -9,7 +9,7 @@
         <div class="flex items-center space-x-3 sm:space-x-6">
           <button
             @click="previousMonth"
-            class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-900 dark:text-white transition-colors"
+            class="p-1 sm:p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-full text-gray-900 dark:text-white transition-colors"
           >
             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -20,7 +20,7 @@
           </h3>
           <button
             @click="nextMonth"
-            class="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-900 dark:text-white transition-colors"
+            class="p-1 sm:p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-full text-gray-900 dark:text-white transition-colors"
           >
             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -32,7 +32,7 @@
     <!-- Desktop table view -->
     <div class="hidden sm:block overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-700">
+        <thead class="bg-neutral-50 dark:bg-neutral-700">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               이미지
@@ -61,7 +61,7 @@
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="meetup in filteredMeetups" :key="meetup.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <tr v-for="meetup in filteredMeetups" :key="meetup.id" class="hover:bg-neutral-50 dark:hover:bg-neutral-700">
             <!-- 이미지 컬럼 -->
             <td class="px-4 py-4">
               <div class="relative w-16 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
@@ -168,7 +168,7 @@
       <div
         v-for="meetup in filteredMeetups"
         :key="meetup.id"
-        class="p-3 space-y-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+        class="p-3 space-y-3 hover:bg-neutral-50 dark:hover:bg-neutral-700"
       >
         <div class="flex gap-3">
           <!-- 이미지 섹션 -->
