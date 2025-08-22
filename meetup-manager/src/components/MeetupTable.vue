@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-3 sm:p-6">
+  <div class="bg-white dark:bg-neutral-800 rounded-lg shadow p-3 sm:p-6">
       <div class="flex items-center justify-between mb-3 sm:mb-6">
         <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">목록</h2>
       </div>
@@ -60,7 +60,7 @@
             </th>
           </tr>
         </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody class="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-700">
           <tr v-for="meetup in filteredMeetups" :key="meetup.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
             <!-- 이미지 컬럼 -->
             <td class="px-4 py-4">
