@@ -1,8 +1,8 @@
 <template>
   <div v-if="selectedMeetup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click="$emit('close')">
-    <div class="bg-beige-50 dark:bg-neutral-800 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden" @click.stop>
+    <div class="bg-beige-50 dark:bg-neutral-800 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col" @click.stop>
       <!-- Simple Header -->
-      <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-600 bg-beige-200 dark:bg-neutral-700">
+      <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-600 bg-beige-200 dark:bg-neutral-700 flex-shrink-0">
         <!-- Close Button -->
         <button @click="$emit('close')" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,7 +15,7 @@
       </div>
       
       <!-- Image (if available) -->
-      <div v-if="selectedMeetup.image_display_url" class="w-full bg-beige-100 dark:bg-neutral-900">
+      <div v-if="selectedMeetup.image_display_url" class="w-full bg-beige-100 dark:bg-neutral-900 flex-shrink-0">
         <img
           :src="selectedMeetup.image_display_url"
           :alt="selectedMeetup.name"
@@ -24,8 +24,8 @@
         />
       </div>
 
-      <!-- Content -->
-      <div class="px-6 py-4 overflow-y-auto max-h-[calc(90vh-12rem)]">
+      <!-- Content - Scrollable Area -->
+      <div class="px-6 py-4 overflow-y-auto flex-1 min-h-0">
         <div class="space-y-4">
           <!-- Basic Info -->
           <div class="space-y-3">
@@ -126,47 +126,47 @@
             </div>
           </div>
         </div>
-        
-        <!-- Action Buttons -->
-        <div class="border-t border-neutral-200 dark:border-neutral-700 pt-4 mt-6">
-          <div class="flex flex-col gap-2">
-            <!-- Primary Action Button -->
-            <button
-              v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered && !isWaitlisted"
-              @click="registerForMeetup"
-              :disabled="registering"
-              :class="[
-                'w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors duration-200',
-                registering
-                  ? 'bg-beige-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
-                  : currentMeetupData.is_full
-                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                    : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
-              ]"
-            >
-              {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '대기열 등록' : '참가 신청') }}
-            </button>
+      </div>
+      
+      <!-- Action Buttons - Fixed at Bottom -->
+      <div class="flex-shrink-0 border-t border-neutral-200 dark:border-neutral-700 p-6 bg-beige-50 dark:bg-neutral-800">
+        <div class="flex flex-col gap-2">
+          <!-- Primary Action Button -->
+          <button
+            v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered && !isWaitlisted"
+            @click="registerForMeetup"
+            :disabled="registering"
+            :class="[
+              'w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors duration-200',
+              registering
+                ? 'bg-beige-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
+                : currentMeetupData.is_full
+                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                  : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
+            ]"
+          >
+            {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '대기열 등록' : '참가 신청') }}
+          </button>
 
-            <!-- Waitlist Cancel Button -->
-            <button
-              v-if="authStore.isLoggedIn && !authStore.isGuest && isWaitlisted"
-              @click="leaveWaitlist"
-              :disabled="registering"
-              class="w-full py-3 px-4 rounded-lg text-sm font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 transition-colors duration-200 disabled:opacity-50"
-            >
-              {{ registering ? '취소 중...' : '대기열 취소' }}
-            </button>
-            
-            <!-- Unregister Button -->
-            <button
-              v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
-              @click="unregisterFromMeetup"
-              :disabled="registering"
-              class="w-full py-3 px-4 rounded-lg text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors duration-200 disabled:opacity-50"
-            >
-              {{ registering ? '취소 중...' : '참가 취소' }}
-            </button>
-          </div>
+          <!-- Waitlist Cancel Button -->
+          <button
+            v-if="authStore.isLoggedIn && !authStore.isGuest && isWaitlisted"
+            @click="leaveWaitlist"
+            :disabled="registering"
+            class="w-full py-3 px-4 rounded-lg text-sm font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 transition-colors duration-200 disabled:opacity-50"
+          >
+            {{ registering ? '취소 중...' : '대기열 취소' }}
+          </button>
+          
+          <!-- Unregister Button -->
+          <button
+            v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
+            @click="unregisterFromMeetup"
+            :disabled="registering"
+            class="w-full py-3 px-4 rounded-lg text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors duration-200 disabled:opacity-50"
+          >
+            {{ registering ? '취소 중...' : '참가 취소' }}
+          </button>
         </div>
       </div>
     </div>
