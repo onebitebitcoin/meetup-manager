@@ -140,9 +140,7 @@
               'w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors duration-200',
               registering
                 ? 'bg-beige-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
-                : currentMeetupData.is_full
-                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                  : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
+                : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
             ]"
           >
             {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '대기열 등록' : '참가 신청') }}
