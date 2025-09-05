@@ -145,14 +145,14 @@ export default {
     const handleBlur = (event) => {
       // Small delay to allow click events to register
       setTimeout(() => {
-        if (!event.currentTarget.contains(document.activeElement)) {
+        if (event.currentTarget && !event.currentTarget.contains(document.activeElement)) {
           isOpen.value = false
         }
       }, 100)
     }
 
     const handleClickOutside = (event) => {
-      const element = event.target.closest('.relative')
+      const element = event.target?.closest?.('.relative')
       if (!element || !element.contains(event.target)) {
         isOpen.value = false
       }
