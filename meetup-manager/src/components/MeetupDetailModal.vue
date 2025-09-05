@@ -135,22 +135,26 @@
           <button
             v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered && !isWaitlisted"
             @click="registerForMeetup"
-            :disabled="registering"
+            :disabled="registering || isMeetupPassed"
             :class="[
               'w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors duration-200',
-              registering
+              (registering || isMeetupPassed)
                 ? 'bg-beige-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
                 : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
             ]"
           >
-            {{ registering ? '등록 중...' : (currentMeetupData.is_full ? '대기열 등록' : '참가 신청') }}
+            {{ 
+              registering ? '등록 중...' : 
+              isMeetupPassed ? '모임이 종료되었습니다' :
+              (currentMeetupData.is_full ? '대기열 등록' : '참가 신청') 
+            }}
           </button>
 
           <!-- Waitlist Cancel Button -->
           <button
             v-if="authStore.isLoggedIn && !authStore.isGuest && isWaitlisted"
             @click="leaveWaitlist"
-            :disabled="registering"
+            :disabled="registering || isMeetupPassed"
             class="w-full py-3 px-4 rounded-lg text-sm font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 transition-colors duration-200 disabled:opacity-50"
           >
             {{ registering ? '취소 중...' : '대기열 취소' }}
@@ -160,7 +164,7 @@
           <button
             v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
             @click="unregisterFromMeetup"
-            :disabled="registering"
+            :disabled="registering || isMeetupPassed"
             class="w-full py-3 px-4 rounded-lg text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors duration-200 disabled:opacity-50"
           >
             {{ registering ? '취소 중...' : '참가 취소' }}
@@ -236,6 +240,14 @@ export default {
       
       return username.substring(0, 2) + '*'.repeat(username.length - 2)
     }
+
+    // Check if meetup has already passed
+    const isMeetupPassed = computed(() => {
+      if (!props.selectedMeetup?.date_time) return false
+      const meetupDate = new Date(props.selectedMeetup.date_time)
+      const now = new Date()
+      return meetupDate < now
+    })
 
     // Fetch participants data
     const fetchParticipants = async () => {
@@ -420,6 +432,7 @@ export default {
       formatTime,
       maskEmail,
       maskUsername,
+      isMeetupPassed,
       registerForMeetup,
       unregisterFromMeetup,
       joinWaitlist,
