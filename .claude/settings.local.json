@@ -33,7 +33,11 @@
       "Bash(pip3 list:*)",
       "WebFetch(domain:www.pexels.com)",
       "Bash(kill:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(./dev-start.sh:*)",
+      "Bash(./dev-stop.sh:*)",
+      "Bash(./logs-monitor.sh:*)",
+      "Bash(echo $DJANGO_DEBUG)"
     ],
     "deny": []
   }

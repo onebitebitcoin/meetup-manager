@@ -171,23 +171,77 @@
 
                     <!-- Image Preview -->
                     <div v-if="imagePreview" class="mt-4">
-                      <p class="text-sm font-medium text-slate-800 dark:text-neutral-200 mb-2">미리보기</p>
+                      <p class="text-sm font-medium text-slate-800 dark:text-neutral-200 mb-2">
+                        미리보기 
+                        <span class="text-xs text-slate-500 dark:text-neutral-400">(이미지를 드래그하여 위치 조정)</span>
+                      </p>
+                      
+                      <!-- Interactive Image Preview Container -->
                       <div class="relative inline-block">
-                        <img 
-                          :src="imagePreview" 
-                          alt="미리보기" 
-                          class="h-32 w-48 object-cover rounded-lg border border-slate-300 dark:border-neutral-600"
-                          @error="handleImageError"
-                        />
+                        <!-- Image Container with Drag Interaction -->
+                        <div 
+                          ref="imageContainer"
+                          class="relative w-48 h-32 bg-gray-100 dark:bg-neutral-800 rounded-lg border-2 border-slate-300 dark:border-neutral-600 overflow-hidden cursor-move group"
+                          @mousedown="startDrag"
+                          @mousemove="onDrag"
+                          @mouseup="endDrag"
+                          @mouseleave="endDrag"
+                          :class="{ 'border-blue-500 dark:border-blue-400': isDragging }"
+                        >
+                          <!-- Preview Image -->
+                          <img 
+                            :src="imagePreview" 
+                            alt="미리보기"
+                            class="absolute w-full h-full object-cover pointer-events-none select-none transition-all duration-200 ease-out"
+                            :style="{ 
+                              objectPosition: `${imageOffsetX}% ${imageOffsetY}%`,
+                              transform: isDragging ? 'scale(1.02)' : 'scale(1)'
+                            }"
+                            @error="handleImageError"
+                            draggable="false"
+                          />
+                          
+                          <!-- Drag Overlay -->
+                          <div 
+                            v-if="isDragging"
+                            class="absolute inset-0 bg-blue-500 bg-opacity-10 pointer-events-none"
+                          ></div>
+                          
+                          <!-- Position Indicator -->
+                          <div 
+                            class="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            {{ Math.round(imageOffsetX) }}%, {{ Math.round(imageOffsetY) }}%
+                          </div>
+                        </div>
+                        
+                        <!-- Remove Button -->
                         <button
                           type="button"
                           @click="removeImage"
-                          class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md"
+                          class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md z-10"
                         >
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
+                        
+                        <!-- Reset Position Button -->
+                        <button
+                          type="button"
+                          @click="resetImagePosition"
+                          class="absolute -bottom-2 -right-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full p-1 shadow-md text-xs"
+                          title="위치 초기화"
+                        >
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </button>
+                      </div>
+                      
+                      <!-- Position Info -->
+                      <div class="mt-2 text-xs text-slate-500 dark:text-neutral-400">
+                        현재 위치: X{{ Math.round(imageOffsetX) }}%, Y{{ Math.round(imageOffsetY) }}%
                       </div>
                     </div>
                     
@@ -284,15 +338,55 @@
                 </div>
               </div>
 
-              <div v-if="error" class="rounded-md bg-red-50 dark:bg-red-900 p-4">
+              <div v-if="error" class="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 mb-6">
                 <div class="flex">
                   <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <!-- Different icons based on error type -->
+                    <svg v-if="error.includes('네트워크') || error.includes('연결')" class="h-5 w-5 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <svg v-else-if="error.includes('로그인') || error.includes('권한')" class="h-5 w-5 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0h-2M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <svg v-else-if="error.includes('이미지') || error.includes('파일')" class="h-5 w-5 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <svg v-else class="h-5 w-5 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                     </svg>
                   </div>
-                  <div class="ml-3">
-                    <p class="text-sm text-red-700 dark:text-red-200">{{ error }}</p>
+                  <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">
+                      오류 발생
+                    </h3>
+                    <p class="text-sm text-red-700 dark:text-red-300 leading-relaxed">{{ error }}</p>
+                    <!-- Additional help text for common errors -->
+                    <div class="mt-2 text-xs text-red-600 dark:text-red-400">
+                      <p v-if="error.includes('500')">
+                        💡 문제가 지속되면 브라우저를 새로고침하거나 관리자에게 문의해주세요.
+                      </p>
+                      <p v-else-if="error.includes('네트워크')">
+                        💡 인터넷 연결을 확인하고 VPN을 사용 중이라면 끄고 다시 시도해보세요.
+                      </p>
+                      <p v-else-if="error.includes('로그인')">
+                        💡 로그인 페이지로 자동 이동합니다...
+                      </p>
+                      <p v-else-if="error.includes('이미지')">
+                        💡 다른 이미지 파일을 선택하거나 이미지 없이 모임을 생성해보세요.
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Close button -->
+                  <div class="ml-auto pl-3">
+                    <button
+                      @click="error = ''"
+                      class="inline-flex rounded-md bg-red-50 dark:bg-red-900/20 p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-800/30 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
+                    >
+                      <span class="sr-only">닫기</span>
+                      <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -326,7 +420,7 @@
 </template>
 
 <script>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
@@ -379,6 +473,13 @@ export default {
 
     const imageInput = ref(null)
     const imagePreview = ref('')
+    const imageContainer = ref(null)
+    
+    // Mouse drag state
+    const isDragging = ref(false)
+    const dragStart = ref({ x: 0, y: 0 })
+    const imageOffsetX = ref(50) // Center position (50%)
+    const imageOffsetY = ref(50) // Center position (50%)
 
     // Image handling functions
     const handleImageUpload = (event) => {
@@ -436,9 +537,71 @@ export default {
       form.value.imageFile = null
       form.value.imageUrl = ''
       imagePreview.value = ''
+      imageOffsetX.value = 50 // Reset to center
+      imageOffsetY.value = 50 // Reset to center
       if (imageInput.value) {
         imageInput.value.value = ''
       }
+    }
+
+    // Reset image position to center
+    const resetImagePosition = () => {
+      imageOffsetX.value = 50
+      imageOffsetY.value = 50
+    }
+
+    // Mouse drag handlers
+    const startDrag = (event) => {
+      event.preventDefault()
+      if (!imageContainer.value) return
+      
+      isDragging.value = true
+      const rect = imageContainer.value.getBoundingClientRect()
+      dragStart.value = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      }
+      
+      // Add global mouse event listeners
+      document.addEventListener('mousemove', onDragGlobal)
+      document.addEventListener('mouseup', endDragGlobal)
+    }
+
+    const onDrag = (event) => {
+      if (!isDragging.value || !imageContainer.value) return
+      event.preventDefault()
+      updateImagePosition(event)
+    }
+
+    const onDragGlobal = (event) => {
+      if (!isDragging.value) return
+      event.preventDefault()
+      updateImagePosition(event)
+    }
+
+    const updateImagePosition = (event) => {
+      if (!imageContainer.value) return
+      
+      const rect = imageContainer.value.getBoundingClientRect()
+      const x = event.clientX - rect.left
+      const y = event.clientY - rect.top
+      
+      // Convert to percentage (0-100%)
+      const percentX = Math.max(0, Math.min(100, (x / rect.width) * 100))
+      const percentY = Math.max(0, Math.min(100, (y / rect.height) * 100))
+      
+      imageOffsetX.value = percentX
+      imageOffsetY.value = percentY
+    }
+
+    const endDrag = () => {
+      isDragging.value = false
+      document.removeEventListener('mousemove', onDragGlobal)
+      document.removeEventListener('mouseup', endDragGlobal)
+    }
+
+    const endDragGlobal = () => {
+      endDrag()
     }
 
     const handleSubmit = async () => {
@@ -525,18 +688,115 @@ export default {
           router.push('/settings?message=모임이 성공적으로 생성되었습니다')
         } else {
           const responseText = await response.text()
-          console.error('Error response:', responseText)
+          console.error('Error response:', response.status, responseText)
           
-          try {
-            const data = JSON.parse(responseText)
-            error.value = data.error || data.detail || '모임 생성에 실패했습니다'
-          } catch {
-            error.value = `서버 오류 (${response.status}): ${responseText || '모임 생성에 실패했습니다'}`
+          // Handle different HTTP status codes with specific messages
+          let errorMessage = '모임 생성에 실패했습니다'
+          
+          switch (response.status) {
+            case 400:
+              try {
+                const data = JSON.parse(responseText)
+                if (data.name) {
+                  errorMessage = `모임 이름 오류: ${Array.isArray(data.name) ? data.name.join(', ') : data.name}`
+                } else if (data.max_participants) {
+                  errorMessage = `참가자 수 오류: ${Array.isArray(data.max_participants) ? data.max_participants.join(', ') : data.max_participants}`
+                } else if (data.date_time) {
+                  errorMessage = `날짜/시간 오류: ${Array.isArray(data.date_time) ? data.date_time.join(', ') : data.date_time}`
+                } else if (data.location) {
+                  errorMessage = `장소 오류: ${Array.isArray(data.location) ? data.location.join(', ') : data.location}`
+                } else if (data.description) {
+                  errorMessage = `설명 오류: ${Array.isArray(data.description) ? data.description.join(', ') : data.description}`
+                } else if (data.hashtags) {
+                  errorMessage = `해시태그 오류: ${Array.isArray(data.hashtags) ? data.hashtags.join(', ') : data.hashtags}`
+                } else if (data.image) {
+                  errorMessage = `이미지 오류: ${Array.isArray(data.image) ? data.image.join(', ') : data.image}`
+                } else {
+                  errorMessage = `입력 정보 오류: ${data.error || data.detail || '필수 정보를 확인해주세요'}`
+                }
+              } catch {
+                errorMessage = '입력 정보에 오류가 있습니다. 모든 필드를 확인해주세요.'
+              }
+              break
+              
+            case 401:
+              errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.'
+              // Auto redirect to login after 2 seconds
+              setTimeout(() => {
+                router.push('/login')
+              }, 2000)
+              break
+              
+            case 403:
+              errorMessage = '모임 생성 권한이 없습니다. 관리자에게 문의하세요.'
+              break
+              
+            case 413:
+              errorMessage = '업로드한 이미지 파일이 너무 큽니다. 5MB 이하의 파일을 사용해주세요.'
+              break
+              
+            case 415:
+              errorMessage = '지원하지 않는 이미지 형식입니다. JPG, PNG, GIF 형식을 사용해주세요.'
+              break
+              
+            case 422:
+              try {
+                const data = JSON.parse(responseText)
+                errorMessage = `데이터 검증 오류: ${data.error || data.detail || '입력 데이터를 확인해주세요'}`
+              } catch {
+                errorMessage = '입력 데이터 형식이 올바르지 않습니다.'
+              }
+              break
+              
+            case 500:
+              try {
+                const data = JSON.parse(responseText)
+                if (data.error && data.error.includes('CSRF')) {
+                  errorMessage = '보안 토큰이 만료되었습니다. 페이지를 새로고침해주세요.'
+                } else if (data.error && data.error.includes('database')) {
+                  errorMessage = '데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+                } else if (data.error && data.error.includes('file')) {
+                  errorMessage = '파일 처리 중 오류가 발생했습니다. 다른 이미지를 시도해보세요.'
+                } else {
+                  errorMessage = `서버 내부 오류: ${data.error || data.detail || '서버에서 처리 중 문제가 발생했습니다'}`
+                }
+              } catch {
+                errorMessage = '서버에서 처리 중 오류가 발생했습니다. 관리자에게 문의하거나 잠시 후 다시 시도해주세요.'
+              }
+              break
+              
+            case 502:
+            case 503:
+            case 504:
+              errorMessage = '서버가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.'
+              break
+              
+            default:
+              try {
+                const data = JSON.parse(responseText)
+                errorMessage = `오류 (${response.status}): ${data.error || data.detail || data.message || '알 수 없는 오류가 발생했습니다'}`
+              } catch {
+                errorMessage = `서버 오류 (${response.status}): ${responseText ? responseText.substring(0, 100) : '알 수 없는 오류가 발생했습니다'}`
+              }
           }
+          
+          error.value = errorMessage
         }
       } catch (err) {
         console.error('Network error:', err)
-        error.value = '네트워크 오류가 발생했습니다. 다시 시도해주세요.'
+        
+        // Handle different network error types
+        if (err.name === 'TypeError' && err.message.includes('fetch')) {
+          error.value = '서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.'
+        } else if (err.name === 'AbortError') {
+          error.value = '요청이 취소되었습니다. 다시 시도해주세요.'
+        } else if (err.message.includes('timeout')) {
+          error.value = '요청 시간이 초과되었습니다. 네트워크 상태를 확인하고 다시 시도해주세요.'
+        } else if (err.message.includes('NetworkError')) {
+          error.value = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.'
+        } else {
+          error.value = `연결 오류: ${err.message || '서버와의 통신 중 오류가 발생했습니다. 다시 시도해주세요.'}`
+        }
       } finally {
         loading.value = false
       }
@@ -547,6 +807,12 @@ export default {
       router.push('/login')
     }
 
+    // Cleanup event listeners on component unmount
+    onUnmounted(() => {
+      document.removeEventListener('mousemove', onDragGlobal)
+      document.removeEventListener('mouseup', endDragGlobal)
+    })
+
     return {
       authStore,
       form,
@@ -556,9 +822,17 @@ export default {
       logout,
       imageInput,
       imagePreview,
+      imageContainer,
+      isDragging,
+      imageOffsetX,
+      imageOffsetY,
       handleImageUpload,
       handleImageError,
       removeImage,
+      resetImagePosition,
+      startDrag,
+      onDrag,
+      endDrag,
       durationOptions
     }
   }
