@@ -248,7 +248,7 @@
             </div>
             <!-- Desktop view -->
             <div class="hidden sm:block divide-y divide-neutral-200 dark:divide-neutral-700">
-              <div v-for="meetup in meetups" :key="meetup.id" class="px-4 py-6 sm:px-6 transition-colors duration-150">
+              <div v-for="meetup in sortedMeetups" :key="meetup.id" class="px-4 py-6 sm:px-6 transition-colors duration-150">
                 <div class="space-y-4">
                   <!-- Main content row -->
                   <div class="flex items-start justify-between">
@@ -371,7 +371,7 @@
 
             <!-- Mobile view for created meetups -->
             <div class="sm:hidden space-y-4 p-4">
-              <div v-for="meetup in meetups" :key="meetup.id"
+              <div v-for="meetup in sortedMeetups" :key="meetup.id"
                 class="bg-gradient-to-r from-beige-100 to-beige-50 dark:from-neutral-800/30 dark:to-neutral-800/10 rounded-lg p-4 space-y-3 border border-beige-300 dark:border-neutral-700">
                 <div class="flex justify-between items-start">
                   <div class="flex items-start space-x-3 flex-1 min-w-0">
@@ -1425,6 +1425,13 @@ export default {
       return Math.round((totalParticipants.value / totalCapacity) * 100);
     });
 
+    // Sort created meetups by date in descending order (newest first)
+    const sortedMeetups = computed(() => {
+      return [...meetups.value].sort((a, b) => 
+        new Date(b.date_time) - new Date(a.date_time)
+      );
+    });
+
     const allMyMeetups = computed(() => {
       const registered = registeredMeetups.value.map(meetup => ({
         ...meetup,
@@ -1443,7 +1450,7 @@ export default {
       }));
 
       return [...registered, ...waitlisted].sort((a, b) =>
-        new Date(a.date_time || a.meetup_date_time) - new Date(b.date_time || b.meetup_date_time)
+        new Date(b.date_time || b.meetup_date_time) - new Date(a.date_time || a.meetup_date_time)
       );
     });
 
@@ -2156,6 +2163,7 @@ export default {
     return {
       authStore,
       meetups,
+      sortedMeetups,
       registeredMeetups,
       waitlistMeetups,
       loading,

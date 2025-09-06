@@ -11,7 +11,7 @@
         </button>
         
         <!-- Title -->
-        <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pr-8">{{ selectedMeetup.name }}</h3>
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pr-8 select-text cursor-text">{{ selectedMeetup.name }}</h3>
       </div>
       
       <!-- Image (if available) -->
@@ -30,19 +30,19 @@
           <!-- Basic Info -->
           <div class="space-y-3">
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              {{ formatDateTime(selectedMeetup.date_time) }}
-              <span v-if="selectedMeetup.end_time"> - {{ formatTime(selectedMeetup.end_time) }}</span>
+              <span class="select-text cursor-text">{{ formatDateTime(selectedMeetup.date_time) }}</span>
+              <span v-if="selectedMeetup.end_time" class="select-text cursor-text"> - {{ formatTime(selectedMeetup.end_time) }}</span>
             </div>
             
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
-              {{ selectedMeetup.location }}
+              <span class="select-text cursor-text">{{ selectedMeetup.location }}</span>
             </div>
             
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
@@ -59,17 +59,20 @@
             </div>
             
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
-              {{ selectedMeetup.creator_name }}
+              <span class="select-text cursor-text">{{ selectedMeetup.creator_name }}</span>
             </div>
           </div>
           
           <!-- Description -->
           <div v-if="selectedMeetup.description" class="pt-4 border-t border-neutral-200 dark:border-neutral-700">
             <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">상세 정보</h4>
-            <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line">{{ selectedMeetup.description }}</p>
+            <div 
+              class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line select-text cursor-text"
+              v-html="formatDescription(selectedMeetup.description)"
+            ></div>
           </div>
           
           <!-- Hashtags -->
@@ -79,7 +82,7 @@
               <span 
                 v-for="hashtag in selectedMeetup.hashtags_list" 
                 :key="hashtag"
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-beige-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300"
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-beige-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 select-text cursor-text"
               >
                 {{ hashtag }}
               </span>
@@ -107,13 +110,13 @@
                     <span class="text-xs font-medium text-primary-700 dark:text-primary-300">{{ index + 1 }}</span>
                   </div>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate" :title="maskEmail(participant.user_email)">
+                    <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate select-text cursor-text" :title="maskEmail(participant.user_email)">
                       {{ maskEmail(participant.user_email) }}
                     </p>
                   </div>
                 </div>
                 <div class="flex-shrink-0 ml-auto">
-                  <span class="text-xs text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
+                  <span class="text-xs text-neutral-500 dark:text-neutral-400 whitespace-nowrap select-text cursor-text">
                     {{ formatDateTime(participant.registered_at) }}
                   </span>
                 </div>
@@ -248,6 +251,31 @@ export default {
       const now = new Date()
       return meetupDate < now
     })
+
+    // Format description with clickable links
+    const formatDescription = (text) => {
+      if (!text) return ''
+      
+      // Enhanced URL regex pattern to match various URL formats
+      const urlRegex = /((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?:\/[^\s<>"{}|\\^`[\]]*)?)/gi
+      
+      // Replace URLs with clickable links
+      return text.replace(urlRegex, (url) => {
+        // Remove trailing punctuation that shouldn't be part of the URL
+        const cleanUrl = url.replace(/[.!?,;:]$/, '')
+        const trailingPunc = url.slice(cleanUrl.length)
+        
+        // Add protocol if missing
+        const href = cleanUrl.startsWith('http') ? cleanUrl : `https://${cleanUrl}`
+        
+        // Only convert if it looks like a valid domain (contains at least one dot)
+        if (!cleanUrl.includes('.') || cleanUrl.length < 4) {
+          return url // Return original if it doesn't look like a URL
+        }
+        
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline break-words select-text cursor-pointer">${cleanUrl}</a>${trailingPunc}`
+      })
+    }
 
     // Fetch participants data
     const fetchParticipants = async () => {
@@ -433,6 +461,7 @@ export default {
       maskEmail,
       maskUsername,
       isMeetupPassed,
+      formatDescription,
       registerForMeetup,
       unregisterFromMeetup,
       joinWaitlist,
@@ -442,3 +471,26 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Ensure links in description are properly styled and clickable */
+.whitespace-pre-line :deep(a) {
+  color: rgb(37 99 235); /* text-blue-600 */
+  text-decoration: underline;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+
+.whitespace-pre-line :deep(a:hover) {
+  color: rgb(30 64 175); /* text-blue-800 */
+}
+
+/* Dark mode link styles */
+.dark .whitespace-pre-line :deep(a) {
+  color: rgb(96 165 250); /* text-blue-400 */
+}
+
+.dark .whitespace-pre-line :deep(a:hover) {
+  color: rgb(147 197 253); /* text-blue-300 */
+}
+</style>
