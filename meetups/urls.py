@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('api/csrf/', views.get_csrf_token, name='csrf-token'),
     path('api/auth/register/', views.register_new_user, name='auth-register'),
+    path('api/auth/check-username/', views.check_username_availability, name='check-username'),
     path('api/auth/login/', views.login_user, name='auth-login'),
     path('api/auth/logout/', views.logout_user, name='auth-logout'),
     path('api/users/', views.MeetupUserListCreateView.as_view(), name='user-list-create'),

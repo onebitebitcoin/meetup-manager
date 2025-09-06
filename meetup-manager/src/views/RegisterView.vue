@@ -19,22 +19,38 @@
         <div class="rounded-md shadow-sm space-y-3">
           <div>
             <label for="username" class="sr-only">사용자명</label>
-            <input
-              id="username"
-              v-model="form.username"
-              name="username"
-              type="text"
-              required
-              :class="[
-                'appearance-none relative block w-full px-3 py-2 border placeholder-gray-500 rounded-md focus:outline-none focus:z-10 sm:text-sm dark:bg-gray-800 dark:placeholder-gray-400',
-                usernameError && form.username ? 
-                  'border-red-500 text-red-900 focus:ring-red-500 focus:border-red-500' : 
-                  usernameValid && form.username ?
-                    'border-green-500 text-green-900 focus:ring-green-500 focus:border-green-500 dark:border-green-400 dark:text-white' :
-                    'border-gray-300 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 dark:border-gray-600 dark:text-white'
-              ]"
-              placeholder="사용자명 (영문, 한글, 숫자, _, - 사용가능)"
-            />
+            <div class="flex gap-2">
+              <input
+                id="username"
+                v-model="form.username"
+                name="username"
+                type="text"
+                required
+                :class="[
+                  'appearance-none relative block flex-1 px-3 py-2 border placeholder-gray-500 rounded-md focus:outline-none focus:z-10 sm:text-sm dark:bg-gray-800 dark:placeholder-gray-400',
+                  usernameError && form.username ? 
+                    'border-red-500 text-red-900 focus:ring-red-500 focus:border-red-500' : 
+                    usernameValid && form.username ?
+                      'border-green-500 text-green-900 focus:ring-green-500 focus:border-green-500 dark:border-green-400 dark:text-white' :
+                      'border-gray-300 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 dark:border-gray-600 dark:text-white'
+                ]"
+                placeholder="사용자명 (영문, 한글, 숫자, _, - 사용가능)"
+              />
+              <button
+                type="button"
+                :disabled="!form.username || checkingUsername"
+                @click="checkUsernameAvailability"
+                :class="[
+                  'px-4 py-2 text-sm font-medium rounded-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 whitespace-nowrap',
+                  (!form.username || checkingUsername) ? 
+                    'opacity-60 cursor-not-allowed bg-gray-400 dark:bg-gray-600 text-gray-200' :
+                    'text-white bg-neutral-700 hover:bg-neutral-600 dark:bg-neutral-600 dark:hover:bg-neutral-500 focus:ring-neutral-500'
+                ]"
+              >
+                <span v-if="!checkingUsername">중복확인</span>
+                <span v-else>확인중...</span>
+              </button>
+            </div>
             <!-- Username validation message -->
             <div v-if="usernameError && form.username" class="mt-1 text-sm text-red-600 dark:text-red-400">
               <div class="flex items-center">
@@ -99,16 +115,20 @@
         <div>
           <button
             type="submit"
-            :disabled="loading || usernameError || !usernameValid"
+            :disabled="loading || usernameError || !usernameValid || !usernameChecked"
             :class="[
               'w-full inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-900',
-              (loading || usernameError || !usernameValid) ? 
+              (loading || usernameError || !usernameValid || !usernameChecked) ? 
                 'opacity-60 cursor-not-allowed bg-gray-400 dark:bg-gray-600 text-gray-200' :
                 'text-white bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-700 dark:hover:bg-neutral-600 focus:ring-neutral-500'
             ]"
           >
             <span v-if="!loading">
-              {{ usernameError ? '사용자명을 확인해주세요' : '계정 만들기' }}
+              {{ 
+                usernameError ? '사용자명을 확인해주세요' : 
+                !usernameChecked ? '사용자명 중복확인을 해주세요' :
+                '계정 만들기' 
+              }}
             </span>
             <span v-else>계정 생성 중...</span>
           </button>
@@ -132,11 +152,13 @@ import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchWithCSRF } from '@/utils/csrf'
 import { convertPasswordInput } from '@/utils/keyboardConverter'
+import { useAuthStore } from '@/stores/auth'
 
 export default {
   name: 'RegisterView',
   setup() {
     const router = useRouter()
+    const authStore = useAuthStore()
     const loading = ref(false)
     const error = ref('')
     
@@ -149,6 +171,8 @@ export default {
 
     const usernameError = ref('')
     const usernameValid = ref(false)
+    const checkingUsername = ref(false)
+    const usernameChecked = ref(false)
 
     // Username validation function
     const validateUsername = (username) => {
@@ -203,8 +227,51 @@ export default {
       return true
     }
 
+    // Check username availability on server
+    const checkUsernameAvailability = async () => {
+      if (!form.value.username || !validateUsername(form.value.username)) {
+        return
+      }
+
+      checkingUsername.value = true
+      usernameChecked.value = false
+      
+      try {
+        const response = await fetchWithCSRF(`/api/auth/check-username/?username=${encodeURIComponent(form.value.username)}`, {
+          method: 'GET',
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          if (data.available) {
+            usernameError.value = ''
+            usernameValid.value = true
+            usernameChecked.value = true
+          } else {
+            usernameError.value = '이미 존재하는 사용자입니다.'
+            usernameValid.value = false
+            usernameChecked.value = true
+          }
+        } else {
+          usernameError.value = data.error || '사용자명 확인 중 오류가 발생했습니다.'
+          usernameValid.value = false
+          usernameChecked.value = false
+        }
+      } catch (err) {
+        usernameError.value = '네트워크 오류가 발생했습니다. 다시 시도해주세요.'
+        usernameValid.value = false
+        usernameChecked.value = false
+      } finally {
+        checkingUsername.value = false
+      }
+    }
+
     // Watch for username changes for real-time validation
     watch(() => form.value.username, (newUsername) => {
+      // Reset check status when username changes
+      usernameChecked.value = false
+      
       if (newUsername) {
         validateUsername(newUsername)
       } else {
@@ -243,7 +310,11 @@ export default {
         const data = await response.json()
 
         if (response.ok) {
-          router.push('/login?message=회원가입이 완료되었습니다. 로그인해주세요.')
+          // Auto-login after successful registration
+          authStore.login(data.user)
+          
+          // Show success message and redirect to home
+          router.push('/?message=계정이 성공적으로 생성되어 자동으로 로그인되었습니다!')
         } else {
           error.value = data.error || '회원가입에 실패했습니다. 다시 시도해주세요.'
         }
@@ -260,6 +331,9 @@ export default {
       error,
       usernameError,
       usernameValid,
+      checkingUsername,
+      usernameChecked,
+      checkUsernameAvailability,
       handleRegister
     }
   }

@@ -29,6 +29,20 @@ def get_csrf_token(request):
     print(f"Request referer: {request.META.get('HTTP_REFERER')}")
     return JsonResponse({'csrfToken': token})
 
+@api_view(['GET'])
+def check_username_availability(request):
+    username = request.GET.get('username')
+    if not username:
+        return Response({'error': '사용자명이 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if username exists (case-insensitive)
+    exists = User.objects.filter(username__iexact=username).exists()
+    
+    return Response({
+        'available': not exists,
+        'username': username
+    }, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @csrf_exempt
 def register_new_user(request):
@@ -36,9 +50,31 @@ def register_new_user(request):
     if serializer.is_valid():
         try:
             user = serializer.save()
+            
+            # Automatically log in the user after registration
+            login(request, user)
+            
+            # Get or create MeetupUser profile
+            meetup_user = None
+            try:
+                meetup_user = user.meetup_profile
+            except MeetupUser.DoesNotExist:
+                meetup_user = MeetupUser.objects.create(
+                    user=user,
+                    name=user.username,
+                    email=user.email,
+                    is_admin=user.is_staff
+                )
+            
             return Response({
-                'message': '사용자 등록이 완료되었습니다',
-                'username': user.username
+                'message': '계정이 성공적으로 생성되었습니다',
+                'user': {
+                    'id': meetup_user.id,
+                    'username': user.username,
+                    'name': meetup_user.name,
+                    'email': user.email,
+                    'is_admin': meetup_user.is_admin or user.is_staff
+                }
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({

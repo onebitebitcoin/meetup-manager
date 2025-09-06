@@ -68,7 +68,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Check if username already exists (case-insensitive)
         # Skip this check during testing
         if not getattr(self, '_test_mode', False) and User.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError("이미 사용 중인 사용자명입니다.")
+            raise serializers.ValidationError("이미 존재하는 사용자입니다.")
         
         return value.lower()  # Convert to lowercase for consistency
     
