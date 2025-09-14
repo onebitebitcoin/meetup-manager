@@ -1111,9 +1111,17 @@
                 </svg>
               </button>
             </div>
-            <div class="bg-white dark:bg-neutral-800 rounded-lg p-4 border border-gray-200 dark:border-neutral-600">
-              <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{{
-                selectedNotification.message }}</p>
+            <div class="bg-white dark:bg-neutral-800 rounded-lg p-4 border border-gray-200 dark:border-neutral-600 relative group">
+              <button @click="copyNotificationMessage"
+                class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-700 transition-all opacity-0 group-hover:opacity-100"
+                title="메시지 복사">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+              <div class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line pr-8"
+                   v-html="formatNotificationMessage(selectedNotification.message)">
+              </div>
             </div>
           </div>
 
@@ -1672,6 +1680,55 @@ export default {
       selectedNotification.value = null;
     };
 
+    const copyNotificationMessage = async () => {
+      if (!selectedNotification.value?.message) return;
+
+      try {
+        await navigator.clipboard.writeText(selectedNotification.value.message);
+        // You could add a toast notification here if available
+        alert('메시지가 클립보드에 복사되었습니다.');
+      } catch (error) {
+        console.error('복사 실패:', error);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = selectedNotification.value.message;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          alert('메시지가 클립보드에 복사되었습니다.');
+        } catch (fallbackError) {
+          console.error('Fallback 복사도 실패:', fallbackError);
+          alert('복사에 실패했습니다.');
+        }
+        document.body.removeChild(textArea);
+      }
+    };
+
+    const formatNotificationMessage = (message) => {
+      if (!message) return '';
+
+      // URL 정규식 - http:// 또는 https://로 시작하는 URL 탐지
+      const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+
+      // HTML 이스케이프 먼저 처리
+      let escapedMessage = message
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+
+      // URL을 클릭 가능한 링크로 변환
+      const formattedMessage = escapedMessage.replace(urlRegex, (url) => {
+        // URL이 너무 길면 축약해서 표시
+        const displayUrl = url.length > 50 ? url.substring(0, 47) + '...' : url;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline break-all">${displayUrl}</a>`;
+      });
+
+      return formattedMessage;
+    };
+
     // Pagination functions
     const goToPage = (page) => {
       if (page >= 1 && page <= notificationPagination.value.total_pages) {
@@ -2226,6 +2283,8 @@ export default {
       closeNotificationsModal,
       selectNotification,
       closeNotificationDetail,
+      copyNotificationMessage,
+      formatNotificationMessage,
       // Notification pagination
       notificationPagination,
       paginatedNotifications,
