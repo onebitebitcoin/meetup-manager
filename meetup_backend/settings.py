@@ -24,8 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-d9y5umd6oac&virvd4^^t!3^zm6(+227@&0(%ts#2ztwrdt!-@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Default to True for development, can be overridden by environment variable
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
+# Prefer `DEBUG` env var; fallback to `DJANGO_DEBUG`. Default to False (production-safe).
+DEBUG = os.environ.get('DEBUG', os.environ.get('DJANGO_DEBUG', 'False')).lower() == 'true'
 
 ALLOWED_HOSTS = ["meet.onebitebitcoin.com", "localhost"]
 
@@ -132,13 +132,12 @@ STATICFILES_DIRS = [
 # Media files
 MEDIA_URL = '/media/'
 
-# Different media root for development vs production
-if DEBUG:
-    # Development: Store media files in project directory
-    MEDIA_ROOT = BASE_DIR / 'media'
+# Allow overriding MEDIA_ROOT via env; otherwise choose sensible defaults
+_env_media_root = os.environ.get('MEDIA_ROOT')
+if _env_media_root:
+    MEDIA_ROOT = _env_media_root
 else:
-    # Production: Use production server path
-    MEDIA_ROOT = '/var/www/meet/media'
+    MEDIA_ROOT = (BASE_DIR / 'media') if DEBUG else '/var/www/meet/media'
 
 # Site URL for absolute URL generation
 SITE_URL = 'http://localhost:8000' if DEBUG else 'https://meet.onebitebitcoin.com'
