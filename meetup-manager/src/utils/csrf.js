@@ -94,7 +94,19 @@ export async function fetchWithCSRF(url, options = {}) {
   try {
     const response = await fetch(url, fetchOptions)
     console.log('Response status:', response.status, 'for', url)
-    
+
+    // If we get a 401 Unauthorized, logout and redirect to login
+    if (response.status === 401) {
+      console.log('Got 401 Unauthorized, logging out...')
+      // Clear local storage
+      localStorage.removeItem('user')
+      // Reset CSRF token
+      resetCSRFToken()
+      // Redirect to login page
+      window.location.href = '/login'
+      return response
+    }
+
     // If we get a 403 and haven't already retried with fresh token
     if (response.status === 403 && needsCSRF) {
       console.log('Got 403, retrying with fresh CSRF token...')
@@ -108,10 +120,19 @@ export async function fetchWithCSRF(url, options = {}) {
           headers: retryHeaders
         })
         console.log('Retry response status:', retryResponse.status)
+
+        // Check if retry also got 401
+        if (retryResponse.status === 401) {
+          console.log('Retry got 401 Unauthorized, logging out...')
+          localStorage.removeItem('user')
+          resetCSRFToken()
+          window.location.href = '/login'
+        }
+
         return retryResponse
       }
     }
-    
+
     return response
   } catch (error) {
     console.error('Fetch error for', url, ':', error)

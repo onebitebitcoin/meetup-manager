@@ -291,27 +291,18 @@
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">다른 월을 선택하거나 관리자에게 문의하여 새로운 모임을 등록해 보세요.</p>
     </div>
 
-    <!-- 모임 상세 모달 -->
-    <MeetupDetailModal 
-      :selectedMeetup="selectedMeetup" 
-      @close="selectedMeetup = null"
-      @meetupUpdated="onMeetupUpdated"
-    />
   </div>
 </template>
 
 <script>
 import { computed, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
-import MeetupDetailModal from './MeetupDetailModal.vue'
 
 export default {
   name: 'MeetupTable',
-  components: {
-    MeetupDetailModal
-  },
   props: {
     meetups: {
       type: Array,
@@ -319,9 +310,9 @@ export default {
     }
   },
   setup(props) {
+    const router = useRouter()
     const meetupsStore = useMeetupsStore()
     const authStore = useAuthStore()
-    const selectedMeetup = ref(null)
     const registering = ref(false)
     const userRegistrations = ref(new Set())
     const currentMonth = ref(new Date())
@@ -405,7 +396,7 @@ export default {
     }
 
     const showMeetupDetail = (meetup) => {
-      selectedMeetup.value = meetup
+      router.push(`/meetup/${meetup.id}`)
     }
 
     const canRegister = (meetup) => {
@@ -507,16 +498,8 @@ export default {
       return props.meetups
     })
 
-    // Handle meetup updates from modal
+    // Handle meetup updates
     const onMeetupUpdated = async () => {
-      // Update selected meetup with latest data
-      if (selectedMeetup.value) {
-        const updatedMeetup = props.meetups.find(m => m.id === selectedMeetup.value.id)
-        if (updatedMeetup) {
-          selectedMeetup.value = updatedMeetup
-        }
-      }
-      
       // Refresh registration status to sync with backend changes
       await checkRegistrationStatus()
     }
@@ -525,7 +508,6 @@ export default {
     return {
       meetupsStore,
       authStore,
-      selectedMeetup,
       sortedMeetups,
       filteredMeetups,
       currentMonth,

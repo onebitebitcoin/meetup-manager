@@ -37,7 +37,9 @@
       "Bash(./dev-start.sh:*)",
       "Bash(./dev-stop.sh:*)",
       "Bash(./logs-monitor.sh:*)",
-      "Bash(echo $DJANGO_DEBUG)"
+      "Bash(echo $DJANGO_DEBUG)",
+      "Bash(./deploy.sh:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

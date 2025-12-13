@@ -56,7 +56,7 @@
           <div
             v-for="meetup in date.meetups.slice(0, 1)"
             :key="meetup.id"
-            @click="selectedMeetup = meetup"
+            @click="$router.push(`/meetup/${meetup.id}`)"
             class="text-xs bg-indigo-100 dark:bg-neutral-600 text-indigo-800 dark:text-neutral-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-neutral-500 truncate block sm:hidden"
           >
             {{ meetup.name.length > 6 ? meetup.name.substring(0, 6) + '...' : meetup.name }}
@@ -64,7 +64,7 @@
           <div
             v-for="meetup in date.meetups.slice(0, 2)"
             :key="meetup.id"
-            @click="selectedMeetup = meetup"
+            @click="$router.push(`/meetup/${meetup.id}`)"
             class="text-xs bg-indigo-100 dark:bg-neutral-600 text-indigo-800 dark:text-neutral-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-neutral-500 truncate hidden sm:block"
           >
             {{ meetup.name }}
@@ -85,6 +85,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- 날짜별 모임 목록 모달 -->
@@ -133,28 +134,15 @@
       </div>
     </div>
 
-    <!-- 모임 상세 모달 -->
-    <MeetupDetailModal 
-      :selectedMeetup="selectedMeetup" 
-      @close="selectedMeetup = null"
-      @meetupUpdated="onMeetupUpdated"
-    />
-  </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useMeetupsStore } from '@/stores/meetups'
-import { useAuthStore } from '@/stores/auth'
-import { fetchWithCSRF } from '@/utils/csrf'
-import MeetupDetailModal from './MeetupDetailModal.vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'CalendarView',
-  components: {
-    MeetupDetailModal
-  },
   props: {
     meetups: {
       type: Array,
@@ -162,10 +150,8 @@ export default {
     }
   },
   setup(props) {
-    const meetupsStore = useMeetupsStore()
-    const authStore = useAuthStore()
+    const router = useRouter()
     const currentMonth = ref(new Date())
-    const selectedMeetup = ref(null)
     const selectedDateMeetups = ref(null)
 
     const weekDays = ['일', '월', '화', '수', '목', '금', '토']
@@ -224,21 +210,13 @@ export default {
       })
     }
 
-
-    // Close date meetups modal when meetup detail modal is opened
-    watch(selectedMeetup, (newMeetup) => {
-      if (newMeetup && selectedDateMeetups.value) {
-        selectedDateMeetups.value = null
-      }
-    })
-
     const showDateMeetups = (dateData) => {
       selectedDateMeetups.value = dateData
     }
 
     const selectMeetupFromDate = (meetup) => {
       selectedDateMeetups.value = null
-      selectedMeetup.value = meetup
+      router.push(`/meetup/${meetup.id}`)
     }
 
     const getStatus = (meetup) => {
@@ -271,22 +249,8 @@ export default {
       return classes[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
     }
 
-    // Handle meetup updates from modal
-    const onMeetupUpdated = async () => {
-      // Update selected meetup with latest data
-      if (selectedMeetup.value) {
-        const updatedMeetup = props.meetups.find(m => m.id === selectedMeetup.value.id)
-        if (updatedMeetup) {
-          selectedMeetup.value = updatedMeetup
-        }
-      }
-    }
-
     return {
-      meetupsStore,
-      authStore,
       currentMonth,
-      selectedMeetup,
       selectedDateMeetups,
       weekDays,
       calendarDates,
@@ -297,8 +261,7 @@ export default {
       showDateMeetups,
       selectMeetupFromDate,
       getStatus,
-      getStatusClass,
-      onMeetupUpdated
+      getStatusClass
     }
   }
 }

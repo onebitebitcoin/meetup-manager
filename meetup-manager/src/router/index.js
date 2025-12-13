@@ -5,6 +5,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import AdminView from '@/views/AdminView.vue'
 import MeetupCreateView from '@/views/MeetupCreateView.vue'
+import MeetupDetailView from '@/views/MeetupDetailView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import HelpView from '@/views/HelpView.vue'
 
@@ -36,6 +37,12 @@ const routes = [
     name: 'CreateMeetup',
     component: MeetupCreateView,
     meta: { requiresAuth: true, requiresNonGuest: true }
+  },
+  {
+    path: '/meetup/:id',
+    name: 'MeetupDetail',
+    component: MeetupDetailView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/settings',
