@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-d9y5umd6oac&virvd4^^t!3^zm6(+227@&0(%ts#2ztwrdt!-@
 # Prefer `DEBUG` env var; fallback to `DJANGO_DEBUG`. Default to False (production-safe).
 DEBUG = os.environ.get('DEBUG', os.environ.get('DJANGO_DEBUG', 'False')).lower() == 'true'
 
-ALLOWED_HOSTS = ["meet.onebitebitcoin.com", "localhost"]
+ALLOWED_HOSTS = ["meet.onebitebitcoin.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -168,12 +168,18 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CSRF settings - Exempt API URLs from CSRF
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173', 
+    'http://localhost:7173',
+    'http://127.0.0.1:7173',
+    'http://localhost:7174',
+    'http://127.0.0.1:7174',
+    'http://localhost:7175',
+    'http://127.0.0.1:7175',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost:7000',
+    'http://127.0.0.1:7000',
+    'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5174',
-    'http://localhost:5175',
-    'http://127.0.0.1:5175',
     "https://meet.onebitebitcoin.com"
 ]
 

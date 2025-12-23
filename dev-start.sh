@@ -62,8 +62,8 @@ kill_existing_servers() {
         success "기존 Django 서버가 종료되었습니다."
     fi
     
-    # Vue.js/Vite 서버 종료 (포트 5173)
-    VITE_PIDS=$(lsof -t -i:5173 2>/dev/null)
+    # Vue.js/Vite 서버 종료 (포트 7173)
+    VITE_PIDS=$(lsof -t -i:7173 2>/dev/null)
     if [ ! -z "$VITE_PIDS" ]; then
         log "기존 Vue.js 서버를 종료합니다... (PIDs: $VITE_PIDS)"
         echo $VITE_PIDS | xargs kill -9 2>/dev/null
@@ -94,8 +94,8 @@ kill_existing_servers() {
     if lsof -t -i:8000 >/dev/null 2>&1; then
         warning "포트 8000이 여전히 사용 중입니다."
     fi
-    if lsof -t -i:5173 >/dev/null 2>&1; then
-        warning "포트 5173이 여전히 사용 중입니다."
+    if lsof -t -i:7173 >/dev/null 2>&1; then
+        warning "포트 7173이 여전히 사용 중입니다."
     fi
 }
 
@@ -184,7 +184,7 @@ if [ $PORT_CHECK_COUNT -eq 10 ]; then
 fi
 
 # Frontend 서버 시작 (Vue.js)
-log "Vue.js 프론트엔드 서버를 시작합니다... (포트: 5173)"
+log "Vue.js 프론트엔드 서버를 시작합니다... (포트: 7173)"
 
 # Vite 로그 파일 초기화
 > vite.log
@@ -220,7 +220,7 @@ fi
 # 포트 리스닝 확인
 VITE_PORT_CHECK_COUNT=0
 while [ $VITE_PORT_CHECK_COUNT -lt 15 ]; do
-    if lsof -t -i:5173 >/dev/null 2>&1; then
+    if lsof -t -i:7173 >/dev/null 2>&1; then
         success "Vue.js 서버가 시작되었습니다. (PID: $FRONTEND_PID)"
         break
     fi
@@ -230,7 +230,7 @@ while [ $VITE_PORT_CHECK_COUNT -lt 15 ]; do
 done
 
 if [ $VITE_PORT_CHECK_COUNT -eq 15 ]; then
-    error "Vue.js 서버가 포트 5173을 리스닝하지 않습니다."
+    error "Vue.js 서버가 포트 7173을 리스닝하지 않습니다."
     if [ -f "vite.log" ]; then
         error "Vite 로그 내용:"
         tail -10 vite.log
@@ -244,7 +244,7 @@ echo ""
 success "🚀 개발 서버가 성공적으로 시작되었습니다!"
 echo ""
 echo -e "${GREEN}📍 서비스 주소:${NC}"
-echo -e "  🌐 Frontend: ${BLUE}http://localhost:5173${NC}"
+echo -e "  🌐 Frontend: ${BLUE}http://localhost:7173${NC}"
 echo -e "  ⚙️  Backend:  ${BLUE}http://localhost:8000${NC}"
 echo -e "  📊 Admin:    ${BLUE}http://localhost:8000/admin${NC}"
 echo ""

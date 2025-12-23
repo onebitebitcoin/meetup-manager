@@ -12,8 +12,8 @@ Frontend (Vue.js)와 Backend (Django)를 동시에 실행합니다.
 ```
 
 **기능:**
-- Django 서버 (포트 8000) 자동 시작
-- Vue.js 서버 (포트 5173) 자동 시작  
+- Django 서버 (포트 7000) 자동 시작
+- Vue.js 서버 (포트 7173) 자동 시작  
 - 의존성 자동 확인
 - 데이터베이스 마이그레이션 자동 실행
 - 실시간 서버 상태 모니터링
@@ -28,8 +28,8 @@ Frontend (Vue.js)와 Backend (Django)를 동시에 실행합니다.
 ```
 
 **기능:**
-- 포트 8000 (Django) 프로세스 종료
-- 포트 5173 (Vue.js) 프로세스 종료
+- 포트 7000 (Django) 프로세스 종료
+- 포트 7173 (Vue.js) 프로세스 종료
 - 관련된 Node.js 및 Python 프로세스 정리
 
 ### ⚙️ `dev-setup.sh` - 개발 환경 초기 설정
@@ -85,9 +85,9 @@ Frontend (Vue.js)와 Backend (Django)를 동시에 실행합니다.
 
 | 서비스 | 주소 | 설명 |
 |--------|------|------|
-| Frontend | http://localhost:5173 | Vue.js 개발 서버 |
-| Backend API | http://localhost:8000 | Django REST API |
-| Admin Panel | http://localhost:8000/admin | Django 관리자 패널 |
+| Frontend | http://localhost:7173 | Vue.js 개발 서버 |
+| Backend API | http://localhost:7000 | Django REST API |
+| Admin Panel | http://localhost:7000/admin | Django 관리자 패널 |
 
 ## 📄 로그 파일
 
@@ -102,8 +102,8 @@ Frontend (Vue.js)와 Backend (Django)를 동시에 실행합니다.
 ./dev-stop.sh
 
 # 또는 수동으로 포트 확인 및 종료
-lsof -ti:8000 | xargs kill -9  # Django
-lsof -ti:5173 | xargs kill -9  # Vue.js
+lsof -ti:7000 | xargs kill -9  # Django
+lsof -ti:7173 | xargs kill -9  # Vue.js
 ```
 
 ### 의존성 문제

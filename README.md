@@ -159,9 +159,9 @@ npm run dev
 ```
 
 ### 3. 접속 정보
-- **프론트엔드**: http://localhost:5173
-- **백엔드 API**: http://localhost:8000
-- **Django Admin**: http://localhost:8000/admin
+- **프론트엔드**: http://localhost:7173
+- **백엔드 API**: http://localhost:7000
+- **Django Admin**: http://localhost:7000/admin
 
 ## 📊 데이터베이스 모델
 

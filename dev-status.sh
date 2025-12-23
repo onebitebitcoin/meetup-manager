@@ -28,13 +28,13 @@ warning() {
 log "개발 서버 상태를 확인합니다..."
 echo ""
 
-# Django 서버 상태 확인 (포트 8000)
-if lsof -t -i:8000 >/dev/null 2>&1; then
-    DJANGO_PID=$(lsof -t -i:8000)
-    success "Django 서버가 실행 중입니다. (PID: $DJANGO_PID, 포트: 8000)"
+# Django 서버 상태 확인 (포트 7000)
+if lsof -t -i:7000 >/dev/null 2>&1; then
+    DJANGO_PID=$(lsof -t -i:7000)
+    success "Django 서버가 실행 중입니다. (PID: $DJANGO_PID, 포트: 7000)"
     
     # Django 서버 응답 확인
-    if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000 | grep -q "200\|301\|302"; then
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost:7000 | grep -q "200\\|301\\|302"; then
         success "Django 서버가 정상적으로 응답합니다."
     else
         warning "Django 서버가 응답하지 않습니다."
@@ -45,13 +45,13 @@ fi
 
 echo ""
 
-# Vue.js 서버 상태 확인 (포트 5173)
-if lsof -t -i:5173 >/dev/null 2>&1; then
-    VITE_PID=$(lsof -t -i:5173)
-    success "Vue.js 서버가 실행 중입니다. (PID: $VITE_PID, 포트: 5173)"
+# Vue.js 서버 상태 확인 (포트 7173)
+if lsof -t -i:7173 >/dev/null 2>&1; then
+    VITE_PID=$(lsof -t -i:7173)
+    success "Vue.js 서버가 실행 중입니다. (PID: $VITE_PID, 포트: 7173)"
     
     # Vue.js 서버 응답 확인
-    if curl -s -o /dev/null -w "%{http_code}" http://localhost:5173 | grep -q "200"; then
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost:7173 | grep -q "200"; then
         success "Vue.js 서버가 정상적으로 응답합니다."
     else
         warning "Vue.js 서버가 응답하지 않습니다."

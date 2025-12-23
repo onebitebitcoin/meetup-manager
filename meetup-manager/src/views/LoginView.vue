@@ -70,6 +70,12 @@
                 placeholder="비밀번호를 입력해주세요"
               />
             </div>
+            <p
+              v-if="errorMessage"
+              class="text-sm text-red-600 dark:text-red-400"
+            >
+              {{ errorMessage }}
+            </p>
           </div>
 
           <!-- Remember me checkbox -->
@@ -143,7 +149,7 @@
 </template>
 
 <script>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import ThemeToggle from "@/components/ThemeToggle.vue";
@@ -164,10 +170,12 @@ export default {
       password: "",
       remember: false,
     });
+    const errorMessage = ref("");
 
     const handleLogin = async () => {
       try {
         console.log("Starting login process...");
+        errorMessage.value = "";
 
         // Convert Korean password input to English if necessary
         const convertedPassword = convertPasswordInput(form.password);
@@ -203,12 +211,20 @@ export default {
           } else {
             router.push("/dashboard");
           }
+          errorMessage.value = "";
         } else {
-          const errorData = await response.json();
-          alert(errorData.error || "로그인에 실패했습니다");
+          let fallbackMessage = "입력한 아이디 / 비밀번호가 틀렸습니다.";
+          try {
+            const errorData = await response.json();
+            fallbackMessage = errorData.error || fallbackMessage;
+          } catch (parseError) {
+            console.error("Failed to parse login error response:", parseError);
+          }
+          errorMessage.value = fallbackMessage;
         }
       } catch (error) {
-        alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+        console.error("Login request failed:", error);
+        errorMessage.value = "입력한 아이디 / 비밀번호가 틀렸습니다.";
       }
     };
 
@@ -232,6 +248,7 @@ export default {
 
     return {
       form,
+      errorMessage,
       handleLogin,
       handleGuestLogin,
     };

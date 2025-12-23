@@ -33,8 +33,8 @@ else
     warning "실행 중인 Django 서버를 찾을 수 없습니다."
 fi
 
-# Vue.js 서버 중지 (포트 5173)
-VITE_PIDS=$(lsof -t -i:5173 2>/dev/null)
+# Vue.js 서버 중지 (포트 7173)
+VITE_PIDS=$(lsof -t -i:7173 2>/dev/null)
 if [ ! -z "$VITE_PIDS" ]; then
     echo $VITE_PIDS | xargs kill -9 2>/dev/null
     success "Vue.js 서버가 중지되었습니다."
