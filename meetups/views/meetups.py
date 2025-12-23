@@ -1,5 +1,9 @@
+from datetime import datetime
+from math import ceil
+
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, status
@@ -92,9 +96,72 @@ def user_meetups(request):
     if profile_error:
         return profile_error
 
-    meetups = meetup_user.created_meetups.all().order_by('date_time')
-    serializer = MeetupSerializer(meetups, many=True, context={'request': request})
-    return Response(serializer.data)
+    month_param = request.query_params.get('month')
+    page_param = request.query_params.get('page', 1)
+    page_size_param = request.query_params.get('page_size', 10)
+
+    # Determine month range (default = current month)
+    tz = timezone.get_current_timezone()
+    now = timezone.localtime()
+    year = now.year
+    month = now.month
+
+    if month_param:
+        try:
+            parsed_year, parsed_month = month_param.split('-')
+            year = int(parsed_year)
+            month = int(parsed_month)
+            if month < 1 or month > 12:
+                raise ValueError
+        except (ValueError, AttributeError):
+            return Response(
+                {'error': 'month 파라미터 형식은 YYYY-MM 이어야 합니다.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    start_of_month = timezone.make_aware(datetime(year, month, 1, 0, 0, 0), timezone=tz)
+    if month == 12:
+        end_of_month = timezone.make_aware(datetime(year + 1, 1, 1, 0, 0, 0), timezone=tz)
+    else:
+        end_of_month = timezone.make_aware(datetime(year, month + 1, 1, 0, 0, 0), timezone=tz)
+
+    queryset = meetup_user.created_meetups.filter(
+        date_time__gte=start_of_month,
+        date_time__lt=end_of_month,
+    ).order_by('-date_time')
+
+    try:
+        page = max(1, int(page_param))
+    except (TypeError, ValueError):
+        page = 1
+
+    try:
+        page_size = max(1, min(50, int(page_size_param)))
+    except (TypeError, ValueError):
+        page_size = 10
+
+    total = queryset.count()
+    total_pages = ceil(total / page_size) if total > 0 else 1
+    if page > total_pages:
+        page = total_pages
+
+    start_index = (page - 1) * page_size
+    end_index = start_index + page_size
+    current_page_queryset = queryset[start_index:end_index]
+
+    serializer = MeetupSerializer(current_page_queryset, many=True, context={'request': request})
+    return Response({
+        'data': serializer.data,
+        'meta': {
+            'page': page,
+            'page_size': page_size,
+            'total': total,
+            'total_pages': total_pages,
+            'month': {
+                'value': f'{year:04d}-{month:02d}',
+            },
+        },
+    })
 
 
 def health_check(request):

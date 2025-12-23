@@ -220,7 +220,7 @@
                       내가 개설한 모임
                     </h3>
                     <p class="mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
-                      {{ meetups.length }}개의 모임을 관리하고 있습니다.
+                      {{ meetupPagination.total }}개의 모임을 관리하고 있습니다.
                     </p>
                   </div>
                 </div>
@@ -245,6 +245,48 @@
                   <span class="hidden sm:inline">새 모임 만들기</span>
                 </router-link>
               </div>
+            </div>
+            <div
+              class="px-4 py-4 sm:px-6 border-t border-beige-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex flex-wrap items-center gap-3 text-sm text-neutral-700 dark:text-neutral-200">
+                <div class="inline-flex items-center gap-2">
+                  <button
+                    type="button"
+                    @click="changeSelectedMonth(-1)"
+                    class="inline-flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 w-8 h-8 transition-colors"
+                    aria-label="이전 달"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <div class="font-medium">
+                    {{ selectedMonthLabel }}
+                  </div>
+                  <button
+                    type="button"
+                    @click="changeSelectedMonth(1)"
+                    class="inline-flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 w-8 h-8 transition-colors"
+                    aria-label="다음 달"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+                <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                  총 {{ meetupPagination.total }}개
+                </span>
+              </div>
+              <label class="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                <span class="whitespace-nowrap">월 선택</span>
+                <input
+                  id="my-meetups-month"
+                  type="month"
+                  v-model="selectedMonth"
+                  class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-1 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </label>
             </div>
             <!-- Desktop view -->
             <div class="hidden sm:block divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -431,6 +473,35 @@
                     삭제
                   </button>
                 </div>
+              </div>
+            </div>
+            <div
+              v-if="meetupPagination.total_pages > 1"
+              class="px-4 py-4 sm:px-6 border-t border-beige-300 dark:border-neutral-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-beige-50 dark:bg-neutral-900/50"
+            >
+              <p class="text-sm text-neutral-600 dark:text-neutral-300">
+                {{ meetupPageRange.start }} - {{ meetupPageRange.end }} / {{ meetupPagination.total }}개 모임
+              </p>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  @click="goToMeetupPage(meetupPagination.current_page - 1)"
+                  :disabled="meetupPagination.current_page <= 1"
+                  class="px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  이전
+                </button>
+                <div class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                  {{ meetupPagination.current_page }} / {{ meetupPagination.total_pages }}
+                </div>
+                <button
+                  type="button"
+                  @click="goToMeetupPage(meetupPagination.current_page + 1)"
+                  :disabled="meetupPagination.current_page >= meetupPagination.total_pages"
+                  class="px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  다음
+                </button>
               </div>
             </div>
           </div>
@@ -1314,7 +1385,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { fetchWithCSRF } from "@/utils/csrf";
@@ -1348,6 +1419,28 @@ export default {
     const currentEditId = ref(null);
     const editImageInput = ref(null);
     const editImagePreview = ref('');
+
+    const formatMonthValue = (date) => {
+      const year = date.getFullYear();
+      const month = `${date.getMonth() + 1}`.padStart(2, '0');
+      return `${year}-${month}`;
+    };
+
+    const selectedMonth = ref(formatMonthValue(new Date()));
+    const meetupPagination = ref({
+      current_page: 1,
+      per_page: 10,
+      total: 0,
+      total_pages: 1
+    });
+
+    const selectedMonthLabel = computed(() => {
+      if (!selectedMonth.value) {
+        return '전체 기간';
+      }
+      const [year, month] = selectedMonth.value.split('-');
+      return `${year}년 ${Number(month)}월`;
+    });
 
     // Duration options for CustomSelect
     const durationOptions = computed(() => [
@@ -1433,6 +1526,16 @@ export default {
       return Math.round((totalParticipants.value / totalCapacity) * 100);
     });
 
+    const meetupPageRange = computed(() => {
+      const total = meetupPagination.value.total;
+      if (!total) {
+        return { start: 0, end: 0 };
+      }
+      const start = (meetupPagination.value.current_page - 1) * meetupPagination.value.per_page + 1;
+      const end = Math.min(total, meetupPagination.value.current_page * meetupPagination.value.per_page);
+      return { start, end };
+    });
+
     // Sort created meetups by date in descending order (newest first)
     const sortedMeetups = computed(() => {
       return [...meetups.value].sort((a, b) => 
@@ -1493,6 +1596,26 @@ export default {
       }
     }
 
+    const changeSelectedMonth = (offset) => {
+      if (!selectedMonth.value) return
+      const [yearString, monthString] = selectedMonth.value.split('-')
+      const year = parseInt(yearString, 10)
+      const month = parseInt(monthString, 10)
+      if (Number.isNaN(year) || Number.isNaN(month)) {
+        return
+      }
+      const nextDate = new Date(year, month - 1 + offset, 1)
+      selectedMonth.value = formatMonthValue(nextDate)
+    }
+
+    const goToMeetupPage = (page) => {
+      if (page < 1 || page > meetupPagination.value.total_pages) {
+        return
+      }
+      meetupPagination.value.current_page = page
+      loadMeetups()
+    }
+
     onMounted(() => {
       if (route.query.message) {
         message.value = route.query.message;
@@ -1509,11 +1632,32 @@ export default {
     const loadMeetups = async () => {
       loading.value = true;
       try {
-        const response = await fetch("/api/my-meetups/", {
+        const params = new URLSearchParams({
+          page: meetupPagination.value.current_page.toString(),
+          page_size: meetupPagination.value.per_page.toString(),
+        });
+        if (selectedMonth.value) {
+          params.append('month', selectedMonth.value);
+        }
+        const queryString = params.toString();
+        const response = await fetch(`/api/my-meetups/${queryString ? `?${queryString}` : ''}`, {
           credentials: "include",
         });
         if (response.ok) {
-          meetups.value = await response.json();
+          const payload = await response.json();
+          if (Array.isArray(payload)) {
+            meetups.value = payload;
+            meetupPagination.value.total = payload.length;
+            meetupPagination.value.total_pages = 1;
+            meetupPagination.value.current_page = 1;
+          } else {
+            meetups.value = payload.data || [];
+            const meta = payload.meta || {};
+            meetupPagination.value.total = meta.total ?? meetups.value.length;
+            meetupPagination.value.total_pages = meta.total_pages || 1;
+            meetupPagination.value.per_page = meta.page_size || meetupPagination.value.per_page;
+            meetupPagination.value.current_page = meta.page || meetupPagination.value.current_page;
+          }
         }
       } catch (error) {
         console.error("모임 목록을 불러오는데 실패했습니다:", error);
@@ -1521,6 +1665,11 @@ export default {
         loading.value = false;
       }
     };
+
+    watch(selectedMonth, () => {
+      meetupPagination.value.current_page = 1;
+      loadMeetups();
+    });
 
     const loadRegisteredMeetups = async () => {
       loadingRegistered.value = true;
@@ -2220,6 +2369,10 @@ export default {
     return {
       authStore,
       meetups,
+      selectedMonth,
+      selectedMonthLabel,
+      meetupPagination,
+      meetupPageRange,
       sortedMeetups,
       registeredMeetups,
       waitlistMeetups,
@@ -2239,6 +2392,8 @@ export default {
       isMeetupPast,
       getMeetupStatus,
       getMeetupStatusClass,
+      changeSelectedMonth,
+      goToMeetupPage,
       editMeetup,
       closeEditModal,
       updateMeetup,
