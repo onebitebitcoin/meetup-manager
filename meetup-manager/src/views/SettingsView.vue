@@ -134,7 +134,7 @@
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading" class="bg-white dark:bg-neutral-800 shadow rounded-lg">
+        <div v-if="loading && !meetupsLoaded" class="bg-white dark:bg-neutral-800 shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6 text-center">
             <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-neutral-500 mx-auto" xmlns="http://www.w3.org/2000/svg"
               fill="none" viewBox="0 0 24 24">
@@ -146,57 +146,6 @@
             <p class="mt-2 text-gray-600 dark:text-gray-400">
               모임 목록을 불러오는 중...
             </p>
-          </div>
-        </div>
-
-        <!-- Empty State for Created Meetups (keep card layout) -->
-        <div v-else-if="meetups.length === 0" class="space-y-6">
-          <div
-            class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
-            <div
-              class="px-4 py-5 sm:px-6 border-b border-beige-300 dark:border-neutral-800 bg-beige-200 dark:bg-neutral-800">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                  <div class="p-2 bg-beige-200 dark:bg-neutral-800 rounded-full">
-                    <svg class="w-5 h-5 text-neutral-700 dark:text-neutral-300" fill="none" stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="text-lg leading-6 font-medium text-black dark:text-neutral-100">
-                      내가 개설한 모임
-                    </h3>
-                    <p class="mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
-                      아직 만든 모임이 없습니다
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="px-4 py-8 sm:px-6 text-center">
-              <svg class="mx-auto h-12 w-12 text-neutral-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"
-                fill="currentColor">
-                <path
-                  d="M31.2 14.4a7.2 7.2 0 11-14.4 0 7.2 7.2 0 0114.4 0zM43.2 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM33.6 36a9.6 9.6 0 00-19.2 0v7.2h19.2V36zM14.4 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM38.4 43.2V36a14.333 14.333 0 00-1.8-6.973A7.212 7.212 0 0145.6 36v7.2h-7.2zM11.4 29.027A14.353 14.353 0 009.6 36v7.2H2.4V36a7.2 7.2 0 019-6.973z" />
-              </svg>
-              <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                첫 번째 모임을 만들어 사람들과 함께하는 시간을 가져보세요.
-              </p>
-              <div class="mt-6">
-                <router-link to="/create-meetup"
-                  class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
-                  <svg class="h-5 w-5 sm:-ml-1 sm:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                    fill="currentColor">
-                    <path fill-rule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                      clip-rule="evenodd" />
-                  </svg>
-                  <span class="hidden sm:inline">새 모임 만들기</span>
-                </router-link>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -260,8 +209,20 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  <div class="font-medium">
+                  <div class="font-medium flex items-center gap-2">
                     {{ selectedMonthLabel }}
+                    <svg
+                      v-if="refreshingMeetups"
+                      class="w-4 h-4 text-neutral-400 dark:text-neutral-500 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      role="status"
+                      aria-label="모임 목록 갱신 중"
+                    >
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
                   </div>
                   <button
                     type="button"
@@ -288,222 +249,253 @@
                 />
               </label>
             </div>
-            <!-- Desktop view -->
-            <div class="hidden sm:block divide-y divide-neutral-200 dark:divide-neutral-700">
-              <div v-for="meetup in sortedMeetups" :key="meetup.id" class="px-4 py-6 sm:px-6 transition-colors duration-150">
-                <div class="space-y-4">
-                  <!-- Main content row -->
-                  <div class="flex items-start justify-between">
-                    <div class="flex items-center space-x-3 flex-1 min-w-0">
-                      <div class="flex-shrink-0">
-                        <div v-if="meetup.image_display_url" class="w-12 h-12 rounded-lg overflow-hidden">
-                          <img :src="meetup.image_display_url" :alt="meetup.name" class="w-12 h-12 object-cover"
-                            @error="handleImageError" />
+            <div
+              v-if="sortedMeetups.length === 0"
+              class="px-4 py-10 sm:px-6 text-center border-t border-beige-300 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+            >
+              <svg class="mx-auto h-12 w-12 text-neutral-400 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48" fill="currentColor">
+                <path
+                  d="M31.2 14.4a7.2 7.2 0 11-14.4 0 7.2 7.2 0 0114.4 0zM43.2 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM33.6 36a9.6 9.6 0 00-19.2 0v7.2h19.2V36zM14.4 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM38.4 43.2V36a14.333 14.333 0 00-1.8-6.973A7.212 7.212 0 0145.6 36v7.2h-7.2zM11.4 29.027A14.353 14.353 0 009.6 36v7.2H2.4V36a7.2 7.2 0 019-6.973z" />
+              </svg>
+              <p class="mt-4 text-sm text-neutral-600 dark:text-neutral-300">
+                {{ selectedMonthLabel }}에 개설한 모임이 없습니다.
+              </p>
+              <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+                월 선택을 바꿔 다른 기간의 모임을 확인하거나 새 모임을 만들어보세요.
+              </p>
+              <div class="mt-6">
+                <router-link to="/create-meetup"
+                  class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
+                  <svg class="h-5 w-5 sm:-ml-1 sm:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  <span class="hidden sm:inline">새 모임 만들기</span>
+                  <span class="sm:hidden">새 모임</span>
+                </router-link>
+              </div>
+            </div>
+            <template v-else>
+              <!-- Desktop view -->
+              <div class="hidden sm:block divide-y divide-neutral-200 dark:divide-neutral-700">
+                <div v-for="meetup in sortedMeetups" :key="meetup.id" class="px-4 py-6 sm:px-6 transition-colors duration-150">
+                  <div class="space-y-4">
+                    <!-- Main content row -->
+                    <div class="flex items-start justify-between">
+                      <div class="flex items-center space-x-3 flex-1 min-w-0">
+                        <div class="flex-shrink-0">
+                          <div v-if="meetup.image_display_url" class="w-12 h-12 rounded-lg overflow-hidden">
+                            <img :src="meetup.image_display_url" :alt="meetup.name" class="w-12 h-12 object-cover"
+                              @error="handleImageError" />
+                          </div>
+                          <div v-else
+                            class="w-12 h-12 bg-beige-200 dark:bg-neutral-800 rounded-lg flex items-center justify-center">
+                            <svg class="w-7 h-7 text-neutral-600 dark:text-neutral-300" fill="none" viewBox="0 0 24 24"
+                              stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
                         </div>
-                        <div v-else
-                          class="w-12 h-12 bg-beige-200 dark:bg-neutral-800 rounded-lg flex items-center justify-center">
-                          <svg class="w-7 h-7 text-neutral-600 dark:text-neutral-300" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center justify-between">
+                            <div class="flex-1 min-w-0">
+                              <h4 class="text-lg font-medium text-black dark:text-white truncate">
+                                {{ meetup.name }}
+                              </h4>
+                              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                {{ meetup.description }}
+                              </p>
+                            </div>
+                            <div class="flex items-center space-x-2 ml-4">
+                              <span :class="[
+                                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                                getMeetupStatusClass(meetup)
+                              ]">
+                                {{ getMeetupStatus(meetup) }}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                          <div class="flex-1 min-w-0">
-                            <h4 class="text-lg font-medium text-black dark:text-white truncate">
-                              {{ meetup.name }}
-                            </h4>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                              {{ meetup.description }}
-                            </p>
-                          </div>
-                          <div class="flex items-center space-x-2 ml-4">
-                            <span :class="[
-                              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                              getMeetupStatusClass(meetup)
-                            ]">
-                              {{ getMeetupStatus(meetup) }}
+                    </div>
+
+                    <!-- Details and hashtags row -->
+                    <div class="pl-15 space-y-3">
+                      <!-- Meeting details -->
+                      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center">
+                          <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {{ formatDateTime(meetup.date_time) }}
+                        </div>
+                        <div class="flex items-center">
+                          <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          {{ meetup.location }}
+                        </div>
+                        <div class="flex items-center">
+                          <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          {{ meetup.current_participants }}/{{ meetup.max_participants }}명
+                          <span class="ml-1 text-xs text-gray-400">({{ meetup.available_spots }}석 남음)</span>
+                        </div>
+                      </div>
+
+                      <!-- Hashtags and Actions row -->
+                      <div class="flex items-center justify-between">
+                        <!-- Hashtags -->
+                        <div class="flex-1">
+                          <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0"
+                            class="flex flex-wrap gap-1">
+                            <span v-for="hashtag in meetup.hashtags_list" :key="hashtag"
+                              class="inline-flex px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
+                              {{ hashtag }}
                             </span>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  <!-- Details and hashtags row -->
-                  <div class="pl-15 space-y-3">
-                    <!-- Meeting details -->
-                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                      <div class="flex items-center">
-                        <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {{ formatDateTime(meetup.date_time) }}
-                      </div>
-                      <div class="flex items-center">
-                        <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        {{ meetup.location }}
-                      </div>
-                      <div class="flex items-center">
-                        <svg class="mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        {{ meetup.current_participants }}/{{ meetup.max_participants }}명
-                        <span class="ml-1 text-xs text-gray-400">({{ meetup.available_spots }}석 남음)</span>
-                      </div>
-                    </div>
-
-                    <!-- Hashtags and Actions row -->
-                    <div class="flex items-center justify-between">
-                      <!-- Hashtags -->
-                      <div class="flex-1">
-                        <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0"
-                          class="flex flex-wrap gap-1">
-                          <span v-for="hashtag in meetup.hashtags_list" :key="hashtag"
-                            class="inline-flex px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
-                            {{ hashtag }}
-                          </span>
+                        <!-- Action buttons -->
+                        <div class="flex items-center space-x-1 ml-4">
+                          <button @click="editMeetup(meetup)"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+                            title="수정">
+                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            수정
+                          </button>
+                          <button @click="openManageParticipants(meetup)"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-orange-700 bg-orange-200 hover:bg-orange-300 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800"
+                            title="참가자 관리">
+                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                            </svg>
+                            참가자 추가
+                          </button>
+                          <button @click="deleteMeetup(meetup.id)"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+                            title="삭제">
+                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            삭제
+                          </button>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                      <!-- Action buttons -->
-                      <div class="flex items-center space-x-1 ml-4">
-                        <button @click="editMeetup(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
-                          title="수정">
-                          <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          수정
-                        </button>
-                        <button @click="openManageParticipants(meetup)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-orange-700 bg-orange-200 hover:bg-orange-300 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800"
-                          title="참가자 관리">
-                          <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                          </svg>
-                          참가자 추가
-                        </button>
-                        <button @click="deleteMeetup(meetup.id)"
-                          class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
-                          title="삭제">
-                          <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          삭제
-                        </button>
+              <!-- Mobile view for created meetups -->
+              <div class="sm:hidden space-y-4 p-4">
+                <div v-for="meetup in sortedMeetups" :key="meetup.id"
+                  class="bg-gradient-to-r from-beige-100 to-beige-50 dark:from-neutral-800/30 dark:to-neutral-800/10 rounded-lg p-4 space-y-3 border border-beige-300 dark:border-neutral-700">
+                  <div class="flex justify-between items-start">
+                    <div class="flex items-start space-x-3 flex-1 min-w-0">
+                      <div v-if="meetup.image_display_url" class="flex-shrink-0">
+                        <img :src="meetup.image_display_url" :alt="meetup.name" class="w-12 h-12 object-cover rounded-lg"
+                          @error="handleImageError" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <h3 class="text-sm font-medium text-black dark:text-white truncate">
+                          {{ meetup.name }}
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                          {{ meetup.description }}
+                        </p>
+                      </div>
+                    </div>
+                    <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0" :class="getMeetupStatusClass(meetup)">
+                      {{ getMeetupStatus(meetup) }}
+                    </span>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <div class="text-gray-500 dark:text-gray-400">시간</div>
+                      <div class="text-gray-900 dark:text-white font-medium">
+                        {{ formatDateTime(meetup.date_time) }}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="text-gray-500 dark:text-gray-400">참여자</div>
+                      <div class="text-gray-900 dark:text-white font-medium">
+                        {{ meetup.current_participants }}/{{ meetup.max_participants }}명
                       </div>
                     </div>
                   </div>
+
+                  <!-- Hashtags display for mobile -->
+                  <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="flex flex-wrap gap-1 mb-2">
+                    <span v-for="hashtag in meetup.hashtags_list" :key="hashtag"
+                      class="inline-flex px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
+                      {{ hashtag }}
+                    </span>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
+                    <button @click="editMeetup(meetup)"
+                      class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
+                      수정
+                    </button>
+                    <button @click="openManageParticipants(meetup)"
+                      class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800">
+                      참가자
+                    </button>
+                    <button @click="deleteMeetup(meetup.id)"
+                      class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800">
+                      삭제
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Mobile view for created meetups -->
-            <div class="sm:hidden space-y-4 p-4">
-              <div v-for="meetup in sortedMeetups" :key="meetup.id"
-                class="bg-gradient-to-r from-beige-100 to-beige-50 dark:from-neutral-800/30 dark:to-neutral-800/10 rounded-lg p-4 space-y-3 border border-beige-300 dark:border-neutral-700">
-                <div class="flex justify-between items-start">
-                  <div class="flex items-start space-x-3 flex-1 min-w-0">
-                    <div v-if="meetup.image_display_url" class="flex-shrink-0">
-                      <img :src="meetup.image_display_url" :alt="meetup.name" class="w-12 h-12 object-cover rounded-lg"
-                        @error="handleImageError" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h3 class="text-sm font-medium text-black dark:text-white truncate">
-                        {{ meetup.name }}
-                      </h3>
-                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                        {{ meetup.description }}
-                      </p>
-                    </div>
-                  </div>
-                  <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0" :class="getMeetupStatusClass(meetup)">
-                    {{ getMeetupStatus(meetup) }}
-                  </span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <div class="text-gray-500 dark:text-gray-400">시간</div>
-                    <div class="text-gray-900 dark:text-white font-medium">
-                      {{ formatDateTime(meetup.date_time) }}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div class="text-gray-500 dark:text-gray-400">참여자</div>
-                    <div class="text-gray-900 dark:text-white font-medium">
-                      {{ meetup.current_participants }}/{{ meetup.max_participants }}명
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Hashtags display for mobile -->
-                <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="flex flex-wrap gap-1 mb-2">
-                  <span v-for="hashtag in meetup.hashtags_list" :key="hashtag"
-                    class="inline-flex px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
-                    {{ hashtag }}
-                  </span>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
-                  <button @click="editMeetup(meetup)"
-                    class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
-                    수정
+              <div
+                v-if="meetupPagination.total_pages > 1"
+                class="px-4 py-4 sm:px-6 border-t border-beige-300 dark:border-neutral-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-beige-50 dark:bg-neutral-900/50"
+              >
+                <p class="text-sm text-neutral-600 dark:text-neutral-300">
+                  {{ meetupPageRange.start }} - {{ meetupPageRange.end }} / {{ meetupPagination.total }}개 모임
+                </p>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    @click="goToMeetupPage(meetupPagination.current_page - 1)"
+                    :disabled="meetupPagination.current_page <= 1"
+                    class="px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    이전
                   </button>
-                  <button @click="openManageParticipants(meetup)"
-                    class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800">
-                    참가자
-                  </button>
-                  <button @click="deleteMeetup(meetup.id)"
-                    class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800">
-                    삭제
+                  <div class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                    {{ meetupPagination.current_page }} / {{ meetupPagination.total_pages }}
+                  </div>
+                  <button
+                    type="button"
+                    @click="goToMeetupPage(meetupPagination.current_page + 1)"
+                    :disabled="meetupPagination.current_page >= meetupPagination.total_pages"
+                    class="px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    다음
                   </button>
                 </div>
               </div>
-            </div>
-            <div
-              v-if="meetupPagination.total_pages > 1"
-              class="px-4 py-4 sm:px-6 border-t border-beige-300 dark:border-neutral-800 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-beige-50 dark:bg-neutral-900/50"
-            >
-              <p class="text-sm text-neutral-600 dark:text-neutral-300">
-                {{ meetupPageRange.start }} - {{ meetupPageRange.end }} / {{ meetupPagination.total }}개 모임
-              </p>
-              <div class="flex items-center gap-2">
-                <button
-                  type="button"
-                  @click="goToMeetupPage(meetupPagination.current_page - 1)"
-                  :disabled="meetupPagination.current_page <= 1"
-                  class="px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  이전
-                </button>
-                <div class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                  {{ meetupPagination.current_page }} / {{ meetupPagination.total_pages }}
-                </div>
-                <button
-                  type="button"
-                  @click="goToMeetupPage(meetupPagination.current_page + 1)"
-                  :disabled="meetupPagination.current_page >= meetupPagination.total_pages"
-                  class="px-3 py-1.5 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  다음
-                </button>
-              </div>
-            </div>
+            </template>
           </div>
         </div>
 
@@ -1410,6 +1402,8 @@ export default {
     const registeredMeetups = ref([]);
     const waitlistMeetups = ref([]);
     const loading = ref(false);
+    const meetupsLoaded = ref(false);
+    const refreshingMeetups = ref(false);
     const loadingRegistered = ref(false);
     const loadingWaitlist = ref(false);
     const message = ref("");
@@ -1630,7 +1624,11 @@ export default {
     });
 
     const loadMeetups = async () => {
-      loading.value = true;
+      if (meetupsLoaded.value) {
+        refreshingMeetups.value = true;
+      } else {
+        loading.value = true;
+      }
       try {
         const params = new URLSearchParams({
           page: meetupPagination.value.current_page.toString(),
@@ -1663,6 +1661,8 @@ export default {
         console.error("모임 목록을 불러오는데 실패했습니다:", error);
       } finally {
         loading.value = false;
+        refreshingMeetups.value = false;
+        meetupsLoaded.value = true;
       }
     };
 
@@ -2379,6 +2379,8 @@ export default {
       loading,
       loadingRegistered,
       loadingWaitlist,
+      meetupsLoaded,
+      refreshingMeetups,
       message,
       showEditModal,
       editForm,
