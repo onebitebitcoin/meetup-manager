@@ -18,7 +18,10 @@
       <div v-else-if="meetup" class="bg-beige-50 dark:bg-neutral-800 rounded-2xl shadow-xl overflow-hidden">
         <!-- Header with Back Button -->
         <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-600 bg-beige-200 dark:bg-neutral-700">
-          <button @click="$router.back()" class="absolute top-6 left-6 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors flex items-center">
+          <button
+            @click="$router.back()"
+            class="flex items-center mb-4 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors sm:absolute sm:top-6 sm:left-6 sm:mb-0"
+          >
             <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
