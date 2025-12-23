@@ -31,11 +31,11 @@
         </div>
 
         <!-- Image (if available) -->
-        <div v-if="meetup.image_display_url" class="w-full bg-beige-100 dark:bg-neutral-900">
+        <div v-if="meetup.image_display_url" class="w-full bg-beige-100 dark:bg-neutral-900 aspect-video">
           <img
             :src="meetup.image_display_url"
             :alt="meetup.name"
-            class="w-full h-96 object-cover"
+            class="w-full h-full object-cover"
             @error="handleImageError"
           />
         </div>

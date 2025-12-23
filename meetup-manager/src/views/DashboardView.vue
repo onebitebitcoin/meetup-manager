@@ -4,10 +4,10 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex items-center space-x-3">
-            <img 
-              src="/icons/logo.png" 
-              alt="한입 모임 로고" 
-              class="h-8 w-8 rounded-lg"
+            <img
+              src="/icons/logo-transparent.svg"
+              alt="한입 모임 로고"
+              class="h-8 w-8"
             />
             <h1
               class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100"

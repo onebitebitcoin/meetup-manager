@@ -14,10 +14,10 @@
               <span class="text-lg sm:text-xl">←</span>
             </button>
             <div class="flex items-center space-x-2">
-              <img 
-                src="/icons/logo.png" 
-                alt="한입 모임 로고" 
-                class="h-8 w-8 rounded-lg"
+              <img
+                src="/icons/logo-transparent.svg"
+                alt="한입 모임 로고"
+                class="h-8 w-8"
               />
               <h1 class="text-lg sm:text-2xl font-bold text-neutral-800 dark:text-neutral-100">
                 <span class="hidden sm:inline">관리자 패널</span>

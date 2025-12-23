@@ -6,10 +6,10 @@
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <div class="flex items-center space-x-3">
-              <img 
-                src="/icons/logo.png" 
-                alt="한입 모임 로고" 
-                class="h-8 w-8 rounded-lg"
+              <img
+                src="/icons/logo-transparent.svg"
+                alt="한입 모임 로고"
+                class="h-8 w-8"
               />
               <div class="flex items-center space-x-2">
                 <div class="p-1 bg-primary-200 dark:bg-primary-800 rounded-lg">
