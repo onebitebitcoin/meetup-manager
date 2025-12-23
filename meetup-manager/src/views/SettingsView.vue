@@ -198,42 +198,20 @@
             <div
               class="px-4 py-4 sm:px-6 border-t border-beige-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div class="flex flex-wrap items-center gap-3 text-sm text-neutral-700 dark:text-neutral-200">
-                <div class="inline-flex items-center gap-2">
-                  <button
-                    type="button"
-                    @click="changeSelectedMonth(-1)"
-                    class="inline-flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 w-8 h-8 transition-colors"
-                    aria-label="이전 달"
+                <div class="font-medium flex items-center gap-2">
+                  {{ selectedMonthLabel }}
+                  <svg
+                    v-if="refreshingMeetups"
+                    class="w-4 h-4 text-neutral-400 dark:text-neutral-500 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    role="status"
+                    aria-label="모임 목록 갱신 중"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <div class="font-medium flex items-center gap-2">
-                    {{ selectedMonthLabel }}
-                    <svg
-                      v-if="refreshingMeetups"
-                      class="w-4 h-4 text-neutral-400 dark:text-neutral-500 animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      role="status"
-                      aria-label="모임 목록 갱신 중"
-                    >
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                  </div>
-                  <button
-                    type="button"
-                    @click="changeSelectedMonth(1)"
-                    class="inline-flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 w-8 h-8 transition-colors"
-                    aria-label="다음 달"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
                 </div>
                 <span class="text-xs text-neutral-500 dark:text-neutral-400">
                   총 {{ meetupPagination.total }}개
@@ -514,7 +492,7 @@
               </div>
               <div>
                 <h3 class="text-lg leading-6 font-medium text-black dark:text-neutral-100">
-                  내 모임 현황
+                  내가 참가한 모임
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
                   참가 확정 {{ registeredMeetups.length }}개, 대기 중 {{ waitlistMeetups.length }}개 총 {{ allMyMeetups.length
@@ -522,6 +500,26 @@
                 </p>
               </div>
             </div>
+          </div>
+          <div
+            class="px-4 py-4 sm:px-6 border-t border-beige-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-wrap items-center gap-3 text-sm text-neutral-700 dark:text-neutral-200">
+              <div class="font-medium flex items-center gap-2">
+                {{ selectedMonthForParticipatedLabel }}
+              </div>
+              <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                총 {{ allMyMeetups.length }}개
+              </span>
+            </div>
+            <label class="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <span class="whitespace-nowrap">월 선택</span>
+              <input
+                id="participated-meetups-month"
+                type="month"
+                v-model="selectedMonthForParticipated"
+                class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-1 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </label>
           </div>
 
           <!-- 모임 로딩 상태 -->
@@ -539,26 +537,27 @@
           </div>
 
           <!-- Empty State for Registered Meetups -->
-          <div v-else-if="allMyMeetups.length === 0" class="px-4 py-5 sm:px-6 text-center">
-            <svg class="mx-auto h-12 w-12 text-neutral-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+          <div v-else-if="allMyMeetups.length === 0" class="px-4 py-10 sm:px-6 text-center border-t border-beige-300 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+            <svg class="mx-auto h-12 w-12 text-neutral-400 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 48 48" fill="currentColor">
               <path
-                d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.713-3.714M14 40v-4c0-1.313.253-2.566.713-3.714m0 0A10.003 10.003 0 0124 26c4.21 0 7.813 2.602 9.288 6.286M30 14a6 6 0 11-12 0 6 6 0 0112 0zm12 6a4 4 0 11-8 0 4 4 0 018 0zm-28 0a4 4 0 11-8 0 4 4 0 018 0z"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                d="M31.2 14.4a7.2 7.2 0 11-14.4 0 7.2 7.2 0 0114.4 0zM43.2 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM33.6 36a9.6 9.6 0 00-19.2 0v7.2h19.2V36zM14.4 19.2a4.8 4.8 0 11-9.6 0 4.8 4.8 0 019.6 0zM38.4 43.2V36a14.333 14.333 0 00-1.8-6.973A7.212 7.212 0 0145.6 36v7.2h-7.2zM11.4 29.027A14.353 14.353 0 009.6 36v7.2H2.4V36a7.2 7.2 0 019-6.973z" />
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-black dark:text-neutral-100">
-              참가한 모임이 없습니다
-            </h3>
-            <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              관심 있는 모임에 참가 신청하거나 대기열에 등록해보세요.
+            <p class="mt-4 text-sm text-neutral-600 dark:text-neutral-300">
+              {{ selectedMonthForParticipatedLabel }}에 참가한 모임이 없습니다.
+            </p>
+            <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+              월 선택을 바꿔 다른 기간의 모임을 확인하거나 새로운 모임에 참가해보세요.
             </p>
             <div class="mt-6">
-              <router-link to="/dashboard" class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+              <router-link to="/dashboard" class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
+                <svg class="h-5 w-5 sm:-ml-1 sm:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                   fill="currentColor">
                   <path
                     d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                 </svg>
-                모임 둘러보기
+                <span class="hidden sm:inline">모임 둘러보기</span>
+                <span class="sm:hidden">둘러보기</span>
               </router-link>
             </div>
           </div>
@@ -1421,6 +1420,7 @@ export default {
     };
 
     const selectedMonth = ref(formatMonthValue(new Date()));
+    const selectedMonthForParticipated = ref(formatMonthValue(new Date()));
     const meetupPagination = ref({
       current_page: 1,
       per_page: 10,
@@ -1433,6 +1433,14 @@ export default {
         return '전체 기간';
       }
       const [year, month] = selectedMonth.value.split('-');
+      return `${year}년 ${Number(month)}월`;
+    });
+
+    const selectedMonthForParticipatedLabel = computed(() => {
+      if (!selectedMonthForParticipated.value) {
+        return '전체 기간';
+      }
+      const [year, month] = selectedMonthForParticipated.value.split('-');
       return `${year}년 ${Number(month)}월`;
     });
 
@@ -1549,14 +1557,27 @@ export default {
         name: waitlist.meetup_name,
         date_time: waitlist.meetup_date_time,
         description: '', // Waitlist doesn't include description
-        location: '', // Waitlist doesn't include location  
+        location: '', // Waitlist doesn't include location
         status: 'waitlisted',
         position: waitlist.position
       }));
 
-      return [...registered, ...waitlisted].sort((a, b) =>
+      const allMeetups = [...registered, ...waitlisted].sort((a, b) =>
         new Date(b.date_time || b.meetup_date_time) - new Date(a.date_time || a.meetup_date_time)
       );
+
+      // 월 필터링 적용
+      if (!selectedMonthForParticipated.value) {
+        return allMeetups;
+      }
+
+      const [year, month] = selectedMonthForParticipated.value.split('-');
+      return allMeetups.filter(meetup => {
+        const meetupDate = new Date(meetup.date_time || meetup.meetup_date_time);
+        const meetupYear = meetupDate.getFullYear();
+        const meetupMonth = meetupDate.getMonth() + 1;
+        return meetupYear === parseInt(year) && meetupMonth === parseInt(month);
+      });
     });
 
     // Helper function to check if meetup is in the past
@@ -2371,6 +2392,8 @@ export default {
       meetups,
       selectedMonth,
       selectedMonthLabel,
+      selectedMonthForParticipated,
+      selectedMonthForParticipatedLabel,
       meetupPagination,
       meetupPageRange,
       sortedMeetups,
