@@ -202,31 +202,29 @@ EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 DEFAULT_FROM_EMAIL = 'Meetup Manager <noreply@meetup.com>'
 
 # Logging configuration
+# 로그 디렉토리 생성 확인
+LOG_DIR = BASE_DIR / 'backend'
+LOG_DIR.mkdir(exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '[{levelname}] {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+        'detailed': {
+            'format': '[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
         'simple': {
-            'format': '[{levelname}] {asctime} {message}',
-            'style': '{',
+            'format': '[%(levelname)s] %(message)s',
         },
     },
     'handlers': {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'django_detailed.log',
-            'formatter': 'verbose',
-        },
-        'error_file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'django_errors.log',
-            'formatter': 'verbose',
+            'filename': LOG_DIR / 'debug.log',
+            'formatter': 'detailed',
+            'encoding': 'utf-8',
         },
         'console': {
             'level': 'INFO',
@@ -236,17 +234,17 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console', 'file'],
-        'level': 'INFO',
+        'level': 'DEBUG',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file', 'error_file'],
+            'handlers': ['console', 'file'],
             'level': 'INFO',
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['error_file', 'console'],
-            'level': 'ERROR',
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
             'propagate': False,
         },
         'django.server': {
@@ -255,7 +253,7 @@ LOGGING = {
             'propagate': False,
         },
         'meetups': {
-            'handlers': ['console', 'file', 'error_file'],
+            'handlers': ['console', 'file'],
             'level': 'DEBUG',
             'propagate': False,
         },
