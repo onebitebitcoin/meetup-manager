@@ -345,7 +345,7 @@
                         </div>
 
                         <!-- Action buttons -->
-                        <div class="flex items-center space-x-1 ml-4">
+                        <div class="flex items-stretch space-x-1 ml-4">
                           <button @click="editMeetup(meetup)"
                             class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
                             title="수정">
