@@ -182,6 +182,15 @@
               {{ registering ? '취소 중...' : '대기열 취소' }}
             </button>
 
+            <!-- Task Button - Only visible for registered participants -->
+            <button
+              v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
+              @click="$router.push(`/meetup/${meetupId}/tasks`)"
+              class="w-full py-4 px-6 rounded-lg text-base font-semibold text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 transition-colors duration-200"
+            >
+              과제 확인
+            </button>
+
             <!-- Unregister Button -->
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
@@ -488,6 +497,7 @@ export default {
 
     return {
       meetup,
+      meetupId,
       loading,
       error,
       authStore,
