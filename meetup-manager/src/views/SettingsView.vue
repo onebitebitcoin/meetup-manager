@@ -364,6 +364,15 @@
                             </svg>
                             참가자 추가
                           </button>
+                          <router-link :to="`/meetup/${meetup.id}/tasks/manage`"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-purple-700 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:hover:bg-purple-800"
+                            title="과제 관리">
+                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                            과제
+                          </router-link>
                           <button @click="deleteMeetup(meetup.id)"
                             class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
                             title="삭제">
@@ -428,17 +437,21 @@
                     </span>
                   </div>
 
-                  <div class="grid grid-cols-3 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
+                  <div class="grid grid-cols-4 gap-2 pt-2 border-t border-beige-300 dark:border-neutral-700">
                     <button @click="editMeetup(meetup)"
-                      class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
+                      class="flex items-center justify-center px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
                       수정
                     </button>
                     <button @click="openManageParticipants(meetup)"
-                      class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800">
+                      class="flex items-center justify-center px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800">
                       참가자
                     </button>
+                    <router-link :to="`/meetup/${meetup.id}/tasks/manage`"
+                      class="flex items-center justify-center px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-purple-700 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:hover:bg-purple-800">
+                      과제
+                    </router-link>
                     <button @click="deleteMeetup(meetup.id)"
-                      class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-1 text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800">
+                      class="flex items-center justify-center px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800">
                       삭제
                     </button>
                   </div>
@@ -1372,6 +1385,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
