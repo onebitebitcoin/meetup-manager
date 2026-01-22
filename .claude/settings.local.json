@@ -39,7 +39,8 @@
       "Bash(./logs-monitor.sh:*)",
       "Bash(echo $DJANGO_DEBUG)",
       "Bash(./deploy.sh:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(./venv/bin/python:*)"
     ],
     "deny": []
   }
