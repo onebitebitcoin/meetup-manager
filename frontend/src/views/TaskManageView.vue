@@ -43,12 +43,12 @@
       </div>
 
       <template v-else>
-        <!-- Create Task Form -->
+        <!-- Create/Edit Task Form -->
         <div class="mb-6 p-6 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700">
           <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
-            새 과제 추가
+            {{ isEditing ? '과제 수정' : '새 과제 추가' }}
           </h2>
-          <form class="space-y-4" @submit.prevent="createTask">
+          <form class="space-y-4" @submit.prevent="submitForm">
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">제목 *</label>
               <input
@@ -77,13 +77,21 @@
                 class="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
               >
             </div>
-            <div class="flex justify-end">
+            <div class="flex justify-end gap-3">
+              <button
+                v-if="isEditing"
+                type="button"
+                class="px-4 py-2 text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-700 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
+                @click="cancelEdit"
+              >
+                취소
+              </button>
               <button
                 type="submit"
-                :disabled="creatingTask"
+                :disabled="submitting"
                 class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 font-medium transition-colors"
               >
-                {{ creatingTask ? '추가 중...' : '과제 추가' }}
+                {{ submitButtonText }}
               </button>
             </div>
           </form>
@@ -163,7 +171,7 @@
                   </router-link>
                   <button
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-600 dark:text-neutral-300 transition-colors"
-                    @click="openEditModal(task)"
+                    @click="startEdit(task)"
                   >
                     수정
                   </button>
@@ -179,67 +187,6 @@
           </div>
         </div>
       </template>
-
-      <!-- Edit Task Modal -->
-      <div
-        v-if="showEditModal"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-        @click.self="closeEditModal"
-      >
-        <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg w-full max-w-md">
-          <div class="p-6">
-            <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
-              과제 수정
-            </h3>
-            <form class="space-y-4" @submit.prevent="updateTask">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">제목 *</label>
-                <input
-                  v-model="editForm.title"
-                  type="text"
-                  required
-                  class="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
-                  placeholder="과제 제목을 입력하세요"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">설명</label>
-                <textarea
-                  v-model="editForm.description"
-                  rows="3"
-                  class="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
-                  placeholder="과제에 대한 상세 설명 (선택)"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">마감일 *</label>
-                <input
-                  v-model="editForm.deadline"
-                  type="datetime-local"
-                  required
-                  class="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
-                >
-              </div>
-              <div class="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  class="px-4 py-2 text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-700 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
-                  @click="closeEditModal"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  :disabled="updatingTask"
-                  class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 font-medium transition-colors"
-                >
-                  {{ updatingTask ? '저장 중...' : '저장' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -264,22 +211,21 @@ export default {
     const tasks = ref([])
     const loadingTasks = ref(false)
 
-    // Create task form
-    const creatingTask = ref(false)
+    // Task form (used for both create and edit)
     const taskForm = ref({
       title: '',
       description: '',
       deadline: '',
     })
-
-    // Edit task modal
-    const showEditModal = ref(false)
+    const isEditing = ref(false)
     const editingTaskId = ref(null)
-    const updatingTask = ref(false)
-    const editForm = ref({
-      title: '',
-      description: '',
-      deadline: '',
+    const submitting = ref(false)
+
+    const submitButtonText = computed(() => {
+      if (submitting.value) {
+        return isEditing.value ? '수정 중...' : '추가 중...'
+      }
+      return isEditing.value ? '수정' : '과제 추가'
     })
 
     const formatDateTime = (dateString) => {
@@ -313,34 +259,6 @@ export default {
       }
     }
 
-    const createTask = async () => {
-      if (!taskForm.value.title || !taskForm.value.deadline) return
-      creatingTask.value = true
-      try {
-        await tasksStore.createTask(meetupId.value, {
-          title: taskForm.value.title,
-          description: taskForm.value.description,
-          deadline: taskForm.value.deadline,
-        })
-        await loadTasks()
-        taskForm.value = { title: '', description: '', deadline: '' }
-      } catch (err) {
-        alert(err.message || '과제 생성에 실패했습니다')
-      } finally {
-        creatingTask.value = false
-      }
-    }
-
-    const deleteTask = async (taskId) => {
-      if (!confirm('이 과제를 삭제하시겠습니까?')) return
-      try {
-        await tasksStore.deleteTask(taskId)
-        tasks.value = tasks.value.filter(t => t.id !== taskId)
-      } catch (err) {
-        alert(err.message || '과제 삭제에 실패했습니다')
-      }
-    }
-
     const formatDateTimeLocal = (dateString) => {
       if (!dateString) return ''
       const date = new Date(dateString)
@@ -352,37 +270,60 @@ export default {
       return `${year}-${month}-${day}T${hours}:${minutes}`
     }
 
-    const openEditModal = (task) => {
+    const resetForm = () => {
+      taskForm.value = { title: '', description: '', deadline: '' }
+      isEditing.value = false
+      editingTaskId.value = null
+    }
+
+    const submitForm = async () => {
+      if (!taskForm.value.title || !taskForm.value.deadline) return
+      submitting.value = true
+      try {
+        if (isEditing.value) {
+          await tasksStore.updateTask(editingTaskId.value, {
+            title: taskForm.value.title,
+            description: taskForm.value.description,
+            deadline: taskForm.value.deadline,
+          })
+        } else {
+          await tasksStore.createTask(meetupId.value, {
+            title: taskForm.value.title,
+            description: taskForm.value.description,
+            deadline: taskForm.value.deadline,
+          })
+        }
+        await loadTasks()
+        resetForm()
+      } catch (err) {
+        alert(err.message || (isEditing.value ? '과제 수정에 실패했습니다' : '과제 생성에 실패했습니다'))
+      } finally {
+        submitting.value = false
+      }
+    }
+
+    const startEdit = (task) => {
       editingTaskId.value = task.id
-      editForm.value = {
+      taskForm.value = {
         title: task.title,
         description: task.description || '',
         deadline: formatDateTimeLocal(task.deadline),
       }
-      showEditModal.value = true
+      isEditing.value = true
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    const closeEditModal = () => {
-      showEditModal.value = false
-      editingTaskId.value = null
-      editForm.value = { title: '', description: '', deadline: '' }
+    const cancelEdit = () => {
+      resetForm()
     }
 
-    const updateTask = async () => {
-      if (!editForm.value.title || !editForm.value.deadline) return
-      updatingTask.value = true
+    const deleteTask = async (taskId) => {
+      if (!confirm('이 과제를 삭제하시겠습니까?')) return
       try {
-        await tasksStore.updateTask(editingTaskId.value, {
-          title: editForm.value.title,
-          description: editForm.value.description,
-          deadline: editForm.value.deadline,
-        })
-        await loadTasks()
-        closeEditModal()
+        await tasksStore.deleteTask(taskId)
+        tasks.value = tasks.value.filter(t => t.id !== taskId)
       } catch (err) {
-        alert(err.message || '과제 수정에 실패했습니다')
-      } finally {
-        updatingTask.value = false
+        alert(err.message || '과제 삭제에 실패했습니다')
       }
     }
 
@@ -403,18 +344,16 @@ export default {
       error,
       tasks,
       loadingTasks,
-      creatingTask,
       taskForm,
+      isEditing,
+      submitting,
+      submitButtonText,
       formatDateTime,
-      createTask,
+      submitForm,
+      startEdit,
+      cancelEdit,
       deleteTask,
       goBack,
-      showEditModal,
-      editForm,
-      updatingTask,
-      openEditModal,
-      closeEditModal,
-      updateTask,
     }
   },
 }
