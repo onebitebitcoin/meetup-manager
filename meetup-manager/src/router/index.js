@@ -6,6 +6,10 @@ import DashboardView from '@/views/DashboardView.vue'
 import AdminView from '@/views/AdminView.vue'
 import MeetupCreateView from '@/views/MeetupCreateView.vue'
 import MeetupDetailView from '@/views/MeetupDetailView.vue'
+import TaskListView from '@/views/TaskListView.vue'
+import TaskSubmitView from '@/views/TaskSubmitView.vue'
+import TaskManageView from '@/views/TaskManageView.vue'
+import TaskSubmissionsView from '@/views/TaskSubmissionsView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import HelpView from '@/views/HelpView.vue'
 
@@ -43,6 +47,30 @@ const routes = [
     name: 'MeetupDetail',
     component: MeetupDetailView,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/meetup/:id/tasks',
+    name: 'MeetupTasks',
+    component: TaskListView,
+    meta: { requiresAuth: true, requiresNonGuest: true }
+  },
+  {
+    path: '/meetup/:id/tasks/:taskId/submit',
+    name: 'TaskSubmit',
+    component: TaskSubmitView,
+    meta: { requiresAuth: true, requiresNonGuest: true }
+  },
+  {
+    path: '/meetup/:id/tasks/manage',
+    name: 'TaskManage',
+    component: TaskManageView,
+    meta: { requiresAuth: true, requiresNonGuest: true }
+  },
+  {
+    path: '/meetup/:id/tasks/:taskId/submissions',
+    name: 'TaskSubmissions',
+    component: TaskSubmissionsView,
+    meta: { requiresAuth: true, requiresNonGuest: true }
   },
   {
     path: '/settings',

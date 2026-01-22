@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from .models import MeetupUser, Meetup, Registration, Waitlist, Notification
+from .models import MeetupUser, Meetup, Registration, Waitlist, Notification, Task, TaskSubmission
 from .utils.keyboard_converter import korean_to_english, has_korean_characters
 from .utils.secure_logging import log_korean_conversion
 import re
@@ -216,10 +216,10 @@ class NotificationSerializer(serializers.ModelSerializer):
         """Get human-readable time difference"""
         from django.utils import timezone
         from datetime import timedelta
-        
+
         now = timezone.now()
         diff = now - obj.created_at
-        
+
         if diff.days > 0:
             return f"{diff.days}일 전"
         elif diff.seconds >= 3600:
@@ -230,3 +230,66 @@ class NotificationSerializer(serializers.ModelSerializer):
             return f"{minutes}분 전"
         else:
             return "방금 전"
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    meetup_name = serializers.CharField(source='meetup.name', read_only=True)
+    is_deadline_soon = serializers.ReadOnlyField()
+    is_past_deadline = serializers.ReadOnlyField()
+    submission_count = serializers.SerializerMethodField()
+    user_submission = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Task
+        fields = ['id', 'meetup', 'meetup_name', 'title', 'description', 'deadline',
+                  'created_at', 'updated_at', 'is_deadline_soon', 'is_past_deadline',
+                  'submission_count', 'user_submission']
+
+    def get_submission_count(self, obj):
+        return obj.submissions.count()
+
+    def get_user_submission(self, obj):
+        """Get current user's submission for this task if exists"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return None
+        try:
+            meetup_user = request.user.meetup_profile
+            submission = obj.submissions.filter(user=meetup_user).first()
+            if submission:
+                return {
+                    'id': submission.id,
+                    'status': submission.status,
+                    'submitted_at': submission.submitted_at
+                }
+        except:
+            pass
+        return None
+
+
+class TaskSubmissionSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.name', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    task_title = serializers.CharField(source='task.title', read_only=True)
+    file_url = serializers.SerializerMethodField()
+    file_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TaskSubmission
+        fields = ['id', 'task', 'task_title', 'user', 'user_name', 'user_email',
+                  'message', 'link', 'file', 'file_url', 'file_name', 'status',
+                  'submitted_at', 'reviewed_at']
+
+    def get_file_url(self, obj):
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            return obj.file.url
+        return None
+
+    def get_file_name(self, obj):
+        if obj.file:
+            import os
+            return os.path.basename(obj.file.name)
+        return None

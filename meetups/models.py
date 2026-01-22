@@ -187,7 +187,7 @@ class Notification(models.Model):
         ('meetup_reminder', '모임 알림'),
         ('general', '일반 알림'),
     ]
-    
+
     user = models.ForeignKey(MeetupUser, on_delete=models.CASCADE, related_name='notifications')
     title = models.CharField(max_length=200)
     message = models.TextField()
@@ -201,3 +201,75 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.name} - {self.title}"
+
+
+def task_submission_path(instance, filename):
+    """Generate upload path for task submission files"""
+    import time
+    ext = filename.split('.')[-1].lower()
+    timestamp = str(int(time.time()))
+    new_filename = f"task_{instance.task.id}_{instance.user.id}_{timestamp}.{ext}"
+    return os.path.join('task_submissions', new_filename)
+
+
+class Task(models.Model):
+    meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, related_name='tasks')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    deadline = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.meetup.name}"
+
+    @property
+    def is_deadline_soon(self):
+        """Check if deadline is within 3 days"""
+        from django.utils import timezone
+        from datetime import timedelta
+        if not self.deadline:
+            return False
+        now = timezone.now()
+        return now < self.deadline <= now + timedelta(days=3)
+
+    @property
+    def is_past_deadline(self):
+        """Check if deadline has passed"""
+        from django.utils import timezone
+        return self.deadline < timezone.now()
+
+
+class TaskSubmission(models.Model):
+    SUBMISSION_STATUS = [
+        ('pending', '검토 대기'),
+        ('approved', '승인'),
+        ('rejected', '반려'),
+    ]
+
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='submissions')
+    user = models.ForeignKey(MeetupUser, on_delete=models.CASCADE, related_name='task_submissions')
+    message = models.TextField()
+    link = models.URLField(blank=True, null=True)
+    file = models.FileField(
+        upload_to=task_submission_path,
+        blank=True,
+        null=True,
+        validators=[
+            validate_image_file_size,
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'])
+        ]
+    )
+    status = models.CharField(max_length=20, choices=SUBMISSION_STATUS, default='pending')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('task', 'user')
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"{self.user.name} - {self.task.title}"

@@ -42,6 +42,13 @@ from .notifications import (
     send_notification_to_participants,
     user_notifications,
 )
+from .tasks import (
+    meetup_tasks,
+    task_detail,
+    task_submissions,
+    submit_task,
+    review_submission,
+)
 
 __all__ = [
     'check_username_availability',
@@ -79,4 +86,9 @@ __all__ = [
     'mark_notification_read',
     'send_notification_to_participants',
     'user_notifications',
+    'meetup_tasks',
+    'task_detail',
+    'task_submissions',
+    'submit_task',
+    'review_submission',
 ]

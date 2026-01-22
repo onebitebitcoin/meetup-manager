@@ -44,4 +44,11 @@ urlpatterns = [
     path('api/notifications/mark-all-read/', views.mark_all_notifications_read, name='mark-all-notifications-read'),
     path('api/notifications/<int:notification_id>/delete/', views.delete_notification, name='delete-notification'),
     path('api/meetups/<int:meetup_id>/send-notification/', views.send_notification_to_participants, name='send-notification-to-participants'),
+
+    # Task endpoints
+    path('api/meetups/<int:meetup_id>/tasks/', views.meetup_tasks, name='meetup-tasks'),
+    path('api/tasks/<int:task_id>/', views.task_detail, name='task-detail'),
+    path('api/tasks/<int:task_id>/submissions/', views.task_submissions, name='task-submissions'),
+    path('api/tasks/<int:task_id>/submit/', views.submit_task, name='submit-task'),
+    path('api/submissions/<int:submission_id>/review/', views.review_submission, name='review-submission'),
 ]
