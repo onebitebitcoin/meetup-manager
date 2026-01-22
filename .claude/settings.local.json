@@ -42,7 +42,13 @@
       "Bash(ls:*)",
       "Bash(./venv/bin/python:*)",
       "Bash(tree:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(git log:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(./install.sh)",
+      "Bash(ruff check:*)"
     ],
     "deny": []
   }
