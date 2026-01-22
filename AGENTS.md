@@ -1,5 +1,14 @@
 # Agent Rules
 
+## SPEC.md 검토 필수 (CRITICAL)
+**작업 시작 전 반드시 SPEC.md를 확인해야 한다.**
+
+- 새 기능 개발, 버그 수정, 리팩토링 전에 SPEC.md의 관련 섹션을 먼저 읽는다.
+- SPEC.md에 정의된 요구사항과 일치하는지 확인한다.
+- SPEC.md와 다른 구현이 필요하면 먼저 SPEC.md를 업데이트한다.
+
+---
+
 ## Language
 - 모든 답변은 한국어로 작성한다.
 - 코드/로그/에러 메시지는 원문을 유지하되, 설명은 한국어로 한다.
@@ -85,10 +94,22 @@
 
 ## Workflow (필수)
 - 변경 사항이 생기면 아래 순서로 마무리한다.
-  1) 테스트 실행(프로젝트 표준 커맨드 사용)
-  2) PASS/FAIL 확인 후, FAIL이면 수정 → 재테스트 반복
-  3) PASS면 `git add` → `git commit` 수행
-  4) `git push`는 사용자가 명시적으로 요청할 때만 수행한다.
+  1) Lint 체크 실행 (Backend: `ruff check .`, Frontend: `npm run lint`)
+  2) 테스트 실행(프로젝트 표준 커맨드 사용)
+  3) PASS/FAIL 확인 후, FAIL이면 수정 → 재테스트 반복
+  4) PASS면 `git add` → `git commit` 수행
+  5) `git push`는 사용자가 명시적으로 요청할 때만 수행한다.
+
+### 테스트 결과 출력 형식
+테스트 결과는 **테이블 형식**으로 출력한다:
+
+```
+| 테스트 | 결과 | 비고 |
+|--------|------|------|
+| test_user_create | PASS |      |
+| test_user_login  | FAIL | 인증 토큰 오류 |
+| test_meeting_list| PASS |      |
+```
 
 ## Database & API Synchronization (CRITICAL)
 **스키마와 API는 항상 함께 업데이트되어야 한다.**
@@ -109,11 +130,11 @@
 ### 체크리스트
 스키마 변경 시 반드시 확인할 항목:
 1. [ ] 영향받는 모든 API 엔드포인트 확인
-2. [ ] Pydantic 모델 (request/response schemas) 업데이트
-3. [ ] SQLAlchemy 모델과 Pydantic 모델 일치 확인
-4. [ ] API 문서 (Swagger/OpenAPI) 자동 반영 확인
+2. [ ] Django Serializer (request/response) 업데이트
+3. [ ] Django Model과 Serializer 일치 확인
+4. [ ] API 문서 (DRF Swagger) 자동 반영 확인
 5. [ ] 관련 테스트 코드 업데이트
-6. [ ] 마이그레이션 스크립트 작성 (필요시)
+6. [ ] 마이그레이션 스크립트 작성 (`python manage.py makemigrations`)
 
 ### 나쁜 예시
 ```python
@@ -153,6 +174,18 @@ class AddressResponse(BaseModel):
 
 ---
 
+## 12-Factor App 원칙 (Backend)
+
+백엔드 개발 시 다음 원칙을 준수한다:
+
+1. **Config**: 환경 변수로 설정 관리 (`settings.py`에서 `os.environ` 사용)
+2. **Dependencies**: `requirements.txt`에 모든 의존성 명시
+3. **Backing Services**: 데이터베이스, 캐시 등은 환경 변수로 연결
+4. **Logs**: stdout으로 출력 (파일 기반 로깅은 개발용)
+5. **Dev/Prod Parity**: 개발과 프로덕션 환경 차이 최소화
+
+---
+
 ## Backend Configuration (CRITICAL)
 
 백엔드 개발 시 반드시 적용해야 할 설정들입니다.
@@ -165,61 +198,52 @@ class AddressResponse(BaseModel):
 
 이는 개발 환경에서 프론트엔드와 백엔드 간의 통신 문제를 방지하기 위함입니다.
 
-### FastAPI 설정 방법
+### Django 설정 방법
 
-**main.py 또는 app/__init__.py**:
+**settings.py**:
 ```python
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# ALLOWED_HOSTS - 모든 호스트 허용
+ALLOWED_HOSTS = ['*']
 
-app = FastAPI(
-    title="Bitcoin Cracker API",
-    description="Bitcoin 블록체인 분석 API",
-    version="1.0.0"
-)
+# django-cors-headers 설정
+INSTALLED_APPS = [
+    ...
+    'corsheaders',
+]
 
-# CORS 미들웨어 설정
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],        # 모든 origin 허용 (개발 환경)
-    allow_credentials=True,     # 쿠키 포함 요청 허용
-    allow_methods=["*"],        # 모든 HTTP 메서드 허용 (GET, POST, PUT, DELETE 등)
-    allow_headers=["*"],        # 모든 헤더 허용
-)
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # 최상단에 위치
+    'django.middleware.common.CommonMiddleware',
+    ...
+]
+
+# CORS 설정 - 모든 origin 허용
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 ```
 
 ### 환경별 설정 예시
 
 더 나은 방법은 환경 변수를 사용하여 개발/프로덕션 환경을 구분하는 것입니다:
 
+**settings.py**:
 ```python
 import os
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-# 환경 설정
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
-app = FastAPI()
-
-# 환경에 따른 CORS 설정
 if ENVIRONMENT == "development":
     # 개발 환경: 모든 origin 허용
-    origins = ["*"]
+    CORS_ALLOW_ALL_ORIGINS = True
 else:
     # 프로덕션: 특정 origin만 허용
-    origins = [
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
         "https://yourdomain.com",
         "https://www.yourdomain.com",
     ]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+CORS_ALLOW_CREDENTIALS = True
 ```
 
 ### 확인 방법
@@ -255,6 +279,16 @@ CORS가 올바르게 설정되었는지 확인:
 ### 로그 파일 위치
 - **Backend**: `backend/debug.log`
 - **Frontend**: `frontend/debug.log`
+
+### 핫리로드 시 로그 파일 초기화
+개발 서버 시작 시 로그 파일을 초기화하여 이전 세션의 로그가 섞이지 않도록 한다:
+
+```python
+# manage.py 또는 wsgi.py
+import os
+if os.path.exists('debug.log'):
+    open('debug.log', 'w').close()  # 파일 비우기
+```
 
 ### 로깅 원칙
 1) **상세한 로그 기록 필수**
@@ -466,85 +500,63 @@ useEffect(() => {
 - 사용자가 문제를 정확히 보고할 수 있음
 - 로그만으로는 재현하기 어려운 문제를 추적 가능
 
-### Backend에서 에러 응답
+### Backend에서 에러 응답 (Django REST Framework)
 
 **에러 발생 시 상세 정보를 포함한 JSON 응답**:
 
 ```python
-from fastapi import HTTPException
-from fastapi.responses import JSONResponse
+# core/exceptions.py
+from rest_framework.views import exception_handler
+from rest_framework.response import Response
+from django.conf import settings
+import traceback
+from datetime import datetime
 
-@app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    """모든 예외를 캐치하여 상세 정보 반환"""
+def custom_exception_handler(exc, context):
+    """커스텀 예외 핸들러"""
+    response = exception_handler(exc, context)
 
-    logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
-
-    # 개발 환경: 상세 에러 정보 포함
-    if settings.ENVIRONMENT == "development":
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "error",
-                "error": {
-                    "type": type(exc).__name__,
-                    "message": str(exc),
-                    "traceback": traceback.format_exc(),
-                    "timestamp": datetime.now().isoformat()
-                }
-            }
-        )
-
-    # 프로덕션: 일반적인 메시지
-    return JSONResponse(
-        status_code=500,
-        content={
+    if response is not None:
+        error_data = {
             "status": "error",
             "error": {
-                "type": "ServerError",
-                "message": "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+                "type": type(exc).__name__,
+                "message": str(exc.detail) if hasattr(exc, 'detail') else str(exc),
                 "timestamp": datetime.now().isoformat()
             }
         }
-    )
 
-# 특정 엔드포인트에서 에러 처리
-@app.get("/api/v1/addresses/{address}")
-async def get_address(address: str):
-    try:
-        result = fetch_address_from_db(address)
-        if not result:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "message": f"주소를 찾을 수 없습니다: {address}",
-                    "address": address,
-                    "suggestion": "주소가 올바른지 확인해주세요."
-                }
+        # 개발 환경에서만 traceback 포함
+        if settings.DEBUG:
+            error_data["error"]["traceback"] = traceback.format_exc()
+
+        response.data = error_data
+
+    return response
+
+# settings.py에 등록
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler'
+}
+```
+
+**View에서 에러 처리**:
+```python
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+class MeetingDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            meeting = Meeting.objects.get(pk=pk)
+            serializer = MeetingSerializer(meeting)
+            return Response(serializer.data)
+        except Meeting.DoesNotExist:
+            return Response(
+                {"message": "모임을 찾을 수 없습니다."},
+                status=status.HTTP_404_NOT_FOUND
             )
-        return result
-
-    except ValueError as e:
-        logger.error(f"Invalid address format: {address}", exc_info=True)
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "message": "잘못된 주소 형식입니다.",
-                "address": address,
-                "error": str(e)
-            }
-        )
-
-    except Exception as e:
-        logger.error(f"Error fetching address: {address}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "message": "주소 조회 중 오류가 발생했습니다.",
-                "error": str(e),
-                "type": type(e).__name__
-            }
-        )
 ```
 
 ### Frontend에서 에러 표시

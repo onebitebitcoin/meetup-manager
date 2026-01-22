@@ -1,5 +1,14 @@
 # Claude Project Rules
 
+## SPEC.md 검토 필수 (CRITICAL)
+**작업 시작 전 반드시 SPEC.md를 확인해야 한다.**
+
+- 새 기능 개발, 버그 수정, 리팩토링 전에 SPEC.md의 관련 섹션을 먼저 읽는다.
+- SPEC.md에 정의된 요구사항과 일치하는지 확인한다.
+- SPEC.md와 다른 구현이 필요하면 먼저 SPEC.md를 업데이트한다.
+
+---
+
 ## Language
 - 모든 답변은 한국어로 작성한다.
 - 코드/로그/에러 메시지는 원문 유지, 설명은 한국어로 한다.
@@ -43,10 +52,22 @@
 
 ## Workflow
 - 코드 수정 후 항상:
-  1) 테스트 실행 → PASS/FAIL 확인
-  2) FAIL이면 수정 후 재테스트
-  3) PASS면 `git add` → `git commit` 수행
-  4) `git push`는 사용자가 명시적으로 요청할 때만 수행
+  1) Lint 체크 실행 (Backend: `ruff check .`, Frontend: `npm run lint`)
+  2) 테스트 실행 → PASS/FAIL 확인
+  3) FAIL이면 수정 후 재테스트
+  4) PASS면 `git add` → `git commit` 수행
+  5) `git push`는 사용자가 명시적으로 요청할 때만 수행
+
+### 테스트 결과 출력 형식
+테스트 결과는 **테이블 형식**으로 출력한다:
+
+```
+| 테스트 | 결과 | 비고 |
+|--------|------|------|
+| test_user_create | PASS |      |
+| test_user_login  | FAIL | 인증 토큰 오류 |
+| test_meeting_list| PASS |      |
+```
 
 ## Database & API Synchronization (CRITICAL)
 **스키마와 API는 항상 함께 업데이트되어야 한다.**
@@ -62,9 +83,21 @@
 
 **체크리스트**:
 1. 스키마 변경 시 영향받는 모든 API 엔드포인트 확인
-2. Pydantic 모델 (request/response) 업데이트
-3. API 문서 (Swagger) 자동 반영 확인
+2. Django Serializer (request/response) 업데이트
+3. API 문서 (DRF Swagger) 자동 반영 확인
 4. 테스트 코드 업데이트
+
+## 12-Factor App 원칙 (Backend)
+
+백엔드 개발 시 다음 원칙을 준수한다:
+
+1. **Config**: 환경 변수로 설정 관리 (`settings.py`에서 `os.environ` 사용)
+2. **Dependencies**: `requirements.txt`에 모든 의존성 명시
+3. **Backing Services**: 데이터베이스, 캐시 등은 환경 변수로 연결
+4. **Logs**: stdout으로 출력 (파일 기반 로깅은 개발용)
+5. **Dev/Prod Parity**: 개발과 프로덕션 환경 차이 최소화
+
+---
 
 ## Backend Configuration (CRITICAL)
 
@@ -74,21 +107,26 @@
 1. **Allowed Hosts**: 모든 호스트 허용 (`*`)
 2. **CORS Origin**: CORS origin 에러가 발생하지 않도록 설정
 
-**FastAPI 설정 예시**:
+**Django 설정 예시** (`settings.py`):
 ```python
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# ALLOWED_HOSTS - 모든 호스트 허용
+ALLOWED_HOSTS = ['*']
 
-app = FastAPI()
+# django-cors-headers 설정
+INSTALLED_APPS = [
+    ...
+    'corsheaders',
+]
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # 최상단에 위치
+    'django.middleware.common.CommonMiddleware',
+    ...
+]
 
 # CORS 설정 - 모든 origin 허용
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 모든 origin 허용
-    allow_credentials=True,
-    allow_methods=["*"],  # 모든 HTTP 메서드 허용
-    allow_headers=["*"],  # 모든 헤더 허용
-)
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 ```
 
 **주의사항**:
@@ -109,6 +147,16 @@ app.add_middleware(
 ### 로그 파일
 - **Backend**: `backend/debug.log` - 모든 백엔드 동작 로그
 - **Frontend**: `frontend/debug.log` - 모든 프론트엔드 동작 로그
+
+### 핫리로드 시 로그 파일 초기화
+개발 서버 시작 시 로그 파일을 초기화하여 이전 세션의 로그가 섞이지 않도록 한다:
+
+```python
+# manage.py 또는 wsgi.py
+import os
+if os.path.exists('debug.log'):
+    open('debug.log', 'w').close()  # 파일 비우기
+```
 
 ### 로깅 필수 사항
 1) **상세한 로그 기록**
@@ -191,27 +239,27 @@ grep ERROR backend/debug.log
 ### 원칙
 **에러 발생 시 사용자에게 웹 UI에서 자세한 에러 메시지를 보여주어야 합니다.**
 
-### Backend
+### Backend (Django REST Framework)
 ```python
-from fastapi import HTTPException
+from rest_framework.views import exception_handler
+from rest_framework.response import Response
 
-@app.get("/api/v1/addresses/{address}")
-async def get_address(address: str):
-    try:
-        result = fetch_address(address)
-        return result
-    except Exception as e:
-        logger.error(f"Error: {str(e)}", exc_info=True)
+def custom_exception_handler(exc, context):
+    response = exception_handler(exc, context)
 
-        # 개발: 상세 에러 정보 반환
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "message": "주소 조회 중 오류 발생",
-                "error": str(e),
-                "type": type(e).__name__
-            }
-        )
+    if response is not None:
+        response.data = {
+            "status": "error",
+            "message": str(exc.detail) if hasattr(exc, 'detail') else str(exc),
+            "error_type": type(exc).__name__
+        }
+
+    return response
+
+# settings.py에 등록
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler'
+}
 ```
 
 ### Frontend

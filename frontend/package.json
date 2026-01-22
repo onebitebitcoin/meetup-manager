@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "lint:check": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --ignore-path .gitignore"
   },
   "dependencies": {
     "pinia": "^2.1.7",
@@ -21,6 +23,8 @@
     "@vitest/coverage-v8": "^1.2.0",
     "@vue/test-utils": "^2.4.3",
     "autoprefixer": "^10.4.16",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.23.0",
     "happy-dom": "^13.3.1",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
