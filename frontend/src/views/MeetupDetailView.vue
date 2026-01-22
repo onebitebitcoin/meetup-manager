@@ -182,9 +182,9 @@
               {{ registering ? '취소 중...' : '대기열 취소' }}
             </button>
 
-            <!-- Task Button - Only visible for registered participants -->
+            <!-- Task Button - Visible for registered participants or meetup creator -->
             <button
-              v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
+              v-if="authStore.isLoggedIn && !authStore.isGuest && (isRegistered || isCreator)"
               @click="$router.push(`/meetup/${meetupId}/tasks`)"
               class="w-full py-4 px-6 rounded-lg text-base font-semibold text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 transition-colors duration-200"
             >
@@ -262,6 +262,10 @@ export default {
       const meetupDate = new Date(meetup.value.date_time)
       const now = new Date()
       return meetupDate < now
+    })
+
+    const isCreator = computed(() => {
+      return authStore.user && meetup.value && meetup.value.creator === authStore.user.id
     })
 
     const formatDescription = (text) => {
@@ -508,6 +512,7 @@ export default {
       isWaitlisted,
       waitlistPosition,
       isMeetupPassed,
+      isCreator,
       formatDateTime,
       formatTime,
       maskEmail,
