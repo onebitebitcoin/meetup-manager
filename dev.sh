@@ -44,8 +44,8 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 ensure_project_root() {
-    if [ ! -f "manage.py" ] || [ ! -d "meetup-manager" ]; then
-        error "프로젝트 루트 디렉토리에서 실행해주세요. (manage.py와 meetup-manager 폴더가 있는 위치)"
+    if [ ! -d "backend" ] || [ ! -d "frontend" ]; then
+        error "프로젝트 루트 디렉토리에서 실행해주세요. (backend와 frontend 폴더가 있는 위치)"
         exit 1
     fi
 }
@@ -83,28 +83,28 @@ kill_existing_processes() {
 }
 
 activate_virtualenv() {
-    if [ -d "venv" ]; then
+    if [ -d "backend/venv" ]; then
         log "Python 가상환경을 활성화합니다..."
-        source venv/bin/activate
-    elif [ -d ".venv" ]; then
+        source backend/venv/bin/activate
+    elif [ -d "backend/.venv" ]; then
         log "Python 가상환경을 활성화합니다..."
-        source .venv/bin/activate
+        source backend/.venv/bin/activate
     fi
 }
 
 check_backend_dependencies() {
     log "Backend 의존성을 확인합니다..."
     python3 -c "import django" 2>/dev/null || {
-        error "Django가 설치되지 않았습니다. pip install -r requirements.txt를 실행해주세요."
+        error "Django가 설치되지 않았습니다. pip install -r backend/requirements.txt를 실행해주세요."
         exit 1
     }
 }
 
 ensure_frontend_dependencies() {
     log "Frontend 의존성을 확인합니다..."
-    if [ ! -d "meetup-manager/node_modules" ]; then
+    if [ ! -d "frontend/node_modules" ]; then
         warning "node_modules가 없습니다. npm install을 실행합니다..."
-        pushd meetup-manager >/dev/null
+        pushd frontend >/dev/null
         npm install
         popd >/dev/null
     fi
@@ -112,17 +112,21 @@ ensure_frontend_dependencies() {
 
 apply_pending_migrations() {
     log "데이터베이스 마이그레이션을 확인합니다..."
+    pushd backend >/dev/null
     if python3 manage.py showmigrations --plan | grep -q '\\[ \\]'; then
         log "새로운 마이그레이션을 적용합니다..."
         python3 manage.py migrate
     fi
+    popd >/dev/null
 }
 
 start_backend() {
     log "Django 백엔드 서버를 시작합니다... (포트: 8000)"
     > django.log
-    python3 manage.py runserver 8000 > django.log 2>&1 &
+    pushd backend >/dev/null
+    python3 manage.py runserver 8000 > ../django.log 2>&1 &
     BACKEND_PID=$!
+    popd >/dev/null
     sleep 5
 
     if ! kill -0 $BACKEND_PID 2>/dev/null; then
@@ -158,7 +162,7 @@ start_frontend() {
         echo $NODE_PIDS | xargs kill -9 2>/dev/null
     fi
 
-    pushd meetup-manager >/dev/null
+    pushd frontend >/dev/null
     npm run dev > ../vite.log 2>&1 &
     FRONTEND_PID=$!
     popd >/dev/null
@@ -191,16 +195,16 @@ start_frontend() {
 
 print_summary() {
     echo ""
-    success "🚀 개발 서버가 성공적으로 시작되었습니다!"
+    success "개발 서버가 성공적으로 시작되었습니다!"
     echo ""
-    echo -e "${GREEN}📍 서비스 주소:${NC}"
-    echo -e "  🌐 Frontend: ${BLUE}http://localhost:7173${NC}"
-    echo -e "  ⚙️  Backend:  ${BLUE}http://localhost:8000${NC}"
-    echo -e "  📊 Admin:    ${BLUE}http://localhost:8000/admin${NC}"
+    echo -e "${GREEN}서비스 주소:${NC}"
+    echo -e "  Frontend: ${BLUE}http://localhost:7173${NC}"
+    echo -e "  Backend:  ${BLUE}http://localhost:8000${NC}"
+    echo -e "  Admin:    ${BLUE}http://localhost:8000/admin${NC}"
     echo ""
-    echo -e "${YELLOW}📋 로그 파일:${NC}"
-    echo -e "  📄 Django: django.log"
-    echo -e "  📄 Vite:   vite.log"
+    echo -e "${YELLOW}로그 파일:${NC}"
+    echo -e "  Django: django.log"
+    echo -e "  Vite:   vite.log"
     echo ""
     echo -e "${RED}종료하려면 Ctrl+C를 누르세요${NC}"
     echo ""

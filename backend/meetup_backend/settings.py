@@ -203,7 +203,7 @@ DEFAULT_FROM_EMAIL = 'Meetup Manager <noreply@meetup.com>'
 
 # Logging configuration
 # 로그 디렉토리 생성 확인
-LOG_DIR = BASE_DIR / 'backend'
+LOG_DIR = BASE_DIR
 LOG_DIR.mkdir(exist_ok=True)
 
 LOGGING = {

@@ -222,8 +222,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 # 프로젝트 디렉토리 확인
-if [ ! -f "manage.py" ]; then
-    error "Django 프로젝트 디렉토리에서 실행해주세요."
+if [ ! -d "backend" ]; then
+    error "프로젝트 루트 디렉토리에서 실행해주세요. (backend 폴더가 있는 위치)"
     exit 1
 fi
 

@@ -60,28 +60,29 @@ sudo chown -R $USER:$USER $FRONTEND_DEPLOY_DIR
 
 # Deploy Django Backend
 echo "=== Deploying Django Backend ==="
-if [ -f "requirements.txt" ]; then
+if [ -f "backend/requirements.txt" ]; then
     echo "Setting up Python virtual environment..."
+    cd backend
     python3 -m venv venv
     source venv/bin/activate
-    
+
     echo "Installing Python dependencies..."
     pip install --upgrade pip
     pip install -r requirements.txt
     pip install gunicorn
-    
+
     echo "Running Django migrations..."
     python manage.py migrate
-    
+
     echo "Collecting static files..."
     python manage.py collectstatic --noinput
-    
+
     echo "Copying static files to frontend deployment directory..."
     sudo mkdir -p $FRONTEND_DEPLOY_DIR/staticfiles
     sudo cp -r staticfiles/* $FRONTEND_DEPLOY_DIR/staticfiles/ 2>/dev/null || true
     sudo mkdir -p $FRONTEND_DEPLOY_DIR/media
     sudo cp -r media/* $FRONTEND_DEPLOY_DIR/media/ 2>/dev/null || true
-    
+
     echo "Creating Django superuser (if needed)..."
     python manage.py shell -c "
 from django.contrib.auth import get_user_model
@@ -93,11 +94,12 @@ else:
     print('Superuser already exists')
 "
     deactivate
+    cd $CURRENT_DIR
 fi
 
 # Deploy Vue Frontend
 echo "=== Deploying Vue Frontend ==="
-FRONTEND_DIR="meetup-manager"
+FRONTEND_DIR="frontend"
 if [ -d "$FRONTEND_DIR" ]; then
     echo "Building Vue frontend..."
     cd $FRONTEND_DIR
@@ -152,11 +154,11 @@ After=network.target
 Type=simple
 User=$USER
 Group=www-data
-WorkingDirectory=$CURRENT_DIR
-Environment="PATH=$CURRENT_DIR/venv/bin:/usr/local/bin:/usr/bin:/bin"
-Environment="PYTHONPATH=$CURRENT_DIR"
+WorkingDirectory=$CURRENT_DIR/backend
+Environment="PATH=$CURRENT_DIR/backend/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONPATH=$CURRENT_DIR/backend"
 Environment="DJANGO_SETTINGS_MODULE=meetup_backend.settings"
-ExecStart=$CURRENT_DIR/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application
+ExecStart=$CURRENT_DIR/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application
 ExecReload=/bin/kill -s HUP \$MAINPID
 KillMode=mixed
 TimeoutStopSec=5
@@ -196,23 +198,23 @@ else
     
     # Try to start manually as fallback
     echo "Attempting manual start as fallback..."
-    cd $CURRENT_DIR
+    cd $CURRENT_DIR/backend
     source venv/bin/activate
-    
+
     # Kill any existing processes on port 8000
     sudo fuser -k 8000/tcp 2>/dev/null || true
     sleep 2
-    
+
     # Start Gunicorn manually in background
     echo "Starting Gunicorn manually on port 8000..."
-    nohup $CURRENT_DIR/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application > /var/log/gunicorn.log 2>&1 &
-    
+    nohup $CURRENT_DIR/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application > /var/log/gunicorn.log 2>&1 &
+
     # Wait and check if port 8000 is responding
     sleep 5
     if curl -s http://localhost:8000/api/health/ > /dev/null 2>&1; then
-        echo "✅ Django backend started manually on port 8000"
+        echo "Django backend started manually on port 8000"
     else
-        echo "❌ Failed to start Django backend. Trying development server..."
+        echo "Failed to start Django backend. Trying development server..."
         # Kill gunicorn and try development server
         sudo fuser -k 8000/tcp 2>/dev/null || true
         sleep 2

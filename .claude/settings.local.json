@@ -40,7 +40,9 @@
       "Bash(echo $DJANGO_DEBUG)",
       "Bash(./deploy.sh:*)",
       "Bash(ls:*)",
-      "Bash(./venv/bin/python:*)"
+      "Bash(./venv/bin/python:*)",
+      "Bash(tree:*)",
+      "Bash(git mv:*)"
     ],
     "deny": []
   }
