@@ -3,13 +3,15 @@
     <div class="max-w-4xl mx-auto px-4">
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-        <p class="text-red-800 dark:text-red-200">{{ error }}</p>
-        <button @click="$router.push('/dashboard')" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+        <p class="text-red-800 dark:text-red-200">
+          {{ error }}
+        </p>
+        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="$router.push('/dashboard')">
           대시보드로 돌아가기
         </button>
       </div>
@@ -19,11 +21,21 @@
         <!-- Header with Back Button -->
         <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-600 bg-beige-200 dark:bg-neutral-700">
           <button
-            @click="$router.push('/dashboard')"
             class="flex items-center mb-4 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors sm:absolute sm:top-6 sm:left-6 sm:mb-0"
+            @click="$router.push('/dashboard')"
           >
-            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <svg
+              class="w-5 h-5 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             뒤로
           </button>
@@ -40,7 +52,7 @@
             :alt="meetup.name"
             class="w-full h-full object-cover"
             @error="handleImageError"
-          />
+          >
         </div>
 
         <!-- Content -->
@@ -49,24 +61,59 @@
             <!-- Basic Info -->
             <div class="space-y-4">
               <div class="flex items-center text-base text-neutral-600 dark:text-neutral-400">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <svg
+                  class="w-5 h-5 mr-3 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
                 <span class="select-text cursor-text">{{ formatDateTime(meetup.date_time) }}</span>
                 <span v-if="meetup.end_time" class="select-text cursor-text"> - {{ formatTime(meetup.end_time) }}</span>
               </div>
 
               <div class="flex items-center text-base text-neutral-600 dark:text-neutral-400">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <svg
+                  class="w-5 h-5 mr-3 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
                 </svg>
                 <span class="select-text cursor-text">{{ meetup.location }}</span>
               </div>
 
               <div class="flex items-center text-base text-neutral-600 dark:text-neutral-400">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                <svg
+                  class="w-5 h-5 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                  />
                 </svg>
                 {{ meetup.current_participants }}/{{ meetup.max_participants }}명
                 <span v-if="meetup.is_full" class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
@@ -78,8 +125,18 @@
               </div>
 
               <div class="flex items-center text-base text-neutral-600 dark:text-neutral-400">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                <svg
+                  class="w-5 h-5 mr-3 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
                 </svg>
                 <span class="select-text cursor-text">{{ meetup.creator_name }}</span>
               </div>
@@ -87,16 +144,20 @@
 
             <!-- Description -->
             <div v-if="meetup.description" class="pt-6 border-t border-neutral-200 dark:border-neutral-700">
-              <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">상세 정보</h2>
+              <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+                상세 정보
+              </h2>
               <div
                 class="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line select-text cursor-text"
                 v-html="formatDescription(meetup.description)"
-              ></div>
+              />
             </div>
 
             <!-- Hashtags -->
             <div v-if="meetup.hashtags_list && meetup.hashtags_list.length > 0" class="pt-6 border-t border-neutral-200 dark:border-neutral-700">
-              <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">태그</h2>
+              <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+                태그
+              </h2>
               <div class="flex flex-wrap gap-2">
                 <span
                   v-for="hashtag in meetup.hashtags_list"
@@ -110,11 +171,13 @@
 
             <!-- Participants -->
             <div class="pt-6 border-t border-neutral-200 dark:border-neutral-700">
-              <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">참가자 목록</h2>
+              <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+                참가자 목록
+              </h2>
 
               <!-- Loading state -->
               <div v-if="loadingParticipants" class="flex justify-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
               </div>
 
               <!-- Participants list -->
@@ -144,7 +207,9 @@
 
               <!-- Empty state -->
               <div v-else class="text-center py-8">
-                <p class="text-base text-neutral-500 dark:text-neutral-400">아직 참가자가 없습니다.</p>
+                <p class="text-base text-neutral-500 dark:text-neutral-400">
+                  아직 참가자가 없습니다.
+                </p>
               </div>
             </div>
           </div>
@@ -156,7 +221,6 @@
             <!-- Primary Action Button -->
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered && !isWaitlisted"
-              @click="registerForMeetup"
               :disabled="registering || isMeetupPassed"
               :class="[
                 'w-full py-4 px-6 rounded-lg text-base font-semibold transition-colors duration-200',
@@ -164,6 +228,7 @@
                   ? 'bg-beige-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
                   : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
               ]"
+              @click="registerForMeetup"
             >
               {{
                 registering ? '등록 중...' :
@@ -175,9 +240,9 @@
             <!-- Waitlist Cancel Button -->
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && isWaitlisted"
-              @click="leaveWaitlist"
               :disabled="registering || isMeetupPassed"
               class="w-full py-4 px-6 rounded-lg text-base font-semibold text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 transition-colors duration-200 disabled:opacity-50"
+              @click="leaveWaitlist"
             >
               {{ registering ? '취소 중...' : '대기열 취소' }}
             </button>
@@ -185,8 +250,8 @@
             <!-- Task Button - Visible for registered participants or meetup creator -->
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && (isRegistered || isCreator)"
-              @click="$router.push(`/meetup/${meetupId}/tasks`)"
               class="w-full py-4 px-6 rounded-lg text-base font-semibold text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 transition-colors duration-200"
+              @click="$router.push(`/meetup/${meetupId}/tasks`)"
             >
               과제 확인
             </button>
@@ -194,9 +259,9 @@
             <!-- Unregister Button -->
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
-              @click="unregisterFromMeetup"
               :disabled="registering || isMeetupPassed"
               class="w-full py-4 px-6 rounded-lg text-base font-semibold text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors duration-200 disabled:opacity-50"
+              @click="unregisterFromMeetup"
             >
               {{ registering ? '취소 중...' : '참가 취소' }}
             </button>
@@ -241,7 +306,7 @@ export default {
     const formatTime = (dateString) => {
       return new Date(dateString).toLocaleTimeString('ko-KR', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       })
     }
 
@@ -366,7 +431,7 @@ export default {
       loadingParticipants.value = true
       try {
         const response = await fetch(`/api/meetups/${meetupId.value}/registrations/`, {
-          credentials: 'include'
+          credentials: 'include',
         })
         if (response.ok) {
           const data = await response.json()
@@ -410,7 +475,7 @@ export default {
       registering.value = true
       try {
         const response = await fetchWithCSRF(`/api/meetups/${meetupId.value}/register/`, {
-          method: 'POST'
+          method: 'POST',
         })
 
         if (response.ok) {
@@ -468,7 +533,7 @@ export default {
       registering.value = true
       try {
         const response = await fetchWithCSRF(`/api/meetups/${meetupId.value}/unregister/`, {
-          method: 'DELETE'
+          method: 'DELETE',
         })
 
         if (response.ok) {
@@ -520,9 +585,9 @@ export default {
       registerForMeetup,
       unregisterFromMeetup,
       leaveWaitlist,
-      handleImageError
+      handleImageError,
     }
-  }
+  },
 }
 </script>
 

@@ -18,20 +18,20 @@ const localStorageMock = {
   }),
   clear: vi.fn(() => {
     localStorageMock.store = {}
-  })
+  }),
 }
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 })
 
 // Mock window.location
 Object.defineProperty(window, 'location', {
   value: {
     origin: 'http://localhost:3000',
-    href: 'http://localhost:3000/'
+    href: 'http://localhost:3000/',
   },
-  writable: true
+  writable: true,
 })
 
 // Reset mocks before each test

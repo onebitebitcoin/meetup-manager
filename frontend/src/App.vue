@@ -20,23 +20,47 @@
             <div class="flex items-center space-x-3">
               <div class="flex-shrink-0">
                 <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/20 rounded-lg flex items-center justify-center">
-                  <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  <svg
+                    class="w-5 h-5 text-primary-600 dark:text-primary-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
                   </svg>
                 </div>
               </div>
               <div>
-                <p class="font-semibold text-neutral-900 dark:text-neutral-100">앱 업데이트가 있습니다!</p>
-                <p class="text-sm text-neutral-600 dark:text-neutral-400">새 버전을 설치하시겠습니까?</p>
+                <p class="font-semibold text-neutral-900 dark:text-neutral-100">
+                  앱 업데이트가 있습니다!
+                </p>
+                <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                  새 버전을 설치하시겠습니까?
+                </p>
               </div>
             </div>
             <div class="flex space-x-2 ml-4">
-              <button @click="updateApp" class="btn-primary">
+              <button class="btn-primary" @click="updateApp">
                 업데이트
               </button>
-              <button @click="dismissUpdate" class="btn-ghost p-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <button class="btn-ghost p-2" @click="dismissUpdate">
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -58,7 +82,7 @@ import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
 export default {
   name: 'App',
   components: {
-    PWAInstallPrompt
+    PWAInstallPrompt,
   },
   setup() {
     const authStore = useAuthStore()
@@ -98,8 +122,8 @@ export default {
     return {
       showUpdateNotification,
       updateApp,
-      dismissUpdate
+      dismissUpdate,
     }
-  }
+  },
 }
 </script>

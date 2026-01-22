@@ -13,7 +13,7 @@ export const useMeetupsStore = defineStore('meetups', () => {
     
     try {
       const response = await fetchWithCSRF('/api/meetups/', {
-        method: 'GET'
+        method: 'GET',
       })
       
       if (response.ok) {
@@ -35,7 +35,7 @@ export const useMeetupsStore = defineStore('meetups', () => {
           image_url: meetup.image_url,
           image_display_url: meetup.image_display_url,
           hashtags: meetup.hashtags,
-          hashtags_list: meetup.hashtags_list
+          hashtags_list: meetup.hashtags_list,
         }))
       } else {
         error.value = '모임 데이터를 불러오는데 실패했습니다'
@@ -91,7 +91,7 @@ export const useMeetupsStore = defineStore('meetups', () => {
   const addToWaitlist = async (meetupId) => {
     try {
       const response = await fetchWithCSRF(`/api/meetups/${meetupId}/waitlist/`, {
-        method: 'POST'
+        method: 'POST',
       })
       
       if (response.ok) {
@@ -110,7 +110,7 @@ export const useMeetupsStore = defineStore('meetups', () => {
   const removeFromWaitlist = async (meetupId) => {
     try {
       const response = await fetchWithCSRF(`/api/meetups/${meetupId}/waitlist/remove/`, {
-        method: 'DELETE'
+        method: 'DELETE',
       })
       
       if (response.ok) {
@@ -182,6 +182,6 @@ export const useMeetupsStore = defineStore('meetups', () => {
     addToWaitlist,
     removeFromWaitlist,
     checkWaitlistStatus,
-    getUserWaitlists
+    getUserWaitlists,
   }
 })

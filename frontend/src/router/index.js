@@ -16,84 +16,84 @@ import HelpView from '@/views/HelpView.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/dashboard'
+    redirect: '/dashboard',
   },
   {
     path: '/login',
     name: 'Login',
     component: LoginView,
-    meta: { requiresGuest: true }
+    meta: { requiresGuest: true },
   },
   {
     path: '/register',
     name: 'Register',
     component: RegisterView,
-    meta: { requiresGuest: true }
+    meta: { requiresGuest: true },
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
     component: DashboardView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/create-meetup',
     name: 'CreateMeetup',
     component: MeetupCreateView,
-    meta: { requiresAuth: true, requiresNonGuest: true }
+    meta: { requiresAuth: true, requiresNonGuest: true },
   },
   {
     path: '/meetup/:id',
     name: 'MeetupDetail',
     component: MeetupDetailView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/meetup/:id/tasks',
     name: 'MeetupTasks',
     component: TaskListView,
-    meta: { requiresAuth: true, requiresNonGuest: true }
+    meta: { requiresAuth: true, requiresNonGuest: true },
   },
   {
     path: '/meetup/:id/tasks/:taskId/submit',
     name: 'TaskSubmit',
     component: TaskSubmitView,
-    meta: { requiresAuth: true, requiresNonGuest: true }
+    meta: { requiresAuth: true, requiresNonGuest: true },
   },
   {
     path: '/meetup/:id/tasks/manage',
     name: 'TaskManage',
     component: TaskManageView,
-    meta: { requiresAuth: true, requiresNonGuest: true }
+    meta: { requiresAuth: true, requiresNonGuest: true },
   },
   {
     path: '/meetup/:id/tasks/:taskId/submissions',
     name: 'TaskSubmissions',
     component: TaskSubmissionsView,
-    meta: { requiresAuth: true, requiresNonGuest: true }
+    meta: { requiresAuth: true, requiresNonGuest: true },
   },
   {
     path: '/settings',
     name: 'Settings',
     component: SettingsView,
-    meta: { requiresAuth: true, requiresNonGuest: true }
+    meta: { requiresAuth: true, requiresNonGuest: true },
   },
   {
     path: '/admin',
     name: 'Admin',
     component: AdminView,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/help',
     name: 'Help',
-    component: HelpView
-  }
+    component: HelpView,
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
 router.beforeEach((to, from, next) => {

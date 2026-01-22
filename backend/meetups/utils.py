@@ -1,4 +1,4 @@
-from .models import Waitlist, Registration, Notification
+from .models import Notification, Registration, Waitlist
 
 
 def promote_from_waitlist(meetup):
@@ -8,16 +8,16 @@ def promote_from_waitlist(meetup):
     """
     # Get the first person in the waitlist
     first_waitlist_entry = Waitlist.objects.filter(meetup=meetup).first()
-    
+
     if first_waitlist_entry and not meetup.is_full:
         user = first_waitlist_entry.user
-        
+
         # Create registration for the waitlisted user
         registration = Registration.objects.create(
             user=user,
             meetup=meetup
         )
-        
+
         # Create notification for the promoted user
         Notification.objects.create(
             user=user,
@@ -30,12 +30,12 @@ def promote_from_waitlist(meetup):
             notification_type='waitlist_promotion',
             meetup=meetup
         )
-        
+
         # Remove from waitlist
         first_waitlist_entry.delete()
-        
+
         print(f"Promoted {user.name} from waitlist to {meetup.name} and created notification")
-        
+
         return registration
-    
+
     return None

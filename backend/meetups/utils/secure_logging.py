@@ -25,10 +25,10 @@ def log_korean_conversion(username, action="login"):
     # Only log if not in production or if debug logging is explicitly enabled
     debug_mode = _get_setting('DEBUG', False)
     log_conversion = _get_setting('LOG_KOREAN_CONVERSION', False)
-    
+
     if debug_mode or log_conversion:
         logger.info(f"Korean input conversion applied - User: {username}, Action: {action}")
-    
+
     # In production, we might want to increment a metric instead of logging
     # This could be sent to monitoring systems like DataDog, NewRelic, etc.
     metrics_client = _get_setting('METRICS_CLIENT', None)
@@ -47,7 +47,7 @@ def log_authentication_attempt(username, success=True, method="standard"):
     debug_mode = _get_setting('DEBUG', False)
     if debug_mode:
         logger.info(f"Auth attempt - User: {username}, Success: {success}, Method: {method}")
-    
+
     # Production logging - no sensitive data
     metrics_client = _get_setting('METRICS_CLIENT', None)
     if metrics_client:

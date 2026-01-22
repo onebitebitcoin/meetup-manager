@@ -2,8 +2,8 @@
 Integration tests for authentication API endpoints.
 """
 import pytest
-from django.urls import reverse
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from meetups.models import MeetupUser
 

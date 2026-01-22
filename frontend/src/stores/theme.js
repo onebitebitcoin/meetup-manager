@@ -130,6 +130,6 @@ export const useThemeStore = defineStore('theme', () => {
     loadTheme,
     setAutoTheme,
     setManualTheme,
-    currentTheme
+    currentTheme,
   }
 })

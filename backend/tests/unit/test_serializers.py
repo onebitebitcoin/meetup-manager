@@ -1,21 +1,17 @@
 """
 Unit tests for Django REST Framework serializers.
 """
-import pytest
-from django.contrib.auth.models import User
-from django.utils import timezone
 from datetime import timedelta
 
+import pytest
+from django.utils import timezone
+
 from meetups.serializers import (
-    UserRegistrationSerializer,
     MeetupSerializer,
     MeetupUserSerializer,
-    RegistrationSerializer,
-    WaitlistSerializer,
     TaskSerializer,
-    TaskSubmissionSerializer,
+    UserRegistrationSerializer,
 )
-from meetups.models import MeetupUser, Meetup
 
 
 @pytest.mark.django_db

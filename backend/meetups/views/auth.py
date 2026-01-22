@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from ..serializers import UserRegistrationSerializer
-from ..utils.keyboard_converter import korean_to_english, has_korean_characters
+from ..utils.keyboard_converter import has_korean_characters, korean_to_english
 from ..utils.secure_logging import log_korean_conversion
 from .helpers import get_or_create_meetup_profile
 

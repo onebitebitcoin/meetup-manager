@@ -8,7 +8,7 @@ import { useAuthStore } from '@/stores/auth'
 // Mock fetchWithCSRF
 vi.mock('@/utils/csrf', () => ({
   fetchWithCSRF: vi.fn(),
-  resetCSRFToken: vi.fn()
+  resetCSRFToken: vi.fn(),
 }))
 
 describe('Auth Store', () => {
@@ -44,7 +44,7 @@ describe('Auth Store', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        is_admin: false
+        is_admin: false,
       }
 
       await store.login(userData)
@@ -59,7 +59,7 @@ describe('Auth Store', () => {
         id: 1,
         name: 'Admin User',
         email: 'admin@example.com',
-        is_admin: true
+        is_admin: true,
       }
 
       await store.login(adminUser)
@@ -71,7 +71,7 @@ describe('Auth Store', () => {
       const guestUser = {
         id: 1,
         name: 'Guest',
-        is_guest: true
+        is_guest: true,
       }
 
       await store.login(guestUser)
@@ -86,7 +86,7 @@ describe('Auth Store', () => {
 
       expect(localStorage.setItem).toHaveBeenCalledWith(
         'user',
-        JSON.stringify(userData)
+        JSON.stringify(userData),
       )
     })
   })

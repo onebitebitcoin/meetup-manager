@@ -1,8 +1,11 @@
+from datetime import datetime
+
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from django.contrib.auth.models import User
-from datetime import datetime
-from meetups.models import MeetupUser, Meetup, Registration
+
+from meetups.models import Meetup, MeetupUser, Registration
+
 
 class Command(BaseCommand):
     help = 'Seed the database with sample data for August 2025'
@@ -34,7 +37,7 @@ class Command(BaseCommand):
             password = user_data.pop('password')
             name = user_data.pop('name')
             phone = user_data.pop('phone')
-            
+
             # Create Django User
             django_user = User.objects.create_user(
                 username=user_data['username'],
@@ -42,7 +45,7 @@ class Command(BaseCommand):
                 password=password
             )
             users.append(django_user)
-            
+
             # Create MeetupUser
             meetup_user = MeetupUser.objects.create(
                 user=django_user,

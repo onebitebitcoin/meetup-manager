@@ -4,14 +4,26 @@
       <!-- Simple Header -->
       <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-600 bg-beige-200 dark:bg-neutral-700 flex-shrink-0">
         <!-- Close Button -->
-        <button @click="$emit('close')" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        <button class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors" @click="$emit('close')">
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
         
         <!-- Title -->
-        <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pr-8 select-text cursor-text">{{ selectedMeetup.name }}</h3>
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 pr-8 select-text cursor-text">
+          {{ selectedMeetup.name }}
+        </h3>
       </div>
       
       <!-- Image (if available) -->
@@ -21,7 +33,7 @@
           :alt="selectedMeetup.name"
           class="w-full h-48 object-cover"
           @error="handleImageError"
-        />
+        >
       </div>
 
       <!-- Content - Scrollable Area -->
@@ -30,24 +42,59 @@
           <!-- Basic Info -->
           <div class="space-y-3">
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
-              <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              <svg
+                class="w-4 h-4 mr-2 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
               <span class="select-text cursor-text">{{ formatDateTime(selectedMeetup.date_time) }}</span>
               <span v-if="selectedMeetup.end_time" class="select-text cursor-text"> - {{ formatTime(selectedMeetup.end_time) }}</span>
             </div>
             
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
-              <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <svg
+                class="w-4 h-4 mr-2 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
               <span class="select-text cursor-text">{{ selectedMeetup.location }}</span>
             </div>
             
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+              <svg
+                class="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                />
               </svg>
               {{ currentMeetupData.current_participants || selectedMeetup.current_participants }}/{{ currentMeetupData.max_participants || selectedMeetup.max_participants }}명
               <span v-if="currentMeetupData.is_full" class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
@@ -59,8 +106,18 @@
             </div>
             
             <div class="flex items-center text-sm text-neutral-600 dark:text-neutral-400">
-              <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              <svg
+                class="w-4 h-4 mr-2 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
               </svg>
               <span class="select-text cursor-text">{{ selectedMeetup.creator_name }}</span>
             </div>
@@ -68,16 +125,20 @@
           
           <!-- Description -->
           <div v-if="selectedMeetup.description" class="pt-4 border-t border-neutral-200 dark:border-neutral-700">
-            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">상세 정보</h4>
+            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+              상세 정보
+            </h4>
             <div 
               class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed whitespace-pre-line select-text cursor-text"
               v-html="formatDescription(selectedMeetup.description)"
-            ></div>
+            />
           </div>
           
           <!-- Hashtags -->
           <div v-if="selectedMeetup.hashtags_list && selectedMeetup.hashtags_list.length > 0" class="pt-4 border-t border-neutral-200 dark:border-neutral-700">
-            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">태그</h4>
+            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+              태그
+            </h4>
             <div class="flex flex-wrap gap-2">
               <span 
                 v-for="hashtag in selectedMeetup.hashtags_list" 
@@ -91,11 +152,13 @@
 
           <!-- Participants -->
           <div class="pt-4 border-t border-neutral-200 dark:border-neutral-700">
-            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">참가자 목록</h4>
+            <h4 class="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">
+              참가자 목록
+            </h4>
             
             <!-- Loading state -->
             <div v-if="loadingParticipants" class="flex justify-center py-4">
-              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600" />
             </div>
             
             <!-- Participants list -->
@@ -125,7 +188,9 @@
             
             <!-- Empty state -->
             <div v-else class="text-center py-4">
-              <p class="text-sm text-neutral-500 dark:text-neutral-400">아직 참가자가 없습니다.</p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                아직 참가자가 없습니다.
+              </p>
             </div>
           </div>
         </div>
@@ -137,7 +202,6 @@
           <!-- Primary Action Button -->
           <button
             v-if="authStore.isLoggedIn && !authStore.isGuest && !isRegistered && !isWaitlisted"
-            @click="registerForMeetup"
             :disabled="registering || isMeetupPassed"
             :class="[
               'w-full py-3 px-4 rounded-lg text-sm font-medium transition-colors duration-200',
@@ -145,6 +209,7 @@
                 ? 'bg-beige-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
                 : 'text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800'
             ]"
+            @click="registerForMeetup"
           >
             {{ 
               registering ? '등록 중...' : 
@@ -156,9 +221,9 @@
           <!-- Waitlist Cancel Button -->
           <button
             v-if="authStore.isLoggedIn && !authStore.isGuest && isWaitlisted"
-            @click="leaveWaitlist"
             :disabled="registering || isMeetupPassed"
             class="w-full py-3 px-4 rounded-lg text-sm font-medium text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800 transition-colors duration-200 disabled:opacity-50"
+            @click="leaveWaitlist"
           >
             {{ registering ? '취소 중...' : '대기열 취소' }}
           </button>
@@ -166,9 +231,9 @@
           <!-- Unregister Button -->
           <button
             v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
-            @click="unregisterFromMeetup"
             :disabled="registering || isMeetupPassed"
             class="w-full py-3 px-4 rounded-lg text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors duration-200 disabled:opacity-50"
+            @click="unregisterFromMeetup"
           >
             {{ registering ? '취소 중...' : '참가 취소' }}
           </button>
@@ -189,8 +254,8 @@ export default {
   props: {
     selectedMeetup: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
   },
   emits: ['close', 'meetupUpdated'],
   setup(props, { emit }) {
@@ -219,7 +284,7 @@ export default {
     const formatTime = (dateString) => {
       return new Date(dateString).toLocaleTimeString('ko-KR', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       })
     }
 
@@ -284,7 +349,7 @@ export default {
       loadingParticipants.value = true
       try {
         const response = await fetch(`/api/meetups/${props.selectedMeetup.id}/registrations/`, {
-          credentials: 'include'
+          credentials: 'include',
         })
         if (response.ok) {
           const data = await response.json()
@@ -331,7 +396,7 @@ export default {
       registering.value = true
       try {
         const response = await fetchWithCSRF(`/api/meetups/${props.selectedMeetup.id}/register/`, {
-          method: 'POST'
+          method: 'POST',
         })
         
         if (response.ok) {
@@ -410,7 +475,7 @@ export default {
       registering.value = true
       try {
         const response = await fetchWithCSRF(`/api/meetups/${props.selectedMeetup.id}/unregister/`, {
-          method: 'DELETE'
+          method: 'DELETE',
         })
         
         if (response.ok) {
@@ -466,9 +531,9 @@ export default {
       unregisterFromMeetup,
       joinWaitlist,
       leaveWaitlist,
-      handleImageError
+      handleImageError,
     }
-  }
+  },
 }
 </script>
 

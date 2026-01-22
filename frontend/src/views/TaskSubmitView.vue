@@ -4,11 +4,21 @@
       <!-- Header with Back Button -->
       <div class="mb-6">
         <button
-          @click="goBack"
           class="flex items-center text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors mb-4"
+          @click="goBack"
         >
-          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          <svg
+            class="w-5 h-5 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           뒤로
         </button>
@@ -19,13 +29,15 @@
 
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-        <p class="text-red-800 dark:text-red-200">{{ error }}</p>
-        <button @click="goBack" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+        <p class="text-red-800 dark:text-red-200">
+          {{ error }}
+        </p>
+        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="goBack">
           뒤로 가기
         </button>
       </div>
@@ -33,17 +45,29 @@
       <!-- Already Submitted State -->
       <div v-else-if="task?.user_submission" class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6 border border-neutral-200 dark:border-neutral-700">
         <div class="text-center py-8">
-          <svg class="mx-auto h-16 w-16 text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            class="mx-auto h-16 w-16 text-green-500 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
-          <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">이미 제출되었습니다</h2>
+          <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
+            이미 제출되었습니다
+          </h2>
           <p class="text-neutral-600 dark:text-neutral-400 mb-4">
             현재 상태:
             <span :class="getSubmissionStatusClass(task.user_submission.status)" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">
               {{ getSubmissionStatusText(task.user_submission.status) }}
             </span>
           </p>
-          <button @click="goBack" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+          <button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="goBack">
             과제 목록으로
           </button>
         </div>
@@ -80,7 +104,9 @@
 
         <!-- Past Deadline Warning -->
         <div v-if="task?.is_past_deadline" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p class="text-red-800 dark:text-red-200 text-center">마감일이 지나 제출할 수 없습니다.</p>
+          <p class="text-red-800 dark:text-red-200 text-center">
+            마감일이 지나 제출할 수 없습니다.
+          </p>
         </div>
 
         <!-- Form -->
@@ -96,7 +122,7 @@
               class="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="과제에 대한 설명이나 메시지를 입력하세요"
               required
-            ></textarea>
+            />
           </div>
 
           <!-- Link -->
@@ -109,7 +135,7 @@
               type="url"
               class="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="https://example.com"
-            />
+            >
           </div>
 
           <!-- File Upload -->
@@ -119,36 +145,58 @@
             </label>
             <div class="relative">
               <input
-                type="file"
                 ref="fileInput"
-                @change="handleFileChange"
+                type="file"
                 accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx"
                 class="hidden"
-              />
+                @change="handleFileChange"
+              >
               <button
                 type="button"
-                @click="$refs.fileInput.click()"
                 class="w-full px-4 py-3 border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-lg text-neutral-600 dark:text-neutral-400 hover:border-primary-500 hover:text-primary-500 transition-colors"
+                @click="$refs.fileInput.click()"
               >
                 <span v-if="!submitForm.file">파일 선택 (이미지, PDF, 문서)</span>
                 <span v-else class="flex items-center justify-center gap-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                   {{ submitForm.file.name }}
                   <button
                     type="button"
-                    @click.stop="clearFile"
                     class="ml-2 text-red-500 hover:text-red-700"
+                    @click.stop="clearFile"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </span>
               </button>
             </div>
-            <p class="mt-1 text-xs text-neutral-500">최대 5MB, jpg, png, gif, pdf, doc, docx</p>
+            <p class="mt-1 text-xs text-neutral-500">
+              최대 5MB, jpg, png, gif, pdf, doc, docx
+            </p>
           </div>
 
           <p v-if="!submitForm.link && !submitForm.file" class="mb-4 text-sm text-amber-600 dark:text-amber-400">
@@ -164,8 +212,8 @@
           <div class="flex gap-3">
             <button
               type="button"
-              @click="goBack"
               class="flex-1 px-4 py-3 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+              @click="goBack"
             >
               취소
             </button>
@@ -208,7 +256,7 @@ export default {
     const submitForm = ref({
       message: '',
       link: '',
-      file: null
+      file: null,
     })
     const fileInput = ref(null)
 
@@ -225,7 +273,7 @@ export default {
       const statusMap = {
         pending: '검토 대기',
         approved: '승인됨',
-        rejected: '반려됨'
+        rejected: '반려됨',
       }
       return statusMap[status] || status
     }
@@ -234,7 +282,7 @@ export default {
       const classMap = {
         pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
         approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+        rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
       }
       return classMap[status] || ''
     }
@@ -324,8 +372,8 @@ export default {
       goBack,
       handleFileChange,
       clearFile,
-      submitTaskCompletion
+      submitTaskCompletion,
     }
-  }
+  },
 }
 </script>

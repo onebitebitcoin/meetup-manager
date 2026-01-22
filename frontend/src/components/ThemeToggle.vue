@@ -1,6 +1,5 @@
 <template>
   <button
-    @click="toggleTheme"
     :class="[
       'relative inline-flex items-center justify-center w-11 h-11 rounded-lg bg-beige-200 dark:bg-neutral-900 border border-beige-300 dark:border-neutral-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 group',
       variant === 'amber'
@@ -10,16 +9,19 @@
           : 'hover:border-primary-300 dark:hover:border-primary-700 focus:ring-primary-500'
     ]"
     :title="themeStore.isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'"
+    @click="toggleTheme"
   >
     <!-- Subtle background hover effect -->
-    <div :class="[
-      'absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200',
-      variant === 'amber'
-        ? 'bg-amber-50 dark:bg-amber-900/10'
-        : variant === 'neutral'
-          ? 'bg-neutral-100 dark:bg-neutral-800/20'
-          : 'bg-primary-50 dark:bg-primary-900/10'
-    ]"></div>
+    <div
+      :class="[
+        'absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+        variant === 'amber'
+          ? 'bg-amber-50 dark:bg-amber-900/10'
+          : variant === 'neutral'
+            ? 'bg-neutral-100 dark:bg-neutral-800/20'
+            : 'bg-primary-50 dark:bg-primary-900/10'
+      ]"
+    />
     
     <!-- Icon container with smooth transitions -->
     <div class="relative z-10 flex items-center justify-center">
@@ -81,14 +83,16 @@
     </div>
     
     <!-- Subtle indicator dot -->
-    <div :class="[
-      'absolute -top-1 -right-1 w-3 h-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
-      variant === 'amber'
-        ? 'bg-amber-500 dark:bg-amber-400'
-        : variant === 'neutral'
-          ? 'bg-neutral-500 dark:bg-neutral-400'
-          : 'bg-primary-500 dark:bg-primary-400'
-    ]"></div>
+    <div
+      :class="[
+        'absolute -top-1 -right-1 w-3 h-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+        variant === 'amber'
+          ? 'bg-amber-500 dark:bg-amber-400'
+          : variant === 'neutral'
+            ? 'bg-neutral-500 dark:bg-neutral-400'
+            : 'bg-primary-500 dark:bg-primary-400'
+      ]"
+    />
   </button>
 </template>
 
@@ -100,8 +104,8 @@ export default {
   props: {
     variant: {
       type: String,
-      default: 'neutral'
-    }
+      default: 'neutral',
+    },
   },
   setup() {
     const themeStore = useThemeStore()
@@ -124,8 +128,8 @@ export default {
 
     return {
       themeStore,
-      toggleTheme
+      toggleTheme,
     }
-  }
+  },
 }
 </script>

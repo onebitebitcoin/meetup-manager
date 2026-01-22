@@ -5,11 +5,11 @@
       <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">날짜</label>
       <CustomDateInput
         :model-value="selectedDate"
-        @update:model-value="updateDate"
         :min-date="minDate"
         :max-date="maxDate"
         :required="required"
         :disabled="disabled"
+        @update:model-value="updateDate"
       />
     </div>
     
@@ -18,9 +18,9 @@
       <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">시간</label>
       <CustomTimeSelect
         :model-value="selectedTime"
-        @update:model-value="updateTime"
         :required="required"
         :disabled="disabled"
+        @update:model-value="updateTime"
       />
     </div>
   </div>
@@ -35,29 +35,29 @@ export default {
   name: 'CustomDateTimeSelect',
   components: {
     CustomDateInput,
-    CustomTimeSelect
+    CustomTimeSelect,
   },
   props: {
     modelValue: {
       type: String,
-      default: ''
+      default: '',
     },
     required: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     minDateTime: {
       type: String,
-      default: ''
+      default: '',
     },
     maxDateTime: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   emits: ['update:modelValue', 'change'],
   setup(props, { emit }) {
@@ -147,8 +147,8 @@ export default {
       minDate,
       maxDate,
       updateDate,
-      updateTime
+      updateTime,
     }
-  }
+  },
 }
 </script>

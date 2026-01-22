@@ -8,7 +8,7 @@ import { useTasksStore } from '@/stores/tasks'
 // Mock fetchWithCSRF
 const mockFetchWithCSRF = vi.fn()
 vi.mock('@/utils/csrf', () => ({
-  fetchWithCSRF: (...args) => mockFetchWithCSRF(...args)
+  fetchWithCSRF: (...args) => mockFetchWithCSRF(...args),
 }))
 
 describe('Tasks Store', () => {
@@ -38,12 +38,12 @@ describe('Tasks Store', () => {
     it('should fetch tasks for a meetup', async () => {
       const mockTasks = [
         { id: 1, title: 'Task 1' },
-        { id: 2, title: 'Task 2' }
+        { id: 2, title: 'Task 2' },
       ]
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ tasks: mockTasks })
+        json: () => Promise.resolve({ tasks: mockTasks }),
       })
 
       const result = await store.fetchTasks(1)
@@ -56,7 +56,7 @@ describe('Tasks Store', () => {
     it('should set loading state during fetch', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ tasks: [] })
+        json: () => Promise.resolve({ tasks: [] }),
       })
 
       const fetchPromise = store.fetchTasks(1)
@@ -69,7 +69,7 @@ describe('Tasks Store', () => {
     it('should set error on fetch failure', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: false,
-        json: () => Promise.resolve({ error: 'Failed to fetch' })
+        json: () => Promise.resolve({ error: 'Failed to fetch' }),
       })
 
       await store.fetchTasks(1)
@@ -84,7 +84,7 @@ describe('Tasks Store', () => {
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(newTask)
+        json: () => Promise.resolve(newTask),
       })
 
       const result = await store.createTask(1, { title: 'New Task' })
@@ -96,7 +96,7 @@ describe('Tasks Store', () => {
     it('should throw error on create failure', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: false,
-        json: () => Promise.resolve({ error: 'Creation failed' })
+        json: () => Promise.resolve({ error: 'Creation failed' }),
       })
 
       await expect(store.createTask(1, { title: 'Task' })).rejects.toThrow()
@@ -110,7 +110,7 @@ describe('Tasks Store', () => {
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(updatedTask)
+        json: () => Promise.resolve(updatedTask),
       })
 
       const result = await store.updateTask(1, { title: 'New Title' })
@@ -124,7 +124,7 @@ describe('Tasks Store', () => {
     it('should delete a task', async () => {
       store.tasks = [
         { id: 1, title: 'Task 1' },
-        { id: 2, title: 'Task 2' }
+        { id: 2, title: 'Task 2' },
       ]
 
       mockFetchWithCSRF.mockResolvedValue({ ok: true })
@@ -143,7 +143,7 @@ describe('Tasks Store', () => {
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(submission)
+        json: () => Promise.resolve(submission),
       })
 
       const formData = new FormData()
@@ -158,7 +158,7 @@ describe('Tasks Store', () => {
     it('should throw error on submission failure', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: false,
-        json: () => Promise.resolve({ error: 'Already submitted' })
+        json: () => Promise.resolve({ error: 'Already submitted' }),
       })
 
       await expect(store.submitTask(1, new FormData())).rejects.toThrow()
@@ -169,12 +169,12 @@ describe('Tasks Store', () => {
     it('should fetch submissions for a task', async () => {
       const mockSubmissions = [
         { id: 1, user_name: 'User 1', status: 'pending' },
-        { id: 2, user_name: 'User 2', status: 'approved' }
+        { id: 2, user_name: 'User 2', status: 'approved' },
       ]
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ submissions: mockSubmissions })
+        json: () => Promise.resolve({ submissions: mockSubmissions }),
       })
 
       const result = await store.fetchSubmissions(1)
@@ -189,7 +189,7 @@ describe('Tasks Store', () => {
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(reviewedSubmission)
+        json: () => Promise.resolve(reviewedSubmission),
       })
 
       const result = await store.reviewSubmission(1, 'approved')
@@ -199,8 +199,8 @@ describe('Tasks Store', () => {
         '/api/submissions/1/review/',
         {
           method: 'PUT',
-          body: JSON.stringify({ status: 'approved' })
-        }
+          body: JSON.stringify({ status: 'approved' }),
+        },
       )
     })
 
@@ -209,7 +209,7 @@ describe('Tasks Store', () => {
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(reviewedSubmission)
+        json: () => Promise.resolve(reviewedSubmission),
       })
 
       const result = await store.reviewSubmission(1, 'rejected')

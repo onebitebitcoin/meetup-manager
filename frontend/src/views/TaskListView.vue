@@ -4,11 +4,21 @@
       <!-- Header with Back Button -->
       <div class="mb-6">
         <button
-          @click="$router.push(`/meetup/${meetupId}`)"
           class="flex items-center text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors mb-4"
+          @click="$router.push(`/meetup/${meetupId}`)"
         >
-          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          <svg
+            class="w-5 h-5 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           뒤로
         </button>
@@ -19,24 +29,37 @@
 
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-        <p class="text-red-800 dark:text-red-200">{{ error }}</p>
-        <button @click="$router.push('/dashboard')" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+        <p class="text-red-800 dark:text-red-200">
+          {{ error }}
+        </p>
+        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="$router.push('/dashboard')">
           대시보드로 돌아가기
         </button>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="tasks.length === 0" class="text-center py-20">
-        <svg class="mx-auto h-16 w-16 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        <svg
+          class="mx-auto h-16 w-16 text-neutral-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+          />
         </svg>
-        <p class="mt-4 text-neutral-600 dark:text-neutral-400">등록된 과제가 없습니다.</p>
+        <p class="mt-4 text-neutral-600 dark:text-neutral-400">
+          등록된 과제가 없습니다.
+        </p>
       </div>
 
       <!-- Task List -->
@@ -134,7 +157,7 @@ export default {
       const statusMap = {
         pending: '검토 대기',
         approved: '승인됨',
-        rejected: '반려됨'
+        rejected: '반려됨',
       }
       return statusMap[status] || status
     }
@@ -143,7 +166,7 @@ export default {
       const classMap = {
         pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
         approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+        rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
       }
       return classMap[status] || ''
     }
@@ -189,8 +212,8 @@ export default {
       tasks,
       formatDateTime,
       getSubmissionStatusText,
-      getSubmissionStatusClass
+      getSubmissionStatusClass,
     }
-  }
+  },
 }
 </script>

@@ -33,7 +33,7 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       const response = await fetchWithCSRF(`/api/meetups/${meetupId}/tasks/`, {
         method: 'POST',
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(taskData),
       })
       if (response.ok) {
         const data = await response.json()
@@ -52,7 +52,7 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       const response = await fetchWithCSRF(`/api/tasks/${taskId}/`, {
         method: 'PUT',
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(taskData),
       })
       if (response.ok) {
         const data = await response.json()
@@ -73,7 +73,7 @@ export const useTasksStore = defineStore('tasks', () => {
   const deleteTask = async (taskId) => {
     try {
       const response = await fetchWithCSRF(`/api/tasks/${taskId}/`, {
-        method: 'DELETE'
+        method: 'DELETE',
       })
       if (response.ok) {
         tasks.value = tasks.value.filter(t => t.id !== taskId)
@@ -91,7 +91,7 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       const response = await fetchWithCSRF(`/api/tasks/${taskId}/submit/`, {
         method: 'POST',
-        body: formData
+        body: formData,
       })
       if (response.ok) {
         const data = await response.json()
@@ -101,7 +101,7 @@ export const useTasksStore = defineStore('tasks', () => {
           tasks.value[taskIndex].user_submission = {
             id: data.id,
             status: data.status,
-            submitted_at: data.submitted_at
+            submitted_at: data.submitted_at,
           }
         }
         return data
@@ -133,7 +133,7 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       const response = await fetchWithCSRF(`/api/submissions/${submissionId}/review/`, {
         method: 'PUT',
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       })
       if (response.ok) {
         return await response.json()
@@ -162,6 +162,6 @@ export const useTasksStore = defineStore('tasks', () => {
     submitTask,
     fetchSubmissions,
     reviewSubmission,
-    clearTasks
+    clearTasks,
   }
 })

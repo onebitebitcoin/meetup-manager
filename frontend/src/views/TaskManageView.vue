@@ -4,11 +4,21 @@
       <!-- Header with Back Button -->
       <div class="mb-6">
         <button
-          @click="goBack"
           class="flex items-center text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors mb-4"
+          @click="goBack"
         >
-          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          <svg
+            class="w-5 h-5 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           뒤로
         </button>
@@ -19,13 +29,15 @@
 
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
       </div>
 
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-        <p class="text-red-800 dark:text-red-200">{{ error }}</p>
-        <button @click="goBack" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+        <p class="text-red-800 dark:text-red-200">
+          {{ error }}
+        </p>
+        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="goBack">
           뒤로 가기
         </button>
       </div>
@@ -33,8 +45,10 @@
       <template v-else>
         <!-- Create Task Form -->
         <div class="mb-6 p-6 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700">
-          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">새 과제 추가</h2>
-          <form @submit.prevent="createTask" class="space-y-4">
+          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+            새 과제 추가
+          </h2>
+          <form class="space-y-4" @submit.prevent="createTask">
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">제목 *</label>
               <input
@@ -43,7 +57,7 @@
                 required
                 class="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
                 placeholder="과제 제목을 입력하세요"
-              />
+              >
             </div>
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">설명</label>
@@ -52,7 +66,7 @@
                 rows="3"
                 class="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
                 placeholder="과제에 대한 상세 설명 (선택)"
-              ></textarea>
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">마감일 *</label>
@@ -61,7 +75,7 @@
                 type="datetime-local"
                 required
                 class="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500"
-              />
+              >
             </div>
             <div class="flex justify-end">
               <button
@@ -77,20 +91,33 @@
 
         <!-- Task List -->
         <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">과제 목록</h2>
+          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+            과제 목록
+          </h2>
 
           <!-- Loading Tasks -->
           <div v-if="loadingTasks" class="text-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto" />
           </div>
 
           <!-- Empty State -->
           <div v-else-if="tasks.length === 0" class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <svg
+              class="mx-auto h-12 w-12 text-neutral-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
             </svg>
-            <p class="mt-4 text-neutral-600 dark:text-neutral-400">등록된 과제가 없습니다.</p>
+            <p class="mt-4 text-neutral-600 dark:text-neutral-400">
+              등록된 과제가 없습니다.
+            </p>
           </div>
 
           <!-- Task Items -->
@@ -103,7 +130,9 @@
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 mb-1 flex-wrap">
-                    <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">{{ task.title }}</h3>
+                    <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">
+                      {{ task.title }}
+                    </h3>
                     <span
                       v-if="task.is_deadline_soon && !task.is_past_deadline"
                       class="px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded"
@@ -133,8 +162,8 @@
                     제출 확인
                   </router-link>
                   <button
-                    @click="deleteTask(task.id)"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 transition-colors"
+                    @click="deleteTask(task.id)"
                   >
                     삭제
                   </button>
@@ -173,7 +202,7 @@ export default {
     const taskForm = ref({
       title: '',
       description: '',
-      deadline: ''
+      deadline: '',
     })
 
     const formatDateTime = (dateString) => {
@@ -214,7 +243,7 @@ export default {
         await tasksStore.createTask(meetupId.value, {
           title: taskForm.value.title,
           description: taskForm.value.description,
-          deadline: taskForm.value.deadline
+          deadline: taskForm.value.deadline,
         })
         await loadTasks()
         taskForm.value = { title: '', description: '', deadline: '' }
@@ -257,8 +286,8 @@ export default {
       formatDateTime,
       createTask,
       deleteTask,
-      goBack
+      goBack,
     }
-  }
+  },
 }
 </script>

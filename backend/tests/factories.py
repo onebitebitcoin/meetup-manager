@@ -1,13 +1,14 @@
 """
 Factory classes for generating test data using factory_boy.
 """
-import factory
-from factory.django import DjangoModelFactory
-from django.contrib.auth.models import User
-from django.utils import timezone
 from datetime import timedelta
 
-from meetups.models import MeetupUser, Meetup, Registration, Waitlist, Task, TaskSubmission, Notification
+import factory
+from django.contrib.auth.models import User
+from django.utils import timezone
+from factory.django import DjangoModelFactory
+
+from meetups.models import Meetup, MeetupUser, Notification, Registration, Task, TaskSubmission, Waitlist
 
 
 class UserFactory(DjangoModelFactory):

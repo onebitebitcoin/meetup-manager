@@ -10,11 +10,21 @@
                 src="/icons/logo-transparent.svg"
                 alt="한입 모임 로고"
                 class="h-8 w-8"
-              />
+              >
               <div class="flex items-center space-x-2">
                 <div class="p-1 bg-primary-200 dark:bg-primary-800 rounded-lg">
-                  <svg class="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  <svg
+                    class="w-5 h-5 text-primary-600 dark:text-primary-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
                   </svg>
                 </div>
                 <h1 class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -38,9 +48,24 @@
               class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
               title="한입 모임"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5h8"></path>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 5h8"
+                />
               </svg>
             </router-link>
             
@@ -57,12 +82,22 @@
             
             <!-- Logout button - compact on mobile -->
             <button
-              @click="logout"
               class="bg-red-600 hover:bg-red-700 text-white px-1 sm:px-4 py-1 sm:py-2 rounded-md text-sm font-medium"
+              @click="logout"
             >
               <span class="hidden sm:inline">로그아웃</span>
-              <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              <svg
+                class="w-4 h-4 sm:hidden"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
               </svg>
             </button>
           </div>
@@ -79,8 +114,18 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="p-3 bg-slate-200 dark:bg-neutral-600 rounded-full">
-                  <svg class="h-8 w-8 text-slate-600 dark:text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  <svg
+                    class="h-8 w-8 text-slate-600 dark:text-neutral-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
                   </svg>
                 </div>
               </div>
@@ -99,20 +144,20 @@
         <!-- Form Card -->
         <div class="bg-gradient-to-br from-white to-slate-50 dark:bg-gradient-to-br dark:from-neutral-800 dark:to-neutral-900 shadow rounded-lg border border-slate-200 dark:border-neutral-600">
           <div class="px-4 py-5 sm:p-6">
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="handleSubmit">
               <div class="grid grid-cols-1 gap-6">
                 <div>
                   <label for="name" class="block text-sm font-medium text-slate-800 dark:text-neutral-200">
                     모임 이름 *
                   </label>
                   <input
-                    type="text"
                     id="name"
                     v-model="form.name"
+                    type="text"
                     required
                     placeholder="예: 비트코인 독서 모임"
                     class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-base"
-                  />
+                  >
                 </div>
 
                 <div>
@@ -125,7 +170,7 @@
                     rows="5"
                     placeholder="모임에 대한 자세한 설명을 작성해주세요..."
                     class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-base resize-y"
-                  ></textarea>
+                  />
                   <p class="mt-2 text-sm text-slate-600 dark:text-neutral-300">
                     모임의 목적, 진행 방식, 준비물 등을 포함해주세요.
                   </p>
@@ -145,13 +190,13 @@
                           파일 업로드
                         </label>
                         <input
-                          type="file"
                           id="image-upload"
                           ref="imageInput"
-                          @change="handleImageUpload"
+                          type="file"
                           accept="image/*"
                           class="block w-full text-sm text-slate-600 dark:text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 dark:file:bg-neutral-600 dark:file:text-neutral-300"
-                        />
+                          @change="handleImageUpload"
+                        >
                       </div>
                       
                       <!-- URL Input -->
@@ -160,12 +205,12 @@
                           또는 이미지 URL
                         </label>
                         <input
-                          type="url"
                           id="image-url"
                           v-model="form.imageUrl"
+                          type="url"
                           placeholder="https://example.com/image.jpg"
                           class="block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 text-sm"
-                        />
+                        >
                       </div>
                     </div>
 
@@ -182,11 +227,11 @@
                         <div 
                           ref="imageContainer"
                           class="relative w-48 h-32 bg-gray-100 dark:bg-neutral-800 rounded-lg border-2 border-slate-300 dark:border-neutral-600 overflow-hidden cursor-move group"
+                          :class="{ 'border-blue-500 dark:border-blue-400': isDragging }"
                           @mousedown="startDrag"
                           @mousemove="onDrag"
                           @mouseup="endDrag"
                           @mouseleave="endDrag"
-                          :class="{ 'border-blue-500 dark:border-blue-400': isDragging }"
                         >
                           <!-- Preview Image -->
                           <img 
@@ -197,15 +242,15 @@
                               objectPosition: `${imageOffsetX}% ${imageOffsetY}%`,
                               transform: isDragging ? 'scale(1.02)' : 'scale(1)'
                             }"
-                            @error="handleImageError"
                             draggable="false"
-                          />
+                            @error="handleImageError"
+                          >
                           
                           <!-- Drag Overlay -->
                           <div 
                             v-if="isDragging"
                             class="absolute inset-0 bg-blue-500 bg-opacity-10 pointer-events-none"
-                          ></div>
+                          />
                           
                           <!-- Position Indicator -->
                           <div 
@@ -218,23 +263,43 @@
                         <!-- Remove Button -->
                         <button
                           type="button"
-                          @click="removeImage"
                           class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md z-10"
+                          @click="removeImage"
                         >
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
                           </svg>
                         </button>
                         
                         <!-- Reset Position Button -->
                         <button
                           type="button"
-                          @click="resetImagePosition"
                           class="absolute -bottom-2 -right-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full p-1 shadow-md text-xs"
                           title="위치 초기화"
+                          @click="resetImagePosition"
                         >
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
                           </svg>
                         </button>
                       </div>
@@ -294,13 +359,13 @@
                     장소 *
                   </label>
                   <input
-                    type="text"
                     id="location"
                     v-model="form.location"
+                    type="text"
                     required
                     placeholder="예: 동탄 석우동 카페"
                     class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-base"
-                  />
+                  >
                 </div>
 
                 <div>
@@ -308,14 +373,14 @@
                     최대 참여 인원 *
                   </label>
                   <input
-                    type="number"
                     id="max_participants"
                     v-model.number="form.max_participants"
+                    type="number"
                     min="1"
                     max="100"
                     required
                     class="mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 sm:text-base"
-                  />
+                  >
                   <p class="mt-2 text-sm text-slate-600 dark:text-neutral-300">
                     모임에 참여할 수 있는 최대 인원을 설정해주세요.
                   </p>
@@ -326,12 +391,12 @@
                     해시태그
                   </label>
                   <input
-                    type="text"
                     id="hashtags"
                     v-model="form.hashtags"
+                    type="text"
                     placeholder="예: #개발,#네트워킹,#스타트업 (쉼표로 구분)"
                     class="mt-1 block w-full px-3 py-3 border-slate-300 rounded-md shadow-sm focus:ring-slate-500 focus:border-slate-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-100 dark:placeholder-neutral-400 sm:text-base"
-                  />
+                  >
                   <p class="mt-2 text-sm text-slate-600 dark:text-neutral-300">
                     모임과 관련된 해시태그를 쉼표로 구분하여 입력하세요. # 기호는 자동으로 추가됩니다. 최대 5개까지 입력 가능합니다.
                   </p>
@@ -342,16 +407,54 @@
                 <div class="flex">
                   <div class="flex-shrink-0">
                     <!-- Different icons based on error type -->
-                    <svg v-if="error.includes('네트워크') || error.includes('연결')" class="h-5 w-5 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      v-if="error.includes('네트워크') || error.includes('연결')"
+                      class="h-5 w-5 text-red-500 dark:text-red-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <svg v-else-if="error.includes('로그인') || error.includes('권한')" class="h-5 w-5 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0h-2M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      v-else-if="error.includes('로그인') || error.includes('권한')"
+                      class="h-5 w-5 text-red-500 dark:text-red-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 15v2m0 0v2m0-2h2m-2 0h-2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <svg v-else-if="error.includes('이미지') || error.includes('파일')" class="h-5 w-5 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      v-else-if="error.includes('이미지') || error.includes('파일')"
+                      class="h-5 w-5 text-red-500 dark:text-red-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
-                    <svg v-else class="h-5 w-5 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      v-else
+                      class="h-5 w-5 text-red-500 dark:text-red-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                     </svg>
                   </div>
@@ -359,7 +462,9 @@
                     <h3 class="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">
                       오류 발생
                     </h3>
-                    <p class="text-sm text-red-700 dark:text-red-300 leading-relaxed">{{ error }}</p>
+                    <p class="text-sm text-red-700 dark:text-red-300 leading-relaxed">
+                      {{ error }}
+                    </p>
                     <!-- Additional help text for common errors -->
                     <div class="mt-2 text-xs text-red-600 dark:text-red-400">
                       <p v-if="error.includes('500')">
@@ -379,8 +484,8 @@
                   <!-- Close button -->
                   <div class="ml-auto pl-3">
                     <button
-                      @click="error = ''"
                       class="inline-flex rounded-md bg-red-50 dark:bg-red-900/20 p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-800/30 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
+                      @click="error = ''"
                     >
                       <span class="sr-only">닫기</span>
                       <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -394,8 +499,8 @@
               <div class="flex justify-end space-x-3 pt-6 border-t border-slate-200 dark:border-neutral-600">
                 <button
                   type="button"
-                  @click="$router.go(-1)"
                   class="bg-white dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 rounded-md shadow-sm py-2 px-4 text-sm font-medium text-slate-700 dark:text-neutral-300 hover:bg-slate-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+                  @click="$router.go(-1)"
                 >
                   취소
                 </button>
@@ -404,9 +509,22 @@
                   :disabled="loading"
                   class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-slate-600 dark:bg-neutral-800 hover:bg-slate-700 dark:hover:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    v-if="loading"
+                    class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   {{ loading ? '생성 중...' : '모임 만들기' }}
                 </button>
@@ -435,7 +553,7 @@ export default {
     ThemeToggle,
     CustomDateInput,
     CustomTimeSelect,
-    CustomSelect
+    CustomSelect,
   },
   setup() {
     const router = useRouter()
@@ -453,7 +571,7 @@ export default {
       max_participants: 10,
       imageUrl: '',
       imageFile: null,
-      hashtags: ''
+      hashtags: '',
     })
 
     // Duration options for CustomSelect
@@ -468,7 +586,7 @@ export default {
       { value: 4, label: '4시간' },
       { value: 5, label: '5시간' },
       { value: 6, label: '6시간' },
-      { value: 8, label: '8시간' }
+      { value: 8, label: '8시간' },
     ])
 
     const imageInput = ref(null)
@@ -559,7 +677,7 @@ export default {
       const rect = imageContainer.value.getBoundingClientRect()
       dragStart.value = {
         x: event.clientX - rect.left,
-        y: event.clientY - rect.top
+        y: event.clientY - rect.top,
       }
       
       // Add global mouse event listeners
@@ -645,7 +763,7 @@ export default {
           end_time: endDateTime,
           location: form.value.location,
           max_participants: form.value.max_participants,
-          hashtags: processedHashtags
+          hashtags: processedHashtags,
         }
 
         // Add image URL if provided and no file is selected
@@ -672,12 +790,12 @@ export default {
           
           response = await fetchWithCSRF('/api/meetups/', {
             method: 'POST',
-            body: formData
+            body: formData,
           })
         } else {
           response = await fetchWithCSRF('/api/meetups/', {
             method: 'POST',
-            body: JSON.stringify(meetupData)
+            body: JSON.stringify(meetupData),
           })
         }
 
@@ -694,90 +812,90 @@ export default {
           let errorMessage = '모임 생성에 실패했습니다'
           
           switch (response.status) {
-            case 400:
-              try {
-                const data = JSON.parse(responseText)
-                if (data.name) {
-                  errorMessage = `모임 이름 오류: ${Array.isArray(data.name) ? data.name.join(', ') : data.name}`
-                } else if (data.max_participants) {
-                  errorMessage = `참가자 수 오류: ${Array.isArray(data.max_participants) ? data.max_participants.join(', ') : data.max_participants}`
-                } else if (data.date_time) {
-                  errorMessage = `날짜/시간 오류: ${Array.isArray(data.date_time) ? data.date_time.join(', ') : data.date_time}`
-                } else if (data.location) {
-                  errorMessage = `장소 오류: ${Array.isArray(data.location) ? data.location.join(', ') : data.location}`
-                } else if (data.description) {
-                  errorMessage = `설명 오류: ${Array.isArray(data.description) ? data.description.join(', ') : data.description}`
-                } else if (data.hashtags) {
-                  errorMessage = `해시태그 오류: ${Array.isArray(data.hashtags) ? data.hashtags.join(', ') : data.hashtags}`
-                } else if (data.image) {
-                  errorMessage = `이미지 오류: ${Array.isArray(data.image) ? data.image.join(', ') : data.image}`
-                } else {
-                  errorMessage = `입력 정보 오류: ${data.error || data.detail || '필수 정보를 확인해주세요'}`
-                }
-              } catch {
-                errorMessage = '입력 정보에 오류가 있습니다. 모든 필드를 확인해주세요.'
+          case 400:
+            try {
+              const data = JSON.parse(responseText)
+              if (data.name) {
+                errorMessage = `모임 이름 오류: ${Array.isArray(data.name) ? data.name.join(', ') : data.name}`
+              } else if (data.max_participants) {
+                errorMessage = `참가자 수 오류: ${Array.isArray(data.max_participants) ? data.max_participants.join(', ') : data.max_participants}`
+              } else if (data.date_time) {
+                errorMessage = `날짜/시간 오류: ${Array.isArray(data.date_time) ? data.date_time.join(', ') : data.date_time}`
+              } else if (data.location) {
+                errorMessage = `장소 오류: ${Array.isArray(data.location) ? data.location.join(', ') : data.location}`
+              } else if (data.description) {
+                errorMessage = `설명 오류: ${Array.isArray(data.description) ? data.description.join(', ') : data.description}`
+              } else if (data.hashtags) {
+                errorMessage = `해시태그 오류: ${Array.isArray(data.hashtags) ? data.hashtags.join(', ') : data.hashtags}`
+              } else if (data.image) {
+                errorMessage = `이미지 오류: ${Array.isArray(data.image) ? data.image.join(', ') : data.image}`
+              } else {
+                errorMessage = `입력 정보 오류: ${data.error || data.detail || '필수 정보를 확인해주세요'}`
               }
-              break
+            } catch {
+              errorMessage = '입력 정보에 오류가 있습니다. 모든 필드를 확인해주세요.'
+            }
+            break
               
-            case 401:
-              errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.'
-              // Auto redirect to login after 2 seconds
-              setTimeout(() => {
-                router.push('/login')
-              }, 2000)
-              break
+          case 401:
+            errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.'
+            // Auto redirect to login after 2 seconds
+            setTimeout(() => {
+              router.push('/login')
+            }, 2000)
+            break
               
-            case 403:
-              errorMessage = '모임 생성 권한이 없습니다. 관리자에게 문의하세요.'
-              break
+          case 403:
+            errorMessage = '모임 생성 권한이 없습니다. 관리자에게 문의하세요.'
+            break
               
-            case 413:
-              errorMessage = '업로드한 이미지 파일이 너무 큽니다. 5MB 이하의 파일을 사용해주세요.'
-              break
+          case 413:
+            errorMessage = '업로드한 이미지 파일이 너무 큽니다. 5MB 이하의 파일을 사용해주세요.'
+            break
               
-            case 415:
-              errorMessage = '지원하지 않는 이미지 형식입니다. JPG, PNG, GIF 형식을 사용해주세요.'
-              break
+          case 415:
+            errorMessage = '지원하지 않는 이미지 형식입니다. JPG, PNG, GIF 형식을 사용해주세요.'
+            break
               
-            case 422:
-              try {
-                const data = JSON.parse(responseText)
-                errorMessage = `데이터 검증 오류: ${data.error || data.detail || '입력 데이터를 확인해주세요'}`
-              } catch {
-                errorMessage = '입력 데이터 형식이 올바르지 않습니다.'
+          case 422:
+            try {
+              const data = JSON.parse(responseText)
+              errorMessage = `데이터 검증 오류: ${data.error || data.detail || '입력 데이터를 확인해주세요'}`
+            } catch {
+              errorMessage = '입력 데이터 형식이 올바르지 않습니다.'
+            }
+            break
+              
+          case 500:
+            try {
+              const data = JSON.parse(responseText)
+              if (data.error && data.error.includes('CSRF')) {
+                errorMessage = '보안 토큰이 만료되었습니다. 페이지를 새로고침해주세요.'
+              } else if (data.error && data.error.includes('database')) {
+                errorMessage = '데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+              } else if (data.error && data.error.includes('file')) {
+                errorMessage = '파일 처리 중 오류가 발생했습니다. 다른 이미지를 시도해보세요.'
+              } else {
+                errorMessage = `서버 내부 오류: ${data.error || data.detail || '서버에서 처리 중 문제가 발생했습니다'}`
               }
-              break
+            } catch {
+              errorMessage = '서버에서 처리 중 오류가 발생했습니다. 관리자에게 문의하거나 잠시 후 다시 시도해주세요.'
+            }
+            break
               
-            case 500:
-              try {
-                const data = JSON.parse(responseText)
-                if (data.error && data.error.includes('CSRF')) {
-                  errorMessage = '보안 토큰이 만료되었습니다. 페이지를 새로고침해주세요.'
-                } else if (data.error && data.error.includes('database')) {
-                  errorMessage = '데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
-                } else if (data.error && data.error.includes('file')) {
-                  errorMessage = '파일 처리 중 오류가 발생했습니다. 다른 이미지를 시도해보세요.'
-                } else {
-                  errorMessage = `서버 내부 오류: ${data.error || data.detail || '서버에서 처리 중 문제가 발생했습니다'}`
-                }
-              } catch {
-                errorMessage = '서버에서 처리 중 오류가 발생했습니다. 관리자에게 문의하거나 잠시 후 다시 시도해주세요.'
-              }
-              break
+          case 502:
+          case 503:
+          case 504:
+            errorMessage = '서버가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.'
+            break
               
-            case 502:
-            case 503:
-            case 504:
-              errorMessage = '서버가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.'
-              break
-              
-            default:
-              try {
-                const data = JSON.parse(responseText)
-                errorMessage = `오류 (${response.status}): ${data.error || data.detail || data.message || '알 수 없는 오류가 발생했습니다'}`
-              } catch {
-                errorMessage = `서버 오류 (${response.status}): ${responseText ? responseText.substring(0, 100) : '알 수 없는 오류가 발생했습니다'}`
-              }
+          default:
+            try {
+              const data = JSON.parse(responseText)
+              errorMessage = `오류 (${response.status}): ${data.error || data.detail || data.message || '알 수 없는 오류가 발생했습니다'}`
+            } catch {
+              errorMessage = `서버 오류 (${response.status}): ${responseText ? responseText.substring(0, 100) : '알 수 없는 오류가 발생했습니다'}`
+            }
           }
           
           error.value = errorMessage
@@ -833,8 +951,8 @@ export default {
       startDrag,
       onDrag,
       endDrag,
-      durationOptions
+      durationOptions,
     }
-  }
+  },
 }
 </script>

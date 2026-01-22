@@ -1,10 +1,11 @@
 """
 Integration tests for meetups API endpoints.
 """
+from datetime import timedelta
+
 import pytest
 from django.urls import reverse
 from django.utils import timezone
-from datetime import timedelta
 
 from meetups.models import Meetup, Registration
 

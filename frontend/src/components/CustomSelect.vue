@@ -3,9 +3,9 @@
     <!-- Hidden native select for form compatibility -->
     <select
       v-model="selectedValue"
-      @change="handleChange"
       class="sr-only"
       :disabled="disabled"
+      @change="handleChange"
     >
       <option
         v-for="option in options"
@@ -19,13 +19,13 @@
     <!-- Custom styled button -->
     <button
       type="button"
-      @click="toggleDropdown"
-      @blur="handleBlur"
       :disabled="disabled"
       class="relative w-full bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 rounded-lg shadow-sm pl-3 pr-10 py-2.5 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200 hover:border-gray-400 dark:hover:border-neutral-500 disabled:opacity-50 disabled:cursor-not-allowed"
       :class="{
         'ring-2 ring-slate-500 border-slate-500': isOpen
       }"
+      @click="toggleDropdown"
+      @blur="handleBlur"
     >
       <span class="block truncate text-sm text-gray-900 dark:text-neutral-100">
         {{ selectedOption?.label || placeholder }}
@@ -38,7 +38,12 @@
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </span>
     </button>
@@ -59,12 +64,12 @@
         <div
           v-for="option in options"
           :key="option.value"
-          @click="selectOption(option)"
           class="cursor-pointer select-none relative py-2.5 pl-3 pr-9 hover:bg-gray-50 dark:hover:bg-neutral-600 transition-colors duration-150"
           :class="{
             'bg-slate-100 dark:bg-neutral-600 text-slate-900 dark:text-neutral-100': option.value === selectedValue,
             'text-gray-900 dark:text-neutral-100': option.value !== selectedValue
           }"
+          @click="selectOption(option)"
         >
           <span
             class="block truncate text-sm"
@@ -81,8 +86,18 @@
             v-if="option.value === selectedValue"
             class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-600 dark:text-neutral-300"
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </span>
         </div>
@@ -99,21 +114,21 @@ export default {
   props: {
     modelValue: {
       type: [String, Number],
-      default: ''
+      default: '',
     },
     options: {
       type: Array,
       required: true,
-      default: () => []
+      default: () => [],
     },
     placeholder: {
       type: String,
-      default: 'Select an option'
+      default: 'Select an option',
     },
     disabled: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   emits: ['update:modelValue', 'change'],
   setup(props, { emit }) {
@@ -194,13 +209,13 @@ export default {
       selectOption,
       handleChange,
       handleBlur,
-      unwatchModelValue
+      unwatchModelValue,
     }
   },
   watch: {
     modelValue(newValue) {
       this.selectedValue = newValue
-    }
-  }
+    },
+  },
 }
 </script>

@@ -1,8 +1,10 @@
-from django.db import models
+import os
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
-import os
+from django.db import models
+
 
 class MeetupUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='meetup_profile', null=True, blank=True)
@@ -43,12 +45,12 @@ class Meetup(models.Model):
     current_participants = models.IntegerField(default=0)
     creator = models.ForeignKey(MeetupUser, on_delete=models.CASCADE, related_name='created_meetups', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     # Image fields
     image = models.ImageField(
-        upload_to=meetup_image_path, 
-        blank=True, 
-        null=True, 
+        upload_to=meetup_image_path,
+        blank=True,
+        null=True,
         help_text="Upload an image for the meetup",
         validators=[
             validate_image_file_size,
@@ -56,7 +58,7 @@ class Meetup(models.Model):
         ]
     )
     image_url = models.URLField(blank=True, null=True, help_text="Or provide an image URL")
-    
+
     # Hashtags field - stored as comma-separated string
     hashtags = models.TextField(blank=True, null=True, help_text="Comma-separated hashtags (e.g., #개발,#네트워킹,#스타트업)")
 
@@ -70,7 +72,7 @@ class Meetup(models.Model):
     @property
     def available_spots(self):
         return self.max_participants - self.current_participants
-    
+
     @property
     def image_display_url(self):
         """Return the image URL - either from uploaded file or external URL"""
@@ -79,31 +81,31 @@ class Meetup(models.Model):
         elif self.image_url:
             return self.image_url
         return ''
-    
+
     @property
     def hashtags_list(self):
         """Return hashtags as a list"""
         if self.hashtags:
             return [tag.strip() for tag in self.hashtags.split(',') if tag.strip()]
         return []
-    
+
     def add_hashtag(self, hashtag):
         """Add a hashtag to the meetup"""
         hashtag = hashtag.strip()
         if not hashtag.startswith('#'):
             hashtag = '#' + hashtag
-        
+
         current_hashtags = self.hashtags_list
         if hashtag not in current_hashtags:
             current_hashtags.append(hashtag)
             self.hashtags = ','.join(current_hashtags)
-    
+
     def remove_hashtag(self, hashtag):
         """Remove a hashtag from the meetup"""
         hashtag = hashtag.strip()
         if not hashtag.startswith('#'):
             hashtag = '#' + hashtag
-        
+
         current_hashtags = self.hashtags_list
         if hashtag in current_hashtags:
             current_hashtags.remove(hashtag)
@@ -128,9 +130,9 @@ class Registration(models.Model):
         is_new = self.pk is None
         if is_new and self.meetup.is_full:
             raise ValidationError("이 모임의 정원이 가득 찼습니다.")
-        
+
         super().save(*args, **kwargs)
-        
+
         if is_new:
             self.meetup.current_participants += 1
             self.meetup.save()
@@ -140,7 +142,7 @@ class Registration(models.Model):
         super().delete(*args, **kwargs)
         meetup.current_participants -= 1
         meetup.save()
-        
+
         # Check for waitlist and promote the first person
         if not meetup.is_full:
             from .utils import promote_from_waitlist
@@ -173,10 +175,10 @@ class Waitlist(models.Model):
         meetup = self.meetup
         position = self.position
         super().delete(*args, **kwargs)
-        
+
         # Adjust positions of remaining waitlist entries
         Waitlist.objects.filter(
-            meetup=meetup, 
+            meetup=meetup,
             position__gt=position
         ).update(position=models.F('position') - 1)
 
@@ -229,8 +231,9 @@ class Task(models.Model):
     @property
     def is_deadline_soon(self):
         """Check if deadline is within 3 days"""
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
         if not self.deadline:
             return False
         now = timezone.now()

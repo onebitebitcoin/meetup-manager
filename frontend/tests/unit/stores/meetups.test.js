@@ -8,7 +8,7 @@ import { useMeetupsStore } from '@/stores/meetups'
 // Mock fetchWithCSRF
 const mockFetchWithCSRF = vi.fn()
 vi.mock('@/utils/csrf', () => ({
-  fetchWithCSRF: (...args) => mockFetchWithCSRF(...args)
+  fetchWithCSRF: (...args) => mockFetchWithCSRF(...args),
 }))
 
 describe('Meetups Store', () => {
@@ -38,12 +38,12 @@ describe('Meetups Store', () => {
     it('should fetch and set meetups on success', async () => {
       const mockMeetups = [
         { id: 1, name: 'Meetup 1', is_full: false, available_spots: 5 },
-        { id: 2, name: 'Meetup 2', is_full: true, available_spots: 0 }
+        { id: 2, name: 'Meetup 2', is_full: true, available_spots: 0 },
       ]
 
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(mockMeetups)
+        json: () => Promise.resolve(mockMeetups),
       })
 
       await store.fetchMeetups()
@@ -56,7 +56,7 @@ describe('Meetups Store', () => {
     it('should set loading state during fetch', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve([])
+        json: () => Promise.resolve([]),
       })
 
       const fetchPromise = store.fetchMeetups()
@@ -68,7 +68,7 @@ describe('Meetups Store', () => {
 
     it('should set error on fetch failure', async () => {
       mockFetchWithCSRF.mockResolvedValue({
-        ok: false
+        ok: false,
       })
 
       await store.fetchMeetups()
@@ -100,7 +100,7 @@ describe('Meetups Store', () => {
     it('should update existing meetup', () => {
       store.meetups = [
         { id: 1, name: 'Old Name' },
-        { id: 2, name: 'Other Meetup' }
+        { id: 2, name: 'Other Meetup' },
       ]
 
       store.updateMeetup(1, { name: 'New Name' })
@@ -122,7 +122,7 @@ describe('Meetups Store', () => {
     it('should remove meetup from the list', () => {
       store.meetups = [
         { id: 1, name: 'Meetup 1' },
-        { id: 2, name: 'Meetup 2' }
+        { id: 2, name: 'Meetup 2' },
       ]
 
       store.deleteMeetup(1)
@@ -170,7 +170,7 @@ describe('Meetups Store', () => {
     it('should add to waitlist', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ position: 1 })
+        json: () => Promise.resolve({ position: 1 }),
       })
 
       const result = await store.addToWaitlist(1)
@@ -178,14 +178,14 @@ describe('Meetups Store', () => {
       expect(result.position).toBe(1)
       expect(mockFetchWithCSRF).toHaveBeenCalledWith(
         '/api/meetups/1/waitlist/',
-        { method: 'POST' }
+        { method: 'POST' },
       )
     })
 
     it('should throw error on add to waitlist failure', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: false,
-        json: () => Promise.resolve({ error: 'Already on waitlist' })
+        json: () => Promise.resolve({ error: 'Already on waitlist' }),
       })
 
       await expect(store.addToWaitlist(1)).rejects.toThrow()
@@ -194,21 +194,21 @@ describe('Meetups Store', () => {
     it('should remove from waitlist', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ message: 'Removed' })
+        json: () => Promise.resolve({ message: 'Removed' }),
       })
 
       await store.removeFromWaitlist(1)
 
       expect(mockFetchWithCSRF).toHaveBeenCalledWith(
         '/api/meetups/1/waitlist/remove/',
-        { method: 'DELETE' }
+        { method: 'DELETE' },
       )
     })
 
     it('should check waitlist status', async () => {
       mockFetchWithCSRF.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ is_waitlisted: true, position: 2 })
+        json: () => Promise.resolve({ is_waitlisted: true, position: 2 }),
       })
 
       const result = await store.checkWaitlistStatus(1)

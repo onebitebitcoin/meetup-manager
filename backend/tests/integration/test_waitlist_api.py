@@ -4,7 +4,7 @@ Integration tests for waitlist API endpoints.
 import pytest
 from django.urls import reverse
 
-from meetups.models import Waitlist, Registration
+from meetups.models import Waitlist
 
 
 @pytest.mark.django_db

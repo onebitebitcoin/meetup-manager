@@ -4,7 +4,7 @@ Functional tests for waitlist promotion flow.
 import pytest
 from django.urls import reverse
 
-from meetups.models import Registration, Waitlist, Notification
+from meetups.models import Notification, Registration, Waitlist
 
 
 @pytest.mark.django_db

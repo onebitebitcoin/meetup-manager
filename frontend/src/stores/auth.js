@@ -25,8 +25,8 @@ export const useAuthStore = defineStore('auth', () => {
           credentials: 'include',
           headers: {
             'Origin': window.location.origin,
-            'Referer': window.location.href
-          }
+            'Referer': window.location.href,
+          },
         })
       } catch (error) {
         console.warn('Failed to pre-fetch CSRF token after login:', error)
@@ -69,6 +69,6 @@ export const useAuthStore = defineStore('auth', () => {
     isGuest,
     login,
     logout,
-    checkAuth
+    checkAuth,
   }
 })

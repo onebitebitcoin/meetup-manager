@@ -4,10 +4,10 @@
     <div class="flex-1">
       <CustomSelect
         :model-value="selectedHour"
-        @update:model-value="updateHour"
         :options="hourOptions"
         placeholder="시간"
         :required="required"
+        @update:model-value="updateHour"
       />
     </div>
     
@@ -15,10 +15,10 @@
     <div class="flex-1">
       <CustomSelect
         :model-value="selectedMinute"
-        @update:model-value="updateMinute"
         :options="minuteOptions"
         placeholder="분"
         :required="required"
+        @update:model-value="updateMinute"
       />
     </div>
   </div>
@@ -31,21 +31,21 @@ import CustomSelect from './CustomSelect.vue'
 export default {
   name: 'CustomTimeSelect',
   components: {
-    CustomSelect
+    CustomSelect,
   },
   props: {
     modelValue: {
       type: String,
-      default: ''
+      default: '',
     },
     required: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   emits: ['update:modelValue', 'change'],
   setup(props, { emit }) {
@@ -59,7 +59,7 @@ export default {
         const hour = i.toString().padStart(2, '0')
         hours.push({ 
           value: hour, 
-          label: `${hour}시` 
+          label: `${hour}시`, 
         })
       }
       return hours
@@ -70,7 +70,7 @@ export default {
       { value: '00', label: '00분' },
       { value: '15', label: '15분' },
       { value: '30', label: '30분' },
-      { value: '45', label: '45분' }
+      { value: '45', label: '45분' },
     ])
 
     // Parse initial value
@@ -79,7 +79,7 @@ export default {
       const [hour, minute] = timeString.split(':')
       return { 
         hour: hour || '', 
-        minute: minute || '' 
+        minute: minute || '', 
       }
     }
 
@@ -130,8 +130,8 @@ export default {
       hourOptions,
       minuteOptions,
       updateHour,
-      updateMinute
+      updateMinute,
     }
-  }
+  },
 }
 </script>

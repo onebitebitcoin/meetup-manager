@@ -12,7 +12,7 @@ export async function getCSRFToken(force = false) {
         credentials: 'include',
         headers: {
           'Accept': 'application/json',
-        }
+        },
       })
       console.log('CSRF API response status:', response.status)
       
@@ -65,7 +65,7 @@ export async function fetchWithCSRF(url, options = {}) {
   
   const headers = {
     'Accept': 'application/json',
-    ...options.headers
+    ...options.headers,
   }
   
   // Only set Content-Type to application/json if we're not sending FormData
@@ -88,7 +88,7 @@ export async function fetchWithCSRF(url, options = {}) {
   const fetchOptions = {
     credentials: 'include',
     ...options,
-    headers
+    headers,
   }
   
   try {
@@ -117,7 +117,7 @@ export async function fetchWithCSRF(url, options = {}) {
         const retryResponse = await fetch(url, {
           credentials: 'include',
           ...options,
-          headers: retryHeaders
+          headers: retryHeaders,
         })
         console.log('Retry response status:', retryResponse.status)
 

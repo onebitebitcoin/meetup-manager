@@ -4,7 +4,7 @@ Functional tests for complete registration flow.
 import pytest
 from django.urls import reverse
 
-from meetups.models import Registration, Meetup
+from meetups.models import Registration
 
 
 @pytest.mark.django_db

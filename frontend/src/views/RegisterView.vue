@@ -35,17 +35,17 @@
                       'border-gray-300 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 dark:border-gray-600 dark:text-white'
                 ]"
                 placeholder="사용자명 (영문, 한글, 숫자, _, - 사용가능)"
-              />
+              >
               <button
                 type="button"
                 :disabled="!form.username || checkingUsername"
-                @click="checkUsernameAvailability"
                 :class="[
                   'px-4 py-2 text-sm font-medium rounded-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 whitespace-nowrap',
                   (!form.username || checkingUsername) ? 
                     'opacity-60 cursor-not-allowed bg-gray-400 dark:bg-gray-600 text-gray-200' :
                     'text-white bg-neutral-700 hover:bg-neutral-600 dark:bg-neutral-600 dark:hover:bg-neutral-500 focus:ring-neutral-500'
                 ]"
+                @click="checkUsernameAvailability"
               >
                 <span v-if="!checkingUsername">중복확인</span>
                 <span v-else>확인중...</span>
@@ -55,7 +55,7 @@
             <div v-if="usernameError && form.username" class="mt-1 text-sm text-red-600 dark:text-red-400">
               <div class="flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                 </svg>
                 {{ usernameError }}
               </div>
@@ -64,7 +64,7 @@
             <div v-if="usernameValid && form.username && !usernameError" class="mt-1 text-sm text-green-600 dark:text-green-400">
               <div class="flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 사용 가능한 사용자명입니다.
               </div>
@@ -80,7 +80,7 @@
               required
               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-md"
               placeholder="이메일 주소"
-            />
+            >
           </div>
           <div>
             <label for="password" class="sr-only">비밀번호</label>
@@ -92,7 +92,7 @@
               required
               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-md"
               placeholder="비밀번호"
-            />
+            >
           </div>
           <div>
             <label for="password-confirm" class="sr-only">비밀번호 확인</label>
@@ -104,7 +104,7 @@
               required
               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
               placeholder="비밀번호 확인"
-            />
+            >
           </div>
         </div>
 
@@ -166,7 +166,7 @@ export default {
       username: '',
       email: '',
       password: '',
-      passwordConfirm: ''
+      passwordConfirm: '',
     })
 
     const usernameError = ref('')
@@ -303,8 +303,8 @@ export default {
           body: JSON.stringify({
             username: form.value.username,
             email: form.value.email,
-            password: convertedPassword
-          })
+            password: convertedPassword,
+          }),
         })
 
         const data = await response.json()
@@ -334,8 +334,8 @@ export default {
       checkingUsername,
       usernameChecked,
       checkUsernameAvailability,
-      handleRegister
+      handleRegister,
     }
-  }
+  },
 }
 </script>

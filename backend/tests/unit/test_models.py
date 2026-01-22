@@ -1,12 +1,12 @@
 """
 Unit tests for Django models.
 """
+from datetime import timedelta
+
 import pytest
 from django.utils import timezone
-from datetime import timedelta
-from django.core.exceptions import ValidationError
 
-from meetups.models import Meetup, Registration, Waitlist, Task
+from meetups.models import Registration, Waitlist
 
 
 @pytest.mark.django_db

@@ -10,8 +10,8 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
 vi.mock('@/stores/theme', () => ({
   useThemeStore: () => ({
     isDark: false,
-    toggleTheme: vi.fn()
-  })
+    toggleTheme: vi.fn(),
+  }),
 }))
 
 describe('ThemeToggle Component', () => {
@@ -35,8 +35,8 @@ describe('ThemeToggle Component', () => {
     vi.doMock('@/stores/theme', () => ({
       useThemeStore: () => ({
         isDark: false,
-        toggleTheme: mockToggle
-      })
+        toggleTheme: mockToggle,
+      }),
     }))
 
     const wrapper = mount(ThemeToggle)

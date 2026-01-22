@@ -1,7 +1,6 @@
 """
 Production settings for meetup_backend project.
 """
-import os
 from .settings import *
 
 # Override debug settings

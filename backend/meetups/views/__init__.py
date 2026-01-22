@@ -1,3 +1,12 @@
+from .admin import (
+    admin_delete_meetup,
+    admin_delete_user,
+    admin_meetups_list,
+    admin_statistics,
+    admin_toggle_user_admin,
+    admin_users_list,
+    is_admin_user,
+)
 from .auth import (
     check_username_availability,
     get_csrf_token,
@@ -18,23 +27,6 @@ from .meetups import (
     unregister_from_meetup,
     user_meetups,
 )
-from .registrations import RegistrationListView, register_user
-from .admin import (
-    admin_delete_meetup,
-    admin_delete_user,
-    admin_meetups_list,
-    admin_statistics,
-    admin_toggle_user_admin,
-    admin_users_list,
-    is_admin_user,
-)
-from .waitlist import (
-    add_to_waitlist,
-    check_waitlist_status,
-    meetup_waitlist,
-    remove_from_waitlist,
-    user_waitlists,
-)
 from .notifications import (
     delete_notification,
     mark_all_notifications_read,
@@ -42,12 +34,20 @@ from .notifications import (
     send_notification_to_participants,
     user_notifications,
 )
+from .registrations import RegistrationListView, register_user
 from .tasks import (
     meetup_tasks,
+    review_submission,
+    submit_task,
     task_detail,
     task_submissions,
-    submit_task,
-    review_submission,
+)
+from .waitlist import (
+    add_to_waitlist,
+    check_waitlist_status,
+    meetup_waitlist,
+    remove_from_waitlist,
+    user_waitlists,
 )
 
 __all__ = [

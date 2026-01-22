@@ -17,21 +17,21 @@ describe('CalendarView Component', () => {
         id: 1,
         name: 'Test Meetup',
         date_time: new Date(2024, 5, 15, 14, 0).toISOString(),
-        location: 'Seoul'
-      }
-    ]
+        location: 'Seoul',
+      },
+    ],
   }
 
   it('should render without errors', () => {
     const wrapper = mount(CalendarView, {
-      props: defaultProps
+      props: defaultProps,
     })
     expect(wrapper.exists()).toBe(true)
   })
 
   it('should display calendar header', () => {
     const wrapper = mount(CalendarView, {
-      props: defaultProps
+      props: defaultProps,
     })
 
     // Should have navigation buttons
@@ -41,7 +41,7 @@ describe('CalendarView Component', () => {
 
   it('should have month navigation', () => {
     const wrapper = mount(CalendarView, {
-      props: defaultProps
+      props: defaultProps,
     })
 
     // Should have previous and next month buttons
@@ -57,10 +57,10 @@ describe('CalendarView Component', () => {
             id: 1,
             name: 'Test Meetup',
             date_time: new Date().toISOString(),
-            location: 'Seoul'
-          }
-        ]
-      }
+            location: 'Seoul',
+          },
+        ],
+      },
     })
 
     // The component should be interactive
@@ -69,7 +69,7 @@ describe('CalendarView Component', () => {
 
   it('should handle empty meetups', () => {
     const wrapper = mount(CalendarView, {
-      props: { meetups: [] }
+      props: { meetups: [] },
     })
 
     expect(wrapper.exists()).toBe(true)
@@ -77,7 +77,7 @@ describe('CalendarView Component', () => {
 
   it('should navigate to next month', async () => {
     const wrapper = mount(CalendarView, {
-      props: defaultProps
+      props: defaultProps,
     })
 
     const buttons = wrapper.findAll('button')
@@ -90,7 +90,7 @@ describe('CalendarView Component', () => {
 
   it('should navigate to previous month', async () => {
     const wrapper = mount(CalendarView, {
-      props: defaultProps
+      props: defaultProps,
     })
 
     const buttons = wrapper.findAll('button')
@@ -110,10 +110,10 @@ describe('CalendarView Component', () => {
             id: 1,
             name: 'January Meetup',
             date_time: meetupDate.toISOString(),
-            location: 'Seoul'
-          }
-        ]
-      }
+            location: 'Seoul',
+          },
+        ],
+      },
     })
 
     // Component should render properly
@@ -129,16 +129,16 @@ describe('CalendarView Component', () => {
             id: 1,
             name: 'Morning Meetup',
             date_time: new Date(sameDay.setHours(10, 0)).toISOString(),
-            location: 'Seoul'
+            location: 'Seoul',
           },
           {
             id: 2,
             name: 'Evening Meetup',
             date_time: new Date(sameDay.setHours(18, 0)).toISOString(),
-            location: 'Seoul'
-          }
-        ]
-      }
+            location: 'Seoul',
+          },
+        ],
+      },
     })
 
     expect(wrapper.exists()).toBe(true)

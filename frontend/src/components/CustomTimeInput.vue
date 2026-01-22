@@ -4,20 +4,30 @@
     <div class="relative w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200 focus-within:ring-2 focus-within:ring-slate-500 focus-within:border-slate-500">
       <input
         :value="modelValue"
-        @input="handleInput"
-        @change="handleChange"
         type="time"
         :disabled="disabled"
         :required="required"
         :step="step"
         class="w-full px-3 py-2.5 pr-10 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 border-none outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed"
         :class="{ 'cursor-not-allowed': disabled }"
-      />
+        @input="handleInput"
+        @change="handleChange"
+      >
       
       <!-- Custom clock icon -->
       <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg
+          class="h-5 w-5 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
       </div>
     </div>
@@ -30,20 +40,20 @@ export default {
   props: {
     modelValue: {
       type: String,
-      default: ''
+      default: '',
     },
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     required: {
       type: Boolean,
-      default: false
+      default: false,
     },
     step: {
       type: [String, Number],
-      default: 60
-    }
+      default: 60,
+    },
   },
   emits: ['update:modelValue', 'change'],
   setup(props, { emit }) {
@@ -57,9 +67,9 @@ export default {
 
     return {
       handleInput,
-      handleChange
+      handleChange,
     }
-  }
+  },
 }
 </script>
 

@@ -5,7 +5,7 @@ import pytest
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
-from meetups.models import MeetupUser, Meetup, Registration, Waitlist, Task, TaskSubmission, Notification
+from meetups.models import Meetup, MeetupUser, Notification, Registration, Task, TaskSubmission, Waitlist
 
 
 @pytest.fixture
@@ -59,8 +59,9 @@ def create_meetup(db, create_meetup_user):
         creator=None,
         **kwargs
     ):
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
 
         if creator is None:
             creator = create_meetup_user(name='Creator', email='creator@example.com')
@@ -98,8 +99,9 @@ def create_waitlist(db):
 def create_task(db):
     """Factory fixture for creating Task."""
     def _create_task(meetup, title='Test Task', description='Test Description', deadline=None):
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
 
         if deadline is None:
             deadline = timezone.now() + timedelta(days=3)

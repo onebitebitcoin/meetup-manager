@@ -33,14 +33,14 @@ export function addSwipeListener(element, callback) {
       callback({
         direction: deltaX > 0 ? 'right' : 'left',
         distance: Math.abs(deltaX),
-        velocity: Math.abs(deltaX) / deltaTime
+        velocity: Math.abs(deltaX) / deltaTime,
       })
     } else if (Math.abs(deltaY) > minDistance) {
       // Vertical swipe
       callback({
         direction: deltaY > 0 ? 'down' : 'up',
         distance: Math.abs(deltaY),
-        velocity: Math.abs(deltaY) / deltaTime
+        velocity: Math.abs(deltaY) / deltaTime,
       })
     }
     
@@ -101,21 +101,21 @@ export function addPullToRefresh(element, callback) {
 export function hapticFeedback(type = 'medium') {
   if ('vibrate' in navigator) {
     switch (type) {
-      case 'light':
-        navigator.vibrate(10)
-        break
-      case 'medium':
-        navigator.vibrate(25)
-        break
-      case 'heavy':
-        navigator.vibrate(50)
-        break
-      case 'success':
-        navigator.vibrate([25, 50, 25])
-        break
-      case 'error':
-        navigator.vibrate([50, 25, 50, 25, 50])
-        break
+    case 'light':
+      navigator.vibrate(10)
+      break
+    case 'medium':
+      navigator.vibrate(25)
+      break
+    case 'heavy':
+      navigator.vibrate(50)
+      break
+    case 'success':
+      navigator.vibrate([25, 50, 25])
+      break
+    case 'error':
+      navigator.vibrate([50, 25, 50, 25, 50])
+      break
     }
   }
 }

@@ -1,7 +1,8 @@
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.contrib.auth.models import User
-from meetups.models import MeetupUser, Registration, Waitlist, Notification
+
+from meetups.models import MeetupUser, Notification, Registration, Waitlist
 
 
 class Command(BaseCommand):
@@ -18,24 +19,24 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         identifier = options['identifier']
         force = options['force']
-        
+
         # Try to find user by email or username
         user = None
         meetup_user = None
-        
+
         try:
             # Try Django User first
             if '@' in identifier:
                 user = User.objects.get(email=identifier)
             else:
                 user = User.objects.get(username=identifier)
-            
+
             # Get linked MeetupUser
             try:
                 meetup_user = user.meetup_profile
             except MeetupUser.DoesNotExist:
                 pass
-                
+
         except User.DoesNotExist:
             # Try MeetupUser directly
             try:
@@ -70,20 +71,20 @@ class Command(BaseCommand):
 
         # Show what will be deleted
         self.stdout.write(f'Preparing to delete user: {identifier}')
-        
+
         if meetup_user:
             # Count related objects
             created_meetups = meetup_user.created_meetups.count()
             registrations = Registration.objects.filter(user=meetup_user).count()
             waitlist_entries = Waitlist.objects.filter(user=meetup_user).count()
             notifications = Notification.objects.filter(user=meetup_user).count()
-            
+
             self.stdout.write(f'  - MeetupUser ID: {meetup_user.id}')
             self.stdout.write(f'  - Created meetups: {created_meetups} (will set creator to None)')
             self.stdout.write(f'  - Registrations: {registrations} (will be deleted)')
             self.stdout.write(f'  - Waitlist entries: {waitlist_entries} (will be deleted)')
             self.stdout.write(f'  - Notifications: {notifications} (will be deleted)')
-            
+
         if user:
             self.stdout.write(f'  - Django User ID: {user.id}')
 
@@ -101,7 +102,7 @@ class Command(BaseCommand):
                     created_count = meetup_user.created_meetups.update(creator=None)
                     if created_count > 0:
                         self.stdout.write(f'Updated {created_count} meetups to remove creator reference')
-                    
+
                     # 2. Delete registrations (will auto-update meetup participant counts)
                     registrations = Registration.objects.filter(user=meetup_user)
                     reg_count = 0
@@ -110,7 +111,7 @@ class Command(BaseCommand):
                         reg_count += 1
                     if reg_count > 0:
                         self.stdout.write(f'Deleted {reg_count} registrations')
-                    
+
                     # 3. Delete waitlist entries (will auto-update positions)
                     waitlist_entries = Waitlist.objects.filter(user=meetup_user)
                     waitlist_count = 0
@@ -119,31 +120,31 @@ class Command(BaseCommand):
                         waitlist_count += 1
                     if waitlist_count > 0:
                         self.stdout.write(f'Deleted {waitlist_count} waitlist entries')
-                    
+
                     # 4. Delete notifications
                     notif_count = Notification.objects.filter(user=meetup_user).count()
                     if notif_count > 0:
                         Notification.objects.filter(user=meetup_user).delete()
                         self.stdout.write(f'Deleted {notif_count} notifications')
-                
+
                 # 5. Finally delete the user
                 if user and meetup_user:
                     # Delete Django User (this will cascade to MeetupUser)
                     user.delete()
-                    self.stdout.write(f'Deleted Django User and linked MeetupUser')
+                    self.stdout.write('Deleted Django User and linked MeetupUser')
                 elif user:
                     # Delete standalone Django User
                     user.delete()
-                    self.stdout.write(f'Deleted Django User')
+                    self.stdout.write('Deleted Django User')
                 elif meetup_user:
                     # Delete standalone MeetupUser
                     meetup_user.delete()
-                    self.stdout.write(f'Deleted MeetupUser')
-                
+                    self.stdout.write('Deleted MeetupUser')
+
             self.stdout.write(
                 self.style.SUCCESS(f'Successfully deleted user: {identifier}')
             )
-            
+
         except Exception as e:
             self.stdout.write(
                 self.style.ERROR(f'Error deleting user: {str(e)}')

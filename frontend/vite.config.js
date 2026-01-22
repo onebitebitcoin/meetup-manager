@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}'],
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
@@ -25,36 +25,36 @@ export default defineConfig({
           {
             src: 'icons/logo.png',
             sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'icons/logo.png',
-            sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'icons/logo.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      }
-    })
+          },
+          {
+            src: 'icons/logo.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@': '/src'
-    }
+      '@': '/src',
+    },
   },
   server: {
     port: 7173,
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
-        changeOrigin: true
-      }
-    }
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     minify: 'terser',
@@ -64,5 +64,5 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
-  }
+  },
 })
