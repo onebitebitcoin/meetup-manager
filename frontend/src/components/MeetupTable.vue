@@ -597,7 +597,6 @@ export default {
       registerForMeetup,
       unregisterFromMeetup,
       onMeetupUpdated,
-      meetups: props.meetups,
     }
   },
 }

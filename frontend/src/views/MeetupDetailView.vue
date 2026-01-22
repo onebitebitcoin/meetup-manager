@@ -274,7 +274,7 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
@@ -283,7 +283,6 @@ export default {
   name: 'MeetupDetailView',
   setup() {
     const route = useRoute()
-    const router = useRouter()
     const meetupsStore = useMeetupsStore()
     const authStore = useAuthStore()
 

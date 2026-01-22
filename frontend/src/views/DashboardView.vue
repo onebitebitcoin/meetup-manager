@@ -1012,43 +1012,6 @@ export default {
       return [...ongoing, ...ended]
     })
 
-    const upcomingMeetups = computed(() => {
-      const now = new Date()
-      return meetupsStore.meetups.filter((meetup) => {
-        const meetupDate = new Date(meetup.date_time)
-        return meetupDate > now
-      }).length
-    })
-
-    const totalCapacity = computed(() => {
-      return meetupsStore.meetups.reduce(
-        (sum, meetup) => sum + meetup.max_participants,
-        0,
-      )
-    })
-
-    const totalRegistered = computed(() => {
-      return meetupsStore.meetups.reduce(
-        (sum, meetup) => sum + meetupsStore.getRegistrationCount(meetup.id),
-        0,
-      )
-    })
-
-    const availableSeats = computed(() => {
-      return totalCapacity.value - totalRegistered.value
-    })
-
-    const fullMeetups = computed(() => {
-      return meetupsStore.meetups.filter((meetup) =>
-        meetupsStore.isMeetupFull(meetup.id),
-      ).length
-    })
-
-    const averageAttendance = computed(() => {
-      if (totalCapacity.value === 0) return 0
-      return Math.round((totalRegistered.value / totalCapacity.value) * 100)
-    })
-
     const formatDateTime = (dateTimeString) => {
       const date = new Date(dateTimeString)
       return date.toLocaleDateString('ko-KR', {

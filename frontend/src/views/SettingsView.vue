@@ -2561,22 +2561,6 @@ export default {
       }
     }
 
-    const deleteNotification = async (notificationId) => {
-      if (confirm('이 알림을 삭제하시겠습니까?')) {
-        try {
-          const response = await fetchWithCSRF(`/api/notifications/${notificationId}/delete/`, {
-            method: 'DELETE',
-            credentials: 'include',
-          })
-          if (response.ok) {
-            // Remove from local state
-            notifications.value = notifications.value.filter(n => n.id !== notificationId)
-          }
-        } catch (error) {
-          console.error('알림 삭제에 실패했습니다:', error)
-        }
-      }
-    }
 
     const openNotificationsModal = () => {
       showNotificationsModal.value = true
@@ -2700,7 +2684,7 @@ export default {
       return visible.filter(page => page !== '...' || visible.indexOf(page) === visible.lastIndexOf(page))
     }
 
-    const removeFromWaitlist = async (meetupId, waitlistId) => {
+    const removeFromWaitlist = async (meetupId, _waitlistId) => {
       if (confirm('정말로 이 모임 대기열에서 나가시겠습니까?')) {
         try {
           const response = await fetchWithCSRF(
@@ -2723,7 +2707,7 @@ export default {
       }
     }
 
-    const unregisterFromMeetup = async (meetupId, registrationId) => {
+    const unregisterFromMeetup = async (meetupId, _registrationId) => {
       if (confirm('정말로 이 모임 참가를 취소하시겠습니까?')) {
         try {
           const response = await fetchWithCSRF(

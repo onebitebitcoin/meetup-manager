@@ -179,9 +179,9 @@ class RegisterUserSerializer(serializers.Serializer):
             user = MeetupUser.objects.get(id=data['user_id'])
             meetup = Meetup.objects.get(id=data['meetup_id'])
         except MeetupUser.DoesNotExist:
-            raise serializers.ValidationError("사용자를 찾을 수 없습니다")
+            raise serializers.ValidationError("사용자를 찾을 수 없습니다") from None
         except Meetup.DoesNotExist:
-            raise serializers.ValidationError("모임을 찾을 수 없습니다")
+            raise serializers.ValidationError("모임을 찾을 수 없습니다") from None
 
         if Registration.objects.filter(user=user, meetup=meetup).exists():
             raise serializers.ValidationError("이미 이 모임에 신청되어 있습니다")
@@ -265,7 +265,7 @@ class TaskSerializer(serializers.ModelSerializer):
                     'status': submission.status,
                     'submitted_at': submission.submitted_at
                 }
-        except:
+        except Exception:
             pass
         return None
 

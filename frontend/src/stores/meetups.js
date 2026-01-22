@@ -62,27 +62,19 @@ export const useMeetupsStore = defineStore('meetups', () => {
     meetups.value = meetups.value.filter(m => m.id !== id)
   }
 
-  const maskEmail = (email) => {
-    const [username, domain] = email.split('@')
-    const maskedUsername = username.length > 3 
-      ? username.substring(0, 3) + '***'
-      : username.substring(0, 1) + '***'
-    return `${maskedUsername}@${domain}`
-  }
-
-  const registerForMeetup = async (meetupId, userEmail) => {
+  const registerForMeetup = async (_meetupId, _userEmail) => {
     // This would need to make an API call to register the user
     // For now, return false as registration is not implemented
     return false
   }
 
-  const unregisterFromMeetup = async (meetupId, userEmail) => {
+  const unregisterFromMeetup = async (_meetupId, _userEmail) => {
     // This would need to make an API call to unregister the user
     // For now, return false as unregistration is not implemented
     return false
   }
 
-  const isUserRegistered = (meetupId, userEmail) => {
+  const isUserRegistered = (_meetupId, _userEmail) => {
     // Since we don't have registration data from API, return false for now
     // This would need to be implemented with a separate API call
     return false

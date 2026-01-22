@@ -6,7 +6,7 @@ Converts Korean characters typed on English keyboard layout to their English equ
 def korean_to_english(text):
     """
     Convert Korean characters to English based on keyboard layout mapping.
-    
+
     This handles both individual Korean characters (jamo) and complete syllables.
     Korean QWERTY keyboard layout maps directly to English QWERTY keys.
     """
@@ -24,19 +24,15 @@ def korean_to_english(text):
         'ㅂ': 'q', 'ㅈ': 'w', 'ㄷ': 'e', 'ㄱ': 'r', 'ㅅ': 't',
         'ㅛ': 'y', 'ㅕ': 'u', 'ㅑ': 'i', 'ㅐ': 'o', 'ㅔ': 'p',
         'ㅃ': 'Q', 'ㅉ': 'W', 'ㄸ': 'E', 'ㄲ': 'R', 'ㅆ': 'T',
-        '': 'Y', '': 'U', '': 'I', 'ㅒ': 'O', 'ㅖ': 'P',
+        'ㅒ': 'O', 'ㅖ': 'P',
 
         # Row 3 - ASDF row
         'ㅁ': 'a', 'ㄴ': 's', 'ㅇ': 'd', 'ㄹ': 'f', 'ㅎ': 'g',
         'ㅗ': 'h', 'ㅓ': 'j', 'ㅏ': 'k', 'ㅣ': 'l',
-        '': 'A', '': 'S', '': 'D', '': 'F', '': 'G',
-        '': 'H', '': 'J', '': 'K', '': 'L',
 
         # Row 4 - ZXCV row
         'ㅋ': 'z', 'ㅌ': 'x', 'ㅊ': 'c', 'ㅍ': 'v',
         'ㅠ': 'b', 'ㅜ': 'n', 'ㅡ': 'm',
-        '': 'Z', '': 'X', '': 'C', '': 'V',
-        '': 'B', '': 'N', '': 'M',
 
         # Special characters and punctuation
         '-': '-', '=': '=', '[': '[', ']': ']', '\\': '\\',

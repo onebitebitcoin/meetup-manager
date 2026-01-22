@@ -1,7 +1,7 @@
 """
 Production settings for meetup_backend project.
 """
-from .settings import *
+from .settings import *  # noqa: F403
 
 # Override debug settings
 DEBUG = False
@@ -28,10 +28,10 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 # Static files with whitenoise
-MIDDLEWARE = [
+MIDDLEWARE = [  # noqa: F405
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this for static files
-] + MIDDLEWARE[1:]
+] + MIDDLEWARE[1:]  # noqa: F405
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

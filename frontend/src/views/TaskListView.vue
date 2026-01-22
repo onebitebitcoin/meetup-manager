@@ -131,7 +131,7 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks'
 import { fetchWithCSRF } from '@/utils/csrf'
 
@@ -139,7 +139,6 @@ export default {
   name: 'TaskListView',
   setup() {
     const route = useRoute()
-    const router = useRouter()
     const tasksStore = useTasksStore()
 
     const meetupId = computed(() => parseInt(route.params.id))

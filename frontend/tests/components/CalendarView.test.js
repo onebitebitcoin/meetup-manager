@@ -1,7 +1,7 @@
 /**
  * Component tests for CalendarView
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import CalendarView from '@/components/CalendarView.vue'

@@ -189,11 +189,6 @@ export default {
       document.removeEventListener('keydown', handleKeydown)
     })
 
-    // Watch for external changes to modelValue
-    const updateSelectedValue = (newValue) => {
-      selectedValue.value = newValue
-    }
-
     // Update when prop changes
     const unwatchModelValue = () => {
       if (props.modelValue !== selectedValue.value) {

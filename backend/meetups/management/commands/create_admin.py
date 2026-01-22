@@ -34,7 +34,7 @@ class Command(BaseCommand):
         )
 
         # Create MeetupUser with admin privileges
-        meetup_user = MeetupUser.objects.create(
+        MeetupUser.objects.create(
             user=django_user,
             name=name,
             email=email,

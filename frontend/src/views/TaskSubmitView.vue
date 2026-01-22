@@ -235,7 +235,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks'
-import { fetchWithCSRF } from '@/utils/csrf'
 
 export default {
   name: 'TaskSubmitView',

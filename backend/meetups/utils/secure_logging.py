@@ -11,13 +11,13 @@ def _get_setting(setting_name, default=None):
     try:
         from django.conf import settings
         return getattr(settings, setting_name, default)
-    except:
+    except Exception:
         return default
 
 def log_korean_conversion(username, action="login"):
     """
     Securely log Korean input conversion events without exposing sensitive data.
-    
+
     Args:
         username: The username (safe to log)
         action: The action being performed (login/registration)
@@ -38,7 +38,7 @@ def log_korean_conversion(username, action="login"):
 def log_authentication_attempt(username, success=True, method="standard"):
     """
     Securely log authentication attempts without sensitive data.
-    
+
     Args:
         username: The username attempting to authenticate
         success: Whether authentication succeeded
@@ -57,7 +57,7 @@ def log_authentication_attempt(username, success=True, method="standard"):
 def secure_log(message, level="info", include_in_production=False):
     """
     Utility for secure logging that respects production security requirements.
-    
+
     Args:
         message: Log message (ensure it contains no sensitive data)
         level: Log level (info, warning, error)

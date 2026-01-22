@@ -51,7 +51,7 @@ class TestWaitlistAPI:
         """Test checking waitlist status when on waitlist."""
         client, user, meetup_user = authenticated_client()
         meetup = create_meetup()
-        waitlist = create_waitlist(meetup_user, meetup, position=3)
+        create_waitlist(meetup_user, meetup, position=3)
 
         url = reverse('check-waitlist-status', kwargs={'meetup_id': meetup.id})
         response = client.get(url)
