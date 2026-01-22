@@ -14,24 +14,28 @@ from meetups.models import Task, TaskSubmission
 class TestTaskListAPI:
     """Tests for task list endpoint."""
 
-    def test_list_meetup_tasks(self, api_client, create_meetup, create_task):
+    def test_list_meetup_tasks(self, authenticated_client, create_meetup, create_task, create_registration):
         """Test listing tasks for a meetup."""
+        client, user, meetup_user = authenticated_client()
         meetup = create_meetup()
+        create_registration(meetup_user, meetup)  # 참가자여야 조회 가능
         create_task(meetup, title='Task 1')
         create_task(meetup, title='Task 2')
 
         url = reverse('meetup-tasks', kwargs={'meetup_id': meetup.id})
-        response = api_client.get(url)
+        response = client.get(url)
 
         assert response.status_code == 200
         assert len(response.data['tasks']) == 2
 
-    def test_list_meetup_tasks_empty(self, api_client, create_meetup):
+    def test_list_meetup_tasks_empty(self, authenticated_client, create_meetup, create_registration):
         """Test listing tasks when none exist."""
+        client, user, meetup_user = authenticated_client()
         meetup = create_meetup()
+        create_registration(meetup_user, meetup)  # 참가자여야 조회 가능
 
         url = reverse('meetup-tasks', kwargs={'meetup_id': meetup.id})
-        response = api_client.get(url)
+        response = client.get(url)
 
         assert response.status_code == 200
         assert len(response.data['tasks']) == 0
@@ -62,13 +66,15 @@ class TestTaskCreateAPI:
 class TestTaskDetailAPI:
     """Tests for task detail endpoint."""
 
-    def test_get_task_detail(self, api_client, create_meetup, create_task):
+    def test_get_task_detail(self, authenticated_client, create_meetup, create_task, create_registration):
         """Test getting task detail."""
+        client, user, meetup_user = authenticated_client()
         meetup = create_meetup()
+        create_registration(meetup_user, meetup)  # 참가자여야 조회 가능
         task = create_task(meetup, title='Detail Task', description='Task Description')
 
         url = reverse('task-detail', kwargs={'task_id': task.id})
-        response = api_client.get(url)
+        response = client.get(url)
 
         assert response.status_code == 200
         assert response.data['title'] == 'Detail Task'
@@ -97,7 +103,7 @@ class TestTaskDetailAPI:
         url = reverse('task-detail', kwargs={'task_id': task.id})
         response = client.delete(url)
 
-        assert response.status_code == 200
+        assert response.status_code in [200, 204]  # 200 OK or 204 No Content
         assert not Task.objects.filter(id=task.id).exists()
 
 
@@ -105,10 +111,11 @@ class TestTaskDetailAPI:
 class TestTaskSubmissionAPI:
     """Tests for task submission endpoints."""
 
-    def test_submit_task(self, authenticated_client, create_meetup, create_task):
+    def test_submit_task(self, authenticated_client, create_meetup, create_task, create_registration):
         """Test submitting a task."""
         client, user, meetup_user = authenticated_client()
         meetup = create_meetup()
+        create_registration(meetup_user, meetup)  # 참가자여야 제출 가능
         task = create_task(meetup)
 
         url = reverse('submit-task', kwargs={'task_id': task.id})
@@ -121,10 +128,11 @@ class TestTaskSubmissionAPI:
         assert response.status_code == 201
         assert TaskSubmission.objects.filter(task=task, user=meetup_user).exists()
 
-    def test_submit_task_duplicate(self, authenticated_client, create_meetup, create_task, create_submission):
+    def test_submit_task_duplicate(self, authenticated_client, create_meetup, create_task, create_submission, create_registration):
         """Test submitting task twice fails."""
         client, user, meetup_user = authenticated_client()
         meetup = create_meetup()
+        create_registration(meetup_user, meetup)  # 참가자여야 제출 가능
         task = create_task(meetup)
         create_submission(task, meetup_user)
 

@@ -1,5 +1,6 @@
 <template>
   <button
+    type="button"
     :class="[
       'relative inline-flex items-center justify-center w-11 h-11 rounded-lg bg-beige-200 dark:bg-neutral-900 border border-beige-300 dark:border-neutral-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 group',
       variant === 'amber'

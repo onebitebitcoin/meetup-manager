@@ -1,11 +1,18 @@
 """
 Pytest configuration and fixtures for backend tests.
 """
+import uuid
+
 import pytest
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
 from meetups.models import Meetup, MeetupUser, Notification, Registration, Task, TaskSubmission, Waitlist
+
+
+def _unique_id():
+    """Generate a short unique ID for test data."""
+    return uuid.uuid4().hex[:8]
 
 
 @pytest.fixture
@@ -17,7 +24,12 @@ def api_client():
 @pytest.fixture
 def create_user(db):
     """Factory fixture for creating Django User."""
-    def _create_user(username='testuser', email='test@example.com', password='testpass123'):
+    def _create_user(username=None, email=None, password='testpass123'):
+        uid = _unique_id()
+        if username is None:
+            username = f'testuser_{uid}'
+        if email is None:
+            email = f'test_{uid}@example.com'
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -30,9 +42,16 @@ def create_user(db):
 @pytest.fixture
 def create_meetup_user(db, create_user):
     """Factory fixture for creating MeetupUser."""
-    def _create_meetup_user(name='Test User', email='test@example.com', is_admin=False, with_django_user=True):
+    def _create_meetup_user(name=None, email=None, is_admin=False, with_django_user=True):
+        uid = _unique_id()
+        if name is None:
+            name = f'Test User {uid}'
+        if email is None:
+            email = f'test_{uid}@example.com'
+
         if with_django_user:
-            django_user = create_user(username=name.lower().replace(' ', ''), email=email)
+            username = name.lower().replace(' ', '_')[:30] + '_' + uid
+            django_user = create_user(username=username, email=email)
             meetup_user = MeetupUser.objects.create(
                 user=django_user,
                 name=name,
@@ -53,7 +72,7 @@ def create_meetup_user(db, create_user):
 def create_meetup(db, create_meetup_user):
     """Factory fixture for creating Meetup."""
     def _create_meetup(
-        name='Test Meetup',
+        name=None,
         description='Test Description',
         max_participants=10,
         creator=None,
@@ -63,8 +82,11 @@ def create_meetup(db, create_meetup_user):
 
         from django.utils import timezone
 
+        uid = _unique_id()
+        if name is None:
+            name = f'Test Meetup {uid}'
         if creator is None:
-            creator = create_meetup_user(name='Creator', email='creator@example.com')
+            creator = create_meetup_user()
 
         defaults = {
             'name': name,
@@ -143,10 +165,11 @@ def create_notification(db):
 
 
 @pytest.fixture
-def authenticated_client(api_client, create_user, create_meetup_user):
+def authenticated_client(api_client, create_user):
     """Return an authenticated API client."""
     def _authenticated_client(is_admin=False):
-        username = 'authuser' if not is_admin else 'adminuser'
+        uid = _unique_id()
+        username = f'authuser_{uid}' if not is_admin else f'adminuser_{uid}'
         email = f'{username}@example.com'
 
         user = create_user(username=username, email=email, password='testpass123')

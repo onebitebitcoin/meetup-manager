@@ -71,19 +71,21 @@ class TestWaitlistAPI:
         assert response.status_code == 200
         assert response.data['is_waitlisted'] is False
 
-    def test_get_meetup_waitlist(self, api_client, create_meetup, create_meetup_user, create_waitlist):
+    def test_get_meetup_waitlist(self, authenticated_client, create_meetup, create_meetup_user, create_waitlist):
         """Test getting meetup waitlist."""
-        meetup = create_meetup()
-        user1 = create_meetup_user(name='User1', email='user1@example.com')
-        user2 = create_meetup_user(name='User2', email='user2@example.com')
+        client, user, meetup_user = authenticated_client(is_admin=True)
+        meetup = create_meetup(creator=meetup_user)
+        user1 = create_meetup_user()
+        user2 = create_meetup_user()
         create_waitlist(user1, meetup, position=1)
         create_waitlist(user2, meetup, position=2)
 
         url = reverse('meetup-waitlist', kwargs={'meetup_id': meetup.id})
-        response = api_client.get(url)
+        response = client.get(url)
 
         assert response.status_code == 200
-        assert len(response.data) == 2
+        assert response.data['total_waitlisted'] == 2
+        assert len(response.data['waitlist']) == 2
 
     def test_get_user_waitlists(self, authenticated_client, create_meetup, create_waitlist):
         """Test getting user's waitlists."""
