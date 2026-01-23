@@ -1,8 +1,32 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 
 from ..models import Meetup, MeetupUser
+
+
+def parse_datetime_iso(datetime_str):
+    """
+    ISO 형식 문자열을 datetime 객체로 파싱.
+    'Z' 접미사를 '+00:00'으로 변환하여 Python 3.10 이하에서도 호환.
+    Returns (datetime, error_response) tuple.
+    """
+    if not datetime_str:
+        return None, Response({'error': '날짜/시간을 입력해주세요'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        # Handle ISO format with 'Z' suffix (Python 3.10 이하 호환)
+        if datetime_str.endswith('Z'):
+            datetime_str = datetime_str[:-1] + '+00:00'
+        dt = datetime.fromisoformat(datetime_str)
+        # Make timezone aware if naive
+        if dt.tzinfo is None:
+            dt = timezone.make_aware(dt)
+        return dt, None
+    except ValueError:
+        return None, Response({'error': '날짜/시간 형식이 올바르지 않습니다'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def ensure_authenticated(request, error_body=None, status_code=status.HTTP_401_UNAUTHORIZED):

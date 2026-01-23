@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -12,6 +10,7 @@ from .helpers import (
     ensure_meetup_creator,
     get_meetup_or_response,
     get_meetup_user_or_response,
+    parse_datetime_iso,
 )
 
 
@@ -71,18 +70,10 @@ def meetup_tasks(request, meetup_id):
 
     if not title:
         return Response({'error': '과제 제목을 입력해주세요'}, status=status.HTTP_400_BAD_REQUEST)
-    if not deadline_str:
-        return Response({'error': '마감일을 입력해주세요'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Parse deadline string to datetime
-    try:
-        # Handle ISO format from datetime-local input (e.g., "2026-01-20T10:00")
-        deadline = datetime.fromisoformat(deadline_str)
-        # Make timezone aware if naive
-        if deadline.tzinfo is None:
-            deadline = timezone.make_aware(deadline)
-    except ValueError:
-        return Response({'error': '마감일 형식이 올바르지 않습니다'}, status=status.HTTP_400_BAD_REQUEST)
+    deadline, error = parse_datetime_iso(deadline_str)
+    if error:
+        return error
 
     task = Task.objects.create(
         meetup=meetup,
@@ -129,14 +120,10 @@ def task_detail(request, task_id):
         task.title = request.data.get('title', task.title)
         task.description = request.data.get('description', task.description)
         if 'deadline' in request.data:
-            deadline_str = request.data.get('deadline')
-            try:
-                deadline = datetime.fromisoformat(deadline_str)
-                if deadline.tzinfo is None:
-                    deadline = timezone.make_aware(deadline)
-                task.deadline = deadline
-            except ValueError:
-                return Response({'error': '마감일 형식이 올바르지 않습니다'}, status=status.HTTP_400_BAD_REQUEST)
+            deadline, error = parse_datetime_iso(request.data.get('deadline'))
+            if error:
+                return error
+            task.deadline = deadline
         task.save()
         serializer = TaskSerializer(task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
