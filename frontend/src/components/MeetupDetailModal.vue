@@ -248,6 +248,7 @@ import { ref, computed, watch } from 'vue'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { formatDateTime, formatTime } from '@/utils/datetime'
 
 export default {
   name: 'MeetupDetailModal',
@@ -277,16 +278,7 @@ export default {
     const isWaitlisted = ref(false)
     const waitlistPosition = ref(0)
 
-    const formatDateTime = (dateString) => {
-      return new Date(dateString).toLocaleString('ko-KR')
-    }
-
-    const formatTime = (dateString) => {
-      return new Date(dateString).toLocaleTimeString('ko-KR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    }
+    // formatDateTime and formatTime are imported from @/utils/datetime
 
     // Mask email addresses for privacy
     const maskEmail = (email) => {

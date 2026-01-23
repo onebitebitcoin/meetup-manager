@@ -134,6 +134,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { formatDateTime } from '@/utils/datetime'
 
 export default {
   name: 'TaskListView',
@@ -147,10 +148,7 @@ export default {
     const error = ref('')
     const tasks = ref([])
 
-    const formatDateTime = (dateString) => {
-      if (!dateString) return ''
-      return new Date(dateString).toLocaleString('ko-KR')
-    }
+    // formatDateTime is imported from @/utils/datetime
 
     const getSubmissionStatusText = (status) => {
       const statusMap = {

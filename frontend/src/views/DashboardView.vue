@@ -677,6 +677,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useMeetupsStore } from '@/stores/meetups'
+import { formatDateTime } from '@/utils/datetime'
 import CalendarView from '@/components/CalendarView.vue'
 import MeetupTable from '@/components/MeetupTable.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
@@ -1012,16 +1013,7 @@ export default {
       return [...ongoing, ...ended]
     })
 
-    const formatDateTime = (dateTimeString) => {
-      const date = new Date(dateTimeString)
-      return date.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    }
+    // formatDateTime is imported from @/utils/datetime
 
     const logout = async () => {
       await authStore.logout()

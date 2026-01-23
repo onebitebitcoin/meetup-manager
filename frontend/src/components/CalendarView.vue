@@ -175,6 +175,7 @@
 <script>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { formatDateTime, formatTime } from '@/utils/datetime'
 
 export default {
   name: 'CalendarView',
@@ -234,16 +235,7 @@ export default {
       currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + 1, 1)
     }
 
-    const formatDateTime = (dateString) => {
-      return new Date(dateString).toLocaleString('ko-KR')
-    }
-
-    const formatTime = (dateString) => {
-      return new Date(dateString).toLocaleTimeString('ko-KR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    }
+    // formatDateTime and formatTime are imported from @/utils/datetime
 
     const showDateMeetups = (dateData) => {
       selectedDateMeetups.value = dateData

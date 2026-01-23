@@ -371,6 +371,7 @@ import { useRouter } from 'vue-router'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { formatDate, formatTime, formatDateTime } from '@/utils/datetime'
 
 export default {
   name: 'MeetupTable',
@@ -411,21 +412,7 @@ export default {
       currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + 1, 1)
     }
 
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'short',
-      })
-    }
-
-    const formatTime = (dateString) => {
-      return new Date(dateString).toLocaleTimeString('ko-KR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    }
+    // formatDate and formatTime are imported from @/utils/datetime
 
     const getStatus = (meetup) => {
       const meetupDate = new Date(meetup.date_time || meetup)
@@ -457,9 +444,7 @@ export default {
       return classes[status] || 'bg-gray-100 text-gray-800'
     }
 
-    const formatDateTime = (dateString) => {
-      return new Date(dateString).toLocaleString('ko-KR')
-    }
+    // formatDateTime is imported from @/utils/datetime
 
     const handleImageError = (event) => {
       // Hide broken image and show placeholder

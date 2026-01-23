@@ -542,6 +542,7 @@ import { ref, watch, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { toUTC, addDurationToLocal } from '@/utils/datetime'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import CustomDateInput from '@/components/CustomDateInput.vue'
 import CustomTimeSelect from '@/components/CustomTimeSelect.vue'
@@ -733,12 +734,11 @@ export default {
           return
         }
 
-        const dateTime = `${form.value.date}T${form.value.time}:00`
-        
-        // Calculate end time from start time and duration
-        const startDate = new Date(dateTime)
-        const endDate = new Date(startDate.getTime() + (form.value.duration * 60 * 60 * 1000))
-        const endDateTime = endDate.toISOString()
+        const dateTime = `${form.value.date}T${form.value.time}`
+
+        // Convert to UTC for storage
+        const dateTimeUTC = toUTC(dateTime)
+        const endDateTimeUTC = addDurationToLocal(dateTime, form.value.duration, 'hour')
         
         // Process hashtags - ensure they start with # and are comma-separated
         let processedHashtags = ''
@@ -759,8 +759,8 @@ export default {
         const meetupData = {
           name: form.value.name,
           description: form.value.description,
-          date_time: new Date(dateTime).toISOString(),
-          end_time: endDateTime,
+          date_time: dateTimeUTC,
+          end_time: endDateTimeUTC,
           location: form.value.location,
           max_participants: form.value.max_participants,
           hashtags: processedHashtags,

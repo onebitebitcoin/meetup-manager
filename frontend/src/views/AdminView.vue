@@ -410,6 +410,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { formatDate, formatDateTime } from '@/utils/datetime'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
 export default {
@@ -564,14 +565,7 @@ export default {
       }
     }
 
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString()
-    }
-
-    const formatDateTime = (dateTimeStr) => {
-      const date = new Date(dateTimeStr)
-      return date.toLocaleString()
-    }
+    // formatDate and formatDateTime are imported from @/utils/datetime
 
     return {
       authStore,

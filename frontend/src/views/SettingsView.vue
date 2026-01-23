@@ -2129,6 +2129,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { formatDateTime, toDateInput, toTimeInput, toUTC, addDurationToLocal, toLocal } from '@/utils/datetime'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import CustomDateInput from '@/components/CustomDateInput.vue'
 import CustomTimeSelect from '@/components/CustomTimeSelect.vue'
@@ -2730,42 +2731,21 @@ export default {
       }
     }
 
-    const formatDateTime = (dateTimeStr) => {
-      const date = new Date(dateTimeStr)
-      return date.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    }
+    // formatDateTime is imported from @/utils/datetime
 
     const editMeetup = (meetup) => {
-      
+
       // Calculate duration from start and end time
       let duration = 2 // default 2 hours
       if (meetup.date_time && meetup.end_time) {
-        const startTime = new Date(meetup.date_time)
-        const endTime = new Date(meetup.end_time)
-        duration = (endTime - startTime) / (1000 * 60 * 60) // convert to hours
+        const startTime = toLocal(meetup.date_time)
+        const endTime = toLocal(meetup.end_time)
+        duration = endTime.diff(startTime, 'hour', true) // convert to hours with decimals
       }
 
-      // Convert date_time to separate date and time fields
-      let dateValue = ''
-      let timeValue = ''
-      if (meetup.date_time) {
-        const date = new Date(meetup.date_time)
-        // Extract date and time separately
-        const year = date.getFullYear()
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
-        const hours = String(date.getHours()).padStart(2, '0')
-        const minutes = String(date.getMinutes()).padStart(2, '0')
-        
-        dateValue = `${year}-${month}-${day}`
-        timeValue = `${hours}:${minutes}`
-      }
+      // Convert date_time to separate date and time fields using datetime utilities
+      const dateValue = toDateInput(meetup.date_time)
+      const timeValue = toTimeInput(meetup.date_time)
 
       editForm.value = {
         name: meetup.name,
@@ -2798,19 +2778,19 @@ export default {
       updating.value = true
       try {
         // Construct datetime from separate date and time fields
-        const dateTime = `${editForm.value.date}T${editForm.value.time}:00`
-        const startTime = new Date(dateTime)
-        const endTime = new Date(
-          startTime.getTime() + editForm.value.duration * 60 * 60 * 1000,
-        )
+        const dateTime = `${editForm.value.date}T${editForm.value.time}`
+
+        // Convert to UTC for storage
+        const dateTimeUTC = toUTC(dateTime)
+        const endDateTimeUTC = addDurationToLocal(dateTime, editForm.value.duration, 'hour')
 
         // Prepare the data to send to the backend
         const updateData = {
           name: editForm.value.name,
           description: editForm.value.description,
           location: editForm.value.location,
-          date_time: startTime.toISOString(),
-          end_time: endTime.toISOString(),
+          date_time: dateTimeUTC,
+          end_time: endDateTimeUTC,
           max_participants: editForm.value.max_participants,
           hashtags: editForm.value.hashtags,
         }

@@ -278,6 +278,7 @@ import { useRoute } from 'vue-router'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { formatDateTime, formatTime, isPast } from '@/utils/datetime'
 
 export default {
   name: 'MeetupDetailView',
@@ -298,16 +299,7 @@ export default {
 
     const meetupId = computed(() => parseInt(route.params.id))
 
-    const formatDateTime = (dateString) => {
-      return new Date(dateString).toLocaleString('ko-KR')
-    }
-
-    const formatTime = (dateString) => {
-      return new Date(dateString).toLocaleTimeString('ko-KR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    }
+    // formatDateTime and formatTime are imported from @/utils/datetime
 
     const maskEmail = (email) => {
       if (!email) return ''
@@ -323,9 +315,7 @@ export default {
 
     const isMeetupPassed = computed(() => {
       if (!meetup.value?.date_time) return false
-      const meetupDate = new Date(meetup.value.date_time)
-      const now = new Date()
-      return meetupDate < now
+      return isPast(meetup.value.date_time)
     })
 
     const isCreator = computed(() => {

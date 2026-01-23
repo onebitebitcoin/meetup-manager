@@ -196,6 +196,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks'
 import { fetchWithCSRF } from '@/utils/csrf'
+import { formatDateTime, toDateTimeLocal, toUTC } from '@/utils/datetime'
 
 export default {
   name: 'TaskManageView',
@@ -228,10 +229,7 @@ export default {
       return isEditing.value ? '수정' : '과제 추가'
     })
 
-    const formatDateTime = (dateString) => {
-      if (!dateString) return ''
-      return new Date(dateString).toLocaleString('ko-KR')
-    }
+    // formatDateTime is imported from @/utils/datetime
 
     const fetchMeetupInfo = async () => {
       try {
@@ -259,16 +257,7 @@ export default {
       }
     }
 
-    const formatDateTimeLocal = (dateString) => {
-      if (!dateString) return ''
-      const date = new Date(dateString)
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      const hours = String(date.getHours()).padStart(2, '0')
-      const minutes = String(date.getMinutes()).padStart(2, '0')
-      return `${year}-${month}-${day}T${hours}:${minutes}`
-    }
+    // toDateTimeLocal is imported from @/utils/datetime
 
     const resetForm = () => {
       taskForm.value = { title: '', description: '', deadline: '' }
@@ -280,17 +269,19 @@ export default {
       if (!taskForm.value.title || !taskForm.value.deadline) return
       submitting.value = true
       try {
+        // Convert local datetime-local value to UTC for storage
+        const deadlineUTC = toUTC(taskForm.value.deadline)
         if (isEditing.value) {
           await tasksStore.updateTask(editingTaskId.value, {
             title: taskForm.value.title,
             description: taskForm.value.description,
-            deadline: taskForm.value.deadline,
+            deadline: deadlineUTC,
           })
         } else {
           await tasksStore.createTask(meetupId.value, {
             title: taskForm.value.title,
             description: taskForm.value.description,
-            deadline: taskForm.value.deadline,
+            deadline: deadlineUTC,
           })
         }
         await loadTasks()
@@ -307,7 +298,7 @@ export default {
       taskForm.value = {
         title: task.title,
         description: task.description || '',
-        deadline: formatDateTimeLocal(task.deadline),
+        deadline: toDateTimeLocal(task.deadline),
       }
       isEditing.value = true
       window.scrollTo({ top: 0, behavior: 'smooth' })
