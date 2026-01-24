@@ -260,7 +260,7 @@
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && isMeetupPassed && canWriteReview"
               class="w-full py-4 px-6 rounded-lg text-base font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-300 dark:hover:bg-amber-800 transition-colors duration-200 flex items-center justify-center gap-2"
-              @click="openReviewModal"
+              @click="toggleReviewForm"
             >
               <svg
                 class="w-5 h-5"
@@ -275,8 +275,73 @@
                   d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
                 />
               </svg>
-              {{ myReview ? '내 후기 수정' : '후기 남기기' }}
+              {{ showReviewForm ? '접기' : (myReview ? '내 후기 수정' : '후기 남기기') }}
             </button>
+
+            <!-- Inline Review Form -->
+            <div
+              v-if="showReviewForm && authStore.isLoggedIn && !authStore.isGuest && isMeetupPassed && canWriteReview"
+              class="w-full p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg space-y-3"
+            >
+              <!-- Rating -->
+              <div class="flex items-center gap-1">
+                <button
+                  v-for="n in 5"
+                  :key="n"
+                  type="button"
+                  class="p-0.5"
+                  @click="reviewRating = n"
+                >
+                  <svg
+                    :class="[
+                      'w-7 h-7 transition-colors',
+                      n <= reviewRating
+                        ? 'text-yellow-400'
+                        : 'text-neutral-300 dark:text-neutral-500'
+                    ]"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </button>
+                <span class="ml-2 text-sm text-neutral-500 dark:text-neutral-400">{{ reviewRating }}점</span>
+              </div>
+
+              <!-- Content -->
+              <textarea
+                v-model="reviewContent"
+                rows="3"
+                maxlength="500"
+                placeholder="후기를 입력해주세요"
+                class="w-full px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-400 resize-none"
+              />
+              <div class="text-right text-xs text-neutral-400">
+                {{ reviewContent.length }}/500
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex items-center justify-between">
+                <button
+                  v-if="myReview"
+                  type="button"
+                  :disabled="savingReview"
+                  class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                  @click="deleteReview"
+                >
+                  삭제
+                </button>
+                <div v-else />
+                <button
+                  type="button"
+                  :disabled="!reviewContent.trim() || savingReview"
+                  class="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-neutral-400 disabled:cursor-not-allowed rounded-lg"
+                  @click="saveReview"
+                >
+                  {{ savingReview ? '저장 중...' : '저장하기' }}
+                </button>
+              </div>
+            </div>
 
             <!-- Unregister Button -->
             <button
@@ -291,33 +356,20 @@
         </div>
       </div>
     </div>
-
-    <!-- Review Modal -->
-    <ReviewModal
-      v-if="showReviewModal && meetup"
-      :meetup="meetup"
-      :existing-review="myReview"
-      @close="closeReviewModal"
-      @saved="handleReviewSaved"
-    />
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
 import { useReviewsStore } from '@/stores/reviews'
 import { fetchWithCSRF } from '@/utils/csrf'
 import { formatDateTime, formatTime, isPast } from '@/utils/datetime'
-import ReviewModal from '@/components/ReviewModal.vue'
 
 export default {
   name: 'MeetupDetailView',
-  components: {
-    ReviewModal,
-  },
   setup() {
     const route = useRoute()
     const meetupsStore = useMeetupsStore()
@@ -335,9 +387,12 @@ export default {
     const waitlistPosition = ref(0)
 
     // Review related
-    const showReviewModal = ref(false)
+    const showReviewForm = ref(false)
     const myReview = ref(null)
     const canWriteReview = ref(false)
+    const reviewRating = ref(5)
+    const reviewContent = ref('')
+    const savingReview = ref(false)
 
     const meetupId = computed(() => parseInt(route.params.id))
 
@@ -528,18 +583,70 @@ export default {
       }
     }
 
-    const openReviewModal = () => {
-      showReviewModal.value = true
+    const toggleReviewForm = () => {
+      showReviewForm.value = !showReviewForm.value
+      if (showReviewForm.value && myReview.value) {
+        // 기존 후기가 있으면 폼에 채우기
+        reviewRating.value = myReview.value.rating
+        reviewContent.value = myReview.value.content
+      }
     }
 
-    const closeReviewModal = () => {
-      showReviewModal.value = false
+    const saveReview = async () => {
+      if (savingReview.value || !reviewContent.value.trim()) return
+
+      savingReview.value = true
+      const reviewData = {
+        rating: reviewRating.value,
+        content: reviewContent.value.trim(),
+      }
+
+      let result
+      if (myReview.value) {
+        result = await reviewsStore.updateReview(meetupId.value, reviewData)
+      } else {
+        result = await reviewsStore.createReview(meetupId.value, reviewData)
+      }
+
+      savingReview.value = false
+
+      if (result.success) {
+        alert(myReview.value ? '후기가 수정되었습니다.' : '후기가 등록되었습니다.')
+        showReviewForm.value = false
+        await checkReviewStatus()
+      } else {
+        alert(result.error)
+      }
     }
 
-    const handleReviewSaved = async () => {
-      // Refresh review status after save
-      await checkReviewStatus()
+    const deleteReview = async () => {
+      if (!confirm('후기를 삭제하시겠습니까?')) return
+
+      savingReview.value = true
+      const result = await reviewsStore.deleteReview(meetupId.value)
+      savingReview.value = false
+
+      if (result.success) {
+        alert('후기가 삭제되었습니다.')
+        reviewRating.value = 5
+        reviewContent.value = ''
+        showReviewForm.value = false
+        await checkReviewStatus()
+      } else {
+        alert(result.error)
+      }
     }
+
+    // myReview가 변경되면 폼에 반영
+    watch(myReview, (newReview) => {
+      if (newReview) {
+        reviewRating.value = newReview.rating
+        reviewContent.value = newReview.content
+      } else {
+        reviewRating.value = 5
+        reviewContent.value = ''
+      }
+    })
 
     const registerForMeetup = async () => {
       if (registering.value) return
@@ -660,12 +767,15 @@ export default {
       leaveWaitlist,
       handleImageError,
       // Review
-      showReviewModal,
+      showReviewForm,
       myReview,
       canWriteReview,
-      openReviewModal,
-      closeReviewModal,
-      handleReviewSaved,
+      reviewRating,
+      reviewContent,
+      savingReview,
+      toggleReviewForm,
+      saveReview,
+      deleteReview,
     }
   },
 }
