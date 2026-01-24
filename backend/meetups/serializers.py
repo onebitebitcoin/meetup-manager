@@ -310,7 +310,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'meetup', 'user', 'rating', 'content', 'created_at', 'updated_at',
                   'user_name_masked', 'meetup_name', 'meetup_date', 'meetup_image_url', 'time_ago']
-        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'meetup', 'user', 'created_at', 'updated_at']
 
     def get_user_name_masked(self, obj):
         """사용자 이름 마스킹 (김철수 -> 김*수)"""
