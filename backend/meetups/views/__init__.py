@@ -5,7 +5,6 @@ from .admin import (
     admin_statistics,
     admin_toggle_user_admin,
     admin_users_list,
-    is_admin_user,
 )
 from .auth import (
     check_username_availability,
@@ -81,7 +80,6 @@ __all__ = [
     'admin_statistics',
     'admin_toggle_user_admin',
     'admin_users_list',
-    'is_admin_user',
     'add_to_waitlist',
     'check_waitlist_status',
     'meetup_waitlist',

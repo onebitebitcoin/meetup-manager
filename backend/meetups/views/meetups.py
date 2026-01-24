@@ -16,12 +16,13 @@ from ..serializers import (
     MeetupUserSerializer,
 )
 from .helpers import (
-    ensure_authenticated,
-    ensure_meetup_creator,
-    ensure_meetup_creator_or_admin,
-    get_meetup_or_response,
-    get_meetup_user_or_response,
+    APIResponse,
+    get_object_or_error,
     get_or_create_meetup_profile,
+    require_profile,
+    require_meetup_access,
+    require_meetup_creator,
+    require_meetup_creator_or_admin,
 )
 
 
@@ -45,35 +46,36 @@ class MeetupListCreateView(generics.ListCreateAPIView):
             serializer.save()
             return
 
-        meetup_user, error = get_meetup_user_or_response(self.request)
-        if error:
+        try:
+            meetup_user = self.request.user.meetup_profile
+            serializer.save(creator=meetup_user)
+        except MeetupUser.DoesNotExist:
             serializer.save()
-            return
-
-        serializer.save(creator=meetup_user)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def meetup_detail(request, pk):
-    meetup, error = get_meetup_or_response(pk, lookup_field='pk')
+    """밋업 상세 조회/수정/삭제"""
+    meetup, error = get_object_or_error(Meetup, '모임을 찾을 수 없습니다', pk=pk)
     if error:
         return error
 
+    # GET: 누구나 조회 가능
     if request.method == 'GET':
         serializer = MeetupSerializer(meetup, context={'request': request})
         return Response(serializer.data)
 
-    auth_error = ensure_authenticated(request)
-    if auth_error:
-        return auth_error
+    # PUT/DELETE: 인증 + 생성자/관리자 권한 필요
+    if not request.user.is_authenticated:
+        return APIResponse.unauthorized()
 
-    meetup_user, profile_error = get_meetup_user_or_response(request)
-    if profile_error:
-        return profile_error
+    try:
+        meetup_user = request.user.meetup_profile
+    except MeetupUser.DoesNotExist:
+        return APIResponse.error('사용자 프로필을 찾을 수 없습니다', status.HTTP_404_NOT_FOUND)
 
-    permission_error = ensure_meetup_creator_or_admin(meetup, meetup_user)
-    if permission_error:
-        return permission_error
+    if meetup.creator != meetup_user and not meetup_user.is_admin:
+        return APIResponse.forbidden()
 
     if request.method == 'PUT':
         serializer = MeetupSerializer(meetup, data=request.data, partial=True, context={'request': request})
@@ -82,19 +84,16 @@ def meetup_detail(request, pk):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # DELETE
     meetup.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    return APIResponse.no_content()
 
 
 @api_view(['GET'])
+@require_profile
 def user_meetups(request):
-    auth_error = ensure_authenticated(request)
-    if auth_error:
-        return auth_error
-
-    meetup_user, profile_error = get_meetup_user_or_response(request)
-    if profile_error:
-        return profile_error
+    """사용자가 생성한 밋업 목록 조회"""
+    meetup_user = request.meetup_user
 
     month_param = request.query_params.get('month')
     page_param = request.query_params.get('page', 1)
@@ -114,10 +113,7 @@ def user_meetups(request):
             if month < 1 or month > 12:
                 raise ValueError
         except (ValueError, AttributeError):
-            return Response(
-                {'error': 'month 파라미터 형식은 YYYY-MM 이어야 합니다.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return APIResponse.error('month 파라미터 형식은 YYYY-MM 이어야 합니다.')
 
     start_of_month = timezone.make_aware(datetime(year, month, 1, 0, 0, 0), timezone=tz)
     if month == 12:
@@ -170,7 +166,8 @@ def health_check(request):
 
 @api_view(['GET'])
 def meetup_registrations(request, meetup_id):
-    meetup, error = get_meetup_or_response(meetup_id)
+    """밋업 참가자 목록 조회"""
+    meetup, error = get_object_or_error(Meetup, '모임을 찾을 수 없습니다', id=meetup_id)
     if error:
         return error
 
@@ -182,113 +179,90 @@ def meetup_registrations(request, meetup_id):
         'registered_at': reg.registered_at
     } for reg in registrations]
 
-    return Response({'meetup_id': meetup_id, 'registrations': registration_data}, status=status.HTTP_200_OK)
+    return APIResponse.success({'meetup_id': meetup_id, 'registrations': registration_data})
 
 
 @api_view(['POST'])
+@require_meetup_access('meetup_id')
 def register_for_meetup(request, meetup_id):
-    auth_error = ensure_authenticated(request)
-    if auth_error:
-        return auth_error
-
-    meetup, meetup_error = get_meetup_or_response(meetup_id)
-    if meetup_error:
-        return meetup_error
-
-    meetup_user, profile_error = get_meetup_user_or_response(request)
-    if profile_error:
-        return profile_error
+    """밋업 참가 신청"""
+    meetup = request.meetup
+    meetup_user = request.meetup_user
 
     if Registration.objects.filter(user=meetup_user, meetup=meetup).exists():
-        return Response({'error': '이미 이 모임에 신청되어 있습니다'}, status=status.HTTP_400_BAD_REQUEST)
+        return APIResponse.error('이미 이 모임에 신청되어 있습니다')
 
     if Waitlist.objects.filter(user=meetup_user, meetup=meetup).exists():
-        return Response({'error': '이미 이 모임 대기열에 등록되어 있습니다'}, status=status.HTTP_400_BAD_REQUEST)
+        return APIResponse.error('이미 이 모임 대기열에 등록되어 있습니다')
 
     if meetup.is_full:
-        return Response({
-            'error': '모임 정원이 가득 찼습니다',
-            'can_waitlist': True,
-            'message': '대기열에 등록하시겠습니까?'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return APIResponse.error('모임 정원이 가득 찼습니다')
 
     registration = Registration.objects.create(user=meetup_user, meetup=meetup)
-    return Response({'message': '신청이 완료되었습니다', 'registration_id': registration.id}, status=status.HTTP_201_CREATED)
+    return APIResponse.created({
+        'message': '신청이 완료되었습니다',
+        'registration_id': registration.id
+    })
 
 
 @api_view(['DELETE'])
+@require_meetup_access('meetup_id')
 def unregister_from_meetup(request, meetup_id):
-    auth_error = ensure_authenticated(request)
-    if auth_error:
-        return auth_error
+    """밋업 참가 취소"""
+    meetup = request.meetup
+    meetup_user = request.meetup_user
 
-    meetup, meetup_error = get_meetup_or_response(meetup_id)
-    if meetup_error:
-        return meetup_error
-
-    meetup_user, profile_error = get_meetup_user_or_response(request)
-    if profile_error:
-        return profile_error
-
-    try:
-        registration = Registration.objects.get(user=meetup_user, meetup=meetup)
-    except Registration.DoesNotExist:
-        return Response({'error': '신청 정보를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    registration, error = get_object_or_error(
+        Registration, '신청 정보를 찾을 수 없습니다',
+        user=meetup_user, meetup=meetup
+    )
+    if error:
+        return error
 
     registration.delete()
-    return Response({'message': '신청 취소가 완료되었습니다'}, status=status.HTTP_200_OK)
+    return APIResponse.success(message='신청 취소가 완료되었습니다')
 
 
 @api_view(['GET'])
 def check_registration_status(request, meetup_id):
-    auth_error = ensure_authenticated(request, {'is_registered': False}, status.HTTP_200_OK)
-    if auth_error:
-        return auth_error
+    """밋업 등록 상태 확인"""
+    # 비로그인 사용자는 is_registered=False 반환
+    if not request.user.is_authenticated:
+        return APIResponse.success({'is_registered': False})
 
-    meetup, meetup_error = get_meetup_or_response(meetup_id)
-    if meetup_error:
-        return meetup_error
+    meetup, error = get_object_or_error(Meetup, '모임을 찾을 수 없습니다', id=meetup_id)
+    if error:
+        return error
 
-    meetup_user, profile_error = get_meetup_user_or_response(request, {'is_registered': False}, status.HTTP_200_OK)
-    if profile_error:
-        return profile_error
+    try:
+        meetup_user = request.user.meetup_profile
+    except MeetupUser.DoesNotExist:
+        return APIResponse.success({'is_registered': False})
 
     is_registered = Registration.objects.filter(user=meetup_user, meetup=meetup).exists()
-    return Response({'is_registered': is_registered, 'meetup_id': meetup_id}, status=status.HTTP_200_OK)
+    return APIResponse.success({'is_registered': is_registered, 'meetup_id': meetup_id})
 
 
 @api_view(['POST'])
+@require_meetup_creator('meetup_id')
 def add_participant_by_email(request, meetup_id):
-    auth_error = ensure_authenticated(request)
-    if auth_error:
-        return auth_error
-
-    meetup, meetup_error = get_meetup_or_response(meetup_id)
-    if meetup_error:
-        return meetup_error
-
-    meetup_user, profile_error = get_meetup_user_or_response(request)
-    if profile_error:
-        return profile_error
-
-    permission_error = ensure_meetup_creator(meetup, meetup_user, '모임 생성자만 참가자를 추가할 수 있습니다')
-    if permission_error:
-        return permission_error
+    """이메일로 참가자 추가 (생성자만)"""
+    meetup = request.meetup
 
     email = request.data.get('email')
     if not email:
-        return Response({'error': '이메일이 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
+        return APIResponse.error('이메일이 필요합니다')
 
     if meetup.is_full:
-        return Response({'error': '모임 정원이 가득 찼습니다'}, status=status.HTTP_400_BAD_REQUEST)
+        return APIResponse.error('모임 정원이 가득 찼습니다')
 
     participant_user = _resolve_participant(email)
 
     if Registration.objects.filter(user=participant_user, meetup=meetup).exists():
-        return Response({'error': '이미 이 모임에 등록된 사용자입니다'}, status=status.HTTP_400_BAD_REQUEST)
+        return APIResponse.error('이미 이 모임에 등록된 사용자입니다')
 
     registration = Registration.objects.create(user=participant_user, meetup=meetup)
-    return Response({
+    return APIResponse.created({
         'message': '참가자가 성공적으로 추가되었습니다',
         'participant': {
             'id': participant_user.id,
@@ -296,39 +270,29 @@ def add_participant_by_email(request, meetup_id):
             'email': participant_user.email,
             'registration_id': registration.id
         }
-    }, status=status.HTTP_201_CREATED)
+    })
 
 
 @api_view(['DELETE'])
+@require_meetup_creator('meetup_id')
 def remove_participant(request, meetup_id, registration_id):
-    auth_error = ensure_authenticated(request)
-    if auth_error:
-        return auth_error
+    """참가자 제거 (생성자만)"""
+    meetup = request.meetup
 
-    meetup, meetup_error = get_meetup_or_response(meetup_id)
-    if meetup_error:
-        return meetup_error
-
-    meetup_user, profile_error = get_meetup_user_or_response(request)
-    if profile_error:
-        return profile_error
-
-    permission_error = ensure_meetup_creator(meetup, meetup_user, '모임 생성자만 참가자를 제거할 수 있습니다')
-    if permission_error:
-        return permission_error
-
-    try:
-        registration = Registration.objects.get(id=registration_id, meetup=meetup)
-    except Registration.DoesNotExist:
-        return Response({'error': '신청 정보를 찾을 수 없습니다'}, status=status.HTTP_404_NOT_FOUND)
+    registration, error = get_object_or_error(
+        Registration, '신청 정보를 찾을 수 없습니다',
+        id=registration_id, meetup=meetup
+    )
+    if error:
+        return error
 
     registration.delete()
-    return Response({'message': '참가자가 성공적으로 제거되었습니다'}, status=status.HTTP_200_OK)
+    return APIResponse.success(message='참가자가 성공적으로 제거되었습니다')
 
 
 def _resolve_participant(email):
     """
-    Resolve an existing participant or create a new MeetupUser guest profile.
+    이메일로 참가자 조회 또는 게스트 프로필 생성
     """
     try:
         django_user = User.objects.get(email=email)

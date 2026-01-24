@@ -4,11 +4,12 @@ import logging
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from ..models import Meetup, MeetupUser, Registration, Review
 from ..serializers import ReviewSerializer
+from .helpers import APIResponse, get_object_or_error, require_profile
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ def is_meetup_ended(meetup):
     return meetup.date_time < now
 
 
-def can_write_review(user, meetup):
+def can_write_review(meetup_user, meetup):
     """
     사용자가 후기를 작성할 수 있는지 확인
     - 밋업이 종료됨
@@ -29,11 +30,6 @@ def can_write_review(user, meetup):
     """
     if not is_meetup_ended(meetup):
         return False, "모임이 아직 종료되지 않았습니다."
-
-    try:
-        meetup_user = user.meetup_profile
-    except MeetupUser.DoesNotExist:
-        return False, "사용자 프로필을 찾을 수 없습니다."
 
     # 밋업 생성자인지 확인
     if meetup.creator == meetup_user:
@@ -65,7 +61,7 @@ def review_feed(request):
 
     serializer = ReviewSerializer(reviews, many=True, context={'request': request})
 
-    return Response({
+    return APIResponse.success({
         'reviews': serializer.data,
         'total': total,
         'page': page,
@@ -80,11 +76,11 @@ def recent_reviews(request):
     """최근 후기 5개 조회 (대시보드용)"""
     reviews = Review.objects.select_related('user', 'meetup').all()[:5]
     serializer = ReviewSerializer(reviews, many=True, context={'request': request})
-    return Response({'reviews': serializer.data})
+    return APIResponse.success({'reviews': serializer.data})
 
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@require_profile
 def meetup_review(request, meetup_id):
     """
     밋업별 후기 CRUD
@@ -93,40 +89,32 @@ def meetup_review(request, meetup_id):
     PUT: 후기 수정
     DELETE: 후기 삭제
     """
-    try:
-        meetup = Meetup.objects.get(id=meetup_id)
-    except Meetup.DoesNotExist:
-        return Response({'error': '모임을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+    meetup, error = get_object_or_error(Meetup, '모임을 찾을 수 없습니다.', id=meetup_id)
+    if error:
+        return error
 
-    try:
-        meetup_user = request.user.meetup_profile
-    except MeetupUser.DoesNotExist:
-        return Response({'error': '사용자 프로필을 찾을 수 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+    meetup_user = request.meetup_user
 
     if request.method == 'GET':
-        # 내 후기 조회
         try:
             review = Review.objects.get(meetup=meetup, user=meetup_user)
             serializer = ReviewSerializer(review, context={'request': request})
             return Response(serializer.data)
         except Review.DoesNotExist:
-            # 후기가 없는 경우, 작성 가능 여부 확인
-            can_write, error_msg = can_write_review(request.user, meetup)
-            return Response({
+            can_write, error_msg = can_write_review(meetup_user, meetup)
+            return APIResponse.success({
                 'review': None,
                 'can_write': can_write,
                 'error': error_msg
             })
 
     elif request.method == 'POST':
-        # 후기 작성
-        can_write, error_msg = can_write_review(request.user, meetup)
+        can_write, error_msg = can_write_review(meetup_user, meetup)
         if not can_write:
-            return Response({'error': error_msg}, status=status.HTTP_400_BAD_REQUEST)
+            return APIResponse.error(error_msg)
 
-        # 이미 후기가 있는지 확인
         if Review.objects.filter(meetup=meetup, user=meetup_user).exists():
-            return Response({'error': '이미 후기를 작성하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            return APIResponse.error('이미 후기를 작성하셨습니다.')
 
         serializer = ReviewSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -137,11 +125,9 @@ def meetup_review(request, meetup_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'PUT':
-        # 후기 수정
-        try:
-            review = Review.objects.get(meetup=meetup, user=meetup_user)
-        except Review.DoesNotExist:
-            return Response({'error': '수정할 후기가 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+        review, error = get_object_or_error(Review, '수정할 후기가 없습니다.', meetup=meetup, user=meetup_user)
+        if error:
+            return error
 
         serializer = ReviewSerializer(review, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
@@ -152,25 +138,22 @@ def meetup_review(request, meetup_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        # 후기 삭제
-        try:
-            review = Review.objects.get(meetup=meetup, user=meetup_user)
-        except Review.DoesNotExist:
-            return Response({'error': '삭제할 후기가 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+        review, error = get_object_or_error(Review, '삭제할 후기가 없습니다.', meetup=meetup, user=meetup_user)
+        if error:
+            return error
 
         review.delete()
         logger.info(f"Review deleted: user={meetup_user.id}, meetup={meetup_id}")
-        return Response({'message': '후기가 삭제되었습니다.'}, status=status.HTTP_200_OK)
+        return APIResponse.success(message='후기가 삭제되었습니다.')
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def meetup_reviews_list(request, meetup_id):
     """특정 밋업의 모든 후기 조회"""
-    try:
-        meetup = Meetup.objects.get(id=meetup_id)
-    except Meetup.DoesNotExist:
-        return Response({'error': '모임을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+    meetup, error = get_object_or_error(Meetup, '모임을 찾을 수 없습니다.', id=meetup_id)
+    if error:
+        return error
 
     reviews = Review.objects.filter(meetup=meetup).select_related('user')
     serializer = ReviewSerializer(reviews, many=True, context={'request': request})
@@ -181,7 +164,7 @@ def meetup_reviews_list(request, meetup_id):
     else:
         avg_rating = 0
 
-    return Response({
+    return APIResponse.success({
         'reviews': serializer.data,
         'total': reviews.count(),
         'average_rating': round(avg_rating, 1)
