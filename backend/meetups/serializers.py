@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 
-from .models import Meetup, MeetupUser, Notification, Registration, Task, TaskSubmission, Waitlist
+from .models import Meetup, MeetupUser, Notification, Registration, Review, Task, TaskSubmission, Waitlist
 from .utils.keyboard_converter import has_korean_characters, korean_to_english
 from .utils.secure_logging import log_korean_conversion
 
@@ -296,3 +296,73 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
             import os
             return os.path.basename(obj.file.name)
         return None
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """후기 시리얼라이저"""
+    user_name_masked = serializers.SerializerMethodField()
+    meetup_name = serializers.CharField(source='meetup.name', read_only=True)
+    meetup_date = serializers.DateTimeField(source='meetup.date_time', read_only=True)
+    meetup_image_url = serializers.SerializerMethodField()
+    time_ago = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Review
+        fields = ['id', 'meetup', 'user', 'rating', 'content', 'created_at', 'updated_at',
+                  'user_name_masked', 'meetup_name', 'meetup_date', 'meetup_image_url', 'time_ago']
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+
+    def get_user_name_masked(self, obj):
+        """사용자 이름 마스킹 (김철수 -> 김*수)"""
+        name = obj.user.name
+        if len(name) <= 1:
+            return name
+        elif len(name) == 2:
+            return name[0] + '*'
+        else:
+            return name[0] + '*' * (len(name) - 2) + name[-1]
+
+    def get_meetup_image_url(self, obj):
+        """밋업 이미지 URL 반환"""
+        if obj.meetup.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.meetup.image.url)
+            from django.conf import settings
+            site_url = getattr(settings, 'SITE_URL', '')
+            if site_url:
+                return f"{site_url.rstrip('/')}{obj.meetup.image.url}"
+            return obj.meetup.image.url
+        elif obj.meetup.image_url:
+            return obj.meetup.image_url
+        return None
+
+    def get_time_ago(self, obj):
+        """상대 시간 반환 (예: 3시간 전)"""
+        from django.utils import timezone
+
+        now = timezone.now()
+        diff = now - obj.created_at
+
+        if diff.days > 0:
+            return f"{diff.days}일 전"
+        elif diff.seconds >= 3600:
+            hours = diff.seconds // 3600
+            return f"{hours}시간 전"
+        elif diff.seconds >= 60:
+            minutes = diff.seconds // 60
+            return f"{minutes}분 전"
+        else:
+            return "방금 전"
+
+    def validate_rating(self, value):
+        """별점 유효성 검사"""
+        if value < 1 or value > 5:
+            raise serializers.ValidationError("별점은 1~5 사이여야 합니다.")
+        return value
+
+    def validate_content(self, value):
+        """내용 유효성 검사"""
+        if len(value) > 500:
+            raise serializers.ValidationError("후기는 500자 이내로 작성해주세요.")
+        return value

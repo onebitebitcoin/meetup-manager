@@ -24,6 +24,12 @@
               관리자
             </router-link>
             <router-link
+              to="/reviews"
+              class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
+            >
+              후기
+            </router-link>
+            <router-link
               to="/help"
               class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
             >
@@ -54,6 +60,26 @@
                   stroke-linejoin="round"
                   stroke-width="2"
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </router-link>
+            <!-- Mobile: Reviews navigation -->
+            <router-link
+              to="/reviews"
+              class="sm:hidden p-1 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 rounded-md"
+              title="후기"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                 />
               </svg>
             </router-link>
@@ -659,6 +685,33 @@
             />
           </div>
         </div>
+
+        <!-- Recent Reviews Section -->
+        <div
+          v-if="recentReviews.length > 0"
+          class="mt-8 bg-white dark:bg-neutral-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-neutral-700"
+        >
+          <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                최근 후기
+              </h3>
+              <router-link
+                to="/reviews"
+                class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
+              >
+                더 보기
+              </router-link>
+            </div>
+            <div class="space-y-4">
+              <ReviewCard
+                v-for="review in recentReviews"
+                :key="review.id"
+                :review="review"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -677,6 +730,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useMeetupsStore } from '@/stores/meetups'
+import { useReviewsStore } from '@/stores/reviews'
 import { formatDateTime } from '@/utils/datetime'
 import CalendarView from '@/components/CalendarView.vue'
 import MeetupTable from '@/components/MeetupTable.vue'
@@ -684,6 +738,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
 import AdsBanner from '@/components/AdsBanner.vue'
 import MeetupDetailModal from '@/components/MeetupDetailModal.vue'
 import CustomSelect from '@/components/CustomSelect.vue'
+import ReviewCard from '@/components/ReviewCard.vue'
 
 export default {
   name: 'DashboardView',
@@ -694,11 +749,13 @@ export default {
     AdsBanner,
     MeetupDetailModal,
     CustomSelect,
+    ReviewCard,
   },
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
     const meetupsStore = useMeetupsStore()
+    const reviewsStore = useReviewsStore()
     const activeView = ref('calendar')
     const showMobileFilters = ref(false) // Collapsed by default on mobile
     
@@ -1058,11 +1115,15 @@ export default {
       meetupsStore.fetchMeetups()
     }
 
+    // Recent reviews
+    const recentReviews = computed(() => reviewsStore.recentReviews)
+
     onMounted(async () => {
       authStore.checkAuth()
       // Small delay to ensure session is fully established after login
       await new Promise((resolve) => setTimeout(resolve, 100))
       await meetupsStore.fetchMeetups()
+      await reviewsStore.fetchRecentReviews()
     })
 
     return {
@@ -1098,6 +1159,8 @@ export default {
       handleBannerClick,
       closeMeetupModal,
       handleMeetupUpdated,
+      // Reviews
+      recentReviews,
     }
   },
 }

@@ -2,7 +2,7 @@ import os
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -276,3 +276,22 @@ class TaskSubmission(models.Model):
 
     def __str__(self):
         return f"{self.user.name} - {self.task.title}"
+
+
+class Review(models.Model):
+    """밋업 후기 모델"""
+    meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(MeetupUser, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    content = models.TextField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('meetup', 'user')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.name} - {self.meetup.name} ({self.rating}점)"

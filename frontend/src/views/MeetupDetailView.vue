@@ -256,6 +256,28 @@
               과제 확인
             </button>
 
+            <!-- Review Button - Visible when meetup is ended and user can write review -->
+            <button
+              v-if="authStore.isLoggedIn && !authStore.isGuest && isMeetupPassed && canWriteReview"
+              class="w-full py-4 px-6 rounded-lg text-base font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-300 dark:hover:bg-amber-800 transition-colors duration-200 flex items-center justify-center gap-2"
+              @click="openReviewModal"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                />
+              </svg>
+              {{ myReview ? '내 후기 수정' : '후기 남기기' }}
+            </button>
+
             <!-- Unregister Button -->
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && isRegistered"
@@ -269,6 +291,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Review Modal -->
+    <ReviewModal
+      v-if="showReviewModal && meetup"
+      :meetup="meetup"
+      :existing-review="myReview"
+      @close="closeReviewModal"
+      @saved="handleReviewSaved"
+    />
   </div>
 </template>
 
@@ -277,15 +308,21 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMeetupsStore } from '@/stores/meetups'
 import { useAuthStore } from '@/stores/auth'
+import { useReviewsStore } from '@/stores/reviews'
 import { fetchWithCSRF } from '@/utils/csrf'
 import { formatDateTime, formatTime, isPast } from '@/utils/datetime'
+import ReviewModal from '@/components/ReviewModal.vue'
 
 export default {
   name: 'MeetupDetailView',
+  components: {
+    ReviewModal,
+  },
   setup() {
     const route = useRoute()
     const meetupsStore = useMeetupsStore()
     const authStore = useAuthStore()
+    const reviewsStore = useReviewsStore()
 
     const meetup = ref(null)
     const loading = ref(true)
@@ -296,6 +333,11 @@ export default {
     const isRegistered = ref(false)
     const isWaitlisted = ref(false)
     const waitlistPosition = ref(0)
+
+    // Review related
+    const showReviewModal = ref(false)
+    const myReview = ref(null)
+    const canWriteReview = ref(false)
 
     const meetupId = computed(() => parseInt(route.params.id))
 
@@ -458,6 +500,47 @@ export default {
       }
     }
 
+    // Check if user can write review and fetch existing review
+    const checkReviewStatus = async () => {
+      if (!authStore.isLoggedIn || authStore.isGuest) {
+        canWriteReview.value = false
+        myReview.value = null
+        return
+      }
+
+      try {
+        const result = await reviewsStore.getMyReview(meetupId.value)
+        if (result) {
+          if (result.id) {
+            // User has a review
+            myReview.value = result
+            canWriteReview.value = true
+          } else {
+            // No review yet
+            myReview.value = null
+            canWriteReview.value = result.can_write || false
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check review status:', err)
+        canWriteReview.value = false
+        myReview.value = null
+      }
+    }
+
+    const openReviewModal = () => {
+      showReviewModal.value = true
+    }
+
+    const closeReviewModal = () => {
+      showReviewModal.value = false
+    }
+
+    const handleReviewSaved = async () => {
+      // Refresh review status after save
+      await checkReviewStatus()
+    }
+
     const registerForMeetup = async () => {
       if (registering.value) return
 
@@ -550,6 +633,7 @@ export default {
       if (meetup.value) {
         fetchParticipants()
         checkRegistrationStatus()
+        checkReviewStatus()
       }
     })
 
@@ -575,6 +659,13 @@ export default {
       unregisterFromMeetup,
       leaveWaitlist,
       handleImageError,
+      // Review
+      showReviewModal,
+      myReview,
+      canWriteReview,
+      openReviewModal,
+      closeReviewModal,
+      handleReviewSaved,
     }
   },
 }

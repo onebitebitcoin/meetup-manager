@@ -12,6 +12,7 @@ import TaskManageView from '@/views/TaskManageView.vue'
 import TaskSubmissionsView from '@/views/TaskSubmissionsView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import HelpView from '@/views/HelpView.vue'
+import ReviewFeedView from '@/views/ReviewFeedView.vue'
 
 const routes = [
   {
@@ -88,6 +89,11 @@ const routes = [
     path: '/help',
     name: 'Help',
     component: HelpView,
+  },
+  {
+    path: '/reviews',
+    name: 'Reviews',
+    component: ReviewFeedView,
   },
 ]
 

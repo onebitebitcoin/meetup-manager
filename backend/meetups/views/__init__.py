@@ -49,6 +49,12 @@ from .waitlist import (
     remove_from_waitlist,
     user_waitlists,
 )
+from .reviews import (
+    meetup_review,
+    meetup_reviews_list,
+    recent_reviews,
+    review_feed,
+)
 
 __all__ = [
     'check_username_availability',
@@ -91,4 +97,8 @@ __all__ = [
     'task_submissions',
     'submit_task',
     'review_submission',
+    'meetup_review',
+    'meetup_reviews_list',
+    'recent_reviews',
+    'review_feed',
 ]

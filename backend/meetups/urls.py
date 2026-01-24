@@ -52,4 +52,10 @@ urlpatterns = [
     path('api/tasks/<int:task_id>/submissions/', views.task_submissions, name='task-submissions'),
     path('api/tasks/<int:task_id>/submit/', views.submit_task, name='submit-task'),
     path('api/submissions/<int:submission_id>/review/', views.review_submission, name='review-submission'),
+
+    # Review endpoints
+    path('api/reviews/', views.review_feed, name='review-feed'),
+    path('api/reviews/recent/', views.recent_reviews, name='recent-reviews'),
+    path('api/meetups/<int:meetup_id>/review/', views.meetup_review, name='meetup-review'),
+    path('api/meetups/<int:meetup_id>/reviews/', views.meetup_reviews_list, name='meetup-reviews-list'),
 ]
