@@ -3,7 +3,7 @@
     class="py-1.5 px-2 bg-white dark:bg-neutral-800 rounded border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
     @click="toggle"
   >
-    <!-- Collapsed View -->
+    <!-- Main Row -->
     <div class="flex items-center gap-2">
       <!-- Rating -->
       <div class="flex items-center gap-px flex-shrink-0">
@@ -22,6 +22,10 @@
           </svg>
         </template>
       </div>
+      <!-- Meetup Name -->
+      <span class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate max-w-20 flex-shrink-0">
+        {{ review.meetup_name }}
+      </span>
       <!-- Content (truncated or full) -->
       <p
         :class="[
@@ -33,7 +37,7 @@
       </p>
       <!-- Meta -->
       <div class="flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500 flex-shrink-0">
-        <span class="truncate max-w-16">{{ review.user_name_masked }}</span>
+        <span class="truncate max-w-12">{{ review.user_name_masked }}</span>
         <span>·</span>
         <span>{{ review.time_ago }}</span>
         <!-- Expand/Collapse indicator -->
@@ -54,13 +58,6 @@
           />
         </svg>
       </div>
-    </div>
-    <!-- Expanded: Meetup info -->
-    <div
-      v-if="expanded"
-      class="mt-1.5 pt-1.5 border-t border-neutral-100 dark:border-neutral-700 text-[10px] text-neutral-500 dark:text-neutral-400"
-    >
-      {{ review.meetup_name }}
     </div>
   </div>
 </template>
