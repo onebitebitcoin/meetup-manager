@@ -34,6 +34,89 @@
 
     <!-- Content -->
     <main class="max-w-2xl mx-auto px-4 py-6">
+      <!-- Write Review CTA Section (로그인 사용자 + 미작성 후기가 있을 때만) -->
+      <div
+        v-if="!authStore.isGuest && pendingReviewMeetups.length > 0"
+        class="mb-6 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 overflow-hidden rounded-xl border border-primary-200 dark:border-primary-800"
+      >
+        <div class="p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-5 h-5 text-primary-600 dark:text-primary-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              <h3 class="text-base font-medium text-neutral-900 dark:text-white">
+                후기 작성하기
+              </h3>
+            </div>
+            <router-link
+              v-if="pendingReviewMeetups.length > 3"
+              to="/write-review"
+              class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
+            >
+              모두 보기
+            </router-link>
+          </div>
+          <div class="space-y-2">
+            <router-link
+              v-for="meetup in pendingReviewMeetups.slice(0, 3)"
+              :key="meetup.id"
+              :to="`/write-review/${meetup.id}`"
+              class="flex items-center gap-3 p-3 bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
+            >
+              <div
+                v-if="meetup.image_display_url"
+                class="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-700"
+              >
+                <img
+                  :src="meetup.image_display_url"
+                  :alt="meetup.name"
+                  class="w-full h-full object-cover"
+                >
+              </div>
+              <div
+                v-else
+                class="flex-shrink-0 w-10 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-neutral-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-neutral-900 dark:text-neutral-100 truncate text-sm">
+                  {{ meetup.name }}
+                </p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  {{ formatMeetupDate(meetup.date_time) }}
+                </p>
+              </div>
+              <span class="text-xs text-primary-600 dark:text-primary-400 font-medium">
+                후기 작성
+              </span>
+            </router-link>
+          </div>
+        </div>
+      </div>
       <!-- Loading State -->
       <div v-if="loading && reviews.length === 0" class="flex justify-center py-20">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
@@ -85,6 +168,7 @@
 <script>
 import { computed, onMounted } from 'vue'
 import { useReviewsStore } from '@/stores/reviews'
+import { useAuthStore } from '@/stores/auth'
 import ReviewCard from '@/components/ReviewCard.vue'
 
 export default {
@@ -94,11 +178,28 @@ export default {
   },
   setup() {
     const reviewsStore = useReviewsStore()
+    const authStore = useAuthStore()
 
     const reviews = computed(() => reviewsStore.reviews)
     const loading = computed(() => reviewsStore.loading)
     const hasMore = computed(() => reviewsStore.hasMore)
     const total = computed(() => reviewsStore.total)
+
+    // 후기 미작성 밋업 (종료된 밋업 중)
+    const pendingReviewMeetups = computed(() => {
+      return reviewsStore.attendedMeetups.filter(m => !m.has_review)
+    })
+
+    // 밋업 날짜 포맷
+    const formatMeetupDate = (dateString) => {
+      if (!dateString) return ''
+      const date = new Date(dateString)
+      return date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    }
 
     const loadMore = async () => {
       await reviewsStore.loadMore()
@@ -107,14 +208,21 @@ export default {
     onMounted(async () => {
       reviewsStore.reset()
       await reviewsStore.fetchReviews(1)
+      // 로그인한 사용자라면 참석한 밋업 목록도 로드
+      if (!authStore.isGuest) {
+        await reviewsStore.fetchAttendedMeetups()
+      }
     })
 
     return {
+      authStore,
       reviews,
       loading,
       hasMore,
       total,
       loadMore,
+      pendingReviewMeetups,
+      formatMeetupDate,
     }
   },
 }
