@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http import JsonResponse
@@ -80,16 +80,27 @@ def login_user(request):
         log_korean_conversion(username, action="login")
 
     user = authenticate(username=username, password=password)
+    username_exists = User.objects.filter(username=username).exists()
 
     if not user and '@' in username:
         django_users = User.objects.filter(email=username)
-        for django_user in django_users:
-            user = authenticate(username=django_user.username, password=password)
-            if user:
-                break
+        if django_users.exists():
+            username_exists = True
+            for django_user in django_users:
+                user = authenticate(username=django_user.username, password=password)
+                if user:
+                    break
 
     if not user:
-        return Response({'error': '잘못된 로그인 정보입니다'}, status=status.HTTP_401_UNAUTHORIZED)
+        if not username_exists:
+            return Response({
+                'error': 'ID/사용자명이 존재하지 않습니다',
+                'contact': 'onebitebitcoin@proton.me'
+            }, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({
+                'error': '비밀번호를 확인하세요'
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
     login(request, user)
     meetup_user = get_or_create_meetup_profile(user)
@@ -110,3 +121,46 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return Response({'message': '로그아웃 성공'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@csrf_exempt
+def change_password(request):
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    current_password = request.data.get('current_password')
+    new_password = request.data.get('new_password')
+
+    if not current_password or not new_password:
+        return Response({'error': '현재 비밀번호와 새 비밀번호가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 한글 키보드 자동 변환 지원
+    if has_korean_characters(current_password):
+        current_password = korean_to_english(current_password)
+        log_korean_conversion(request.user.username, action="change_password_current")
+
+    if has_korean_characters(new_password):
+        new_password = korean_to_english(new_password)
+        log_korean_conversion(request.user.username, action="change_password_new")
+
+    # 현재 비밀번호 검증
+    if not request.user.check_password(current_password):
+        return Response({'error': '현재 비밀번호가 틀렸습니다'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 새 비밀번호 validation
+    if len(new_password) < 8:
+        return Response({'error': '새 비밀번호는 최소 8자 이상이어야 합니다'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 현재 비밀번호와 새 비밀번호 동일 여부 확인
+    if current_password == new_password:
+        return Response({'error': '새 비밀번호는 현재 비밀번호와 달라야 합니다'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 비밀번호 변경
+    request.user.set_password(new_password)
+    request.user.save()
+
+    # 세션 유지
+    update_session_auth_hash(request, request.user)
+
+    return Response({'message': '비밀번호가 성공적으로 변경되었습니다'}, status=status.HTTP_200_OK)

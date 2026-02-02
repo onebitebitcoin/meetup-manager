@@ -136,3 +136,21 @@ def admin_statistics(request):
         'recent_meetups': recent_meetups,
         'recent_registrations': recent_registrations
     })
+
+
+@api_view(['POST'])
+@require_admin
+def admin_reset_user_password(request, user_id):
+    """관리자: 사용자 비밀번호를 00000000으로 리셋"""
+    meetup_user, error = get_object_or_error(MeetupUser, '사용자를 찾을 수 없습니다', id=user_id)
+    if error:
+        return error
+
+    if not meetup_user.user:
+        return APIResponse.error('Django 사용자 계정이 없습니다')
+
+    # 비밀번호를 00000000으로 리셋
+    meetup_user.user.set_password('00000000')
+    meetup_user.user.save()
+
+    return APIResponse.success(message=f'{meetup_user.name}님의 비밀번호를 00000000으로 리셋했습니다')

@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/auth/check-username/', views.check_username_availability, name='check-username'),
     path('api/auth/login/', views.login_user, name='auth-login'),
     path('api/auth/logout/', views.logout_user, name='auth-logout'),
+    path('api/auth/change-password/', views.change_password, name='auth-change-password'),
     path('api/users/', views.MeetupUserListCreateView.as_view(), name='user-list-create'),
     path('api/meetups/', views.MeetupListCreateView.as_view(), name='meetup-list-create'),
     path('api/meetups/<int:pk>/', views.meetup_detail, name='meetup-detail'),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('api/admin/meetups/<int:meetup_id>/delete/', views.admin_delete_meetup, name='admin-delete-meetup'),
     path('api/admin/users/<int:user_id>/toggle-admin/', views.admin_toggle_user_admin, name='admin-toggle-user-admin'),
     path('api/admin/statistics/', views.admin_statistics, name='admin-statistics'),
+    path('api/admin/users/<int:user_id>/reset-password/', views.admin_reset_user_password, name='admin-reset-password'),
 
     # Manual participant management
     path('api/meetups/<int:meetup_id>/add-participant/', views.add_participant_by_email, name='add-participant-by-email'),

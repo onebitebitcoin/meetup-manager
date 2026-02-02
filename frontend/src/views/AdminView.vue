@@ -282,7 +282,7 @@
                 <button
                   class="flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-colors"
                   :class="[
-                    user.is_admin 
+                    user.is_admin
                       ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/40'
                       : 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40'
                   ]"
@@ -290,6 +290,26 @@
                 >
                   <span class="mr-1">{{ user.is_admin ? '⬇️' : '⬆️' }}</span>
                   <span class="hidden sm:inline">{{ user.is_admin ? '일반화' : '관리자화' }}</span>
+                </button>
+                <button
+                  class="flex items-center justify-center px-3 py-2 text-sm font-medium text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 rounded-lg transition-colors"
+                  title="비밀번호를 00000000으로 리셋"
+                  @click="resetUserPassword(user.id)"
+                >
+                  <svg
+                    class="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                    />
+                  </svg>
+                  <span class="hidden sm:inline">비번 리셋</span>
                 </button>
                 <button
                   :disabled="user.is_admin"
@@ -565,6 +585,28 @@ export default {
       }
     }
 
+    const resetUserPassword = async (userId) => {
+      if (confirm('이 사용자의 비밀번호를 00000000으로 리셋하시겠습니까?')) {
+        try {
+          const response = await fetchWithCSRF(`/api/admin/users/${userId}/reset-password/`, {
+            method: 'POST',
+          })
+
+          if (response.ok) {
+            const result = await response.json()
+            alert(result.message || '비밀번호가 리셋되었습니다')
+            await loadUsers()
+          } else {
+            const error = await response.json()
+            alert(error.error || '비밀번호 리셋 실패')
+          }
+        } catch (error) {
+          console.error('Failed to reset password:', error)
+          alert('비밀번호 리셋 중 오류가 발생했습니다')
+        }
+      }
+    }
+
     // formatDate and formatDateTime are imported from @/utils/datetime
 
     return {
@@ -580,6 +622,7 @@ export default {
       deleteMeetupAsAdmin,
       deleteUserAsAdmin,
       toggleUserAdmin,
+      resetUserPassword,
       formatDate,
       formatDateTime,
     }

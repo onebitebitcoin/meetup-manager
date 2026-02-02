@@ -186,6 +186,87 @@
           </button>
         </div>
 
+        <!-- 비밀번호 변경 섹션 -->
+        <div v-if="!authStore.user?.is_guest" class="bg-white dark:bg-neutral-800 shadow rounded-lg mb-8">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">
+              비밀번호 변경
+            </h3>
+
+            <form class="space-y-4" @submit.prevent="handleChangePassword">
+              <div>
+                <label for="current-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  현재 비밀번호
+                </label>
+                <input
+                  id="current-password"
+                  v-model="passwordForm.currentPassword"
+                  type="password"
+                  required
+                  class="input-primary"
+                  placeholder="현재 비밀번호를 입력하세요"
+                >
+              </div>
+
+              <div>
+                <label for="new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  새 비밀번호
+                </label>
+                <input
+                  id="new-password"
+                  v-model="passwordForm.newPassword"
+                  type="password"
+                  required
+                  class="input-primary"
+                  placeholder="새 비밀번호를 입력하세요 (최소 8자)"
+                >
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  최소 8자 이상 입력해주세요
+                </p>
+              </div>
+
+              <div>
+                <label for="confirm-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  새 비밀번호 확인
+                </label>
+                <input
+                  id="confirm-password"
+                  v-model="passwordForm.confirmPassword"
+                  type="password"
+                  required
+                  class="input-primary"
+                  placeholder="새 비밀번호를 다시 입력하세요"
+                >
+              </div>
+
+              <div v-if="passwordError" class="text-sm text-red-600 dark:text-red-400">
+                {{ passwordError }}
+              </div>
+
+              <div v-if="passwordSuccess" class="text-sm text-green-600 dark:text-green-400">
+                {{ passwordSuccess }}
+              </div>
+
+              <div class="flex space-x-3">
+                <button
+                  type="submit"
+                  class="btn-primary"
+                  :disabled="changingPassword"
+                >
+                  {{ changingPassword ? '변경 중...' : '비밀번호 변경' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  @click="resetPasswordForm"
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <!-- Loading State -->
         <div v-if="loading && !meetupsLoaded" class="bg-white dark:bg-neutral-800 shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6 text-center">
@@ -2125,11 +2206,12 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
 import { formatDateTime, toDateInput, toTimeInput, toUTC, addDurationToLocal, toLocal } from '@/utils/datetime'
+import { convertPasswordInput } from '@/utils/keyboardConverter'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import CustomDateInput from '@/components/CustomDateInput.vue'
 import CustomTimeSelect from '@/components/CustomTimeSelect.vue'
@@ -2162,6 +2244,16 @@ export default {
     const currentEditId = ref(null)
     const editImageInput = ref(null)
     const editImagePreview = ref('')
+
+    // 비밀번호 변경 관련
+    const passwordForm = reactive({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    })
+    const passwordError = ref('')
+    const passwordSuccess = ref('')
+    const changingPassword = ref(false)
 
     const formatMonthValue = (date) => {
       const year = date.getFullYear()
@@ -3100,6 +3192,66 @@ export default {
       }
     }
 
+    // 비밀번호 변경 함수
+    const handleChangePassword = async () => {
+      passwordError.value = ''
+      passwordSuccess.value = ''
+
+      // 클라이언트 검증
+      if (passwordForm.newPassword.length < 8) {
+        passwordError.value = '새 비밀번호는 최소 8자 이상이어야 합니다'
+        return
+      }
+
+      if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+        passwordError.value = '새 비밀번호가 일치하지 않습니다'
+        return
+      }
+
+      if (passwordForm.currentPassword === passwordForm.newPassword) {
+        passwordError.value = '새 비밀번호는 현재 비밀번호와 달라야 합니다'
+        return
+      }
+
+      changingPassword.value = true
+
+      try {
+        // 한글 키보드 변환 지원
+        const convertedCurrentPassword = convertPasswordInput(passwordForm.currentPassword)
+        const convertedNewPassword = convertPasswordInput(passwordForm.newPassword)
+
+        const response = await fetchWithCSRF('/api/auth/change-password/', {
+          method: 'POST',
+          body: JSON.stringify({
+            current_password: convertedCurrentPassword,
+            new_password: convertedNewPassword,
+          }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          passwordSuccess.value = data.message || '비밀번호가 성공적으로 변경되었습니다'
+          resetPasswordForm()
+        } else {
+          const errorData = await response.json()
+          passwordError.value = errorData.error || '비밀번호 변경에 실패했습니다'
+        }
+      } catch (error) {
+        console.error('Failed to change password:', error)
+        passwordError.value = '비밀번호 변경 중 오류가 발생했습니다'
+      } finally {
+        changingPassword.value = false
+      }
+    }
+
+    const resetPasswordForm = () => {
+      passwordForm.currentPassword = ''
+      passwordForm.newPassword = ''
+      passwordForm.confirmPassword = ''
+      passwordError.value = ''
+      passwordSuccess.value = ''
+    }
+
     return {
       authStore,
       meetups,
@@ -3183,6 +3335,13 @@ export default {
       paginatedNotifications,
       goToPage,
       getVisiblePages,
+      // 비밀번호 변경
+      passwordForm,
+      passwordError,
+      passwordSuccess,
+      changingPassword,
+      handleChangePassword,
+      resetPasswordForm,
     }
   },
 }

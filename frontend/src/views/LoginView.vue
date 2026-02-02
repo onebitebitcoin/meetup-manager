@@ -70,12 +70,12 @@
                 placeholder="비밀번호를 입력해주세요"
               >
             </div>
-            <p
-              v-if="errorMessage"
-              class="text-sm text-red-600 dark:text-red-400"
-            >
-              {{ errorMessage }}
-            </p>
+            <div v-if="errorMessage" class="text-sm text-red-600 dark:text-red-400">
+              <p>{{ errorMessage }}</p>
+              <p v-if="contactEmail" class="mt-1">
+                문의: <a :href="`mailto:${contactEmail}`" class="underline hover:text-red-700 dark:hover:text-red-300">{{ contactEmail }}</a>
+              </p>
+            </div>
           </div>
 
           <!-- Remember me checkbox -->
@@ -201,6 +201,7 @@ export default {
       remember: false,
     })
     const errorMessage = ref('')
+    const contactEmail = ref('')
 
     const handleLogin = async () => {
       try {
@@ -244,9 +245,13 @@ export default {
           errorMessage.value = ''
         } else {
           let fallbackMessage = '입력한 아이디 / 비밀번호가 틀렸습니다.'
+          contactEmail.value = ''
           try {
             const errorData = await response.json()
             fallbackMessage = errorData.error || fallbackMessage
+            if (errorData.contact) {
+              contactEmail.value = errorData.contact
+            }
           } catch (parseError) {
             console.error('Failed to parse login error response:', parseError)
           }
@@ -279,6 +284,7 @@ export default {
     return {
       form,
       errorMessage,
+      contactEmail,
       handleLogin,
       handleGuestLogin,
     }

@@ -2,11 +2,13 @@ from .admin import (
     admin_delete_meetup,
     admin_delete_user,
     admin_meetups_list,
+    admin_reset_user_password,
     admin_statistics,
     admin_toggle_user_admin,
     admin_users_list,
 )
 from .auth import (
+    change_password,
     check_username_availability,
     get_csrf_token,
     login_user,
@@ -57,6 +59,7 @@ from .reviews import (
 )
 
 __all__ = [
+    'change_password',
     'check_username_availability',
     'get_csrf_token',
     'login_user',
@@ -79,6 +82,7 @@ __all__ = [
     'admin_delete_meetup',
     'admin_delete_user',
     'admin_meetups_list',
+    'admin_reset_user_password',
     'admin_statistics',
     'admin_toggle_user_admin',
     'admin_users_list',
