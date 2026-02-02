@@ -199,10 +199,6 @@
             </p>
           </div>
 
-          <p v-if="!submitForm.link && !submitForm.file" class="mb-4 text-sm text-amber-600 dark:text-amber-400">
-            링크 또는 파일 중 하나는 반드시 첨부해야 합니다.
-          </p>
-
           <!-- Error Message -->
           <p v-if="submitError" class="mb-4 text-sm text-red-600 dark:text-red-400">
             {{ submitError }}
@@ -261,7 +257,7 @@ export default {
     const fileInput = ref(null)
 
     const canSubmit = computed(() => {
-      return submitForm.value.message && (submitForm.value.link || submitForm.value.file)
+      return submitForm.value.message
     })
 
     // formatDateTime is imported from @/utils/datetime
