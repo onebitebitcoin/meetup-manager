@@ -63,51 +63,23 @@
               </span>
             </div>
           </div>
-          <div class="space-y-1.5 max-h-48 overflow-y-auto">
+          <div class="space-y-1 max-h-36 overflow-y-auto">
             <router-link
               v-for="meetup in pendingReviewMeetups"
               :key="meetup.id"
               :to="`/write-review/${meetup.id}`"
-              class="flex items-center gap-2 p-2 bg-white/60 dark:bg-neutral-800/60 rounded-lg hover:bg-white dark:hover:bg-neutral-800 transition-colors"
+              class="flex items-center gap-2 py-1.5 px-2 bg-white/60 dark:bg-neutral-800/60 rounded hover:bg-white dark:hover:bg-neutral-800 transition-colors"
             >
-              <div
-                v-if="meetup.image_display_url"
-                class="flex-shrink-0 w-8 h-8 rounded overflow-hidden bg-neutral-100 dark:bg-neutral-700"
-              >
-                <img
-                  :src="meetup.image_display_url"
-                  :alt="meetup.name"
-                  class="w-full h-full object-cover"
-                >
-              </div>
-              <div
-                v-else
-                class="flex-shrink-0 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
-              >
-                <svg
-                  class="w-4 h-4 text-neutral-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </div>
               <div class="flex-1 min-w-0">
                 <p class="font-medium text-neutral-900 dark:text-neutral-100 truncate text-xs">
                   {{ meetup.name }}
                 </p>
-                <p class="text-[10px] text-neutral-500 dark:text-neutral-400">
-                  {{ formatMeetupDate(meetup.date_time) }}
-                </p>
               </div>
+              <span class="text-[10px] text-neutral-500 dark:text-neutral-400 flex-shrink-0">
+                {{ formatMeetupDate(meetup.date_time) }}
+              </span>
               <svg
-                class="w-4 h-4 text-red-400 flex-shrink-0"
+                class="w-3 h-3 text-red-400 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -170,7 +142,7 @@
           <!-- Reviews List -->
           <div
             v-else
-            class="space-y-1.5 max-h-80 overflow-y-auto"
+            class="space-y-1 max-h-64 overflow-y-auto"
           >
             <ReviewCard
               v-for="review in reviews"
