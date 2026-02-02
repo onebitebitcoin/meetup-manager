@@ -5,6 +5,7 @@ import { fetchWithCSRF } from '@/utils/csrf'
 export const useReviewsStore = defineStore('reviews', () => {
   const reviews = ref([])
   const recentReviews = ref([])
+  const attendedMeetups = ref([])
   const loading = ref(false)
   const error = ref('')
   const currentPage = ref(1)
@@ -59,6 +60,26 @@ export const useReviewsStore = defineStore('reviews', () => {
       }
     } catch (err) {
       console.error('Failed to fetch recent reviews:', err)
+    }
+  }
+
+  /**
+   * 참석한 밋업 목록 조회 (종료된 밋업만)
+   */
+  const fetchAttendedMeetups = async () => {
+    try {
+      const response = await fetchWithCSRF('/api/my-attended-meetups/')
+
+      if (response.ok) {
+        const data = await response.json()
+        attendedMeetups.value = data.meetups
+        return { success: true, meetups: data.meetups }
+      } else {
+        return { success: false, error: '참석 밋업을 불러오는데 실패했습니다' }
+      }
+    } catch (err) {
+      console.error('Failed to fetch attended meetups:', err)
+      return { success: false, error: '네트워크 오류가 발생했습니다' }
     }
   }
 
@@ -179,6 +200,7 @@ export const useReviewsStore = defineStore('reviews', () => {
   return {
     reviews,
     recentReviews,
+    attendedMeetups,
     loading,
     error,
     currentPage,
@@ -186,6 +208,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     total,
     fetchReviews,
     fetchRecentReviews,
+    fetchAttendedMeetups,
     getMyReview,
     createReview,
     updateReview,

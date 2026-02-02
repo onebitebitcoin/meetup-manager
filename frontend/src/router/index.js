@@ -13,6 +13,7 @@ import TaskSubmissionsView from '@/views/TaskSubmissionsView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import HelpView from '@/views/HelpView.vue'
 import ReviewFeedView from '@/views/ReviewFeedView.vue'
+import WriteReviewView from '@/views/WriteReviewView.vue'
 
 const routes = [
   {
@@ -94,6 +95,18 @@ const routes = [
     path: '/reviews',
     name: 'Reviews',
     component: ReviewFeedView,
+  },
+  {
+    path: '/write-review',
+    name: 'WriteReview',
+    component: WriteReviewView,
+    meta: { requiresAuth: true, requiresNonGuest: true },
+  },
+  {
+    path: '/write-review/:meetupId',
+    name: 'WriteReviewForMeetup',
+    component: WriteReviewView,
+    meta: { requiresAuth: true, requiresNonGuest: true },
   },
 ]
 

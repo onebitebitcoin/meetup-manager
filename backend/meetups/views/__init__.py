@@ -24,6 +24,7 @@ from .meetups import (
     register_for_meetup,
     remove_participant,
     unregister_from_meetup,
+    user_attended_meetups,
     user_meetups,
 )
 from .notifications import (
@@ -71,6 +72,7 @@ __all__ = [
     'register_for_meetup',
     'remove_participant',
     'unregister_from_meetup',
+    'user_attended_meetups',
     'user_meetups',
     'RegistrationListView',
     'register_user',

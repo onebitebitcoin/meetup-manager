@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/meetups/<int:meetup_id>/unregister/', views.unregister_from_meetup, name='unregister-from-meetup'),
     path('api/meetups/<int:meetup_id>/status/', views.check_registration_status, name='check-registration-status'),
     path('api/my-meetups/', views.user_meetups, name='user-meetups'),
+    path('api/my-attended-meetups/', views.user_attended_meetups, name='user-attended-meetups'),
     path('api/registrations/', views.RegistrationListView.as_view(), name='registration-list'),
     path('api/register/', views.register_user, name='register-user'),
     path('api/health/', views.health_check, name='health-check'),

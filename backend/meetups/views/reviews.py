@@ -27,9 +27,14 @@ def can_write_review(meetup_user, meetup):
     사용자가 후기를 작성할 수 있는지 확인
     - 밋업이 종료됨
     - 밋업 생성자이거나 참가자
+    - 관리자는 모든 종료된 밋업에 후기 작성 가능
     """
     if not is_meetup_ended(meetup):
         return False, "모임이 아직 종료되지 않았습니다."
+
+    # 관리자는 모든 밋업에 후기 작성 가능 (테스트 목적)
+    if meetup_user.is_admin:
+        return True, None
 
     # 밋업 생성자인지 확인
     if meetup.creator == meetup_user:
