@@ -373,6 +373,10 @@ export default {
       saving.value = false
 
       if (result.success) {
+        // 후기 목록 초기화 (다음 페이지 진입 시 새로 로드)
+        reviewsStore.reset()
+        // 참석한 밋업 목록도 갱신 (has_review 상태 업데이트)
+        await reviewsStore.fetchAttendedMeetups()
         // 성공 시 후기 피드로 이동
         router.push('/reviews')
       } else {
