@@ -6,8 +6,8 @@
     ]"
     @click="isLongContent && toggle()"
   >
-    <!-- Main Row -->
-    <div class="flex items-center gap-2">
+    <!-- Header Row: Rating + Meetup Name + Expand Icon -->
+    <div class="flex items-center gap-2 mb-1">
       <!-- Rating -->
       <div class="flex items-center gap-px flex-shrink-0">
         <template v-for="n in 5" :key="n">
@@ -26,42 +26,44 @@
         </template>
       </div>
       <!-- Meetup Name -->
-      <span class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate max-w-20 flex-shrink-0">
+      <span class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate flex-1 min-w-0">
         {{ review.meetup_name }}
       </span>
-      <!-- Content (truncated or full) -->
-      <p
+      <!-- Expand/Collapse indicator (only for long content) -->
+      <svg
+        v-if="isLongContent"
         :class="[
-          'flex-1 text-xs text-neutral-700 dark:text-neutral-300',
-          expanded ? 'whitespace-pre-line' : 'truncate'
+          'w-3 h-3 transition-transform flex-shrink-0',
+          expanded ? 'rotate-180' : ''
         ]"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
       >
-        {{ review.content }}
-      </p>
-      <!-- Meta -->
-      <div class="flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500 flex-shrink-0">
-        <span class="truncate max-w-12">{{ review.user_name_masked }}</span>
-        <span>·</span>
-        <span>{{ review.time_ago }}</span>
-        <!-- Expand/Collapse indicator (only for long content) -->
-        <svg
-          v-if="isLongContent"
-          :class="[
-            'w-3 h-3 transition-transform',
-            expanded ? 'rotate-180' : ''
-          ]"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </div>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 9l-7 7-7-7"
+        />
+      </svg>
+    </div>
+
+    <!-- Content Row -->
+    <p
+      :class="[
+        'text-xs text-neutral-700 dark:text-neutral-300 mb-1 break-words',
+        expanded ? 'whitespace-pre-line' : 'line-clamp-2'
+      ]"
+    >
+      {{ review.content }}
+    </p>
+
+    <!-- Meta Row -->
+    <div class="flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
+      <span class="truncate">{{ review.user_name_masked }}</span>
+      <span>·</span>
+      <span class="flex-shrink-0">{{ review.time_ago }}</span>
     </div>
   </div>
 </template>
