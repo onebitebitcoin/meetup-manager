@@ -1,7 +1,10 @@
 <template>
   <div
-    class="py-1.5 px-2 bg-white dark:bg-neutral-800 rounded border border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
-    @click="toggle"
+    :class="[
+      'py-1.5 px-2 bg-white dark:bg-neutral-800 rounded border border-neutral-200 dark:border-neutral-700 transition-colors',
+      isLongContent ? 'cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50' : ''
+    ]"
+    @click="isLongContent && toggle()"
   >
     <!-- Main Row -->
     <div class="flex items-center gap-2">
@@ -40,8 +43,9 @@
         <span class="truncate max-w-12">{{ review.user_name_masked }}</span>
         <span>·</span>
         <span>{{ review.time_ago }}</span>
-        <!-- Expand/Collapse indicator -->
+        <!-- Expand/Collapse indicator (only for long content) -->
         <svg
+          v-if="isLongContent"
           :class="[
             'w-3 h-3 transition-transform',
             expanded ? 'rotate-180' : ''
@@ -63,7 +67,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export default {
   name: 'ReviewCard',
@@ -73,8 +77,13 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(props) {
     const expanded = ref(false)
+
+    // 내용이 길면 펼치기 가능 (30자 이상)
+    const isLongContent = computed(() => {
+      return props.review.content && props.review.content.length > 30
+    })
 
     const toggle = () => {
       expanded.value = !expanded.value
@@ -82,6 +91,7 @@ export default {
 
     return {
       expanded,
+      isLongContent,
       toggle,
     }
   },
