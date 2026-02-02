@@ -37,13 +37,13 @@
       <!-- Write Review CTA Section (로그인 사용자 + 미작성 후기가 있을 때만) -->
       <div
         v-if="!authStore.isGuest && pendingReviewMeetups.length > 0"
-        class="mb-6 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700"
+        class="mb-6 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800"
       >
         <div class="p-4">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
               <svg
-                class="w-5 h-5 text-primary-600 dark:text-primary-400"
+                class="w-5 h-5 text-red-600 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -114,12 +114,12 @@
         </div>
       </div>
       <!-- Reviews Container -->
-      <div class="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700">
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
         <div class="p-4">
           <!-- Header -->
           <div class="flex items-center gap-2 mb-3">
             <svg
-              class="w-5 h-5 text-neutral-600 dark:text-neutral-400"
+              class="w-5 h-5 text-green-600 dark:text-green-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
