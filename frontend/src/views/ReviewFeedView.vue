@@ -63,16 +63,16 @@
               </span>
             </div>
           </div>
-          <div class="space-y-2 max-h-64 overflow-y-auto">
+          <div class="space-y-1.5 max-h-48 overflow-y-auto">
             <router-link
               v-for="meetup in pendingReviewMeetups"
               :key="meetup.id"
               :to="`/write-review/${meetup.id}`"
-              class="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-neutral-700/50 rounded-lg border border-neutral-200 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+              class="flex items-center gap-2 p-2 bg-white/60 dark:bg-neutral-800/60 rounded-lg hover:bg-white dark:hover:bg-neutral-800 transition-colors"
             >
               <div
                 v-if="meetup.image_display_url"
-                class="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-700"
+                class="flex-shrink-0 w-8 h-8 rounded overflow-hidden bg-neutral-100 dark:bg-neutral-700"
               >
                 <img
                   :src="meetup.image_display_url"
@@ -82,10 +82,10 @@
               </div>
               <div
                 v-else
-                class="flex-shrink-0 w-10 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+                class="flex-shrink-0 w-8 h-8 rounded bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
               >
                 <svg
-                  class="w-5 h-5 text-neutral-400"
+                  class="w-4 h-4 text-neutral-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -99,16 +99,26 @@
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-neutral-900 dark:text-neutral-100 truncate text-sm">
+                <p class="font-medium text-neutral-900 dark:text-neutral-100 truncate text-xs">
                   {{ meetup.name }}
                 </p>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                <p class="text-[10px] text-neutral-500 dark:text-neutral-400">
                   {{ formatMeetupDate(meetup.date_time) }}
                 </p>
               </div>
-              <span class="text-xs text-primary-600 dark:text-primary-400 font-medium">
-                후기 작성
-              </span>
+              <svg
+                class="w-4 h-4 text-red-400 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </router-link>
           </div>
         </div>
@@ -160,7 +170,7 @@
           <!-- Reviews List -->
           <div
             v-else
-            class="space-y-3 max-h-[32rem] overflow-y-auto"
+            class="space-y-1.5 max-h-80 overflow-y-auto"
           >
             <ReviewCard
               v-for="review in reviews"
