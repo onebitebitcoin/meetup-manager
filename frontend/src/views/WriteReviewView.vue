@@ -319,7 +319,11 @@ export default {
     }
 
     const goBack = () => {
-      if (selectedMeetup.value) {
+      // URL에 meetupId가 있는 경우(직접 링크로 접근)에는 바로 이전 페이지로
+      if (route.params.meetupId) {
+        router.back()
+      } else if (selectedMeetup.value) {
+        // /write-review에서 밋업을 선택한 경우에는 선택 해제
         selectedMeetup.value = null
       } else {
         router.back()

@@ -37,7 +37,7 @@
       <!-- Write Review CTA Section (로그인 사용자 + 미작성 후기가 있을 때만) -->
       <div
         v-if="!authStore.isGuest && pendingReviewMeetups.length > 0"
-        class="mb-6 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 overflow-hidden rounded-xl border border-primary-200 dark:border-primary-800"
+        class="mb-6 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700"
       >
         <div class="p-4">
           <div class="flex items-center justify-between mb-3">
@@ -58,21 +58,17 @@
               <h3 class="text-base font-medium text-neutral-900 dark:text-white">
                 후기 작성하기
               </h3>
+              <span class="text-xs text-neutral-500 dark:text-neutral-400">
+                ({{ pendingReviewMeetups.length }}개)
+              </span>
             </div>
-            <router-link
-              v-if="pendingReviewMeetups.length > 3"
-              to="/write-review"
-              class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium"
-            >
-              모두 보기
-            </router-link>
           </div>
-          <div class="space-y-2">
+          <div class="space-y-2 max-h-64 overflow-y-auto">
             <router-link
-              v-for="meetup in pendingReviewMeetups.slice(0, 3)"
+              v-for="meetup in pendingReviewMeetups"
               :key="meetup.id"
               :to="`/write-review/${meetup.id}`"
-              class="flex items-center gap-3 p-3 bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors"
+              class="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-neutral-700/50 rounded-lg border border-neutral-200 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
             >
               <div
                 v-if="meetup.image_display_url"
