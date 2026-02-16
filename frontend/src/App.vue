@@ -68,22 +68,15 @@
         </div>
       </div>
     </Transition>
-    
-    <!-- PWA Install Prompt -->
-    <PWAInstallPrompt />
   </div>
 </template>
 
 <script>
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
 
 export default {
   name: 'App',
-  components: {
-    PWAInstallPrompt,
-  },
   setup() {
     const authStore = useAuthStore()
     const showUpdateNotification = ref(false)
