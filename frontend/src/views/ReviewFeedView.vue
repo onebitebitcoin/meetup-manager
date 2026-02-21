@@ -142,7 +142,7 @@
           <!-- Reviews List -->
           <div
             v-else
-            class="space-y-1 max-h-64 overflow-y-auto"
+            class="space-y-1 max-h-64 md:max-h-[34rem] overflow-y-auto"
           >
             <ReviewCard
               v-for="review in reviews"
