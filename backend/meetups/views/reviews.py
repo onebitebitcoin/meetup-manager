@@ -1,5 +1,6 @@
 """후기 API 뷰"""
 import logging
+import time
 
 from django.utils import timezone
 from rest_framework import status
@@ -54,10 +55,21 @@ def review_feed(request):
     후기 피드 (모든 사용자 조회 가능)
     페이지네이션 지원
     """
-    page = int(request.query_params.get('page', 1))
-    page_size = int(request.query_params.get('page_size', 10))
+    started_at = time.perf_counter()
 
-    reviews = Review.objects.select_related('user', 'meetup').all()
+    try:
+        page = int(request.query_params.get('page', 1))
+    except (TypeError, ValueError):
+        page = 1
+    page = max(1, page)
+
+    try:
+        page_size = int(request.query_params.get('page_size', 10))
+    except (TypeError, ValueError):
+        page_size = 10
+    page_size = min(50, max(1, page_size))
+
+    reviews = Review.objects.select_related('user', 'meetup').order_by('-created_at')
     total = reviews.count()
 
     start = (page - 1) * page_size
@@ -65,6 +77,16 @@ def review_feed(request):
     reviews = reviews[start:end]
 
     serializer = ReviewSerializer(reviews, many=True, context={'request': request})
+
+    duration_ms = round((time.perf_counter() - started_at) * 1000, 2)
+    logger.info(
+        "review_feed page=%s page_size=%s total=%s returned=%s duration_ms=%s",
+        page,
+        page_size,
+        total,
+        len(serializer.data),
+        duration_ms,
+    )
 
     return APIResponse.success({
         'reviews': serializer.data,

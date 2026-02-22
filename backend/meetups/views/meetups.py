@@ -1,16 +1,17 @@
 from datetime import datetime
+import logging
 from math import ceil
+import time
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-from django.db.models import Exists, OuterRef
 
 from ..models import Meetup, MeetupUser, Registration, Review, Waitlist
 from ..serializers import (
@@ -26,6 +27,8 @@ from .helpers import (
     require_meetup_creator,
     require_meetup_creator_or_admin,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class MeetupUserListCreateView(generics.ListCreateAPIView):
@@ -313,25 +316,15 @@ def user_attended_meetups(request):
     사용자가 참가한 밋업 중 종료된 밋업 목록 조회
     후기 작성 여부(has_review) 포함
     """
+    started_at = time.perf_counter()
     meetup_user = request.meetup_user
     now = timezone.now()
 
-    # 사용자가 참가 신청한 밋업 ID 목록
-    registered_meetup_ids = Registration.objects.filter(
-        user=meetup_user
-    ).values_list('meetup_id', flat=True)
-
-    # 사용자가 생성한 밋업 ID 목록
-    created_meetup_ids = Meetup.objects.filter(
-        creator=meetup_user
-    ).values_list('id', flat=True)
-
-    # 합쳐서 유니크한 ID 목록
-    all_meetup_ids = set(registered_meetup_ids) | set(created_meetup_ids)
-
-    # 종료된 밋업만 필터링 + 후기 작성 여부 추가
+    # 참가/생성 조건과 종료 조건을 DB 레벨에서 처리하여 Python 후처리를 최소화한다.
     meetups = Meetup.objects.filter(
-        id__in=all_meetup_ids
+        Q(registration__user=meetup_user) | Q(creator=meetup_user)
+    ).filter(
+        Q(end_time__lt=now) | Q(end_time__isnull=True, date_time__lt=now)
     ).annotate(
         has_review=Exists(
             Review.objects.filter(
@@ -339,22 +332,27 @@ def user_attended_meetups(request):
                 user=meetup_user
             )
         )
-    ).order_by('-date_time')
+    ).order_by('-date_time').distinct()
 
-    # 종료된 밋업만 필터링
     ended_meetups = []
     for meetup in meetups:
-        end_time = meetup.end_time if meetup.end_time else meetup.date_time
-        if end_time < now:
-            ended_meetups.append({
-                'id': meetup.id,
-                'name': meetup.name,
-                'date_time': meetup.date_time.isoformat(),
-                'end_time': meetup.end_time.isoformat() if meetup.end_time else None,
-                'location': meetup.location,
-                'image_display_url': meetup.image.url if meetup.image else None,
-                'has_review': meetup.has_review,
-            })
+        ended_meetups.append({
+            'id': meetup.id,
+            'name': meetup.name,
+            'date_time': meetup.date_time.isoformat(),
+            'end_time': meetup.end_time.isoformat() if meetup.end_time else None,
+            'location': meetup.location,
+            'image_display_url': meetup.image.url if meetup.image else None,
+            'has_review': meetup.has_review,
+        })
+
+    duration_ms = round((time.perf_counter() - started_at) * 1000, 2)
+    logger.info(
+        "user_attended_meetups user=%s total=%s duration_ms=%s",
+        meetup_user.id,
+        len(ended_meetups),
+        duration_ms,
+    )
 
     return APIResponse.success({
         'meetups': ended_meetups,

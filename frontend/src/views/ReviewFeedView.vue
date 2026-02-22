@@ -212,11 +212,16 @@ export default {
 
     onMounted(async () => {
       reviewsStore.reset()
-      await reviewsStore.fetchReviews(1)
-      // 로그인한 사용자라면 참석한 밋업 목록도 로드
+      // 로그인 사용자는 후기 목록/미작성 밋업을 병렬 로드하여 체감 로딩을 줄인다.
       if (!authStore.isGuest) {
-        await reviewsStore.fetchAttendedMeetups()
+        await Promise.allSettled([
+          reviewsStore.fetchReviews(1),
+          reviewsStore.fetchAttendedMeetups(),
+        ])
+        return
       }
+
+      await reviewsStore.fetchReviews(1)
     })
 
     return {
