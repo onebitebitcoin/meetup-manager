@@ -2,6 +2,7 @@ import re
 
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.urls import reverse
 from rest_framework import serializers
 
 from .models import Meetup, MeetupUser, Notification, Registration, Review, Task, TaskSubmission, Waitlist
@@ -275,12 +276,13 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
     user_email = serializers.CharField(source='user.email', read_only=True)
     task_title = serializers.CharField(source='task.title', read_only=True)
     file_url = serializers.SerializerMethodField()
+    download_url = serializers.SerializerMethodField()
     file_name = serializers.SerializerMethodField()
 
     class Meta:
         model = TaskSubmission
         fields = ['id', 'task', 'task_title', 'user', 'user_name', 'user_email',
-                  'message', 'link', 'file', 'file_url', 'file_name', 'status',
+                  'message', 'link', 'file', 'file_url', 'download_url', 'file_name', 'status',
                   'submitted_at', 'reviewed_at']
 
     def get_file_url(self, obj):
@@ -296,6 +298,15 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
             import os
             return os.path.basename(obj.file.name)
         return None
+
+    def get_download_url(self, obj):
+        if not obj.file:
+            return None
+        request = self.context.get('request')
+        path = reverse('submission-file-download', kwargs={'submission_id': obj.id})
+        if request:
+            return request.build_absolute_uri(path)
+        return path
 
 
 class ReviewSerializer(serializers.ModelSerializer):

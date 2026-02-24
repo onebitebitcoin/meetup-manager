@@ -286,6 +286,7 @@ meet/
 | DELETE | `/api/tasks/<id>/` | 과제 삭제 |
 | GET | `/api/tasks/<id>/submissions/` | 제출물 목록 |
 | POST | `/api/tasks/<id>/submit/` | 과제 제출 |
+| GET | `/api/submissions/<id>/file/` | 제출 파일 열기/다운로드 |
 | PUT | `/api/submissions/<id>/review/` | 제출물 검토 |
 
 ### 5.8 Admin

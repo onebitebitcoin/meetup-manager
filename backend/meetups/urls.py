@@ -55,6 +55,7 @@ urlpatterns = [
     path('api/tasks/<int:task_id>/submissions/', views.task_submissions, name='task-submissions'),
     path('api/tasks/<int:task_id>/submit/', views.submit_task, name='submit-task'),
     path('api/submissions/<int:submission_id>/review/', views.review_submission, name='review-submission'),
+    path('api/submissions/<int:submission_id>/file/', views.download_submission_file, name='submission-file-download'),
 
     # Review endpoints
     path('api/reviews/', views.review_feed, name='review-feed'),

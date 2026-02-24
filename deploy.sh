@@ -51,6 +51,7 @@ sudo ufw --force enable
 
 # Setup directories
 FRONTEND_DEPLOY_DIR="/var/www/meet"
+MEDIA_DEPLOY_DIR="/var/www/meet/media"
 CURRENT_DIR=$(pwd)
 
 echo "Current directory: $CURRENT_DIR"
@@ -157,7 +158,8 @@ Group=www-data
 WorkingDirectory=$CURRENT_DIR/backend
 Environment="PATH=$CURRENT_DIR/backend/venv/bin:/usr/local/bin:/usr/bin:/bin"
 Environment="PYTHONPATH=$CURRENT_DIR/backend"
-Environment="DJANGO_SETTINGS_MODULE=meetup_backend.settings"
+Environment="DJANGO_SETTINGS_MODULE=meetup_backend.settings_production"
+Environment="MEDIA_ROOT=$MEDIA_DEPLOY_DIR"
 ExecStart=$CURRENT_DIR/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application
 ExecReload=/bin/kill -s HUP \$MAINPID
 KillMode=mixed
@@ -200,6 +202,8 @@ else
     echo "Attempting manual start as fallback..."
     cd $CURRENT_DIR/backend
     source venv/bin/activate
+    export DJANGO_SETTINGS_MODULE=meetup_backend.settings_production
+    export MEDIA_ROOT=$MEDIA_DEPLOY_DIR
 
     # Kill any existing processes on port 8000
     sudo fuser -k 8000/tcp 2>/dev/null || true
@@ -234,9 +238,8 @@ fi
 
 # Setup Nginx configuration (basic example)
 NGINX_CONFIG="/etc/nginx/sites-available/meet.onebitebitcoin.com"
-if ! grep -q "proxy_pass" $NGINX_CONFIG 2>/dev/null; then
-    echo "Configuring Nginx reverse proxy..."
-    sudo bash -c "cat > $NGINX_CONFIG" <<EOF
+echo "Configuring Nginx reverse proxy..."
+sudo bash -c "cat > $NGINX_CONFIG" <<EOF
 server {
     listen 80 ;
     server_name meet.onebitebitcoin.com;
@@ -277,6 +280,7 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Forwarded-Host \$host;
         proxy_cache_bypass \$http_upgrade;
     }
 
@@ -289,8 +293,9 @@ server {
     }
 
     # Serve media files
-    location /media/ {
-        alias $FRONTEND_DEPLOY_DIR/media/;
+    location ^~ /media/ {
+        alias /var/www/meet/media/;
+        try_files \$uri =404;
         access_log off;
         expires 30d;
         add_header Cache-Control "public, max-age=2592000";
@@ -309,20 +314,23 @@ server {
 }
 EOF
 
-    # Enable the site
-    sudo ln -sf $NGINX_CONFIG /etc/nginx/sites-enabled/meet.onebitebitcoin.com
-    
-    # Remove default site if it exists
-    sudo rm -f /etc/nginx/sites-enabled/default
-    
-    sudo nginx -t
-    sudo systemctl reload nginx
-fi
+# Enable the site
+sudo ln -sf $NGINX_CONFIG /etc/nginx/sites-enabled/meet.onebitebitcoin.com
+
+# Remove default site if it exists
+sudo rm -f /etc/nginx/sites-enabled/default
+
+sudo nginx -t
+sudo systemctl reload nginx
 
 # Final setup and permissions
 echo "=== Final Setup ==="
 sudo chown -R www-data:www-data $FRONTEND_DEPLOY_DIR/
 sudo chmod -R 755 $FRONTEND_DEPLOY_DIR/
+sudo mkdir -p $MEDIA_DEPLOY_DIR/task_submissions
+sudo chown -R www-data:www-data $MEDIA_DEPLOY_DIR
+sudo find $MEDIA_DEPLOY_DIR -type d -exec chmod 755 {} +
+sudo find $MEDIA_DEPLOY_DIR -type f -exec chmod 644 {} +
 
 # Enable and start nginx site
 if [ -f "/etc/nginx/sites-available/meet.onebitebitcoin.com" ]; then
@@ -344,6 +352,16 @@ else
     echo "❌ Port 8000 is not active"
     echo "Checking what's running on port 8000..."
     sudo lsof -i :8000 || echo "No process found on port 8000"
+fi
+
+echo "Checking direct media access (sample file if available)..."
+SAMPLE_MEDIA_FILE=$(find $MEDIA_DEPLOY_DIR/task_submissions -type f | head -n 1 || true)
+if [ -n "$SAMPLE_MEDIA_FILE" ]; then
+    SAMPLE_MEDIA_URL_PATH=${SAMPLE_MEDIA_FILE#/var/www/meet}
+    echo "Sample media HEAD request: https://meet.onebitebitcoin.com$SAMPLE_MEDIA_URL_PATH"
+    curl --max-time 5 -I "https://meet.onebitebitcoin.com$SAMPLE_MEDIA_URL_PATH" || true
+else
+    echo "No sample task submission media file found; skipping media HEAD check"
 fi
 
 echo ""

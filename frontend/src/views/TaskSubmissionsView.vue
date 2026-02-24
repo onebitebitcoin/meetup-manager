@@ -144,28 +144,43 @@
             </div>
 
             <!-- File -->
-            <div v-if="submission.file_url" class="mb-3">
-              <a
-                :href="submission.file_url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex max-w-full items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400"
-              >
-                <svg
-                  class="h-4 w-4 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <span class="min-w-0 truncate">{{ submission.file_name || '첨부 파일' }}</span>
-              </a>
+            <div v-if="submission.download_url || submission.file_url" class="mb-3">
+              <div class="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+                <div class="mb-2 inline-flex max-w-full items-center gap-1 text-sm text-neutral-700 dark:text-neutral-200">
+                  <svg
+                    class="h-4 w-4 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <span class="min-w-0 truncate">{{ submission.file_name || '첨부 파일' }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    :disabled="isFileActionLoading(submission.id)"
+                    class="min-h-[44px] rounded-lg bg-blue-100 px-3 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 disabled:opacity-50 dark:bg-blue-900 dark:text-blue-300"
+                    @click="openSubmissionFile(submission)"
+                  >
+                    {{ isOpeningFile(submission.id) ? '여는 중...' : '열기' }}
+                  </button>
+                  <button
+                    type="button"
+                    :disabled="isFileActionLoading(submission.id)"
+                    class="min-h-[44px] rounded-lg bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200 disabled:opacity-50 dark:bg-neutral-700 dark:text-neutral-200"
+                    @click="downloadSubmissionFile(submission)"
+                  >
+                    {{ isDownloadingFile(submission.id) ? '다운로드 중...' : '다운로드' }}
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- Actions -->
@@ -196,6 +211,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTasksStore } from '@/stores/tasks'
+import { fetchWithCSRF } from '@/utils/csrf'
 import { formatDateTime } from '@/utils/datetime'
 
 export default {
@@ -213,6 +229,8 @@ export default {
     const submissions = ref([])
     const loadingSubmissions = ref(false)
     const reviewingSubmission = ref(false)
+    const fileActionLoadingId = ref(null)
+    const fileActionType = ref('')
     const resultMessage = ref('')
     const resultType = ref('success')
     let resultMessageTimeout = null
@@ -291,6 +309,110 @@ export default {
       }
     }
 
+    const isFileActionLoading = (submissionId) => fileActionLoadingId.value === submissionId
+    const isOpeningFile = (submissionId) => isFileActionLoading(submissionId) && fileActionType.value === 'open'
+    const isDownloadingFile = (submissionId) => isFileActionLoading(submissionId) && fileActionType.value === 'download'
+
+    const getSubmissionFileEndpoint = (submission, disposition) => {
+      const baseUrl = submission.download_url || submission.file_url
+      if (!baseUrl) {
+        throw new Error('첨부 파일 URL을 찾을 수 없습니다')
+      }
+
+      if (!submission.download_url) {
+        return baseUrl
+      }
+
+      const separator = baseUrl.includes('?') ? '&' : '?'
+      return `${baseUrl}${separator}disposition=${encodeURIComponent(disposition)}`
+    }
+
+    const readFileActionError = async (response, fallbackMessage) => {
+      try {
+        const contentType = response.headers.get('content-type') || ''
+        if (contentType.includes('application/json')) {
+          const data = await response.json()
+          return data?.error || fallbackMessage
+        }
+
+        const text = await response.text()
+        return text || fallbackMessage
+      } catch (err) {
+        return fallbackMessage
+      }
+    }
+
+    const fetchSubmissionFile = async (submission, disposition) => {
+      const endpoint = getSubmissionFileEndpoint(submission, disposition)
+      const response = await fetchWithCSRF(endpoint, {
+        method: 'GET',
+      })
+
+      if (!response.ok) {
+        const fallbackMessage = disposition === 'attachment'
+          ? '파일 다운로드에 실패했습니다'
+          : '파일 열기에 실패했습니다'
+        const message = await readFileActionError(response, fallbackMessage)
+        throw new Error(message)
+      }
+
+      const blob = await response.blob()
+      return {
+        blob,
+        fileName: submission.file_name || '첨부파일',
+      }
+    }
+
+    const openSubmissionFile = async (submission) => {
+      const popup = window.open('', '_blank')
+      fileActionLoadingId.value = submission.id
+      fileActionType.value = 'open'
+
+      try {
+        const { blob } = await fetchSubmissionFile(submission, 'inline')
+        const blobUrl = URL.createObjectURL(blob)
+        if (popup) {
+          popup.location.href = blobUrl
+        } else {
+          window.open(blobUrl, '_blank')
+        }
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60 * 1000)
+        showResultMessage('첨부 파일을 열었습니다.')
+      } catch (err) {
+        if (popup) {
+          popup.close()
+        }
+        showResultMessage(err.message || '파일 열기에 실패했습니다', 'error')
+      } finally {
+        fileActionLoadingId.value = null
+        fileActionType.value = ''
+      }
+    }
+
+    const downloadSubmissionFile = async (submission) => {
+      fileActionLoadingId.value = submission.id
+      fileActionType.value = 'download'
+
+      try {
+        const { blob, fileName } = await fetchSubmissionFile(submission, 'attachment')
+        const blobUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = blobUrl
+        link.download = fileName
+        link.rel = 'noopener'
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
+        showResultMessage('파일 다운로드를 시작했습니다.')
+      } catch (err) {
+        showResultMessage(err.message || '파일 다운로드에 실패했습니다', 'error')
+      } finally {
+        fileActionLoadingId.value = null
+        fileActionType.value = ''
+      }
+    }
+
     const reviewSubmission = async (submissionId, status) => {
       reviewingSubmission.value = true
       try {
@@ -326,6 +448,9 @@ export default {
       submissions,
       loadingSubmissions,
       reviewingSubmission,
+      isFileActionLoading,
+      isOpeningFile,
+      isDownloadingFile,
       resultMessage,
       resultType,
       formatDateTime,
@@ -333,6 +458,8 @@ export default {
       getStatusClass,
       getResultMessageClass,
       getCompactLinkText,
+      openSubmissionFile,
+      downloadSubmissionFile,
       reviewSubmission,
       goBack,
     }

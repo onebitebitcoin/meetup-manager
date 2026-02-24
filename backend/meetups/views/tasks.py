@@ -1,3 +1,8 @@
+import logging
+import mimetypes
+import os
+
+from django.http import FileResponse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -9,11 +14,11 @@ from .helpers import (
     APIResponse,
     get_object_or_error,
     parse_datetime_iso,
-    require_meetup_creator,
     require_meetup_creator_or_participant,
-    require_meetup_participant,
     require_profile,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @api_view(['GET', 'POST'])
@@ -133,6 +138,24 @@ def submit_task(request, task_id):
         link=link if link else None,
         file=file if file else None
     )
+    if submission.file:
+        logger.info(
+            "Task submission file saved: submission_id=%s task_id=%s user_id=%s name=%s path=%s size=%s content_type=%s",
+            submission.id,
+            task.id,
+            meetup_user.id,
+            os.path.basename(submission.file.name),
+            submission.file.name,
+            getattr(submission.file, 'size', None),
+            getattr(file, 'content_type', None),
+        )
+    else:
+        logger.info(
+            "Task submission created without file: submission_id=%s task_id=%s user_id=%s",
+            submission.id,
+            task.id,
+            meetup_user.id,
+        )
     serializer = TaskSubmissionSerializer(submission, context={'request': request})
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -153,6 +176,92 @@ def task_submissions(request, task_id):
     submissions = TaskSubmission.objects.filter(task=task).select_related('user')
     serializer = TaskSubmissionSerializer(submissions, many=True, context={'request': request})
     return APIResponse.success({'submissions': serializer.data})
+
+
+@api_view(['GET'])
+@require_profile
+def download_submission_file(request, submission_id):
+    """제출 파일 다운로드/열기 (생성자 또는 제출자 본인만)"""
+    submission, error = get_object_or_error(TaskSubmission, '제출물을 찾을 수 없습니다', id=submission_id)
+    if error:
+        return error
+
+    meetup_user = request.meetup_user
+    is_creator = submission.task.meetup.creator == meetup_user
+    is_submitter = submission.user == meetup_user
+
+    if not is_creator and not is_submitter:
+        logger.warning(
+            "Task submission file access denied: submission_id=%s requester_id=%s task_id=%s owner_id=%s",
+            submission.id,
+            meetup_user.id,
+            submission.task_id,
+            submission.user_id,
+        )
+        return APIResponse.forbidden('모임 생성자 또는 제출자 본인만 파일을 열 수 있습니다')
+
+    if not submission.file:
+        logger.warning(
+            "Task submission file missing field: submission_id=%s requester_id=%s",
+            submission.id,
+            meetup_user.id,
+        )
+        return APIResponse.not_found('첨부 파일이 없습니다')
+
+    if not submission.file.name:
+        logger.warning(
+            "Task submission file invalid name: submission_id=%s requester_id=%s",
+            submission.id,
+            meetup_user.id,
+        )
+        return APIResponse.not_found('첨부 파일 경로가 올바르지 않습니다')
+
+    disposition = (request.GET.get('disposition') or 'inline').lower()
+    if disposition not in ['inline', 'attachment']:
+        return APIResponse.error('disposition 값은 inline 또는 attachment 여야 합니다')
+    as_attachment = disposition == 'attachment'
+
+    try:
+        file_handle = submission.file.open('rb')
+    except FileNotFoundError:
+        logger.error(
+            "Task submission file not found on disk: submission_id=%s requester_id=%s storage_name=%s",
+            submission.id,
+            meetup_user.id,
+            submission.file.name,
+        )
+        return APIResponse.not_found('파일을 찾을 수 없습니다')
+    except Exception:
+        logger.exception(
+            "Task submission file open failed: submission_id=%s requester_id=%s storage_name=%s",
+            submission.id,
+            meetup_user.id,
+            submission.file.name,
+        )
+        return APIResponse.error('파일을 여는 중 오류가 발생했습니다', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    filename = os.path.basename(submission.file.name)
+    content_type, _ = mimetypes.guess_type(filename)
+
+    logger.info(
+        "Task submission file served: submission_id=%s requester_id=%s task_id=%s owner_id=%s disposition=%s file=%s exists=%s",
+        submission.id,
+        meetup_user.id,
+        submission.task_id,
+        submission.user_id,
+        disposition,
+        submission.file.name,
+        True,
+    )
+
+    response = FileResponse(
+        file_handle,
+        as_attachment=as_attachment,
+        filename=filename,
+        content_type=content_type or 'application/octet-stream',
+    )
+    response['X-Content-Type-Options'] = 'nosniff'
+    return response
 
 
 @api_view(['PUT'])

@@ -21,6 +21,8 @@ X_FRAME_OPTIONS = 'DENY'
 
 # HTTPS settings (enabled for meet.onebitebitcoin.com)
 SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
@@ -37,6 +39,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Override media files path for production
 MEDIA_ROOT = '/var/www/meet/media'
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
 # Database - Update for production database
 # DATABASES = {

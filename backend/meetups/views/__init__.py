@@ -37,7 +37,14 @@ from .notifications import (
     user_notifications,
 )
 from .registrations import RegistrationListView, register_user
+from .reviews import (
+    meetup_review,
+    meetup_reviews_list,
+    recent_reviews,
+    review_feed,
+)
 from .tasks import (
+    download_submission_file,
     meetup_tasks,
     review_submission,
     submit_task,
@@ -50,12 +57,6 @@ from .waitlist import (
     meetup_waitlist,
     remove_from_waitlist,
     user_waitlists,
-)
-from .reviews import (
-    meetup_review,
-    meetup_reviews_list,
-    recent_reviews,
-    review_feed,
 )
 
 __all__ = [
@@ -101,6 +102,7 @@ __all__ = [
     'task_submissions',
     'submit_task',
     'review_submission',
+    'download_submission_file',
     'meetup_review',
     'meetup_reviews_list',
     'recent_reviews',
