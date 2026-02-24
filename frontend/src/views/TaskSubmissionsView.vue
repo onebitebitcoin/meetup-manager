@@ -146,21 +146,42 @@
             <!-- File -->
             <div v-if="submission.download_url || submission.file_url" class="mb-3">
               <div class="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-                <div class="mb-2 inline-flex max-w-full items-center gap-1 text-sm text-neutral-700 dark:text-neutral-200">
-                  <svg
-                    class="h-4 w-4 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <div class="inline-flex min-w-0 max-w-full items-center gap-1 text-sm text-neutral-700 dark:text-neutral-200">
+                    <svg
+                      class="h-4 w-4 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <span class="min-w-0 truncate">{{ submission.file_name || '첨부 파일' }}</span>
+                  </div>
+                  <span
+                    :class="getFileTypeBadgeClass(submission)"
+                    class="shrink-0 rounded px-2 py-1 text-xs font-semibold"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <span class="min-w-0 truncate">{{ submission.file_name || '첨부 파일' }}</span>
+                    {{ getFileTypeLabel(submission) }}
+                  </span>
+                </div>
+                <div
+                  v-if="isImageFile(submission)"
+                  class="mb-2 overflow-hidden rounded-md border border-neutral-200 bg-white p-2 dark:border-neutral-600 dark:bg-neutral-900"
+                >
+                  <div class="flex min-h-[132px] items-center justify-center rounded bg-neutral-50 p-1 dark:bg-neutral-800">
+                    <img
+                      :src="getInlinePreviewUrl(submission)"
+                      :alt="submission.file_name || '첨부 이미지 미리보기'"
+                      class="max-h-56 w-full rounded object-contain"
+                      loading="lazy"
+                    >
+                  </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                   <button
@@ -313,6 +334,42 @@ export default {
     const isOpeningFile = (submissionId) => isFileActionLoading(submissionId) && fileActionType.value === 'open'
     const isDownloadingFile = (submissionId) => isFileActionLoading(submissionId) && fileActionType.value === 'download'
 
+    const getFileExtension = (submission) => {
+      const fileName = (submission?.file_name || '').trim()
+      if (!fileName.includes('.')) return ''
+      return fileName.split('.').pop().toLowerCase()
+    }
+
+    const isImageFile = (submission) => ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(getFileExtension(submission))
+
+    const getInlinePreviewUrl = (submission) => {
+      try {
+        return getSubmissionFileEndpoint(submission, 'inline')
+      } catch (err) {
+        return submission.file_url || ''
+      }
+    }
+
+    const getFileTypeLabel = (submission) => {
+      const ext = getFileExtension(submission)
+      if (!ext) return 'FILE'
+      return ext.toUpperCase()
+    }
+
+    const getFileTypeBadgeClass = (submission) => {
+      const ext = getFileExtension(submission)
+      if (ext === 'pdf') {
+        return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
+      }
+      if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
+        return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200'
+      }
+      if (['doc', 'docx'].includes(ext)) {
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+      }
+      return 'bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200'
+    }
+
     const getSubmissionFileEndpoint = (submission, disposition) => {
       const baseUrl = submission.download_url || submission.file_url
       if (!baseUrl) {
@@ -451,15 +508,19 @@ export default {
       isFileActionLoading,
       isOpeningFile,
       isDownloadingFile,
+      isImageFile,
       resultMessage,
       resultType,
       formatDateTime,
       getStatusText,
       getStatusClass,
       getResultMessageClass,
+      getFileTypeLabel,
+      getFileTypeBadgeClass,
       getCompactLinkText,
       openSubmissionFile,
       downloadSubmissionFile,
+      getInlinePreviewUrl,
       reviewSubmission,
       goBack,
     }
