@@ -72,6 +72,9 @@ if [ -f "backend/requirements.txt" ]; then
     pip install -r requirements.txt
     pip install gunicorn
 
+    export DJANGO_SETTINGS_MODULE=meetup_backend.settings_production
+    export MEDIA_ROOT=$MEDIA_DEPLOY_DIR
+
     echo "Running Django migrations..."
     python manage.py migrate
 
@@ -144,6 +147,12 @@ fi
 # Setup systemd service for Django backend
 SERVICE_NAME="meet-django-backend"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
+LOG_DEPLOY_DIR="/var/log/meetup"
+
+echo "Preparing Django log directory..."
+sudo mkdir -p $LOG_DEPLOY_DIR
+sudo chown -R $USER:www-data $LOG_DEPLOY_DIR
+sudo chmod -R 775 $LOG_DEPLOY_DIR
 
 echo "Creating/updating Django systemd service..."
 sudo tee $SERVICE_FILE > /dev/null <<EOF
@@ -160,6 +169,7 @@ Environment="PATH=$CURRENT_DIR/backend/venv/bin:/usr/local/bin:/usr/bin:/bin"
 Environment="PYTHONPATH=$CURRENT_DIR/backend"
 Environment="DJANGO_SETTINGS_MODULE=meetup_backend.settings_production"
 Environment="MEDIA_ROOT=$MEDIA_DEPLOY_DIR"
+Environment="DJANGO_LOG_DIR=$LOG_DEPLOY_DIR"
 ExecStart=$CURRENT_DIR/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 meetup_backend.wsgi:application
 ExecReload=/bin/kill -s HUP \$MAINPID
 KillMode=mixed

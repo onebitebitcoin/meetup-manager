@@ -1,6 +1,8 @@
 """
 Production settings for meetup_backend project.
 """
+import os
+
 from .settings import *  # noqa: F403
 
 # Override debug settings
@@ -67,30 +69,49 @@ FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 # }
 
 # Logging
+# Prefer stdout logging (12-factor). File logging is optional and enabled only when writable.
+LOG_DIR = os.environ.get("DJANGO_LOG_DIR", "/var/log/meetup")
+LOG_FILE = os.environ.get("DJANGO_LOG_FILE", f"{LOG_DIR}/django.log")
+
+file_logging_enabled = False
+try:
+    os.makedirs(LOG_DIR, exist_ok=True)
+    with open(LOG_FILE, "a", encoding="utf-8"):
+        pass
+    file_logging_enabled = True
+except OSError:
+    file_logging_enabled = False
+
+log_handlers = {
+    "console": {
+        "level": "INFO",
+        "class": "logging.StreamHandler",
+        "formatter": "verbose",
+    },
+}
+root_handlers = ["console"]
+
+if file_logging_enabled:
+    log_handlers["file"] = {
+        "level": "INFO",
+        "class": "logging.FileHandler",
+        "filename": LOG_FILE,
+        "formatter": "verbose",
+    }
+    root_handlers.append("file")
+
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/meetup/django.log',
-            'formatter': 'verbose',
-        },
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-    },
-    'root': {
-        'handlers': ['console', 'file'],
-        'level': 'INFO',
+    "handlers": log_handlers,
+    "root": {
+        "handlers": root_handlers,
+        "level": "INFO",
     },
 }
