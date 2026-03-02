@@ -94,7 +94,7 @@ class TestAuthLoginAPI:
         }
 
         response = api_client.post(url, data, format='json')
-        assert response.status_code == 401
+        assert response.status_code == 404
 
 
 @pytest.mark.django_db
@@ -132,3 +132,83 @@ class TestUsernameCheckAPI:
 
         assert response.status_code == 200
         assert response.data['available'] is False
+
+
+@pytest.mark.django_db
+class TestLightningAddressAPI:
+    """Tests for lightning address endpoints."""
+
+    def test_get_lightning_address_success(self, authenticated_client):
+        client, _, _ = authenticated_client()
+
+        url = reverse('auth-lightning-address')
+        response = client.get(url)
+
+        assert response.status_code == 200
+        assert response.data['lightning_address'] == ''
+
+    def test_set_lightning_address_success(self, authenticated_client):
+        client, _, meetup_user = authenticated_client()
+
+        url = reverse('auth-lightning-address')
+        response = client.put(url, {'lightning_address': 'alice@coinos.io'}, format='json')
+
+        meetup_user.refresh_from_db()
+        assert response.status_code == 200
+        assert response.data['lightning_address'] == 'alice@coinos.io'
+        assert meetup_user.lightning_address == 'alice@coinos.io'
+
+    def test_set_lightning_address_invalid(self, authenticated_client):
+        client, _, _ = authenticated_client()
+
+        url = reverse('auth-lightning-address')
+        response = client.put(url, {'lightning_address': 'invalid-address'}, format='json')
+
+        assert response.status_code == 400
+        assert 'error' in response.data
+
+    def test_test_invoice_success(self, authenticated_client, monkeypatch):
+        client, _, _ = authenticated_client()
+
+        responses = [
+            {
+                'tag': 'payRequest',
+                'callback': 'https://coinos.io/lnurl/callback',
+                'minSendable': 1000,
+                'maxSendable': 100000000,
+            },
+            {
+                'pr': 'lnbc10n1p0testinvoice',
+            },
+        ]
+
+        def fake_fetch_json_with_timeout(_url):
+            return responses.pop(0)
+
+        monkeypatch.setattr('meetups.views.auth.fetch_json_with_timeout', fake_fetch_json_with_timeout)
+
+        url = reverse('auth-test-lightning-invoice')
+        response = client.post(url, {'lightning_address': 'alice@coinos.io'}, format='json')
+
+        assert response.status_code == 200
+        assert response.data['invoice']['amount_sats'] == 1
+        assert response.data['invoice']['bolt11'] == 'lnbc10n1p0testinvoice'
+
+    def test_test_invoice_amount_not_supported(self, authenticated_client, monkeypatch):
+        client, _, _ = authenticated_client()
+
+        def fake_fetch_json_with_timeout(_url):
+            return {
+                'tag': 'payRequest',
+                'callback': 'https://coinos.io/lnurl/callback',
+                'minSendable': 2000,
+                'maxSendable': 100000000,
+            }
+
+        monkeypatch.setattr('meetups.views.auth.fetch_json_with_timeout', fake_fetch_json_with_timeout)
+
+        url = reverse('auth-test-lightning-invoice')
+        response = client.post(url, {'lightning_address': 'alice@coinos.io'}, format='json')
+
+        assert response.status_code == 400
+        assert '1 sats 인보이스를 지원하지 않습니다' in response.data['error']

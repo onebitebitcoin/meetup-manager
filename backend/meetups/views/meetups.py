@@ -1,11 +1,11 @@
-from datetime import datetime
 import logging
-from math import ceil
 import time
+from datetime import datetime
+from math import ceil
 
 from django.contrib.auth.models import User
-from django.http import JsonResponse
 from django.db.models import Exists, OuterRef, Q
+from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -22,10 +22,9 @@ from .helpers import (
     APIResponse,
     get_object_or_error,
     get_or_create_meetup_profile,
-    require_profile,
     require_meetup_access,
     require_meetup_creator,
-    require_meetup_creator_or_admin,
+    require_profile,
 )
 
 logger = logging.getLogger(__name__)

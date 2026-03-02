@@ -7,11 +7,13 @@
 
 ### 1.2 Key Features
 - 사용자 인증 (회원가입, 로그인, 로그아웃)
+- 설정 페이지 (비밀번호 변경, Lightning Address 관리)
 - 모임 CRUD (생성, 조회, 수정, 삭제)
 - 모임 참가 신청 및 취소
 - 대기열 (Waitlist) 관리 및 자동 승격
 - 과제 생성 및 제출
 - 알림 시스템
+- Lightning Address 기반 1 sats 인보이스 생성 검증 (LNURL)
 - 관리자 기능
 
 ---
@@ -111,6 +113,7 @@ meet/
 | name | CharField(100) | 사용자 이름 |
 | email | EmailField | 이메일 |
 | phone | CharField(20) | 전화번호 (optional) |
+| lightning_address | CharField(255) | Lightning Address (optional) |
 | is_admin | BooleanField | 관리자 여부 |
 | created_at | DateTimeField | 생성일시 |
 
@@ -222,6 +225,9 @@ meet/
 | POST | `/api/auth/register/` | 회원가입 |
 | POST | `/api/auth/login/` | 로그인 |
 | POST | `/api/auth/logout/` | 로그아웃 |
+| GET | `/api/auth/lightning-address/` | 내 Lightning Address 조회 |
+| PUT | `/api/auth/lightning-address/` | 내 Lightning Address 저장 |
+| POST | `/api/auth/lightning-address/test-invoice/` | 1 sats LNURL 인보이스 생성 검증 |
 | GET | `/api/auth/check-username/` | 사용자명 중복 확인 |
 
 ### 5.2 Users

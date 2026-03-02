@@ -115,7 +115,10 @@ class MeetupUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MeetupUser
-        fields = ['id', 'name', 'email', 'phone', 'is_admin', 'created_at', 'username', 'total_meetups_created']
+        fields = [
+            'id', 'name', 'email', 'phone', 'lightning_address',
+            'is_admin', 'created_at', 'username', 'total_meetups_created',
+        ]
 
     def get_total_meetups_created(self, obj):
         return obj.created_meetups.count()

@@ -11,6 +11,7 @@ class MeetupUser(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True, null=True)
+    lightning_address = models.CharField(max_length=255, blank=True, null=True)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

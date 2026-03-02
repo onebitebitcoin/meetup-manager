@@ -186,87 +186,6 @@
           </button>
         </div>
 
-        <!-- 비밀번호 변경 섹션 -->
-        <div v-if="!authStore.user?.is_guest" class="bg-white dark:bg-neutral-800 shadow rounded-lg mb-8">
-          <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">
-              비밀번호 변경
-            </h3>
-
-            <form class="space-y-4" @submit.prevent="handleChangePassword">
-              <div>
-                <label for="current-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  현재 비밀번호
-                </label>
-                <input
-                  id="current-password"
-                  v-model="passwordForm.currentPassword"
-                  type="password"
-                  required
-                  class="input-primary"
-                  placeholder="현재 비밀번호를 입력하세요"
-                >
-              </div>
-
-              <div>
-                <label for="new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  새 비밀번호
-                </label>
-                <input
-                  id="new-password"
-                  v-model="passwordForm.newPassword"
-                  type="password"
-                  required
-                  class="input-primary"
-                  placeholder="새 비밀번호를 입력하세요 (최소 8자)"
-                >
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  최소 8자 이상 입력해주세요
-                </p>
-              </div>
-
-              <div>
-                <label for="confirm-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  새 비밀번호 확인
-                </label>
-                <input
-                  id="confirm-password"
-                  v-model="passwordForm.confirmPassword"
-                  type="password"
-                  required
-                  class="input-primary"
-                  placeholder="새 비밀번호를 다시 입력하세요"
-                >
-              </div>
-
-              <div v-if="passwordError" class="text-sm text-red-600 dark:text-red-400">
-                {{ passwordError }}
-              </div>
-
-              <div v-if="passwordSuccess" class="text-sm text-green-600 dark:text-green-400">
-                {{ passwordSuccess }}
-              </div>
-
-              <div class="flex space-x-3">
-                <button
-                  type="submit"
-                  class="btn-primary"
-                  :disabled="changingPassword"
-                >
-                  {{ changingPassword ? '변경 중...' : '비밀번호 변경' }}
-                </button>
-                <button
-                  type="button"
-                  class="btn-secondary"
-                  @click="resetPasswordForm"
-                >
-                  취소
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
         <!-- Loading State -->
         <div v-if="loading && !meetupsLoaded" class="bg-white dark:bg-neutral-800 shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6 text-center">
@@ -1210,6 +1129,178 @@
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div v-if="!authStore.user?.is_guest" class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl border border-neutral-200 dark:border-neutral-800 mt-6">
+          <div class="px-3 py-5 sm:p-6 space-y-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+              라이트닝 주소
+            </h3>
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label for="lightning-provider" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  서비스
+                </label>
+                <select
+                  id="lightning-provider"
+                  v-model="lightningForm.provider"
+                  class="input-primary min-h-[44px]"
+                >
+                  <option
+                    v-for="option in lightningProviderOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div v-if="lightningForm.provider !== 'custom'">
+                <label for="lightning-handle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  계정
+                </label>
+                <input
+                  id="lightning-handle"
+                  v-model="lightningForm.handle"
+                  type="text"
+                  class="input-primary min-h-[44px]"
+                  placeholder="아이디 입력"
+                >
+              </div>
+
+              <div v-else class="sm:col-span-2">
+                <label for="lightning-custom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  라이트닝 주소
+                </label>
+                <input
+                  id="lightning-custom"
+                  v-model="lightningForm.customAddress"
+                  type="text"
+                  class="input-primary min-h-[44px]"
+                  placeholder="user@example.com"
+                >
+              </div>
+            </div>
+
+            <div class="text-sm text-gray-600 dark:text-gray-300 break-all">
+              {{ lightningAddressPreview ? '주소: ' + lightningAddressPreview : '주소를 입력해주세요.' }}
+            </div>
+
+            <div v-if="lightningError" class="text-sm text-red-600 dark:text-red-400">
+              {{ lightningError }}
+            </div>
+
+            <div v-if="lightningSuccess" class="text-sm text-green-600 dark:text-green-400">
+              {{ lightningSuccess }}
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="btn-primary min-h-[44px]"
+                :disabled="savingLightning || loadingLightning"
+                @click="saveLightningAddress"
+              >
+                {{ savingLightning ? '저장 중...' : '주소 저장' }}
+              </button>
+              <button
+                type="button"
+                class="btn-secondary min-h-[44px]"
+                :disabled="testingLightning || loadingLightning"
+                @click="testOneSatInvoice"
+              >
+                {{ testingLightning ? '테스트 중...' : '1 sats 테스트' }}
+              </button>
+            </div>
+
+            <div
+              v-if="lightningInvoiceResult"
+              class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-2"
+            >
+              <p class="text-xs text-gray-700 dark:text-gray-300 break-all">
+                {{ lightningInvoiceResult }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!authStore.user?.is_guest" class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl border border-neutral-200 dark:border-neutral-800 mt-6">
+          <div class="px-3 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">
+              비밀번호 변경
+            </h3>
+
+            <form class="space-y-4" @submit.prevent="handleChangePassword">
+              <div>
+                <label for="current-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  현재 비밀번호
+                </label>
+                <input
+                  id="current-password"
+                  v-model="passwordForm.currentPassword"
+                  type="password"
+                  required
+                  class="input-primary min-h-[44px]"
+                  placeholder="현재 비밀번호를 입력하세요"
+                >
+              </div>
+
+              <div>
+                <label for="new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  새 비밀번호
+                </label>
+                <input
+                  id="new-password"
+                  v-model="passwordForm.newPassword"
+                  type="password"
+                  required
+                  class="input-primary min-h-[44px]"
+                  placeholder="새 비밀번호를 입력하세요"
+                >
+              </div>
+
+              <div>
+                <label for="confirm-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  새 비밀번호 확인
+                </label>
+                <input
+                  id="confirm-password"
+                  v-model="passwordForm.confirmPassword"
+                  type="password"
+                  required
+                  class="input-primary min-h-[44px]"
+                  placeholder="새 비밀번호를 다시 입력하세요"
+                >
+              </div>
+
+              <div v-if="passwordError" class="text-sm text-red-600 dark:text-red-400">
+                {{ passwordError }}
+              </div>
+
+              <div v-if="passwordSuccess" class="text-sm text-green-600 dark:text-green-400">
+                {{ passwordSuccess }}
+              </div>
+
+              <div class="flex flex-wrap gap-3">
+                <button
+                  type="submit"
+                  class="btn-primary min-h-[44px]"
+                  :disabled="changingPassword"
+                >
+                  {{ changingPassword ? '변경 중...' : '비밀번호 변경' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary min-h-[44px]"
+                  @click="resetPasswordForm"
+                >
+                  취소
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -2212,6 +2303,7 @@ import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
 import { formatDateTime, toDateInput, toTimeInput, toUTC, addDurationToLocal, toLocal } from '@/utils/datetime'
 import { convertPasswordInput } from '@/utils/keyboardConverter'
+import { LIGHTNING_PROVIDER_OPTIONS, buildLightningAddress, parseLightningAddress } from '@/utils/lightning'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import CustomDateInput from '@/components/CustomDateInput.vue'
 import CustomTimeSelect from '@/components/CustomTimeSelect.vue'
@@ -2254,6 +2346,20 @@ export default {
     const passwordError = ref('')
     const passwordSuccess = ref('')
     const changingPassword = ref(false)
+    const lightningProviderOptions = LIGHTNING_PROVIDER_OPTIONS
+    const lightningForm = reactive({
+      provider: 'walletofsatoshi',
+      handle: '',
+      customAddress: '',
+    })
+    const loadingLightning = ref(false)
+    const savingLightning = ref(false)
+    const testingLightning = ref(false)
+    const lightningError = ref('')
+    const lightningSuccess = ref('')
+    const lightningInvoiceResult = ref('')
+
+    const lightningAddressPreview = computed(() => buildLightningAddress(lightningForm))
 
     const formatMonthValue = (date) => {
       const year = date.getFullYear()
@@ -2480,11 +2586,125 @@ export default {
           message.value = ''
         }, 5000)
       }
+      if (!authStore.user?.is_guest) {
+        loadLightningAddress()
+      }
       loadMeetups()
       loadRegisteredMeetups()
       loadWaitlistMeetups()
       loadNotifications()
     })
+
+    const syncAuthUserLightningAddress = (lightningAddress) => {
+      if (!authStore.user) {
+        return
+      }
+      const updatedUser = {
+        ...authStore.user,
+        lightning_address: lightningAddress || '',
+      }
+      authStore.user = updatedUser
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+    }
+
+    const loadLightningAddress = async () => {
+      loadingLightning.value = true
+      lightningError.value = ''
+      try {
+        const response = await fetchWithCSRF('/api/auth/lightning-address/', {
+          method: 'GET',
+        })
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || '라이트닝 주소를 불러오지 못했습니다.')
+        }
+        const data = await response.json()
+        const parsed = parseLightningAddress(data.lightning_address || '')
+        lightningForm.provider = parsed.provider
+        lightningForm.handle = parsed.handle
+        lightningForm.customAddress = parsed.customAddress
+        syncAuthUserLightningAddress(data.lightning_address || '')
+      } catch (error) {
+        console.error('Failed to load lightning address:', error)
+        lightningError.value = error.message || '라이트닝 주소를 불러오지 못했습니다.'
+      } finally {
+        loadingLightning.value = false
+      }
+    }
+
+    const saveLightningAddress = async () => {
+      lightningError.value = ''
+      lightningSuccess.value = ''
+      lightningInvoiceResult.value = ''
+
+      const address = buildLightningAddress(lightningForm)
+      if (!address) {
+        lightningError.value = '라이트닝 주소를 입력해주세요.'
+        return
+      }
+
+      savingLightning.value = true
+      try {
+        const response = await fetchWithCSRF('/api/auth/lightning-address/', {
+          method: 'PUT',
+          body: JSON.stringify({
+            lightning_address: address,
+          }),
+        })
+
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || '라이트닝 주소 저장에 실패했습니다.')
+        }
+
+        const parsed = parseLightningAddress(data.lightning_address || '')
+        lightningForm.provider = parsed.provider
+        lightningForm.handle = parsed.handle
+        lightningForm.customAddress = parsed.customAddress
+        lightningSuccess.value = data.message || '라이트닝 주소가 저장되었습니다.'
+        syncAuthUserLightningAddress(data.lightning_address || '')
+      } catch (error) {
+        console.error('Failed to save lightning address:', error)
+        lightningError.value = error.message || '라이트닝 주소 저장에 실패했습니다.'
+      } finally {
+        savingLightning.value = false
+      }
+    }
+
+    const testOneSatInvoice = async () => {
+      lightningError.value = ''
+      lightningSuccess.value = ''
+      lightningInvoiceResult.value = ''
+
+      const address = buildLightningAddress(lightningForm)
+      if (!address) {
+        lightningError.value = '테스트할 라이트닝 주소를 입력해주세요.'
+        return
+      }
+
+      testingLightning.value = true
+      try {
+        const response = await fetchWithCSRF('/api/auth/lightning-address/test-invoice/', {
+          method: 'POST',
+          body: JSON.stringify({
+            lightning_address: address,
+          }),
+        })
+
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || '1 sats 테스트에 실패했습니다.')
+        }
+
+        lightningSuccess.value = data.message || '1 sats 인보이스 생성에 성공했습니다.'
+        lightningInvoiceResult.value = data.invoice?.bolt11 || ''
+      } catch (error) {
+        console.error('Failed to test 1 sats invoice:', error)
+        lightningError.value = error.message || '1 sats 테스트 중 오류가 발생했습니다.'
+      } finally {
+        testingLightning.value = false
+      }
+    }
 
     const loadMeetups = async () => {
       if (meetupsLoaded.value) {
@@ -3335,6 +3555,18 @@ export default {
       paginatedNotifications,
       goToPage,
       getVisiblePages,
+      // 라이트닝 주소
+      lightningProviderOptions,
+      lightningForm,
+      loadingLightning,
+      savingLightning,
+      testingLightning,
+      lightningAddressPreview,
+      lightningError,
+      lightningSuccess,
+      lightningInvoiceResult,
+      saveLightningAddress,
+      testOneSatInvoice,
       // 비밀번호 변경
       passwordForm,
       passwordError,

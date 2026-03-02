@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from ..models import Meetup, MeetupUser, Registration, Review
+from ..models import Meetup, Registration, Review
 from ..serializers import ReviewSerializer
 from .helpers import APIResponse, get_object_or_error, require_profile
 

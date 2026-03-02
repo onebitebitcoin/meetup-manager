@@ -8,7 +8,6 @@ from rest_framework.response import Response
 
 from ..models import Meetup, MeetupUser, Registration
 
-
 # =============================================================================
 # APIResponse: 일관된 응답 생성 클래스
 # =============================================================================

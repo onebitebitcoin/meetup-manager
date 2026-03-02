@@ -11,9 +11,11 @@ from .auth import (
     change_password,
     check_username_availability,
     get_csrf_token,
+    lightning_address,
     login_user,
     logout_user,
     register_new_user,
+    test_lightning_invoice,
 )
 from .meetups import (
     MeetupListCreateView,
@@ -63,9 +65,11 @@ __all__ = [
     'change_password',
     'check_username_availability',
     'get_csrf_token',
+    'lightning_address',
     'login_user',
     'logout_user',
     'register_new_user',
+    'test_lightning_invoice',
     'MeetupListCreateView',
     'MeetupUserListCreateView',
     'add_participant_by_email',
