@@ -59,6 +59,10 @@ urlpatterns = [
     path('api/submissions/<int:submission_id>/review/', views.review_submission, name='review-submission'),
     path('api/submissions/<int:submission_id>/file/', views.download_submission_file, name='submission-file-download'),
 
+    # Payment link endpoints
+    path('api/meetups/<int:meetup_id>/payment-link/', views.create_meetup_payment_link, name='create-payment-link'),
+    path('api/payment-link/<str:token>/', views.get_payment_link, name='get-payment-link'),
+
     # Review endpoints
     path('api/reviews/', views.review_feed, name='review-feed'),
     path('api/reviews/recent/', views.recent_reviews, name='recent-reviews'),

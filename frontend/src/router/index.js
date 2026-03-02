@@ -14,6 +14,8 @@ import SettingsView from '@/views/SettingsView.vue'
 import HelpView from '@/views/HelpView.vue'
 import ReviewFeedView from '@/views/ReviewFeedView.vue'
 import WriteReviewView from '@/views/WriteReviewView.vue'
+import MeetupPaymentLinkView from '@/views/MeetupPaymentLinkView.vue'
+import PaymentQRView from '@/views/PaymentQRView.vue'
 
 const routes = [
   {
@@ -107,6 +109,17 @@ const routes = [
     name: 'WriteReviewForMeetup',
     component: WriteReviewView,
     meta: { requiresAuth: true, requiresNonGuest: true },
+  },
+  {
+    path: '/meetup/:id/payment-link',
+    name: 'MeetupPaymentLink',
+    component: MeetupPaymentLinkView,
+    meta: { requiresAuth: true, requiresNonGuest: true },
+  },
+  {
+    path: '/pay/:token',
+    name: 'PaymentQR',
+    component: PaymentQRView,
   },
 ]
 

@@ -256,6 +256,28 @@
               과제 확인
             </button>
 
+            <!-- Payment QR Button - Visible for meetup creator only -->
+            <button
+              v-if="authStore.isLoggedIn && !authStore.isGuest && isCreator"
+              class="w-full py-4 px-6 rounded-lg text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600 transition-colors duration-200 flex items-center justify-center gap-2"
+              @click="$router.push(`/meetup/${meetupId}/payment-link`)"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+              결제 QR 생성
+            </button>
+
             <!-- Review Button - Visible when meetup is ended and user can write review -->
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && isMeetupPassed && canWriteReview"

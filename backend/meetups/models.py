@@ -1,4 +1,5 @@
 import os
+import uuid
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -296,3 +297,20 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.name} - {self.meetup.name} ({self.rating}점)"
+
+
+class MeetupPaymentLink(models.Model):
+    """모임 결제 링크 - BOLT11 인보이스를 공개 URL로 공유"""
+    token = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
+    meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, related_name='payment_links')
+    bolt11 = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.meetup.name} - {self.token}"
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        return timezone.now() >= self.expires_at
