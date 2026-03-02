@@ -57,3 +57,12 @@ export function parseLightningAddress(address) {
     customAddress: normalized,
   }
 }
+
+export function buildLightningQrImageUrl(value) {
+  const normalized = (value || '').trim()
+  if (!normalized) {
+    return ''
+  }
+
+  return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(normalized)}`
+}

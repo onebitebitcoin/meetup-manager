@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildLightningAddress, parseLightningAddress } from '@/utils/lightning'
+import { buildLightningAddress, buildLightningQrImageUrl, parseLightningAddress } from '@/utils/lightning'
 
 describe('lightning utils', () => {
   it('선택형 provider로 lightning address를 조합한다', () => {
@@ -36,5 +36,12 @@ describe('lightning utils', () => {
 
     expect(parsed.provider).toBe('custom')
     expect(parsed.customAddress).toBe('maker@ln.example.com')
+  })
+
+  it('QR 코드 URL을 생성한다', () => {
+    const url = buildLightningQrImageUrl('lnbc10n1ptest')
+
+    expect(url).toContain('api.qrserver.com')
+    expect(url).toContain(encodeURIComponent('lnbc10n1ptest'))
   })
 })

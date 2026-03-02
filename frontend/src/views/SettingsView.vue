@@ -1220,9 +1220,61 @@
               v-if="lightningInvoiceResult"
               class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-2"
             >
-              <p class="text-xs text-gray-700 dark:text-gray-300 break-all">
-                {{ lightningInvoiceResult }}
-              </p>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
+                <div
+                  v-if="lightningInvoiceQrUrl"
+                  class="w-full sm:w-auto flex justify-center"
+                >
+                  <img
+                    :src="lightningInvoiceQrUrl"
+                    alt="1 sats 인보이스 QR 코드"
+                    class="h-40 w-40 rounded-md border border-neutral-300 dark:border-neutral-600 bg-white p-1"
+                  >
+                </div>
+
+                <div class="min-w-0 flex-1 space-y-2">
+                  <div v-if="lightningInvoiceResult.lnurl" class="text-xs text-gray-700 dark:text-gray-300">
+                    <div class="mb-1 font-medium text-gray-800 dark:text-gray-200">
+                      LNURL
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <p class="break-all flex-1">
+                        {{ lightningInvoiceResult.lnurl }}
+                      </p>
+                      <button
+                        type="button"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-md border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600"
+                        aria-label="LNURL 복사"
+                        title="LNURL 복사"
+                        @click="copyLightningLnurl"
+                      >
+                        <svg
+                          class="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M10 10h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-8a2 2 0 012-2z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div v-if="lightningInvoiceResult.bolt11" class="text-xs text-gray-700 dark:text-gray-300">
+                    <div class="mb-1 font-medium text-gray-800 dark:text-gray-200">
+                      BOLT11
+                    </div>
+                    <p class="break-all">
+                      {{ lightningInvoiceResult.bolt11 }}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2303,7 +2355,12 @@ import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
 import { formatDateTime, toDateInput, toTimeInput, toUTC, addDurationToLocal, toLocal } from '@/utils/datetime'
 import { convertPasswordInput } from '@/utils/keyboardConverter'
-import { LIGHTNING_PROVIDER_OPTIONS, buildLightningAddress, parseLightningAddress } from '@/utils/lightning'
+import {
+  LIGHTNING_PROVIDER_OPTIONS,
+  buildLightningAddress,
+  buildLightningQrImageUrl,
+  parseLightningAddress,
+} from '@/utils/lightning'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import CustomDateInput from '@/components/CustomDateInput.vue'
 import CustomTimeSelect from '@/components/CustomTimeSelect.vue'
@@ -2357,9 +2414,15 @@ export default {
     const testingLightning = ref(false)
     const lightningError = ref('')
     const lightningSuccess = ref('')
-    const lightningInvoiceResult = ref('')
+    const lightningInvoiceResult = ref(null)
 
     const lightningAddressPreview = computed(() => buildLightningAddress(lightningForm))
+    const lightningInvoiceQrUrl = computed(() => {
+      if (!lightningInvoiceResult.value?.bolt11) {
+        return ''
+      }
+      return buildLightningQrImageUrl(lightningInvoiceResult.value.bolt11)
+    })
 
     const formatMonthValue = (date) => {
       const year = date.getFullYear()
@@ -2635,7 +2698,7 @@ export default {
     const saveLightningAddress = async () => {
       lightningError.value = ''
       lightningSuccess.value = ''
-      lightningInvoiceResult.value = ''
+      lightningInvoiceResult.value = null
 
       const address = buildLightningAddress(lightningForm)
       if (!address) {
@@ -2674,7 +2737,7 @@ export default {
     const testOneSatInvoice = async () => {
       lightningError.value = ''
       lightningSuccess.value = ''
-      lightningInvoiceResult.value = ''
+      lightningInvoiceResult.value = null
 
       const address = buildLightningAddress(lightningForm)
       if (!address) {
@@ -2697,12 +2760,57 @@ export default {
         }
 
         lightningSuccess.value = data.message || '1 sats 인보이스 생성에 성공했습니다.'
-        lightningInvoiceResult.value = data.invoice?.bolt11 || ''
+        lightningInvoiceResult.value = {
+          bolt11: data.invoice?.bolt11 || '',
+          lnurl: data.lnurlp_url || '',
+          callbackUrl: data.callback_url || '',
+        }
       } catch (error) {
         console.error('Failed to test 1 sats invoice:', error)
         lightningError.value = error.message || '1 sats 테스트 중 오류가 발생했습니다.'
       } finally {
         testingLightning.value = false
+      }
+    }
+
+    const copyText = async (text) => {
+      if (!text) return false
+
+      try {
+        await navigator.clipboard.writeText(text)
+        return true
+      } catch (error) {
+        const textArea = document.createElement('textarea')
+        textArea.value = text
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        try {
+          document.execCommand('copy')
+          return true
+        } catch (fallbackError) {
+          console.error('Failed to copy text:', fallbackError)
+          return false
+        } finally {
+          document.body.removeChild(textArea)
+        }
+      }
+    }
+
+    const copyLightningLnurl = async () => {
+      lightningError.value = ''
+
+      const lnurl = lightningInvoiceResult.value?.lnurl
+      if (!lnurl) {
+        lightningError.value = '복사할 LNURL 정보가 없습니다.'
+        return
+      }
+
+      const copied = await copyText(lnurl)
+      if (copied) {
+        lightningSuccess.value = 'LNURL이 클립보드에 복사되었습니다.'
+      } else {
+        lightningError.value = 'LNURL 복사에 실패했습니다.'
       }
     }
 
@@ -3562,9 +3670,11 @@ export default {
       savingLightning,
       testingLightning,
       lightningAddressPreview,
+      lightningInvoiceQrUrl,
       lightningError,
       lightningSuccess,
       lightningInvoiceResult,
+      copyLightningLnurl,
       saveLightningAddress,
       testOneSatInvoice,
       // 비밀번호 변경
