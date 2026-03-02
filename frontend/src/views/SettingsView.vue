@@ -1233,20 +1233,20 @@
                 </div>
 
                 <div class="min-w-0 flex-1 space-y-2">
-                  <div v-if="lightningInvoiceResult.lnurl" class="text-xs text-gray-700 dark:text-gray-300">
+                  <div v-if="lightningInvoiceResult.bolt11" class="text-xs text-gray-700 dark:text-gray-300">
                     <div class="mb-1 font-medium text-gray-800 dark:text-gray-200">
-                      LNURL
+                      BOLT11
                     </div>
                     <div class="flex items-start gap-2">
                       <p class="break-all flex-1">
-                        {{ lightningInvoiceResult.lnurl }}
+                        {{ lightningInvoiceResult.bolt11 }}
                       </p>
                       <button
                         type="button"
                         class="inline-flex h-11 w-11 items-center justify-center rounded-md border border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600"
-                        aria-label="LNURL 복사"
-                        title="LNURL 복사"
-                        @click="copyLightningLnurl"
+                        aria-label="BOLT11 복사"
+                        title="BOLT11 복사"
+                        @click="copyLightningBolt11"
                       >
                         <svg
                           class="h-4 w-4"
@@ -1263,15 +1263,6 @@
                         </svg>
                       </button>
                     </div>
-                  </div>
-
-                  <div v-if="lightningInvoiceResult.bolt11" class="text-xs text-gray-700 dark:text-gray-300">
-                    <div class="mb-1 font-medium text-gray-800 dark:text-gray-200">
-                      BOLT11
-                    </div>
-                    <p class="break-all">
-                      {{ lightningInvoiceResult.bolt11 }}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -2762,8 +2753,6 @@ export default {
         lightningSuccess.value = data.message || '1 sats 인보이스 생성에 성공했습니다.'
         lightningInvoiceResult.value = {
           bolt11: data.invoice?.bolt11 || '',
-          lnurl: data.lnurlp_url || '',
-          callbackUrl: data.callback_url || '',
         }
       } catch (error) {
         console.error('Failed to test 1 sats invoice:', error)
@@ -2797,20 +2786,20 @@ export default {
       }
     }
 
-    const copyLightningLnurl = async () => {
+    const copyLightningBolt11 = async () => {
       lightningError.value = ''
 
-      const lnurl = lightningInvoiceResult.value?.lnurl
-      if (!lnurl) {
-        lightningError.value = '복사할 LNURL 정보가 없습니다.'
+      const bolt11 = lightningInvoiceResult.value?.bolt11
+      if (!bolt11) {
+        lightningError.value = '복사할 BOLT11 인보이스가 없습니다.'
         return
       }
 
-      const copied = await copyText(lnurl)
+      const copied = await copyText(bolt11)
       if (copied) {
-        lightningSuccess.value = 'LNURL이 클립보드에 복사되었습니다.'
+        lightningSuccess.value = 'BOLT11 인보이스가 클립보드에 복사되었습니다.'
       } else {
-        lightningError.value = 'LNURL 복사에 실패했습니다.'
+        lightningError.value = 'BOLT11 복사에 실패했습니다.'
       }
     }
 
@@ -3674,7 +3663,7 @@ export default {
       lightningError,
       lightningSuccess,
       lightningInvoiceResult,
-      copyLightningLnurl,
+      copyLightningBolt11,
       saveLightningAddress,
       testOneSatInvoice,
       // 비밀번호 변경
