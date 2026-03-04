@@ -112,6 +112,161 @@ class TestAuthLogoutAPI:
 
 
 @pytest.mark.django_db
+class TestAccountSettingsAPI:
+    """Tests for integrated account settings endpoint."""
+
+    def test_get_account_settings_success(self, authenticated_client):
+        client, user, meetup_user = authenticated_client()
+
+        url = reverse('auth-account-settings')
+        response = client.get(url)
+
+        assert response.status_code == 200
+        assert response.data['user']['username'] == user.username
+        assert response.data['user']['name'] == meetup_user.name
+        assert response.data['user']['email'] == user.email
+
+    def test_update_username_success_and_sync_name(self, authenticated_client):
+        client, user, meetup_user = authenticated_client()
+
+        url = reverse('auth-account-settings')
+        response = client.put(
+            url,
+            {'username': 'updated_user'},
+            format='json',
+        )
+
+        user.refresh_from_db()
+        meetup_user.refresh_from_db()
+        assert response.status_code == 200
+        assert user.username == 'updated_user'
+        assert meetup_user.name == 'updated_user'
+        assert response.data['user']['username'] == 'updated_user'
+        assert response.data['user']['name'] == 'updated_user'
+
+    def test_update_username_duplicate_fails(self, authenticated_client, create_user):
+        client, user, _ = authenticated_client()
+        create_user(username='existing_user', email='existing_user@example.com')
+
+        url = reverse('auth-account-settings')
+        response = client.put(
+            url,
+            {'username': 'existing_user'},
+            format='json',
+        )
+
+        user.refresh_from_db()
+        assert response.status_code == 400
+        assert response.data['error'] == '이미 존재하는 사용자입니다.'
+        assert user.username != 'existing_user'
+
+    def test_update_password_success(self, authenticated_client):
+        client, user, _ = authenticated_client()
+
+        url = reverse('auth-account-settings')
+        response = client.put(
+            url,
+            {
+                'username': user.username,
+                'current_password': 'testpass123',
+                'new_password': 'newsecurepass123',
+                'confirm_password': 'newsecurepass123',
+            },
+            format='json',
+        )
+
+        user.refresh_from_db()
+        assert response.status_code == 200
+        assert user.check_password('newsecurepass123')
+
+    def test_update_username_and_password_success(self, authenticated_client):
+        client, user, meetup_user = authenticated_client()
+
+        url = reverse('auth-account-settings')
+        response = client.put(
+            url,
+            {
+                'username': 'updated_user2',
+                'current_password': 'testpass123',
+                'new_password': 'newsecurepass123',
+                'confirm_password': 'newsecurepass123',
+            },
+            format='json',
+        )
+
+        user.refresh_from_db()
+        meetup_user.refresh_from_db()
+        assert response.status_code == 200
+        assert user.username == 'updated_user2'
+        assert meetup_user.name == 'updated_user2'
+        assert user.check_password('newsecurepass123')
+
+    def test_partial_password_fields_fail(self, authenticated_client):
+        client, user, meetup_user = authenticated_client()
+
+        url = reverse('auth-account-settings')
+        response = client.put(
+            url,
+            {
+                'username': 'updated_user3',
+                'new_password': 'newsecurepass123',
+            },
+            format='json',
+        )
+
+        user.refresh_from_db()
+        meetup_user.refresh_from_db()
+        assert response.status_code == 400
+        assert response.data['error'] == '비밀번호를 변경하려면 현재/새/확인 비밀번호를 모두 입력해주세요.'
+        assert user.username != 'updated_user3'
+        assert meetup_user.name != 'updated_user3'
+
+    def test_wrong_current_password_rolls_back_username(self, authenticated_client):
+        client, user, meetup_user = authenticated_client()
+
+        url = reverse('auth-account-settings')
+        response = client.put(
+            url,
+            {
+                'username': 'updated_user4',
+                'current_password': 'wrongpassword',
+                'new_password': 'newsecurepass123',
+                'confirm_password': 'newsecurepass123',
+            },
+            format='json',
+        )
+
+        user.refresh_from_db()
+        meetup_user.refresh_from_db()
+        assert response.status_code == 400
+        assert response.data['error'] == '현재 비밀번호가 틀렸습니다.'
+        assert user.username != 'updated_user4'
+        assert meetup_user.name != 'updated_user4'
+
+
+@pytest.mark.django_db
+class TestChangePasswordCompatibilityAPI:
+    """Regression tests for legacy change-password endpoint."""
+
+    def test_legacy_change_password_still_works(self, authenticated_client):
+        client, user, _ = authenticated_client()
+
+        url = reverse('auth-change-password')
+        response = client.post(
+            url,
+            {
+                'current_password': 'testpass123',
+                'new_password': 'changedpass123',
+            },
+            format='json',
+        )
+
+        user.refresh_from_db()
+        assert response.status_code == 200
+        assert user.check_password('changedpass123')
+
+
+@pytest.mark.django_db
 class TestUsernameCheckAPI:
     """Tests for username availability check endpoint."""
 

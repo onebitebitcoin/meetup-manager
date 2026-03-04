@@ -8,6 +8,7 @@ from .admin import (
     admin_users_list,
 )
 from .auth import (
+    account_settings,
     change_password,
     check_username_availability,
     get_csrf_token,
@@ -38,6 +39,10 @@ from .notifications import (
     send_notification_to_participants,
     user_notifications,
 )
+from .payment_links import (
+    create_meetup_payment_link,
+    get_payment_link,
+)
 from .registrations import RegistrationListView, register_user
 from .reviews import (
     meetup_review,
@@ -60,12 +65,9 @@ from .waitlist import (
     remove_from_waitlist,
     user_waitlists,
 )
-from .payment_links import (
-    create_meetup_payment_link,
-    get_payment_link,
-)
 
 __all__ = [
+    'account_settings',
     'change_password',
     'check_username_availability',
     'get_csrf_token',

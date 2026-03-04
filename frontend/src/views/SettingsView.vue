@@ -1273,19 +1273,45 @@
         <div v-if="!authStore.user?.is_guest" class="bg-white dark:bg-neutral-900 shadow-sm rounded-xl border border-neutral-200 dark:border-neutral-800 mt-6">
           <div class="px-3 py-5 sm:p-6">
             <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">
-              비밀번호 변경
+              계정 정보
             </h3>
 
-            <form class="space-y-4" @submit.prevent="handleChangePassword">
+            <form class="space-y-4" @submit.prevent="saveAccountSettings">
+              <div>
+                <label for="account-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  로그인 ID
+                </label>
+                <input
+                  id="account-username"
+                  v-model="accountForm.username"
+                  type="text"
+                  required
+                  class="input-primary min-h-[44px]"
+                  placeholder="로그인 ID를 입력하세요"
+                >
+              </div>
+
+              <div>
+                <label for="account-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  이메일
+                </label>
+                <input
+                  id="account-email"
+                  :value="accountForm.email"
+                  type="email"
+                  readonly
+                  class="input-primary min-h-[44px] cursor-not-allowed opacity-70"
+                >
+              </div>
+
               <div>
                 <label for="current-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  현재 비밀번호
+                  현재 비밀번호 (변경 시)
                 </label>
                 <input
                   id="current-password"
-                  v-model="passwordForm.currentPassword"
+                  v-model="accountForm.currentPassword"
                   type="password"
-                  required
                   class="input-primary min-h-[44px]"
                   placeholder="현재 비밀번호를 입력하세요"
                 >
@@ -1293,13 +1319,12 @@
 
               <div>
                 <label for="new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  새 비밀번호
+                  새 비밀번호 (선택)
                 </label>
                 <input
                   id="new-password"
-                  v-model="passwordForm.newPassword"
+                  v-model="accountForm.newPassword"
                   type="password"
-                  required
                   class="input-primary min-h-[44px]"
                   placeholder="새 비밀번호를 입력하세요"
                 >
@@ -1311,34 +1336,33 @@
                 </label>
                 <input
                   id="confirm-password"
-                  v-model="passwordForm.confirmPassword"
+                  v-model="accountForm.confirmPassword"
                   type="password"
-                  required
                   class="input-primary min-h-[44px]"
                   placeholder="새 비밀번호를 다시 입력하세요"
                 >
               </div>
 
-              <div v-if="passwordError" class="text-sm text-red-600 dark:text-red-400">
-                {{ passwordError }}
+              <div v-if="accountError" class="text-sm text-red-600 dark:text-red-400">
+                {{ accountError }}
               </div>
 
-              <div v-if="passwordSuccess" class="text-sm text-green-600 dark:text-green-400">
-                {{ passwordSuccess }}
+              <div v-if="accountSuccess" class="text-sm text-green-600 dark:text-green-400">
+                {{ accountSuccess }}
               </div>
 
               <div class="flex flex-wrap gap-3">
                 <button
                   type="submit"
                   class="btn-primary min-h-[44px]"
-                  :disabled="changingPassword"
+                  :disabled="savingAccount"
                 >
-                  {{ changingPassword ? '변경 중...' : '비밀번호 변경' }}
+                  {{ savingAccount ? '저장 중...' : '저장' }}
                 </button>
                 <button
                   type="button"
                   class="btn-secondary min-h-[44px]"
-                  @click="resetPasswordForm"
+                  @click="resetAccountPasswordFields"
                 >
                   취소
                 </button>
@@ -2385,15 +2409,17 @@ export default {
     const editImageInput = ref(null)
     const editImagePreview = ref('')
 
-    // 비밀번호 변경 관련
-    const passwordForm = reactive({
+    // 계정 정보/비밀번호 통합 수정
+    const accountForm = reactive({
+      username: '',
+      email: '',
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     })
-    const passwordError = ref('')
-    const passwordSuccess = ref('')
-    const changingPassword = ref(false)
+    const accountError = ref('')
+    const accountSuccess = ref('')
+    const savingAccount = ref(false)
     const lightningProviderOptions = LIGHTNING_PROVIDER_OPTIONS
     const lightningForm = reactive({
       provider: 'walletofsatoshi',
@@ -2641,6 +2667,7 @@ export default {
         }, 5000)
       }
       if (!authStore.user?.is_guest) {
+        loadAccountSettings()
         loadLightningAddress()
       }
       loadMeetups()
@@ -2649,16 +2676,41 @@ export default {
       loadNotifications()
     })
 
-    const syncAuthUserLightningAddress = (lightningAddress) => {
+    const syncAuthUser = (fields = {}) => {
       if (!authStore.user) {
         return
       }
       const updatedUser = {
         ...authStore.user,
-        lightning_address: lightningAddress || '',
+        ...fields,
       }
       authStore.user = updatedUser
       localStorage.setItem('user', JSON.stringify(updatedUser))
+    }
+
+    const loadAccountSettings = async () => {
+      accountError.value = ''
+      try {
+        const response = await fetchWithCSRF('/api/auth/account-settings/', {
+          method: 'GET',
+        })
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || '계정 정보를 불러오지 못했습니다.')
+        }
+        accountForm.username = data.user?.username || ''
+        accountForm.email = data.user?.email || ''
+        syncAuthUser({
+          id: data.user?.id,
+          username: data.user?.username || '',
+          name: data.user?.name || data.user?.username || '',
+          email: data.user?.email || '',
+          is_admin: !!data.user?.is_admin,
+        })
+      } catch (error) {
+        console.error('Failed to load account settings:', error)
+        accountError.value = error.message || '계정 정보를 불러오지 못했습니다.'
+      }
     }
 
     const loadLightningAddress = async () => {
@@ -2677,7 +2729,9 @@ export default {
         lightningForm.provider = parsed.provider
         lightningForm.handle = parsed.handle
         lightningForm.customAddress = parsed.customAddress
-        syncAuthUserLightningAddress(data.lightning_address || '')
+        syncAuthUser({
+          lightning_address: data.lightning_address || '',
+        })
       } catch (error) {
         console.error('Failed to load lightning address:', error)
         lightningError.value = error.message || '라이트닝 주소를 불러오지 못했습니다.'
@@ -2716,7 +2770,9 @@ export default {
         lightningForm.handle = parsed.handle
         lightningForm.customAddress = parsed.customAddress
         lightningSuccess.value = data.message || '라이트닝 주소가 저장되었습니다.'
-        syncAuthUserLightningAddress(data.lightning_address || '')
+        syncAuthUser({
+          lightning_address: data.lightning_address || '',
+        })
       } catch (error) {
         console.error('Failed to save lightning address:', error)
         lightningError.value = error.message || '라이트닝 주소 저장에 실패했습니다.'
@@ -3509,64 +3565,98 @@ export default {
       }
     }
 
-    // 비밀번호 변경 함수
-    const handleChangePassword = async () => {
-      passwordError.value = ''
-      passwordSuccess.value = ''
-
-      // 클라이언트 검증
-      if (passwordForm.newPassword.length < 8) {
-        passwordError.value = '새 비밀번호는 최소 8자 이상이어야 합니다'
-        return
-      }
-
-      if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-        passwordError.value = '새 비밀번호가 일치하지 않습니다'
-        return
-      }
-
-      if (passwordForm.currentPassword === passwordForm.newPassword) {
-        passwordError.value = '새 비밀번호는 현재 비밀번호와 달라야 합니다'
-        return
-      }
-
-      changingPassword.value = true
-
-      try {
-        // 한글 키보드 변환 지원
-        const convertedCurrentPassword = convertPasswordInput(passwordForm.currentPassword)
-        const convertedNewPassword = convertPasswordInput(passwordForm.newPassword)
-
-        const response = await fetchWithCSRF('/api/auth/change-password/', {
-          method: 'POST',
-          body: JSON.stringify({
-            current_password: convertedCurrentPassword,
-            new_password: convertedNewPassword,
-          }),
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          passwordSuccess.value = data.message || '비밀번호가 성공적으로 변경되었습니다'
-          resetPasswordForm()
-        } else {
-          const errorData = await response.json()
-          passwordError.value = errorData.error || '비밀번호 변경에 실패했습니다'
-        }
-      } catch (error) {
-        console.error('Failed to change password:', error)
-        passwordError.value = '비밀번호 변경 중 오류가 발생했습니다'
-      } finally {
-        changingPassword.value = false
-      }
+    const resetAccountPasswordFields = () => {
+      accountForm.currentPassword = ''
+      accountForm.newPassword = ''
+      accountForm.confirmPassword = ''
+      accountError.value = ''
+      accountSuccess.value = ''
     }
 
-    const resetPasswordForm = () => {
-      passwordForm.currentPassword = ''
-      passwordForm.newPassword = ''
-      passwordForm.confirmPassword = ''
-      passwordError.value = ''
-      passwordSuccess.value = ''
+    const saveAccountSettings = async () => {
+      accountError.value = ''
+      accountSuccess.value = ''
+
+      const username = (accountForm.username || '').trim()
+      if (!username) {
+        accountError.value = '로그인 ID를 입력해주세요.'
+        return
+      }
+
+      const passwordFields = [
+        accountForm.currentPassword,
+        accountForm.newPassword,
+        accountForm.confirmPassword,
+      ]
+      const hasPasswordInput = passwordFields.some((value) => !!value)
+      const hasAllPasswordInputs = passwordFields.every((value) => !!value)
+
+      if (hasPasswordInput && !hasAllPasswordInputs) {
+        accountError.value = '비밀번호를 변경하려면 현재/새/확인 비밀번호를 모두 입력해주세요.'
+        return
+      }
+
+      if (hasPasswordInput) {
+        if (accountForm.newPassword.length < 8) {
+          accountError.value = '새 비밀번호는 최소 8자 이상이어야 합니다'
+          return
+        }
+
+        if (accountForm.newPassword !== accountForm.confirmPassword) {
+          accountError.value = '새 비밀번호 확인이 일치하지 않습니다'
+          return
+        }
+
+        if (accountForm.currentPassword === accountForm.newPassword) {
+          accountError.value = '새 비밀번호는 현재 비밀번호와 달라야 합니다'
+          return
+        }
+      }
+
+      savingAccount.value = true
+      try {
+        const payload = {
+          username,
+        }
+
+        if (hasPasswordInput) {
+          payload.current_password = convertPasswordInput(accountForm.currentPassword)
+          payload.new_password = convertPasswordInput(accountForm.newPassword)
+          payload.confirm_password = convertPasswordInput(accountForm.confirmPassword)
+        }
+
+        const response = await fetchWithCSRF('/api/auth/account-settings/', {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        })
+        const data = await response.json()
+
+        if (!response.ok) {
+          accountError.value = data.error || '계정 정보 저장에 실패했습니다.'
+          return
+        }
+
+        accountSuccess.value = data.message || '계정 정보가 저장되었습니다.'
+        accountForm.username = data.user?.username || username
+        accountForm.email = data.user?.email || accountForm.email
+        accountForm.currentPassword = ''
+        accountForm.newPassword = ''
+        accountForm.confirmPassword = ''
+
+        syncAuthUser({
+          id: data.user?.id,
+          username: data.user?.username || '',
+          name: data.user?.name || data.user?.username || '',
+          email: data.user?.email || '',
+          is_admin: !!data.user?.is_admin,
+          lightning_address: data.user?.lightning_address || authStore.user?.lightning_address || '',
+        })
+      } catch (error) {
+        console.error('Failed to save account settings:', error)
+        accountError.value = '계정 정보 저장 중 오류가 발생했습니다.'
+      } finally {
+        savingAccount.value = false
+      }
     }
 
     return {
@@ -3666,13 +3756,13 @@ export default {
       copyLightningBolt11,
       saveLightningAddress,
       testOneSatInvoice,
-      // 비밀번호 변경
-      passwordForm,
-      passwordError,
-      passwordSuccess,
-      changingPassword,
-      handleChangePassword,
-      resetPasswordForm,
+      // 계정 정보
+      accountForm,
+      accountError,
+      accountSuccess,
+      savingAccount,
+      saveAccountSettings,
+      resetAccountPasswordFields,
     }
   },
 }

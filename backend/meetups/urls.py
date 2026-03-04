@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/auth/check-username/', views.check_username_availability, name='check-username'),
     path('api/auth/login/', views.login_user, name='auth-login'),
     path('api/auth/logout/', views.logout_user, name='auth-logout'),
+    path('api/auth/account-settings/', views.account_settings, name='auth-account-settings'),
     path('api/auth/change-password/', views.change_password, name='auth-change-password'),
     path('api/auth/lightning-address/', views.lightning_address, name='auth-lightning-address'),
     path('api/auth/lightning-address/test-invoice/', views.test_lightning_invoice, name='auth-test-lightning-invoice'),

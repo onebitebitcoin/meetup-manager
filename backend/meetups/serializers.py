@@ -10,6 +10,54 @@ from .utils.keyboard_converter import has_korean_characters, korean_to_english
 from .utils.secure_logging import log_korean_conversion
 
 
+def validate_username_value(value, *, original_value=None, exclude_user_id=None):
+    """
+    Validate username with detailed error messages.
+    """
+    if original_value is None:
+        original_value = value
+
+    if not original_value:
+        raise serializers.ValidationError("사용자명을 입력해주세요.")
+
+    if (
+        original_value.startswith(' ')
+        or original_value.endswith(' ')
+        or original_value.startswith('\t')
+        or original_value.endswith('\t')
+    ):
+        raise serializers.ValidationError("사용자명에는 공백을 사용할 수 없습니다.")
+
+    if not value:
+        raise serializers.ValidationError("사용자명을 입력해주세요.")
+
+    if len(value) < 3:
+        raise serializers.ValidationError("사용자명은 최소 3자 이상이어야 합니다.")
+
+    if len(value) > 150:
+        raise serializers.ValidationError("사용자명은 150자를 초과할 수 없습니다.")
+
+    if ' ' in value or '\t' in value or '\n' in value:
+        raise serializers.ValidationError("사용자명에는 공백을 사용할 수 없습니다.")
+
+    if not re.match(r'^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_-]+$', value):
+        raise serializers.ValidationError("사용자명은 영문, 한글, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.")
+
+    if value.startswith('-') or value.startswith('_') or value.endswith('-') or value.endswith('_'):
+        raise serializers.ValidationError("사용자명은 밑줄(_)이나 하이픈(-)으로 시작하거나 끝날 수 없습니다.")
+
+    if '--' in value or '__' in value or '_-' in value or '-_' in value:
+        raise serializers.ValidationError("사용자명에는 연속된 특수문자를 사용할 수 없습니다.")
+
+    existing_users = User.objects.filter(username__iexact=value)
+    if exclude_user_id is not None:
+        existing_users = existing_users.exclude(id=exclude_user_id)
+    if existing_users.exists():
+        raise serializers.ValidationError("이미 존재하는 사용자입니다.")
+
+    return value.lower()
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     username = serializers.CharField(
@@ -28,53 +76,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password']
 
     def validate_username(self, value):
-        """
-        Custom username validation with detailed error messages
-        """
-        # Get original value before Django's automatic trimming
-        original_value = self.initial_data.get('username', value)
-
-        if not original_value:
-            raise serializers.ValidationError("사용자명을 입력해주세요.")
-
-        # Check for leading/trailing whitespace in original value
-        if original_value.startswith(' ') or original_value.endswith(' ') or original_value.startswith('\t') or original_value.endswith('\t'):
-            raise serializers.ValidationError("사용자명에는 공백을 사용할 수 없습니다.")
-
-        # Use trimmed value for remaining validation
-        if not value:
-            raise serializers.ValidationError("사용자명을 입력해주세요.")
-
-        # Check minimum length
-        if len(value) < 3:
-            raise serializers.ValidationError("사용자명은 최소 3자 이상이어야 합니다.")
-
-        # Check maximum length
-        if len(value) > 150:
-            raise serializers.ValidationError("사용자명은 150자를 초과할 수 없습니다.")
-
-        # Check for whitespace within the username
-        if ' ' in value or '\t' in value or '\n' in value:
-            raise serializers.ValidationError("사용자명에는 공백을 사용할 수 없습니다.")
-
-        # Check for invalid characters
-        if not re.match(r'^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_-]+$', value):
-            raise serializers.ValidationError("사용자명은 영문, 한글, 숫자, 밑줄(_), 하이픈(-)만 사용할 수 있습니다.")
-
-        # Check if username starts or ends with special characters
-        if value.startswith('-') or value.startswith('_') or value.endswith('-') or value.endswith('_'):
-            raise serializers.ValidationError("사용자명은 밑줄(_)이나 하이픈(-)으로 시작하거나 끝날 수 없습니다.")
-
-        # Check for consecutive special characters
-        if '--' in value or '__' in value or '_-' in value or '-_' in value:
-            raise serializers.ValidationError("사용자명에는 연속된 특수문자를 사용할 수 없습니다.")
-
-        # Check if username already exists (case-insensitive)
-        # Skip this check during testing
-        if not getattr(self, '_test_mode', False) and User.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError("이미 존재하는 사용자입니다.")
-
-        return value.lower()  # Convert to lowercase for consistency
+        return validate_username_value(
+            value,
+            original_value=self.initial_data.get('username', value),
+        )
 
     def create(self, validated_data):
         # Convert Korean password to English if necessary

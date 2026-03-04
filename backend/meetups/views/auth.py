@@ -9,15 +9,15 @@ from urllib.request import Request, urlopen
 
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from rest_framework import permissions, status
+from rest_framework import permissions, serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from ..serializers import UserRegistrationSerializer
+from ..serializers import UserRegistrationSerializer, validate_username_value
 from ..utils.keyboard_converter import has_korean_characters, korean_to_english
 from ..utils.secure_logging import log_korean_conversion
 from .helpers import get_or_create_meetup_profile
@@ -130,6 +130,15 @@ def _append_amount(callback_url, amount_msat):
 
 
 def create_one_sat_invoice(lightning_address):
+    return create_lightning_invoice(lightning_address, amount_sats=1)
+
+
+def create_lightning_invoice(lightning_address, amount_sats):
+    if amount_sats < 1:
+        raise LightningServiceError('금액은 최소 1 sats 이상이어야 합니다.')
+
+    amount_msat = amount_sats * 1000
+
     username, domain = lightning_address.split('@', 1)
     lnurlp_url = f'https://{domain}/.well-known/lnurlp/{username}'
 
@@ -148,12 +157,13 @@ def create_one_sat_invoice(lightning_address):
     min_sendable = int(lnurl_data.get('minSendable') or 0)
     max_sendable = int(lnurl_data.get('maxSendable') or 0)
 
-    if min_sendable > ONE_SAT_MSAT or max_sendable < ONE_SAT_MSAT:
+    if min_sendable > amount_msat or max_sendable < amount_msat:
         raise LightningServiceError(
-            f'해당 서비스는 1 sats 인보이스를 지원하지 않습니다. (min={min_sendable}, max={max_sendable})'
+            f'해당 서비스는 {amount_sats} sats 인보이스를 지원하지 않습니다. '
+            f'(허용 범위: {min_sendable // 1000}~{max_sendable // 1000} sats)'
         )
 
-    callback_with_amount = _append_amount(callback_url, ONE_SAT_MSAT)
+    callback_with_amount = _append_amount(callback_url, amount_msat)
     callback_data = fetch_json_with_timeout(callback_with_amount)
 
     if callback_data.get('status') == 'ERROR':
@@ -282,6 +292,149 @@ def logout_user(request):
     return Response({'message': '로그아웃 성공'}, status=status.HTTP_200_OK)
 
 
+def _build_user_response_payload(user, meetup_user):
+    return {
+        'id': meetup_user.id,
+        'username': user.username,
+        'name': meetup_user.name,
+        'email': user.email,
+        'is_admin': meetup_user.is_admin or user.is_staff,
+        'lightning_address': meetup_user.lightning_address or '',
+    }
+
+
+def _convert_password_for_auth(password, username, action):
+    if password and has_korean_characters(password):
+        converted = korean_to_english(password)
+        log_korean_conversion(username, action=action)
+        return converted
+    return password
+
+
+def _update_account_settings(user, meetup_user, data):
+    raw_username = data.get('username')
+    if raw_username is None:
+        raise serializers.ValidationError('로그인 ID(username)가 필요합니다.')
+
+    candidate_username = str(raw_username)
+    validated_username = validate_username_value(
+        candidate_username.strip(),
+        original_value=candidate_username,
+        exclude_user_id=user.id,
+    )
+
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    confirm_password = data.get('confirm_password')
+    password_inputs = [current_password, new_password, confirm_password]
+    wants_password_update = any(value not in (None, '') for value in password_inputs)
+
+    if wants_password_update and not all(value not in (None, '') for value in password_inputs):
+        raise serializers.ValidationError('비밀번호를 변경하려면 현재/새/확인 비밀번호를 모두 입력해주세요.')
+
+    current_password = _convert_password_for_auth(
+        current_password,
+        user.username,
+        action='change_password_current',
+    )
+    new_password = _convert_password_for_auth(
+        new_password,
+        user.username,
+        action='change_password_new',
+    )
+    confirm_password = _convert_password_for_auth(
+        confirm_password,
+        user.username,
+        action='change_password_confirm',
+    )
+
+    with transaction.atomic():
+        username_changed = validated_username != user.username
+        password_changed = False
+
+        if wants_password_update:
+            if not user.check_password(current_password):
+                raise serializers.ValidationError('현재 비밀번호가 틀렸습니다.')
+
+            if len(new_password) < 8:
+                raise serializers.ValidationError('새 비밀번호는 최소 8자 이상이어야 합니다.')
+
+            if current_password == new_password:
+                raise serializers.ValidationError('새 비밀번호는 현재 비밀번호와 달라야 합니다.')
+
+            if new_password != confirm_password:
+                raise serializers.ValidationError('새 비밀번호 확인이 일치하지 않습니다.')
+
+            user.set_password(new_password)
+            password_changed = True
+
+        if username_changed:
+            user.username = validated_username
+
+        if username_changed or password_changed:
+            user.save()
+
+        if meetup_user.name != validated_username:
+            meetup_user.name = validated_username
+            meetup_user.save(update_fields=['name'])
+
+    if password_changed:
+        update_session_auth_hash(data['request'], user)
+
+    return {
+        'username_changed': username_changed,
+        'password_changed': password_changed,
+    }
+
+
+@api_view(['GET', 'PUT'])
+@csrf_exempt
+def account_settings(request):
+    if not request.user.is_authenticated:
+        return Response({'error': '로그인이 필요합니다'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    meetup_user = get_or_create_meetup_profile(request.user)
+
+    if request.method == 'GET':
+        return Response({
+            'user': _build_user_response_payload(request.user, meetup_user),
+        }, status=status.HTTP_200_OK)
+
+    try:
+        result = _update_account_settings(
+            request.user,
+            meetup_user,
+            {**request.data, 'request': request},
+        )
+    except serializers.ValidationError as exc:
+        detail = exc.detail
+        if isinstance(detail, list):
+            message = detail[0]
+        elif isinstance(detail, dict):
+            first_value = next(iter(detail.values()))
+            message = first_value[0] if isinstance(first_value, list) else first_value
+        else:
+            message = detail
+        return Response({'error': str(message)}, status=status.HTTP_400_BAD_REQUEST)
+
+    request.user.refresh_from_db()
+    meetup_user.refresh_from_db()
+
+    if result['username_changed'] and result['password_changed']:
+        message = '계정 정보와 비밀번호가 성공적으로 변경되었습니다.'
+    elif result['password_changed']:
+        message = '비밀번호가 성공적으로 변경되었습니다.'
+    elif result['username_changed']:
+        message = '사용자 정보가 성공적으로 변경되었습니다.'
+    else:
+        message = '변경할 내용이 없습니다.'
+
+    return Response({
+        'message': message,
+        'user': _build_user_response_payload(request.user, meetup_user),
+    }, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @csrf_exempt
 def change_password(request):
@@ -290,37 +443,33 @@ def change_password(request):
 
     current_password = request.data.get('current_password')
     new_password = request.data.get('new_password')
-
     if not current_password or not new_password:
         return Response({'error': '현재 비밀번호와 새 비밀번호가 필요합니다'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # 한글 키보드 자동 변환 지원
-    if has_korean_characters(current_password):
-        current_password = korean_to_english(current_password)
-        log_korean_conversion(request.user.username, action="change_password_current")
+    meetup_user = get_or_create_meetup_profile(request.user)
 
-    if has_korean_characters(new_password):
-        new_password = korean_to_english(new_password)
-        log_korean_conversion(request.user.username, action="change_password_new")
-
-    # 현재 비밀번호 검증
-    if not request.user.check_password(current_password):
-        return Response({'error': '현재 비밀번호가 틀렸습니다'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # 새 비밀번호 validation
-    if len(new_password) < 8:
-        return Response({'error': '새 비밀번호는 최소 8자 이상이어야 합니다'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # 현재 비밀번호와 새 비밀번호 동일 여부 확인
-    if current_password == new_password:
-        return Response({'error': '새 비밀번호는 현재 비밀번호와 달라야 합니다'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # 비밀번호 변경
-    request.user.set_password(new_password)
-    request.user.save()
-
-    # 세션 유지
-    update_session_auth_hash(request, request.user)
+    try:
+        _update_account_settings(
+            request.user,
+            meetup_user,
+            {
+                'username': request.user.username,
+                'current_password': current_password,
+                'new_password': new_password,
+                'confirm_password': new_password,
+                'request': request,
+            },
+        )
+    except serializers.ValidationError as exc:
+        detail = exc.detail
+        if isinstance(detail, list):
+            message = detail[0]
+        elif isinstance(detail, dict):
+            first_value = next(iter(detail.values()))
+            message = first_value[0] if isinstance(first_value, list) else first_value
+        else:
+            message = detail
+        return Response({'error': str(message)}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'message': '비밀번호가 성공적으로 변경되었습니다'}, status=status.HTTP_200_OK)
 
