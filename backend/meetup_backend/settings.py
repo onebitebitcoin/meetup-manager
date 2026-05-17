@@ -138,9 +138,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Additional locations of static files
-STATICFILES_DIRS = [
-    # Add any additional static files directories here if needed
-]
+STATICFILES_DIRS = []
+
+# WhiteNoise root: serve frontend root-level files (sw.js, manifest, icons) at /
+WHITENOISE_ROOT = str(BASE_DIR / 'frontend_dist') if (BASE_DIR / 'frontend_dist').exists() else None
 
 # Media files
 MEDIA_URL = '/media/'
