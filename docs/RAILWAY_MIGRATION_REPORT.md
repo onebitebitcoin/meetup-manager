@@ -6,7 +6,8 @@
 ## 수행 내용
 1. Railway 프로젝트 `meetup` 생성
 2. Railway PostgreSQL 서비스 생성
-3. Django 설정을 `DATABASE_URL` 기반으로 보강
+3. Railway backend 서비스 배포 및 Railway 제공 도메인 발급
+4. Django 설정을 `DATABASE_URL` 기반으로 보강
 4. `backend/db.sqlite3` 기준 source snapshot 생성
 5. Railway PostgreSQL로 bulk-copy dry-run 수행
 6. source/target snapshot 비교
@@ -45,5 +46,4 @@
 2. 최종 snapshot 재생성
 3. bulk copy 재실행
 4. media 이관
-5. Railway backend 공개 도메인/최종 secret 설정
-6. smoke test 후 DNS/API endpoint 전환
+5. smoke test 후 DNS/API endpoint 전환
