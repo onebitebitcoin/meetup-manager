@@ -34,6 +34,7 @@ DATABASE_SSL_REQUIRE=true
 ALLOWED_HOSTS=<railway-domain>,meet.onebitebitcoin.com
 SITE_URL=https://<railway-domain>
 CSRF_TRUSTED_ORIGINS=https://<railway-domain>,https://meet.onebitebitcoin.com
+SERVE_MEDIA_FILES=true
 ```
 
 ## 5. DB 이관 절차
@@ -93,4 +94,5 @@ python scripts/db_snapshot.py > ../artifacts/target-db-snapshot.json
 ## 8. 주의 사항
 - `backend/db.sqlite3`와 루트 `db.sqlite3`는 데이터량이 다르다. 실제 운영 원본을 확정하기 전까지 임의 선택 금지
 - DB 이관과 media 이관은 별도 검증 대상
+- Railway backend에서 media volume을 직접 서빙하려면 `/var/www/meet/media` volume과 `SERVE_MEDIA_FILES=true`가 함께 필요하다.
 - 자동 start command에서 migration은 허용하되, 실제 데이터 import는 수동 검증 후 수행

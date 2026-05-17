@@ -144,6 +144,7 @@ STATICFILES_DIRS = [
 
 # Media files
 MEDIA_URL = '/media/'
+SERVE_MEDIA_FILES = os.environ.get("SERVE_MEDIA_FILES", str(DEBUG)).lower() in {"1", "true", "yes", "on"}
 
 # Allow overriding MEDIA_ROOT via env; otherwise choose sensible defaults
 _env_media_root = os.environ.get('MEDIA_ROOT')
