@@ -19,6 +19,7 @@ X_FRAME_OPTIONS = 'DENY'
 
 # HTTPS settings (enabled for meet.onebitebitcoin.com)
 SECURE_SSL_REDIRECT = True
+SECURE_REDIRECT_EXEMPT = [r'^api/health/$']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SECURE_HSTS_SECONDS = 31536000
