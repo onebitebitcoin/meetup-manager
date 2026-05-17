@@ -104,3 +104,6 @@ tmp/
 pip-wheel-metadata/
 
 *.swp
+
+# migration artifacts containing row-level exports
+artifacts/*export*.json

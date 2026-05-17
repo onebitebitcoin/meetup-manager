@@ -8,13 +8,9 @@ from .settings import *  # noqa: F403
 # Override debug settings
 DEBUG = False
 
-# Update allowed hosts for production
-ALLOWED_HOSTS = [
-    "meet.onebitebitcoin.com",
-]
-
-# Update site URL for production
-SITE_URL = 'https://meet.onebitebitcoin.com'
+# Update allowed hosts / site URL for production
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', 'meet.onebitebitcoin.com').split(',') if host.strip()]
+SITE_URL = os.environ.get('SITE_URL', 'https://meet.onebitebitcoin.com')
 
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
@@ -44,17 +40,7 @@ MEDIA_ROOT = '/var/www/meet/media'
 FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
-# Database - Update for production database
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DB_NAME', 'meetup_db'),
-#         'USER': os.environ.get('DB_USER', 'meetup_user'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'HOST': os.environ.get('DB_HOST', 'localhost'),
-#         'PORT': os.environ.get('DB_PORT', '5432'),
-#     }
-# }
+# Database is inherited from settings.py and uses DATABASE_URL when provided.
 
 # Cloud storage settings (uncomment and configure for production)
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
