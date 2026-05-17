@@ -149,8 +149,8 @@ def admin_reset_user_password(request, user_id):
     if not meetup_user.user:
         return APIResponse.error('Django 사용자 계정이 없습니다')
 
-    # 비밀번호를 00000000으로 리셋
-    meetup_user.user.set_password('00000000')
+    new_password = request.data.get('new_password', '00000000')
+    meetup_user.user.set_password(new_password)
     meetup_user.user.save()
 
-    return APIResponse.success(message=f'{meetup_user.name}님의 비밀번호를 00000000으로 리셋했습니다')
+    return APIResponse.success(message=f'{meetup_user.name}님의 비밀번호를 리셋했습니다')

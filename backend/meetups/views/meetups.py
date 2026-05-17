@@ -260,7 +260,15 @@ def add_participant_by_email(request, meetup_id):
     if meetup.is_full:
         return APIResponse.error('모임 정원이 가득 찼습니다')
 
-    participant_user = _resolve_participant(email)
+    # 등록된 사용자만 추가 가능 (없으면 404)
+    try:
+        django_user = User.objects.get(email=email)
+        participant_user = get_or_create_meetup_profile(django_user)
+    except User.DoesNotExist:
+        try:
+            participant_user = MeetupUser.objects.get(email=email, user__isnull=True)
+        except MeetupUser.DoesNotExist:
+            return APIResponse.not_found('해당 이메일의 사용자를 찾을 수 없습니다')
 
     if Registration.objects.filter(user=participant_user, meetup=meetup).exists():
         return APIResponse.error('이미 이 모임에 등록된 사용자입니다')
