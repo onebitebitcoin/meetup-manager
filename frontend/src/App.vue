@@ -3,7 +3,7 @@
     <router-view />
 
     <!-- Version -->
-    <div class="text-center py-1 text-xs text-neutral-400">v1.0.1</div>
+    <div class="text-center py-1 text-xs text-neutral-400">v{{ appVersion }}</div>
 
     <!-- PWA Update Available Notification with enhanced design -->
     <Transition
@@ -77,6 +77,7 @@
 <script>
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { version } from '../package.json'
 
 export default {
   name: 'App',
@@ -119,6 +120,7 @@ export default {
       showUpdateNotification,
       updateApp,
       dismissUpdate,
+      appVersion: version,
     }
   },
 }
