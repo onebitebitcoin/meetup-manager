@@ -3,6 +3,31 @@
 from django.db import migrations, models
 
 
+def add_amount_sats(apps, schema_editor):
+    vendor = schema_editor.connection.vendor
+    with schema_editor.connection.cursor() as cursor:
+        if vendor == 'postgresql':
+            cursor.execute(
+                "ALTER TABLE meetups_meetuppaymentlink ADD COLUMN IF NOT EXISTS amount_sats integer DEFAULT 1 NOT NULL;"
+            )
+        else:
+            cursor.execute("PRAGMA table_info(meetups_meetuppaymentlink);")
+            columns = [row[1] for row in cursor.fetchall()]
+            if 'amount_sats' not in columns:
+                cursor.execute(
+                    "ALTER TABLE meetups_meetuppaymentlink ADD COLUMN amount_sats integer DEFAULT 1 NOT NULL;"
+                )
+
+
+def remove_amount_sats(apps, schema_editor):
+    vendor = schema_editor.connection.vendor
+    with schema_editor.connection.cursor() as cursor:
+        if vendor == 'postgresql':
+            cursor.execute(
+                "ALTER TABLE meetups_meetuppaymentlink DROP COLUMN IF EXISTS amount_sats;"
+            )
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -12,10 +37,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                migrations.RunSQL(
-                    sql="ALTER TABLE meetups_meetuppaymentlink ADD COLUMN IF NOT EXISTS amount_sats integer DEFAULT 1 NOT NULL;",
-                    reverse_sql="ALTER TABLE meetups_meetuppaymentlink DROP COLUMN IF EXISTS amount_sats;",
-                ),
+                migrations.RunPython(add_amount_sats, remove_amount_sats),
             ],
             state_operations=[
                 migrations.AddField(
