@@ -5,7 +5,7 @@
       <div class="flex items-center mb-6">
         <button
           class="flex items-center text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors mr-4"
-          @click="$router.back()"
+          @click="step === 'result' ? step = 'input' : $router.back()"
         >
           <svg
             class="w-5 h-5 mr-1"
@@ -59,37 +59,112 @@
         </button>
       </div>
 
-      <!-- Loading -->
-      <div v-else-if="generating && !token" class="flex flex-col items-center py-16">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mb-4" />
-        <p class="text-neutral-500 dark:text-neutral-400 text-sm">
-          인보이스 생성 중...
-        </p>
-      </div>
+      <!-- Step 1: Amount Input -->
+      <div v-else-if="step === 'input'" class="space-y-4">
+        <!-- Currency toggle -->
+        <div class="bg-white dark:bg-neutral-800 rounded-xl p-5 space-y-4">
+          <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            결제 단위 선택
+          </p>
+          <div class="flex rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
+            <button
+              :class="[
+                'flex-1 py-2 text-sm font-medium transition-colors',
+                currency === 'sats'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-700'
+              ]"
+              @click="currency = 'sats'"
+            >
+              Sats
+            </button>
+            <button
+              :class="[
+                'flex-1 py-2 text-sm font-medium transition-colors',
+                currency === 'krw'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-700'
+              ]"
+              @click="currency = 'krw'; fetchBtcPrice()"
+            >
+              원화 (KRW)
+            </button>
+          </div>
 
-      <!-- Error -->
-      <div
-        v-else-if="error"
-        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5 text-center"
-      >
-        <p class="text-red-800 dark:text-red-200 text-sm mb-4">
+          <!-- Sats input -->
+          <div v-if="currency === 'sats'">
+            <label class="block text-xs text-neutral-500 dark:text-neutral-400 mb-1">금액 (sats)</label>
+            <input
+              v-model.number="amountSats"
+              type="number"
+              min="1"
+              max="10000000"
+              placeholder="예: 1000"
+              class="w-full border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+            >
+          </div>
+
+          <!-- KRW input -->
+          <div v-else>
+            <label class="block text-xs text-neutral-500 dark:text-neutral-400 mb-1">금액 (원)</label>
+            <input
+              v-model.number="amountKrw"
+              type="number"
+              min="1"
+              placeholder="예: 5000"
+              class="w-full border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+            >
+            <p v-if="btcPriceKrw && amountKrw > 0" class="text-xs text-neutral-500 dark:text-neutral-400 mt-1.5">
+              ≈ {{ krwToSats.toLocaleString() }} sats
+            </p>
+            <p v-else-if="loadingPrice" class="text-xs text-neutral-400 mt-1.5">
+              환율 불러오는 중...
+            </p>
+            <p v-else-if="priceError" class="text-xs text-red-500 mt-1.5">
+              {{ priceError }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div
+          v-if="error"
+          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-sm text-red-700 dark:text-red-300"
+        >
           {{ error }}
-        </p>
+        </div>
+
+        <!-- Generate button -->
         <button
-          class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
+          :disabled="generating || computedAmountSats < 1"
+          class="w-full py-3 px-6 rounded-lg text-sm font-semibold bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white transition-colors flex items-center justify-center gap-2"
           @click="generate"
         >
-          다시 시도
+          <svg
+            v-if="generating"
+            class="w-4 h-4 animate-spin"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          {{ generating ? '생성 중...' : 'QR 링크 생성' }}
         </button>
       </div>
 
-      <!-- Generated -->
-      <div v-else-if="token" class="space-y-4">
+      <!-- Step 2: Result -->
+      <div v-else-if="step === 'result'" class="space-y-4">
         <!-- QR Code -->
         <div class="bg-white dark:bg-neutral-800 rounded-xl p-6 flex flex-col items-center">
           <canvas ref="qrCanvas" class="rounded-lg" />
           <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-3">
-            1 sats 인보이스 QR
+            {{ generatedAmountSats.toLocaleString() }} sats 인보이스 QR
           </p>
         </div>
 
@@ -160,30 +235,16 @@
           </div>
         </div>
 
-        <!-- Regenerate button -->
+        <!-- New link button -->
         <button
-          :disabled="generating"
-          class="w-full py-3 px-6 rounded-lg text-sm font-semibold border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-          @click="generate"
+          class="w-full py-3 px-6 rounded-lg text-sm font-semibold border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+          @click="step = 'input'"
         >
-          <svg
-            :class="['w-4 h-4', generating ? 'animate-spin' : '']"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-          {{ generating ? '생성 중...' : '새 링크 생성' }}
+          다른 금액으로 새 링크 생성
         </button>
 
         <p class="text-center text-xs text-neutral-400 dark:text-neutral-500">
-          링크는 1시간 후 만료됩니다. 만료 후에는 새 링크를 생성하세요.
+          링크는 1시간 후 만료됩니다.
         </p>
       </div>
     </div>
@@ -191,9 +252,8 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { fetchWithCSRF } from '@/utils/csrf'
 import QRCode from 'qrcode'
 
@@ -201,17 +261,35 @@ export default {
   name: 'MeetupPaymentLinkView',
   setup() {
     const route = useRoute()
-    const authStore = useAuthStore()
-
     const meetupId = computed(() => parseInt(route.params.id))
+
+    const step = ref('input')
+    const currency = ref('sats')
+    const amountSats = ref(1000)
+    const amountKrw = ref('')
+    const btcPriceKrw = ref(0)
+    const loadingPrice = ref(false)
+    const priceError = ref('')
+
     const token = ref('')
     const bolt11 = ref('')
+    const generatedAmountSats = ref(0)
     const expiresAt = ref(null)
     const generating = ref(false)
     const error = ref('')
     const noLightningAddress = ref(false)
     const copied = ref(false)
     const qrCanvas = ref(null)
+
+    const krwToSats = computed(() => {
+      if (!btcPriceKrw.value || !amountKrw.value) return 0
+      return Math.round((amountKrw.value / btcPriceKrw.value) * 100_000_000)
+    })
+
+    const computedAmountSats = computed(() => {
+      if (currency.value === 'krw') return krwToSats.value
+      return amountSats.value || 0
+    })
 
     const shareUrl = computed(() => {
       if (!token.value) return ''
@@ -229,17 +307,29 @@ export default {
       return `${diffMin}분 후 만료`
     })
 
+    const fetchBtcPrice = async () => {
+      if (btcPriceKrw.value) return
+      loadingPrice.value = true
+      priceError.value = ''
+      try {
+        const res = await fetch('https://mempool.space/api/v1/prices')
+        const data = await res.json()
+        btcPriceKrw.value = data.KRW || 0
+        if (!btcPriceKrw.value) priceError.value = 'KRW 환율을 불러올 수 없습니다.'
+      } catch {
+        priceError.value = '환율 조회 실패. sats로 직접 입력해주세요.'
+      } finally {
+        loadingPrice.value = false
+      }
+    }
+
     const renderQR = async () => {
       if (!bolt11.value || !qrCanvas.value) return
-      await nextTick()
       try {
         await QRCode.toCanvas(qrCanvas.value, bolt11.value.toUpperCase(), {
           width: 260,
           margin: 2,
-          color: {
-            dark: '#000000',
-            light: '#ffffff',
-          },
+          color: { dark: '#000000', light: '#ffffff' },
         })
       } catch (err) {
         console.error('QR render error:', err)
@@ -248,6 +338,12 @@ export default {
 
     const generate = async () => {
       if (generating.value) return
+      const finalAmountSats = computedAmountSats.value
+      if (finalAmountSats < 1) {
+        error.value = '금액을 입력해주세요.'
+        return
+      }
+
       generating.value = true
       error.value = ''
       noLightningAddress.value = false
@@ -255,13 +351,17 @@ export default {
       try {
         const res = await fetchWithCSRF(`/api/meetups/${meetupId.value}/payment-link/`, {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount_sats: finalAmountSats }),
         })
         const data = await res.json()
 
         if (res.ok) {
           token.value = data.token
           bolt11.value = data.bolt11
+          generatedAmountSats.value = data.amount_sats
           expiresAt.value = data.expires_at
+          step.value = 'result'
           await nextTick()
           await renderQR()
         } else {
@@ -272,7 +372,7 @@ export default {
             error.value = msg
           }
         }
-      } catch (err) {
+      } catch {
         error.value = '네트워크 오류가 발생했습니다.'
       } finally {
         generating.value = false
@@ -283,27 +383,30 @@ export default {
       if (!shareUrl.value) return
       try {
         await navigator.clipboard.writeText(shareUrl.value)
-        copied.value = true
-        setTimeout(() => { copied.value = false }, 2000)
       } catch {
-        // fallback
         const el = document.createElement('input')
         el.value = shareUrl.value
         document.body.appendChild(el)
         el.select()
         document.execCommand('copy')
         document.body.removeChild(el)
-        copied.value = true
-        setTimeout(() => { copied.value = false }, 2000)
       }
+      copied.value = true
+      setTimeout(() => { copied.value = false }, 2000)
     }
 
-    onMounted(() => {
-      generate()
-    })
-
     return {
+      step,
+      currency,
+      amountSats,
+      amountKrw,
+      btcPriceKrw,
+      loadingPrice,
+      priceError,
+      krwToSats,
+      computedAmountSats,
       token,
+      generatedAmountSats,
       generating,
       error,
       noLightningAddress,
@@ -311,9 +414,9 @@ export default {
       expiryText,
       copied,
       qrCanvas,
+      fetchBtcPrice,
       generate,
       copyLink,
-      authStore,
     }
   },
 }

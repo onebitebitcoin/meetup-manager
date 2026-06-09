@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 
 from ..models import MeetupPaymentLink
-from ..views.auth import LightningServiceError, create_one_sat_invoice
+from ..views.auth import LightningServiceError, create_lightning_invoice
 from .helpers import APIResponse, require_meetup_creator
 
 logger = logging.getLogger(__name__)
@@ -20,8 +20,16 @@ def create_meetup_payment_link(request, meetup_id):
     if not meetup_user.lightning_address:
         return APIResponse.error('라이트닝 주소를 먼저 설정해주세요. (설정 페이지에서 등록)')
 
+    amount_sats = request.data.get('amount_sats', 1)
     try:
-        result = create_one_sat_invoice(meetup_user.lightning_address)
+        amount_sats = int(amount_sats)
+        if amount_sats < 1 or amount_sats > 10_000_000:
+            raise ValueError
+    except (ValueError, TypeError):
+        return APIResponse.error('금액은 1~10,000,000 sats 사이여야 합니다.')
+
+    try:
+        result = create_lightning_invoice(meetup_user.lightning_address, amount_sats)
     except LightningServiceError as exc:
         logger.warning(
             'Payment link creation failed meetup_id=%s user=%s error=%s',
@@ -33,13 +41,15 @@ def create_meetup_payment_link(request, meetup_id):
     payment_link = MeetupPaymentLink.objects.create(
         meetup=request.meetup,
         bolt11=result['invoice'],
+        amount_sats=amount_sats,
         expires_at=expires_at,
     )
 
-    logger.info('Payment link created meetup_id=%s token=%s', meetup_id, payment_link.token)
+    logger.info('Payment link created meetup_id=%s token=%s amount_sats=%s', meetup_id, payment_link.token, amount_sats)
     return APIResponse.created({
         'token': str(payment_link.token),
         'bolt11': result['invoice'],
+        'amount_sats': amount_sats,
         'expires_at': payment_link.expires_at.isoformat(),
     })
 
@@ -54,6 +64,7 @@ def get_payment_link(request, token):
 
     return APIResponse.success({
         'bolt11': payment_link.bolt11,
+        'amount_sats': payment_link.amount_sats,
         'meetup_name': payment_link.meetup.name,
         'expires_at': payment_link.expires_at.isoformat(),
         'is_expired': payment_link.is_expired,

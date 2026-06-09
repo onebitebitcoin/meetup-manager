@@ -72,13 +72,13 @@
               d="M13 10V3L4 14h7v7l9-11h-7z"
             />
           </svg>
-          <span class="text-xs font-medium text-primary-700 dark:text-primary-300">1 sats 결제</span>
+          <span class="text-xs font-medium text-primary-700 dark:text-primary-300">{{ amountSats.toLocaleString() }} sats 결제</span>
         </div>
         <h1 class="text-lg font-bold text-neutral-900 dark:text-neutral-100">
           {{ meetupName }}
         </h1>
         <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-          아래 QR 코드를 스캔해 1 sats를 보내주세요
+          아래 QR 코드를 스캔해 {{ amountSats.toLocaleString() }} sats를 보내주세요
         </p>
       </div>
 
@@ -172,6 +172,7 @@ export default {
     const notFound = ref(false)
     const isExpired = ref(false)
     const bolt11 = ref('')
+    const amountSats = ref(1)
     const meetupName = ref('')
     const expiresAt = ref(null)
     const copied = ref(false)
@@ -218,13 +219,14 @@ export default {
           return
         }
         bolt11.value = data.bolt11
+        amountSats.value = data.amount_sats || 1
         meetupName.value = data.meetup_name
         expiresAt.value = data.expires_at
+        loading.value = false
         await nextTick()
         await renderQR()
       } catch {
         notFound.value = true
-      } finally {
         loading.value = false
       }
     }
@@ -256,6 +258,7 @@ export default {
       notFound,
       isExpired,
       bolt11,
+      amountSats,
       meetupName,
       expiryText,
       copied,

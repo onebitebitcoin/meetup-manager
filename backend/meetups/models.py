@@ -304,6 +304,7 @@ class MeetupPaymentLink(models.Model):
     token = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
     meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, related_name='payment_links')
     bolt11 = models.TextField()
+    amount_sats = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
 

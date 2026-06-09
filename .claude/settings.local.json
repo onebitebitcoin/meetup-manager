@@ -1,4 +1,28 @@
 {
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/nsw/Desktop/dev/meet/.claude/log-tool.sh pre"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/nsw/Desktop/dev/meet/.claude/log-tool.sh post"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Bash(npm create:*)",
@@ -48,7 +72,19 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(./install.sh)",
-      "Bash(ruff check:*)"
+      "Bash(ruff check:*)",
+      "Bash(DJANGO_SETTINGS_MODULE=config.settings python3 -m pytest:*)",
+      "Bash(git -C /Users/nsw/Desktop/dev/meet add backend/meetups/views/helpers.py backend/meetups/views/tasks.py)",
+      "Bash(git -C /Users/nsw/Desktop/dev/meet commit -m \"$\\(cat <<''EOF''\nfix: ISO 날짜 형식 ''Z'' 접미사 파싱 오류 수정\n\n- Python 3.10 이하에서 datetime.fromisoformat\\(\\)이 ''Z'' 접미사를 \n  인식하지 못하는 문제 해결\n- parse_datetime_iso\\(\\) helper 함수 추가로 중복 코드 제거\n- ''Z''를 ''+00:00''으로 변환하여 호환성 확보\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/nsw/Desktop/dev/meet status:*)",
+      "Bash(git -C /Users/nsw/Desktop/dev/meet push)",
+      "WebSearch",
+      "Bash(wc:*)",
+      "Bash(DJANGO_SETTINGS_MODULE=meetup_backend.settings python3 -m pytest:*)",
+      "Bash(pip3 show:*)",
+      "Bash(pip3 install:*)",
+      "WebFetch(domain:meet.onebitebitcoin.com)",
+      "mcp__Claude_Preview__preview_start"
     ],
     "deny": []
   }

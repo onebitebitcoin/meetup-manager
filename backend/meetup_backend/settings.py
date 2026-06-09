@@ -79,8 +79,6 @@ WSGI_APPLICATION = 'meetup_backend.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
@@ -161,17 +159,6 @@ SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000' if DEBUG else 'htt
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 
-# Security settings for file uploads
-SECURE_FILE_UPLOADS = True
-
-# For production: Use cloud storage like AWS S3, Google Cloud Storage, etc.
-# Example for AWS S3 (uncomment and configure when ready):
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# AWS_ACCESS_KEY_ID = 'your-access-key'
-# AWS_SECRET_ACCESS_KEY = 'your-secret-key'
-# AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
-# AWS_S3_REGION_NAME = 'your-region'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -217,7 +204,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 DEFAULT_FROM_EMAIL = 'Meetup Manager <noreply@meetup.com>'
 
 # Logging configuration
-# 로그 디렉토리 생성 확인
 LOG_DIR = BASE_DIR
 LOG_DIR.mkdir(exist_ok=True)
 
