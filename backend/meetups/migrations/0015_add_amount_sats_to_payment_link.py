@@ -10,9 +10,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='meetuppaymentlink',
-            name='amount_sats',
-            field=models.PositiveIntegerField(default=1),
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunSQL(
+                    sql="ALTER TABLE meetups_meetuppaymentlink ADD COLUMN IF NOT EXISTS amount_sats integer DEFAULT 1 NOT NULL;",
+                    reverse_sql="ALTER TABLE meetups_meetuppaymentlink DROP COLUMN IF EXISTS amount_sats;",
+                ),
+            ],
+            state_operations=[
+                migrations.AddField(
+                    model_name='meetuppaymentlink',
+                    name='amount_sats',
+                    field=models.PositiveIntegerField(default=1),
+                ),
+            ],
         ),
     ]
