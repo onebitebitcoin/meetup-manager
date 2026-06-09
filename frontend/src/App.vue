@@ -1,7 +1,10 @@
 <template>
   <div id="app" class="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300 safe-area-top">
     <router-view />
-    
+
+    <!-- Version -->
+    <div class="text-center py-1 text-xs text-neutral-400">v1.0.1</div>
+
     <!-- PWA Update Available Notification with enhanced design -->
     <Transition
       enter-active-class="transform transition duration-300 ease-out"

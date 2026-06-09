@@ -696,8 +696,6 @@
       @meetup-updated="handleMeetupUpdated"
     />
 
-    <!-- Version -->
-    <div class="text-center py-2 text-xs text-neutral-400">v1.0.1</div>
   </div>
 </template>
 
