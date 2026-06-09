@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-meetup}
+      POSTGRES_USER: ${POSTGRES_USER:-meetup}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-meetup}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      DJANGO_SETTINGS_MODULE: meetup_backend.settings_production
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-meetup}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-meetup}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-meet.onebitebitcoin.com,localhost}
+      SITE_URL: ${SITE_URL:-https://meet.onebitebitcoin.com}
+      MEDIA_ROOT: /data/media
+    volumes:
+      - media_data:/data/media
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn meetup_backend.wsgi:application
+             --bind 0.0.0.0:8000
+             --workers 2
+             --timeout 120
+             --log-level info"
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - media_data:/data/media:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  media_data:
+  certbot_www:
+  certbot_conf:
