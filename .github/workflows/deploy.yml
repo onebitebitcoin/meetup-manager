@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    env:
+      TARGET_DIR: /srv/meet
+
+    steps:
+      - name: Ensure workspace checkout
+        run: |
+          mkdir -p "$TARGET_DIR"
+          if [ ! -d "$TARGET_DIR/.git" ]; then
+            git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "$TARGET_DIR"
+          fi
+          git -C "$TARGET_DIR" fetch --all --prune
+          git -C "$TARGET_DIR" checkout "${GITHUB_REF_NAME}"
+
+      - name: Pull latest changes
+        run: git -C "$TARGET_DIR" pull --ff-only origin "${GITHUB_REF_NAME}"
+
+      - name: Build and restart
+        working-directory: ${{ env.TARGET_DIR }}
+        run: |
+          docker compose build web
+          docker compose up -d --no-deps web nginx
+          docker compose exec -T web python manage.py migrate --noinput
+
+      - name: Health check
+        run: |
+          sleep 5
+          curl -fsS http://localhost/api/health/ || (docker compose -f $TARGET_DIR/docker-compose.yml logs web && exit 1)
