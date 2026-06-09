@@ -20,14 +20,14 @@ class TestCreatePaymentLinkAPI:
         meetup_user.save()
         meetup = create_meetup(creator=meetup_user)
 
-        def fake_invoice(_address):
+        def fake_invoice(_address, _amount_sats):
             return {
                 'lnurlp_url': 'https://coinos.io/.well-known/lnurlp/alice',
                 'callback_url': 'https://coinos.io/lnurl/callback?amount=1000',
                 'invoice': 'lnbc10n1p0fakeinvoice',
             }
 
-        monkeypatch.setattr('meetups.views.payment_links.create_one_sat_invoice', fake_invoice)
+        monkeypatch.setattr('meetups.views.payment_links.create_lightning_invoice', fake_invoice)
 
         url = reverse('create-payment-link', kwargs={'meetup_id': meetup.id})
         response = client.post(url)
