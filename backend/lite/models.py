@@ -50,6 +50,8 @@ class Meetup(models.Model):
     starts_at = models.DateTimeField()
     location = models.CharField(max_length=100)
     capacity = models.PositiveIntegerField()
+    # 썸네일 주소. 기존 앱 모임은 업로드 파일의 /media/ 경로 또는 외부 URL을 그대로 담는다.
+    image_url = models.CharField(max_length=500, blank=True, default='')
     checkin_code = models.CharField(max_length=4, default=generate_checkin_code)
     from_request = models.ForeignKey(
         MeetupRequest, on_delete=models.SET_NULL, null=True, blank=True, related_name='opened_meetups'

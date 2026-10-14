@@ -1,13 +1,9 @@
 <template>
   <LiteOnboard v-if="!store.member" />
   <template v-else>
-    <LiteTopbar :title="tab === 'requests' ? '모임 요청' : '모임'" />
+    <LiteTopbar title="한입 모임" />
     <div class="lite-scroll">
-      <LiteRequestList v-if="tab === 'requests'" />
-      <div
-        v-else
-        class="l-body"
-      >
+      <div class="l-body">
         <LiteSeminarCard
           v-if="!store.isHost"
           :seminar="home.my_seminar"
@@ -18,6 +14,7 @@
           :seminar="seminar"
           host
         />
+        <LiteRequestEntry :ready-count="store.isHost ? home.ready_request_count : 0" />
         <button
           v-if="store.isHost"
           class="l-btn s"
@@ -44,51 +41,29 @@
         />
       </div>
     </div>
-    <nav class="l-nav">
-      <button
-        :aria-current="tab === 'meetups' ? 'page' : 'false'"
-        @click="setTab('meetups')"
-      >
-        <CalendarDays :size="22" />모임
-      </button>
-      <button
-        :aria-current="tab === 'requests' ? 'page' : 'false'"
-        @click="setTab('requests')"
-      >
-        <Hand :size="22" />요청
-        <span
-          v-if="store.isHost && home.ready_request_count"
-          class="l-dot"
-        >{{ home.ready_request_count }}</span>
-      </button>
-    </nav>
   </template>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { CalendarDays, Hand, Plus } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { Plus } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteMeetupCard from '../components/LiteMeetupCard.vue'
 import LiteOnboard from '../components/LiteOnboard.vue'
-import LiteRequestList from '../components/LiteRequestList.vue'
+import LiteRequestEntry from '../components/LiteRequestEntry.vue'
 import LiteSeminarCard from '../components/LiteSeminarCard.vue'
 import LiteTopbar from '../components/LiteTopbar.vue'
 
-const route = useRoute()
 const router = useRouter()
 const store = useLiteStore()
 const home = ref({ meetups: [], my_seminar: null, seminars: [], ready_request_count: 0 })
 const error = ref('')
 const loaded = ref(false)
 
-const tab = computed(() => (route.query.tab === 'requests' ? 'requests' : 'meetups'))
 const SEMINAR_ORDER = { received: 0, guide: 1, confirmed: 2 }
 const sortedSeminars = computed(() => [...home.value.seminars].sort((a, b) => SEMINAR_ORDER[a.status] - SEMINAR_ORDER[b.status]))
-
-const setTab = (next) => router.replace({ path: '/lite', query: next === 'requests' ? { tab: next } : {} })
 
 const load = async () => {
   if (!store.member) return

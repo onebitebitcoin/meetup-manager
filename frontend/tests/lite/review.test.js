@@ -54,6 +54,32 @@ describe('LiteChat', () => {
     expect(fetch.mock.calls[0][0]).toBe('/api/lite/rooms/9/messages/')
   })
 
+  it('더 오래된 메시지가 있으면 이전 메시지 보기로 앞쪽에 붙이고, 끝까지 오면 버튼을 숨긴다', async () => {
+    fetch.mockImplementation((url) => {
+      if (url.includes('before=101')) return Promise.resolve(json({ messages: [msg(99), msg(100)], has_more: false }))
+      return Promise.resolve(json({ messages: [msg(101), msg(102)], has_more: true }))
+    })
+    const wrapper = mountChat()
+    await flushPromises()
+
+    const older = wrapper.find('button.l-older')
+    expect(older.exists()).toBe(true)
+    await older.trigger('click')
+    await flushPromises()
+
+    expect(fetch.mock.calls.some(([url]) => url === '/api/lite/rooms/9/messages/?before=101')).toBe(true)
+    expect(wrapper.findAll('.l-bub').map((b) => b.text())).toEqual(['m99', 'm100', 'm101', 'm102'])
+    expect(wrapper.find('button.l-older').exists()).toBe(false)
+  })
+
+  it('최신 100개 안에 모든 메시지가 있으면 이전 메시지 버튼이 없다', async () => {
+    fetch.mockResolvedValue(json({ messages: [msg(1)], has_more: false }))
+    const wrapper = mountChat()
+    await flushPromises()
+
+    expect(wrapper.find('button.l-older').exists()).toBe(false)
+  })
+
   it('내가 13번을 보내도 다른 사람의 11, 12번이 누락되지 않는다', async () => {
     let phase = 'first'
     fetch.mockImplementation((url, options) => {

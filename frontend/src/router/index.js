@@ -129,6 +129,7 @@ const routes = [
       { path: 'm/:id', name: 'LiteRoom', component: () => import('@/lite/views/LiteRoom.vue') },
       { path: 'seminar', name: 'LiteSeminar', component: () => import('@/lite/views/LiteSeminar.vue') },
       { path: 'seminar/:id', name: 'LiteSeminarHost', component: () => import('@/lite/views/LiteSeminar.vue') },
+      { path: 'requests', name: 'LiteRequests', component: () => import('@/lite/views/LiteRequests.vue') },
       { path: 'new-request', name: 'LiteRequestNew', component: () => import('@/lite/views/LiteRequestNew.vue') },
       { path: 'new-meetup', name: 'LiteMeetupNew', component: () => import('@/lite/views/LiteMeetupNew.vue') },
       { path: 'r', name: 'LiteRecover', component: () => import('@/lite/views/LiteRecover.vue') },

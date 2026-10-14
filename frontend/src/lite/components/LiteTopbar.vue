@@ -4,7 +4,7 @@
       v-if="back"
       class="l-icon-btn"
       aria-label="뒤로"
-      @click="router.push('/lite')"
+      @click="router.push(backTo)"
     >
       <ChevronLeft :size="22" />
     </button>
@@ -29,6 +29,7 @@ import { useLiteStore } from '../store'
 defineProps({
   title: { type: String, required: true },
   back: { type: Boolean, default: false },
+  backTo: { type: String, default: '/lite' },
 })
 
 const router = useRouter()

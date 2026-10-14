@@ -2,6 +2,7 @@
   <LiteTopbar
     title="이런 모임 열어주세요"
     back
+    back-to="/lite/requests"
   >
     <span />
   </LiteTopbar>
@@ -67,7 +68,7 @@ const submit = async () => {
   busy.value = true
   const data = await store.act(() => liteApi.createRequest(trimmed, period.value), '올렸어요')
   busy.value = false
-  if (data) router.push({ path: '/lite', query: { tab: 'requests' } })
+  if (data) router.push('/lite/requests')
 }
 
 onMounted(() => {

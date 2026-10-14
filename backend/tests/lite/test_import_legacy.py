@@ -42,3 +42,32 @@ def test_import_all(db):
     assert LiteMeetup.objects.count() == 2
     run('--all')
     assert LiteMeetup.objects.count() == 2
+
+
+def test_import_copies_external_image_url(db):
+    old = _legacy('이미지', 3)
+    Legacy.objects.filter(pk=old.pk).update(image_url='https://example.com/a.png')
+    run()
+    assert LiteMeetup.objects.get().image_url == 'https://example.com/a.png'
+
+
+def test_import_copies_uploaded_image_as_media_path(db):
+    old = _legacy('업로드', 3)
+    Legacy.objects.filter(pk=old.pk).update(image='meetups/b.png')
+    run()
+    assert LiteMeetup.objects.get().image_url.endswith('/meetups/b.png')
+
+
+def test_reimport_fills_missing_thumbnail_but_keeps_existing_one(db):
+    old = _legacy('나중 이미지', 3)
+    run()
+    assert LiteMeetup.objects.get().image_url == ''
+    Legacy.objects.filter(pk=old.pk).update(image_url='https://example.com/new.png')
+
+    out = run()
+
+    assert LiteMeetup.objects.get().image_url == 'https://example.com/new.png'
+    assert '썸네일 채움 1개' in out
+    Legacy.objects.filter(pk=old.pk).update(image_url='https://example.com/other.png')
+    run()
+    assert LiteMeetup.objects.get().image_url == 'https://example.com/new.png'

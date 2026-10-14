@@ -1,9 +1,9 @@
 from lite.models import ChatMessage, LiteConfig, MeetupRequest, RequestVote, SeminarRequest
 
 
-def msgs(client, headers, room_id, after=None):
-    url = f'/api/lite/rooms/{room_id}/messages/' + (f'?after={after}' if after is not None else '')
-    return client.get(url, **headers)
+def msgs(client, headers, room_id, after=None, before=None):
+    params = {k: v for k, v in (('after', after), ('before', before)) if v is not None}
+    return client.get(f'/api/lite/rooms/{room_id}/messages/', params, **headers)
 
 
 def send(client, headers, room_id, body):
@@ -59,6 +59,30 @@ def test_messages_without_after_returns_latest_100_ascending(api_client, host, a
     ids = [m['id'] for m in msgs(api_client, auth(host), meetup.room.id).json()['messages']]
     expected = list(ChatMessage.objects.filter(room=meetup.room).order_by('-id').values_list('id', flat=True)[:100])
     assert ids == sorted(expected) and len(ids) == 100
+
+
+def test_messages_before_pages_back_to_the_first_message(api_client, host, auth, make_meetup):
+    meetup = make_meetup()
+    ChatMessage.objects.bulk_create([ChatMessage(room=meetup.room, kind='system', body=str(i)) for i in range(150)])
+    all_ids = list(ChatMessage.objects.filter(room=meetup.room).order_by('id').values_list('id', flat=True))
+
+    first = msgs(api_client, auth(host), meetup.room.id).json()
+    assert first['has_more'] is True and [m['id'] for m in first['messages']] == all_ids[-100:]
+
+    older = msgs(api_client, auth(host), meetup.room.id, before=first['messages'][0]['id']).json()
+    assert older['has_more'] is False and [m['id'] for m in older['messages']] == all_ids[:-100]
+
+
+def test_messages_short_room_has_no_more(api_client, host, auth, make_meetup):
+    meetup = make_meetup()
+    body = msgs(api_client, auth(host), meetup.room.id).json()
+    assert body['has_more'] is False
+
+
+def test_messages_before_invalid(api_client, host, auth, make_meetup):
+    meetup = make_meetup()
+    r = msgs(api_client, auth(host), meetup.room.id, before='abc')
+    assert r.status_code == 400 and 'before' in r.json()['error']
 
 
 # --- 세미나 ---

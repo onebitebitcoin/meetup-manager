@@ -19,6 +19,10 @@
             {{ meetup.title }}
           </div>
           <div class="l-sub">
+            <span
+              v-if="dday"
+              class="l-dday"
+            >{{ dday }}</span>
             {{ parts.time }} · {{ meetup.location }}
           </div>
           <div
@@ -37,6 +41,13 @@
             </span>
           </div>
         </div>
+        <img
+          v-if="meetup.image_url"
+          class="l-thumb"
+          :src="meetup.image_url"
+          alt=""
+          loading="lazy"
+        >
       </div>
     </button>
     <LiteJoinRow
@@ -51,7 +62,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Users } from 'lucide-vue-next'
-import { dateParts, STATUS_LABEL } from '../format'
+import { dateParts, daysUntilLabel, STATUS_LABEL } from '../format'
 import { useLiteStore } from '../store'
 import LiteJoinRow from './LiteJoinRow.vue'
 
@@ -60,6 +71,7 @@ const props = defineProps({ meetup: { type: Object, required: true } })
 const router = useRouter()
 const store = useLiteStore()
 const parts = computed(() => dateParts(props.meetup.starts_at))
+const dday = computed(() => daysUntilLabel(props.meetup.starts_at))
 
 const open = () => router.push(`/lite/m/${props.meetup.id}`)
 

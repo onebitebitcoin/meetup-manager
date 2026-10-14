@@ -75,7 +75,7 @@ import { computed, ref } from 'vue'
 import {
   CalendarDays, CheckCircle2, Check, ChevronDown, HelpCircle, MapPin, QrCode, X,
 } from 'lucide-vue-next'
-import { dateParts, STATUS_LABEL } from '../format'
+import { dateParts, daysUntilLabel, STATUS_LABEL } from '../format'
 import { useLiteStore } from '../store'
 
 const props = defineProps({
@@ -90,7 +90,8 @@ const open = ref(false)
 const code = ref('')
 const parts = computed(() => dateParts(props.meetup.starts_at))
 const joined = computed(() => ['going', 'maybe'].includes(props.meetup.my_status))
-const when = computed(() => (props.meetup.is_today ? '오늘' : `${parts.value.month}/${parts.value.day}(${parts.value.weekday})`))
+const dday = computed(() => daysUntilLabel(props.meetup.starts_at))
+const when = computed(() => (props.meetup.is_today ? '오늘' : `${parts.value.month}/${parts.value.day}(${parts.value.weekday}) · ${dday.value}`))
 
 const pick = (status) => {
   open.value = false

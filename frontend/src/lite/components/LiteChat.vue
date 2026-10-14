@@ -1,6 +1,15 @@
 <template>
   <div class="lite-scroll">
     <div class="l-msgs">
+      <button
+        v-if="hasMore"
+        type="button"
+        class="l-older"
+        :disabled="loadingOlder"
+        @click="loadOlder"
+      >
+        이전 메시지 보기
+      </button>
       <LiteMessage
         v-for="message in messages"
         :key="message.id"
@@ -53,6 +62,8 @@ const messages = ref([])
 const draft = ref('')
 const sending = ref(false)
 const bottom = ref(null)
+const hasMore = ref(false)
+const loadingOlder = ref(false)
 let timer = null
 let polling = false
 let failing = false
@@ -79,8 +90,11 @@ const poll = async () => {
   if (polling || document.visibilityState === 'hidden') return
   polling = true
   try {
+    const first = lastPolled === 0
     const data = await liteApi.messages(props.roomId, lastPolled)
     failing = false
+    // 첫 조회(after 없음)는 최신 100개만 오므로, 더 오래된 메시지가 있는지 응답으로 알 수 있다
+    if (first) hasMore.value = !!data.has_more
     lastPolled = data.messages.reduce((max, m) => Math.max(max, m.id), lastPolled)
     if (await append(data.messages)) emit('received')
   } catch (error) {
@@ -94,6 +108,23 @@ const poll = async () => {
   } finally {
     polling = false
   }
+}
+
+// 위로 붙일 때는 보던 위치가 밀려 내려가지 않도록, 늘어난 높이만큼 스크롤을 보정한다
+const loadOlder = async () => {
+  const oldest = messages.value[0]
+  if (!oldest || loadingOlder.value) return
+  loadingOlder.value = true
+  const data = await store.act(() => liteApi.olderMessages(props.roomId, oldest.id))
+  loadingOlder.value = false
+  if (!data) return
+  const scroller = document.scrollingElement
+  const before = scroller?.scrollHeight ?? 0
+  const known = new Set(messages.value.map((m) => m.id))
+  messages.value = [...data.messages.filter((m) => !known.has(m.id)), ...messages.value]
+  hasMore.value = !!data.has_more
+  await nextTick()
+  if (scroller) scroller.scrollTop += scroller.scrollHeight - before
 }
 
 const send = async () => {

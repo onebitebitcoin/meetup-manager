@@ -42,10 +42,16 @@ def room_with_access(room_id, member):
     return room
 
 
-def parse_after(raw):
+def parse_message_id(raw, name):
     if not (raw.isascii() and raw.isdigit()) or int(raw) > MAX_AFTER:
-        raise ApiError('after 값이 올바르지 않아요')
+        raise ApiError(f'{name} 값이 올바르지 않아요')
     return int(raw)
+
+
+def latest_page(qs, limit):
+    """가장 최근 limit개를 id 오름차순으로 돌려준다. 하나 더 읽어서 더 오래된 메시지가 남았는지 판단한다."""
+    rows = list(qs.order_by('-id')[:limit + 1])
+    return rows[:limit][::-1], len(rows) > limit
 
 
 class RoomMessagesView(LiteView):
@@ -57,12 +63,15 @@ class RoomMessagesView(LiteView):
     def get(self, request, room_id):
         room = self._room(room_id)
         after = request.query_params.get('after')
+        before = request.query_params.get('before')
         qs = ChatMessage.objects.select_related('member').filter(room=room)
-        if after in (None, ''):
-            messages = list(qs.order_by('-id')[:INITIAL_MESSAGE_LIMIT])[::-1]
-        else:
-            messages = list(qs.filter(id__gt=parse_after(after)).order_by('id')[:MESSAGE_LIMIT])
-        return APIResponse.success({'messages': [message_obj(m) for m in messages]})
+        if after not in (None, ''):
+            messages = list(qs.filter(id__gt=parse_message_id(after, 'after')).order_by('id')[:MESSAGE_LIMIT])
+            return APIResponse.success({'messages': [message_obj(m) for m in messages]})
+        if before not in (None, ''):
+            qs = qs.filter(id__lt=parse_message_id(before, 'before'))
+        messages, has_more = latest_page(qs, INITIAL_MESSAGE_LIMIT)
+        return APIResponse.success({'messages': [message_obj(m) for m in messages], 'has_more': has_more})
 
     def post(self, request, room_id):
         room = self._room(room_id)
