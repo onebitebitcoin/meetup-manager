@@ -43,15 +43,13 @@ export default {
           900: '#1c1917',
           950: '#0c0a09',
         },
-        // LITE 쿠키 테이블 테마 (SPEC 11.6)
+        // LITE 원장 테마 (SPEC 11.6)
         lite: {
-          mustard: '#F5C431',
-          choco: '#2B1A17',
-          cream: '#FFF8EC',
-          dough: '#F6E3BF',
-          mint: '#2FBF8A',
-          blush: '#E5646A',
-          plum: '#8E3A59',
+          paper: '#FAFAF8',
+          ink: '#141416',
+          orange: '#F7931A',
+          going: '#1F7A4D',
+          line: '#E6E4DE',
         },
         // Simplified accent colors for minimal usage
         accent: {
@@ -62,7 +60,7 @@ export default {
         },
       },
       fontFamily: {
-        display: ['"Do Hyeon"', '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'sans-serif'],
+        display: ['"IBM Plex Sans KR"', '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'sans-serif'],
         sans: [
           'Inter',
           '-apple-system',
@@ -105,7 +103,6 @@ export default {
         },
       },
       boxShadow: {
-        'sticker': '3px 3px 0 0 var(--lite-shadow, #2B1A17)',
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
         'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 30px -5px rgba(0, 0, 0, 0.04)',
         'strong': '0 8px 40px -12px rgba(0, 0, 0, 0.25)',

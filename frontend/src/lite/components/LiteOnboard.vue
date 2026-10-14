@@ -1,7 +1,7 @@
 <template>
   <div class="l-onb">
-    <span class="l-logo shadow-sticker">
-      <LiteCookie filled />
+    <span class="l-logo">
+      <Bitcoin :size="26" />
     </span>
     <h2>이름만 알려주세요</h2>
     <form
@@ -30,7 +30,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useLiteStore } from '../store'
-import LiteCookie from './LiteCookie.vue'
+import { Bitcoin } from 'lucide-vue-next'
 
 const store = useLiteStore()
 const name = ref('')

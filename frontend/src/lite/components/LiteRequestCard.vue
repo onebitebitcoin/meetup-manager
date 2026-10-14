@@ -22,19 +22,12 @@
     <div class="l-title">
       {{ request.title }}
     </div>
-    <div
-      class="l-cookies"
-      :aria-label="`${request.threshold}명 중 ${Math.min(request.vote_count, request.threshold)}명`"
-    >
-      <LiteCookie
-        v-for="n in request.threshold"
-        :key="n"
-        :filled="n <= request.vote_count"
+    <div class="l-sub">
+      <LiteProgress
+        :count="request.vote_count"
+        :total="request.threshold"
       />
-      <span
-        class="l-counts"
-        style="margin-left: 4px"
-      >{{ PERIOD_LABEL[request.preferred_period] }}</span>
+      <span class="l-counts">{{ PERIOD_LABEL[request.preferred_period] }}</span>
     </div>
     <div class="l-rfoot">
       <button
@@ -70,7 +63,7 @@ import { ChevronRight, Hand, Plus } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { PERIOD_LABEL } from '../format'
 import { useLiteStore } from '../store'
-import LiteCookie from './LiteCookie.vue'
+import LiteProgress from './LiteProgress.vue'
 
 const props = defineProps({ request: { type: Object, required: true } })
 const emit = defineEmits(['updated'])
