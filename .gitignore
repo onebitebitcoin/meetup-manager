@@ -23,8 +23,7 @@ dist/
 .env.*
 !.env.example
 
-# Npm & Yarn lockfiles
-package-lock.json
+# Yarn lockfile (npm은 package-lock.json을 커밋한다: Dockerfile의 npm ci가 필요로 함)
 yarn.lock
 
 # =========================
