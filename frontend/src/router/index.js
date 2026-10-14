@@ -121,6 +121,20 @@ const routes = [
     name: 'PaymentQR',
     component: PaymentQRView,
   },
+  {
+    path: '/lite',
+    component: () => import('@/lite/views/LiteLayout.vue'),
+    children: [
+      { path: '', name: 'LiteHome', component: () => import('@/lite/views/LiteHome.vue') },
+      { path: 'm/:id', name: 'LiteRoom', component: () => import('@/lite/views/LiteRoom.vue') },
+      { path: 'seminar', name: 'LiteSeminar', component: () => import('@/lite/views/LiteSeminar.vue') },
+      { path: 'seminar/:id', name: 'LiteSeminarHost', component: () => import('@/lite/views/LiteSeminar.vue') },
+      { path: 'new-request', name: 'LiteRequestNew', component: () => import('@/lite/views/LiteRequestNew.vue') },
+      { path: 'new-meetup', name: 'LiteMeetupNew', component: () => import('@/lite/views/LiteMeetupNew.vue') },
+      { path: 'r/:token', name: 'LiteRecover', component: () => import('@/lite/views/LiteRecover.vue') },
+      { path: 'host/:key', name: 'LiteHostClaim', component: () => import('@/lite/views/LiteHostClaim.vue') },
+    ],
+  },
 ]
 
 const router = createRouter({
@@ -129,6 +143,12 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  // LITE는 별도 토큰 인증을 쓰므로 기존 authStore 검사를 건너뛴다
+  if (to.path === '/lite' || to.path.startsWith('/lite/')) {
+    next()
+    return
+  }
+
   const authStore = useAuthStore()
   
   // 로그인 상태 확인

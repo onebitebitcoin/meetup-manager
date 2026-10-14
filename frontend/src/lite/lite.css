@@ -1,0 +1,139 @@
+/* LITE 쿠키 테이블 테마. 다크 모드는 프로젝트의 html.dark 클래스를 따른다. */
+.lite-root {
+  --lite-bg: #FFF8EC; --lite-surface: #FFFFFF; --lite-sunk: #F6E3BF; --lite-ink: #2B1A17; --lite-muted: #7A5D52;
+  --lite-hair: #EAD9BE; --lite-line: #2B1A17; --lite-shadow: #2B1A17;
+  --lite-accent: #F5C431; --lite-accent-ink: #2B1A17;
+  --lite-going: #2FBF8A; --lite-going-soft: #D3F5E7; --lite-going-text: #11704D;
+  --lite-maybe-soft: #FCE9A6; --lite-maybe-text: #7A5A00;
+  --lite-no-soft: #FBE0E0; --lite-no-text: #A3333A;
+  --lite-plum: #8E3A59; --lite-plum-soft: #F3DCE5;
+  font-family: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 15px; line-height: 1.6; color: var(--lite-ink); background: var(--lite-bg);
+  min-height: 100vh; min-height: 100dvh;
+}
+.dark .lite-root {
+  --lite-bg: #1C1311; --lite-surface: #281B18; --lite-sunk: #35241F; --lite-ink: #FFF1DC; --lite-muted: #C2A898;
+  --lite-hair: #3F2B25; --lite-line: #6B4A3E; --lite-shadow: #000000;
+  --lite-going: #3DDBA0; --lite-going-soft: #173B2E; --lite-going-text: #7BE8BF;
+  --lite-maybe-soft: #3A2F10; --lite-maybe-text: #F5C431;
+  --lite-no-soft: #3D1F20; --lite-no-text: #F49A9E;
+  --lite-plum: #D27A9B; --lite-plum-soft: #3A1E29;
+  color-scheme: dark;
+}
+.lite-root *, .lite-root *::before, .lite-root *::after { box-sizing: border-box; }
+.lite-root button, .lite-root input, .lite-root select, .lite-root textarea { font: inherit; color: inherit; }
+.lite-root button { cursor: pointer; }
+.lite-root :focus-visible { outline: 3px solid var(--lite-accent); outline-offset: 2px; }
+.lite-root h1, .lite-root h2 { font-family: "Do Hyeon", "Apple SD Gothic Neo", sans-serif; font-weight: 400; line-height: 1.25; margin: 0; }
+
+.lite-shell { max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; position: relative; background: var(--lite-bg); }
+.lite-shell.bordered { border-inline: 2px solid var(--lite-line); }
+.lite-scroll { flex: 1; display: flex; flex-direction: column; }
+.l-body { padding: 14px 8px; display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 400px) { .l-body { padding-inline: 14px; } }
+.lite-display { font-family: "Do Hyeon", "Apple SD Gothic Neo", sans-serif; }
+
+.l-top { display: flex; align-items: center; gap: 8px; padding: 13px 12px; border-bottom: 2px solid var(--lite-line); background: var(--lite-surface); position: sticky; top: 0; z-index: 2; }
+.l-top h2 { font-size: 20px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l-icon-btn { border: 0; background: none; padding: 8px; margin: -8px; min-width: 44px; min-height: 44px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
+.l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--lite-muted); font-weight: 600; }
+.l-av { width: 28px; height: 28px; border-radius: 50%; background: var(--lite-accent); color: var(--lite-accent-ink); border: 2px solid var(--lite-line); display: inline-grid; place-items: center; font-size: 12px; font-weight: 800; flex: none; }
+.l-av.bot { background: var(--lite-plum-soft); color: var(--lite-plum); }
+.l-nav { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid var(--lite-line); background: var(--lite-surface); position: sticky; bottom: 0; }
+.l-nav button { border: 0; background: none; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-size: 13px; color: var(--lite-muted); position: relative; font-family: "Do Hyeon", sans-serif; }
+.l-nav button[aria-current="page"] { color: var(--lite-ink); }
+.l-nav button[aria-current="page"] svg { fill: var(--lite-accent); }
+.l-dot { position: absolute; top: 6px; left: calc(50% + 8px); min-width: 18px; height: 18px; border-radius: 9px; background: var(--lite-accent); color: var(--lite-accent-ink); border: 2px solid var(--lite-line); font-size: 10px; font-weight: 800; display: grid; place-items: center; padding: 0 4px; font-family: "Gothic A1", sans-serif; }
+
+.l-card { border: 2px solid var(--lite-line); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: var(--lite-surface); text-align: left; width: 100%; }
+.l-card.link { cursor: pointer; }
+.l-card.link:hover { box-shadow: 3px 3px 0 var(--lite-shadow); transform: translate(-1px, -1px); }
+.l-card.pinned { background: var(--lite-plum-soft); }
+.l-card.done { background: var(--lite-sunk); border-style: dashed; }
+.l-row { display: flex; gap: 12px; align-items: flex-start; }
+.l-row.center { align-items: center; }
+.l-date { width: 50px; flex: none; text-align: center; border-radius: 14px; background: var(--lite-sunk); padding: 6px 0 4px; line-height: 1.1; font-family: "Do Hyeon", sans-serif; }
+.l-date b { display: block; font-size: 24px; font-weight: 400; }
+.l-date span { font-size: 12px; color: var(--lite-muted); }
+.l-date.today { background: var(--lite-accent); color: var(--lite-accent-ink); }
+.l-date.today span { color: inherit; }
+.l-date.always { background: var(--lite-surface); border: 2px solid var(--lite-line); color: var(--lite-plum); display: grid; place-items: center; height: 58px; }
+.l-title { font-family: "Do Hyeon", "Apple SD Gothic Neo", sans-serif; font-size: 19px; line-height: 1.3; }
+.l-sub { font-size: 12.5px; color: var(--lite-muted); display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.l-grow { flex: 1; min-width: 0; }
+.l-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; white-space: nowrap; border: 1.5px solid currentColor; background: var(--lite-sunk); color: var(--lite-muted); }
+.l-chip.going { background: var(--lite-going-soft); color: var(--lite-going-text); }
+.l-chip.maybe { background: var(--lite-maybe-soft); color: var(--lite-maybe-text); }
+.l-chip.no { background: var(--lite-no-soft); color: var(--lite-no-text); }
+.l-chip.plum { background: var(--lite-surface); color: var(--lite-plum); }
+.l-chip.none { border-color: transparent; }
+button.l-chip { min-height: 32px; padding-inline: 12px; }
+.l-counts { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; color: var(--lite-muted); font-variant-numeric: tabular-nums; }
+
+.l-btn { border: 2px solid var(--lite-line); border-radius: 14px; padding: 10px 14px; font-family: "Do Hyeon", sans-serif; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; box-shadow: 3px 3px 0 var(--lite-shadow); transition: transform .08s, box-shadow .08s; }
+.l-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--lite-shadow); }
+.l-btn:disabled { opacity: .6; }
+.l-btn.p { background: var(--lite-accent); color: var(--lite-accent-ink); }
+.l-btn.s { background: var(--lite-surface); color: var(--lite-ink); }
+.l-btn-row { display: flex; gap: 8px; }
+.l-btn-row .l-btn { flex: 1; min-height: 44px; font-size: 17px; }
+.l-btn-row .l-btn.fit { flex: 0 0 auto; }
+
+.l-rsvp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 1; }
+.l-rsvp button { border: 2px solid var(--lite-line); background: var(--lite-surface); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: "Do Hyeon", sans-serif; font-size: 15px; min-height: 44px; }
+.l-rsvp button[aria-pressed="true"] { box-shadow: 2px 2px 0 var(--lite-shadow); }
+.l-rsvp button[data-v="going"][aria-pressed="true"] { background: var(--lite-going); color: #0B2B1F; }
+.l-rsvp button[data-v="maybe"][aria-pressed="true"] { background: var(--lite-accent); color: var(--lite-accent-ink); }
+.l-rsvp button[data-v="no"][aria-pressed="true"] { background: var(--lite-no-soft); color: var(--lite-no-text); }
+
+.l-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 2px solid var(--lite-line); background: var(--lite-sunk); font-size: 13px; min-height: 48px; }
+.l-bar.strong { background: var(--lite-maybe-soft); }
+.l-bar .l-grow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l-bar .l-btn { min-height: 44px; font-size: 15px; padding: 4px 12px; margin-left: auto; box-shadow: 2px 2px 0 var(--lite-shadow); }
+.l-code { font-family: "Do Hyeon", sans-serif; font-size: 24px; letter-spacing: .2em; }
+.l-pin { flex: 1; min-width: 0; min-height: 44px; border: 2px solid var(--lite-line); background: var(--lite-surface); border-radius: 10px; padding: 5px 10px; font-family: "Do Hyeon", sans-serif; font-size: 18px; letter-spacing: .15em; }
+.l-locked { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; color: var(--lite-muted); font-size: 14px; }
+.l-locked .l-btn-row { width: 100%; }
+
+.l-msgs { flex: 1; padding: 14px 8px; display: flex; flex-direction: column; gap: 10px; background: var(--lite-bg); }
+.l-msg { display: flex; gap: 8px; max-width: 86%; }
+.l-bub { background: var(--lite-surface); border: 2px solid var(--lite-line); border-radius: 4px 14px 14px 14px; padding: 6px 11px; font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
+.l-who { font-size: 11px; color: var(--lite-muted); margin-bottom: 2px; font-weight: 600; }
+.l-msg.mine { align-self: flex-end; flex-direction: row-reverse; }
+.l-msg.mine .l-bub { background: var(--lite-accent); color: var(--lite-accent-ink); border-radius: 14px 4px 14px 14px; }
+.l-msg.bot .l-bub { background: var(--lite-plum-soft); }
+.l-sys { align-self: center; font-size: 12px; color: var(--lite-muted); background: var(--lite-sunk); padding: 2px 10px; border-radius: 999px; text-align: center; }
+.l-choices { display: flex; gap: 6px; flex-wrap: wrap; margin-left: 36px; }
+.l-choice { border: 2px solid var(--lite-line); background: var(--lite-surface); border-radius: 999px; padding: 5px 14px; min-height: 44px; display: inline-flex; gap: 5px; align-items: center; font-family: "Do Hyeon", sans-serif; font-size: 16px; box-shadow: 2px 2px 0 var(--lite-shadow); }
+.l-choice:active { transform: translate(2px, 2px); box-shadow: none; }
+.l-composer { display: flex; gap: 8px; padding: 10px 12px; border-top: 2px solid var(--lite-line); background: var(--lite-surface); position: sticky; bottom: 0; }
+.l-composer input { flex: 1; min-width: 0; min-height: 44px; border: 2px solid var(--lite-line); background: var(--lite-bg); border-radius: 999px; padding: 8px 14px; }
+.l-composer button { border: 2px solid var(--lite-line); background: var(--lite-accent); color: var(--lite-accent-ink); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; flex: none; }
+.l-composer button:disabled { opacity: .6; }
+
+.l-cookies { display: flex; gap: 4px; align-items: center; }
+.l-vote { border: 2px solid var(--lite-line); background: var(--lite-surface); border-radius: 999px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 5px; font-family: "Do Hyeon", sans-serif; font-size: 15px; min-height: 44px; }
+.l-vote[aria-pressed="true"], .l-vote.primary { background: var(--lite-accent); color: var(--lite-accent-ink); }
+.l-vote.primary { box-shadow: 2px 2px 0 var(--lite-shadow); }
+.l-rfoot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.l-big-input { border: 2px solid var(--lite-line); background: var(--lite-surface); border-radius: 14px; padding: 12px 14px; font-family: "Do Hyeon", sans-serif; font-size: 22px; width: 100%; min-height: 48px; }
+.l-field { border: 2px solid var(--lite-line); background: var(--lite-surface); border-radius: 12px; padding: 9px 12px; font-size: 15px; width: 100%; min-width: 0; min-height: 44px; }
+.l-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.l-num { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+.l-num .l-field { width: 90px; }
+.l-seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--lite-sunk); border-radius: 14px; padding: 3px; border: 2px solid var(--lite-line); }
+.l-seg label { display: block; cursor: pointer; }
+.l-seg input { position: absolute; opacity: 0; pointer-events: none; }
+.l-seg span { display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 11px; font-weight: 700; font-size: 14px; color: var(--lite-muted); }
+.l-seg input:checked + span { background: var(--lite-accent); color: var(--lite-accent-ink); }
+.l-seg input:focus-visible + span { outline: 3px solid var(--lite-accent); outline-offset: 1px; }
+
+.l-onb { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 28px 24px; }
+.l-onb h2 { font-size: 28px; }
+.l-logo { width: 56px; height: 56px; border-radius: 50%; background: var(--lite-accent); border: 3px solid var(--lite-line); display: grid; place-items: center; }
+.l-logo svg { width: 34px; height: 34px; }
+.l-toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 76px; width: calc(100% - 32px); max-width: 448px; background: var(--lite-ink); color: var(--lite-bg); border-radius: 12px; padding: 10px 14px; font-size: 14px; display: flex; gap: 8px; align-items: center; z-index: 50; }
+.l-toast.error { background: var(--lite-no-text); color: var(--lite-bg); }
+.l-state { padding: 24px; text-align: center; color: var(--lite-muted); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .l-btn, .l-card { transition: none; } }
