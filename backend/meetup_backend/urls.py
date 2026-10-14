@@ -18,6 +18,7 @@ def serve_spa(request, path=''):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('meetups.urls')),
+    path('', include('lite.urls')),
 ]
 
 if settings.DEBUG:

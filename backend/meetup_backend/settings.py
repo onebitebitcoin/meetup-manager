@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'meetups',
+    'lite',
 ]
 
 MIDDLEWARE = [
@@ -260,3 +261,6 @@ LOGGING = {
         },
     },
 }
+
+# LITE: 운영자 승격 키. 비어 있으면 승격 불가
+LITE_HOST_KEY = os.environ.get('LITE_HOST_KEY', '')
