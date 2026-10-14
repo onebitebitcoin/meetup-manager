@@ -33,7 +33,7 @@
       >
         {{ meetup.title }}
       </div>
-      <span>{{ meetup.going_count + meetup.maybe_count }}명 함께해요</span>
+      <span class="l-counts">{{ meetup.going_count }}명 참석</span>
       <LiteJoinRow
         :meetup="meetup"
         @done="load"

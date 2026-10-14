@@ -56,7 +56,6 @@ import { useLiteStore } from '../store'
 import LiteJoinRow from './LiteJoinRow.vue'
 
 const props = defineProps({ meetup: { type: Object, required: true } })
-const emit = defineEmits(['changed'])
 
 const router = useRouter()
 const store = useLiteStore()
@@ -64,8 +63,5 @@ const parts = computed(() => dateParts(props.meetup.starts_at))
 
 const open = () => router.push(`/lite/m/${props.meetup.id}`)
 
-const onJoinDone = ({ status }) => {
-  if (status === 'going') open()
-  else emit('changed')
-}
+const onJoinDone = () => open()
 </script>

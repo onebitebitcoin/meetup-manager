@@ -129,7 +129,7 @@ describe('LiteMeetupCard 구조', () => {
 
     expect(wrapper.find('[role="button"]').exists()).toBe(false)
     expect(wrapper.find('button button').exists()).toBe(false)
-    expect(wrapper.findAll('button').length).toBe(3)
+    expect(wrapper.findAll('button').length).toBe(2)
   })
 })
 

@@ -41,7 +41,6 @@
           v-for="meetup in home.meetups"
           :key="meetup.id"
           :meetup="meetup"
-          @changed="load"
         />
       </div>
     </div>

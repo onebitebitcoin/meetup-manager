@@ -58,7 +58,7 @@ describe('LiteHome', () => {
     expect(wrapper.text()).toContain('이름만 알려주세요')
   })
 
-  it('미신청 모임에는 신청하기와 못 가요가 보인다', async () => {
+  it('미신청 모임에는 신청하기만 보이고 못 가요는 없다', async () => {
     memberStore()
     routeFetch({ 'home/': { meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 } })
 
@@ -67,7 +67,7 @@ describe('LiteHome', () => {
 
     expect(wrapper.text()).toContain('라이트닝 노드 실습')
     expect(wrapper.text()).toContain('신청하기')
-    expect(wrapper.text()).toContain('못 가요')
+    expect(wrapper.text()).not.toContain('못 가요')
     expect(wrapper.text()).toContain('1:1 세미나')
   })
 
@@ -104,7 +104,7 @@ describe('LiteRoom', () => {
     fetch.mockReset()
   })
 
-  it('미신청자에게는 메시지 대신 신청하기와 못 가요를 보여준다', async () => {
+  it('미신청자에게는 메시지 대신 참석 인원과 신청하기를 보여준다', async () => {
     memberStore()
     routeFetch({
       'meetups/5/': { meetup: card(), checkin_code: null, checked_in: false, checked_in_count: 0 },
@@ -113,9 +113,9 @@ describe('LiteRoom', () => {
     const wrapper = mount(LiteRoom)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('4명 함께해요')
+    expect(wrapper.text()).toContain('3명 참석')
     expect(wrapper.text()).toContain('신청하기')
-    expect(wrapper.text()).toContain('못 가요')
+    expect(wrapper.text()).not.toContain('못 가요')
     expect(wrapper.find('.l-composer').exists()).toBe(false)
     expect(fetch.mock.calls.some(([url]) => url.includes('rooms/'))).toBe(false)
   })

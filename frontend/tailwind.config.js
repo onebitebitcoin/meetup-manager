@@ -43,13 +43,14 @@ export default {
           900: '#1c1917',
           950: '#0c0a09',
         },
-        // LITE 원장 테마 (SPEC 11.6)
+        // LITE 테마: 한입 로고 팔레트 (SPEC 11.6)
         lite: {
-          paper: '#FAFAF8',
-          ink: '#141416',
-          orange: '#F7931A',
-          going: '#1F7A4D',
-          line: '#E6E4DE',
+          cream: '#FFF8EC',
+          choco: '#2B1A17',
+          mustard: '#F5C431',
+          mint: '#2FBF8A',
+          plum: '#8E3A59',
+          cookie: '#E2A55A',
         },
         // Simplified accent colors for minimal usage
         accent: {
