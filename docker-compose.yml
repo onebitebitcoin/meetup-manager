@@ -25,6 +25,7 @@ services:
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-meet.onebitebitcoin.com,localhost}
       SITE_URL: ${SITE_URL:-https://meet.onebitebitcoin.com}
       MEDIA_ROOT: /data/media
+      LITE_HOST_KEY: ${LITE_HOST_KEY:-}
     volumes:
       - /var/www/meet/media:/data/media
     depends_on:
