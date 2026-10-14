@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
@@ -7,12 +8,26 @@ from django.utils.dateparse import parse_datetime
 from meetups.views.helpers import APIResponse
 
 from ..auth import IsHost
-from ..models import ChatMessage, ChatRoom, LiteConfig, Meetup, MeetupRequest, Rsvp, SeminarRequest
+from ..models import ChatMessage, LiteConfig, Meetup, MeetupRequest, Rsvp
 from ..serializers import meetup_card, my_statuses, seminar_card
-from ..services import KST, add_message, is_today, meetups_with_counts, requests_with_votes, today_start_kst
+from ..services import (
+    KST,
+    add_message,
+    is_today,
+    meetups_with_counts,
+    requests_with_votes,
+    seminars_with_last_message,
+    today_start_kst,
+)
+from ..throttles import CheckinThrottle
 from .base import ApiError, LiteView, clean_text, get_or_404
 
 logger = logging.getLogger(__name__)
+
+MIN_YEAR = 2000
+MAX_YEAR = 2100
+MEETUP_END_GRACE = timedelta(hours=12)
+DESCRIPTION_MAX = 1000
 
 RSVP_LABELS = {Rsvp.Status.GOING: '참석', Rsvp.Status.MAYBE: '미정', Rsvp.Status.NO: '불참'}
 
@@ -25,11 +40,22 @@ def card_for(meetup_id, member):
 def parse_starts_at(value):
     if not isinstance(value, str):
         raise ApiError('시작 시각을 입력해 주세요')
-    parsed = parse_datetime(value.strip())
+    try:
+        parsed = parse_datetime(value.strip())
+    except ValueError:
+        parsed = None
     if parsed is None:
         raise ApiError('시작 시각 형식이 올바르지 않아요')
+    if not MIN_YEAR <= parsed.year <= MAX_YEAR:
+        raise ApiError('시작 시각의 연도가 올바르지 않아요')
     if timezone.is_naive(parsed):
         parsed = parsed.replace(tzinfo=KST)
+    try:
+        in_range = MIN_YEAR <= parsed.astimezone(KST).year <= MAX_YEAR
+    except OverflowError:
+        in_range = False
+    if not in_range:
+        raise ApiError('시작 시각의 연도가 올바르지 않아요')
     return parsed
 
 
@@ -50,14 +76,12 @@ class HomeView(LiteView):
         member = self.member
         meetups = list(meetups_with_counts().filter(starts_at__gte=today_start_kst()).order_by('starts_at', 'id'))
         mine = my_statuses(member, [m.id for m in meetups])
-        my_seminar = SeminarRequest.objects.select_related('member', 'room').filter(member=member).first()
+        my_seminar = seminars_with_last_message().filter(member=member).first()
         seminars = []
         if member.is_host:
-            seminars = [
-                seminar_card(s) for s in SeminarRequest.objects.select_related('member', 'room').order_by('-id')
-            ]
+            seminars = [seminar_card(s) for s in seminars_with_last_message().order_by('-id')]
         threshold = LiteConfig.get().vote_threshold
-        ready = sum(1 for r in requests_with_votes().filter(status=MeetupRequest.Status.OPEN) if r.vote_count >= threshold)
+        ready = requests_with_votes().filter(status=MeetupRequest.Status.OPEN, vote_count__gte=threshold).count()
         return APIResponse.success({
             'meetups': [meetup_card(m, mine.get(m.id)) for m in meetups],
             'my_seminar': seminar_card(my_seminar) if my_seminar else None,
@@ -75,9 +99,13 @@ class MeetupCreateView(LiteView):
         location = clean_text(data.get('location'), '장소', 1, 100)
         starts_at = parse_starts_at(data.get('starts_at'))
         capacity = parse_capacity(data.get('capacity'))
+        if starts_at <= timezone.now():
+            raise ApiError('시작 시각은 현재 이후여야 해요')
         description = data.get('description') or ''
         if not isinstance(description, str):
             raise ApiError('설명 형식이 올바르지 않아요')
+        if len(description.strip()) > DESCRIPTION_MAX:
+            raise ApiError(f'설명은 {DESCRIPTION_MAX}자 이내로 입력해 주세요')
         request_id = data.get('request_id')
 
         with transaction.atomic():
@@ -92,12 +120,11 @@ class MeetupCreateView(LiteView):
                 title=title, description=description.strip(), starts_at=starts_at,
                 location=location, capacity=capacity, from_request=req,
             )
-            room = ChatRoom.objects.create(kind=ChatRoom.Kind.MEETUP, meetup=meetup)
             if req is not None:
                 req.status = MeetupRequest.Status.DONE
                 req.meetup = meetup
                 req.save(update_fields=['status', 'meetup'])
-                add_message(room, f'요청으로 열린 모임이에요 · {req.votes.count()}명에게 알림')
+                add_message(meetup.room, f'요청으로 열린 모임이에요 · {req.votes.count()}명에게 알림')
         logger.info('LITE 모임 생성: id=%s request_id=%s', meetup.id, req.id if req else None)
         return APIResponse.created({'meetup': card_for(meetup.id, self.member)})
 
@@ -131,6 +158,8 @@ class RsvpView(LiteView):
             raise ApiError('참석 상태는 going, maybe, no 중 하나여야 해요')
         with transaction.atomic():
             meetup = get_or_404(Meetup.objects.select_for_update(), '모임을 찾을 수 없어요', pk=meetup_id)
+            if meetup.starts_at + MEETUP_END_GRACE < timezone.now():
+                raise ApiError('이미 끝난 모임이에요')
             rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first()
             previous = rsvp.status if rsvp else None
             if previous != new_status:
@@ -152,6 +181,8 @@ class RsvpView(LiteView):
 
 
 class CheckinView(LiteView):
+    throttle_classes = [CheckinThrottle]
+
     def post(self, request, meetup_id):
         member = self.member
         code = self.json_body().get('code')

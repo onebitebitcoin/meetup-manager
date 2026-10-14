@@ -47,10 +47,18 @@ def test_messages_after_and_validation(api_client, member, auth, make_meetup):
     assert send(api_client, auth(member), room_id, 'a' * 1000).status_code == 201
 
 
-def test_messages_limit_200(api_client, host, auth, make_meetup):
+def test_messages_limit_200_with_after(api_client, host, auth, make_meetup):
     meetup = make_meetup()
     ChatMessage.objects.bulk_create([ChatMessage(room=meetup.room, kind='system', body=str(i)) for i in range(205)])
-    assert len(msgs(api_client, auth(host), meetup.room.id).json()['messages']) == 200
+    assert len(msgs(api_client, auth(host), meetup.room.id, after=0).json()['messages']) == 200
+
+
+def test_messages_without_after_returns_latest_100_ascending(api_client, host, auth, make_meetup):
+    meetup = make_meetup()
+    ChatMessage.objects.bulk_create([ChatMessage(room=meetup.room, kind='system', body=str(i)) for i in range(105)])
+    ids = [m['id'] for m in msgs(api_client, auth(host), meetup.room.id).json()['messages']]
+    expected = list(ChatMessage.objects.filter(room=meetup.room).order_by('-id').values_list('id', flat=True)[:100])
+    assert ids == sorted(expected) and len(ids) == 100
 
 
 # --- 세미나 ---

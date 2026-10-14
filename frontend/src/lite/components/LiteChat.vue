@@ -56,26 +56,38 @@ const bottom = ref(null)
 let timer = null
 let polling = false
 let failing = false
+// after 기준은 폴링으로 받은 마지막 id만 쓴다. 내가 보낸 메시지로 앞당기면 그 사이 다른 사람의 메시지가 누락된다.
+let lastPolled = 0
+let halted = false
 
 const append = async (incoming) => {
   const known = new Set(messages.value.map((m) => m.id))
   const fresh = incoming.filter((m) => !known.has(m.id))
   if (!fresh.length) return false
-  messages.value = [...messages.value, ...fresh]
+  messages.value = [...messages.value, ...fresh].sort((a, b) => a.id - b.id)
   await nextTick()
   bottom.value?.scrollIntoView?.({ block: 'end' })
   return true
 }
 
+const stop = () => {
+  clearInterval(timer)
+  timer = null
+}
+
 const poll = async () => {
-  if (polling) return
+  if (polling || document.visibilityState === 'hidden') return
   polling = true
   try {
-    const last = messages.value.length ? messages.value[messages.value.length - 1].id : 0
-    const data = await liteApi.messages(props.roomId, last)
+    const data = await liteApi.messages(props.roomId, lastPolled)
     failing = false
+    lastPolled = data.messages.reduce((max, m) => Math.max(max, m.id), lastPolled)
     if (await append(data.messages)) emit('received')
   } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      halted = true
+      stop()
+    }
     // 폴링은 3초마다 반복되므로 실패가 이어져도 토스트는 한 번만 띄운다
     if (!failing) store.notify(error.message, 'error')
     failing = true
@@ -97,11 +109,30 @@ const send = async () => {
   poll()
 }
 
+const start = () => {
+  stop()
+  timer = setInterval(poll, POLL_MS)
+}
+
+// 탭이 숨겨지면 멈추고, 다시 보이면 즉시 한 번 가져온 뒤 재개한다
+const onVisibility = () => {
+  if (document.visibilityState === 'hidden') {
+    stop()
+  } else if (!halted) {
+    poll()
+    start()
+  }
+}
+
 onMounted(() => {
   poll()
-  timer = setInterval(poll, POLL_MS)
+  start()
+  document.addEventListener('visibilitychange', onVisibility)
 })
-onBeforeUnmount(() => clearInterval(timer))
+onBeforeUnmount(() => {
+  stop()
+  document.removeEventListener('visibilitychange', onVisibility)
+})
 
 defineExpose({ poll })
 </script>

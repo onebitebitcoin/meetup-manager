@@ -6,18 +6,17 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { takeHash } from '../format'
 import { useLiteStore } from '../store'
 
-const route = useRoute()
 const router = useRouter()
 const store = useLiteStore()
 
 onMounted(async () => {
-  store.setToken(route.params.token)
-  await store.init()
-  if (store.member) store.notify(`${store.member.name}님, 반가워요`)
-  else store.notify('복구 링크가 올바르지 않아요', 'error')
+  const token = takeHash()
+  if (!token) store.notify('복구 링크가 올바르지 않아요', 'error')
+  else if (await store.recover(token)) store.notify(`${store.member.name}님, 반가워요`)
   router.replace('/lite')
 })
 </script>

@@ -21,3 +21,10 @@ export const dateParts = (iso) => {
 export const toSeoulIso = (date, time) => dayjs.tz(`${date} ${time}`, TZ).toISOString()
 
 export const todaySeoul = () => dayjs().tz(TZ).format('YYYY-MM-DD')
+
+// location.hash 값을 읽고 즉시 주소에서 지운다(토큰과 운영자 키가 방문 기록에 남지 않게 한다)
+export const takeHash = () => {
+  const value = decodeURIComponent(window.location.hash.slice(1))
+  window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search)
+  return value
+}

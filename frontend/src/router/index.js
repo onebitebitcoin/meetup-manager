@@ -131,8 +131,8 @@ const routes = [
       { path: 'seminar/:id', name: 'LiteSeminarHost', component: () => import('@/lite/views/LiteSeminar.vue') },
       { path: 'new-request', name: 'LiteRequestNew', component: () => import('@/lite/views/LiteRequestNew.vue') },
       { path: 'new-meetup', name: 'LiteMeetupNew', component: () => import('@/lite/views/LiteMeetupNew.vue') },
-      { path: 'r/:token', name: 'LiteRecover', component: () => import('@/lite/views/LiteRecover.vue') },
-      { path: 'host/:key', name: 'LiteHostClaim', component: () => import('@/lite/views/LiteHostClaim.vue') },
+      { path: 'r', name: 'LiteRecover', component: () => import('@/lite/views/LiteRecover.vue') },
+      { path: 'host', name: 'LiteHostClaim', component: () => import('@/lite/views/LiteHostClaim.vue') },
     ],
   },
 ]

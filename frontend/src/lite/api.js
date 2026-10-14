@@ -18,9 +18,8 @@ export const writeToken = (token) => {
   }
 }
 
-export const request = async (path, { method = 'GET', body } = {}) => {
+export const request = async (path, { method = 'GET', body, token = readToken() } = {}) => {
   const headers = { 'Content-Type': 'application/json' }
-  const token = readToken()
   if (token) headers['X-Member-Token'] = token
 
   let response
@@ -51,7 +50,7 @@ export const request = async (path, { method = 'GET', body } = {}) => {
 
 export const liteApi = {
   createMember: (name) => request('members/', { method: 'POST', body: { name } }),
-  me: () => request('me/'),
+  me: (token) => request('me/', token ? { token } : {}),
   claimHost: (key) => request('host/claim/', { method: 'POST', body: { key } }),
   home: () => request('home/'),
   createMeetup: (payload) => request('meetups/', { method: 'POST', body: payload }),

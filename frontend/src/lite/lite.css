@@ -137,3 +137,4 @@ button.l-chip { min-height: 32px; padding-inline: 12px; }
 .l-toast.error { background: var(--lite-no-text); color: var(--lite-bg); }
 .l-state { padding: 24px; text-align: center; color: var(--lite-muted); font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .l-btn, .l-card { transition: none; } }
+.l-cardbtn { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }

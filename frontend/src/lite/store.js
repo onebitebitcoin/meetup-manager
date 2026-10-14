@@ -68,10 +68,19 @@ export const useLiteStore = defineStore('lite', () => {
     return true
   }
 
+  // 새 토큰으로 me/가 성공한 뒤에만 저장한다. 실패하면 기존 토큰과 회원 정보를 유지한다.
+  const recover = async (newToken) => {
+    const data = await act(() => liteApi.me(newToken))
+    if (!data) return false
+    setToken(newToken)
+    member.value = data.member
+    return true
+  }
+
   const logout = () => {
     setToken(null)
     member.value = null
   }
 
-  return { token, member, ready, toast, hasToken, isHost, setToken, notify, act, init, register, claimHost, logout }
+  return { token, member, ready, toast, hasToken, isHost, setToken, notify, act, init, register, claimHost, recover, logout }
 })

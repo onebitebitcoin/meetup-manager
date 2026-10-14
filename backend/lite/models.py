@@ -120,6 +120,7 @@ class ChatMessage(models.Model):
 
     class Meta:
         ordering = ['id']
+        indexes = [models.Index(fields=['room', 'id'])]
 
 
 class RequestVote(models.Model):

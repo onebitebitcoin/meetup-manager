@@ -25,11 +25,11 @@ def test_create_member_duplicate(api_client, member):
 
 
 def test_create_member_throttled(api_client, db):
-    for i in range(10):
+    for i in range(60):
         assert api_client.post('/api/lite/members/', {'name': f'u{i}'}, format='json').status_code == 201
     r = api_client.post('/api/lite/members/', {'name': 'extra'}, format='json')
     assert r.status_code == 429
-    assert 'error' in r.json()
+    assert r.json() == {'error': '잠시 후 다시 시도해 주세요'}
 
 
 def test_host_claim_success(api_client, member, auth, settings):

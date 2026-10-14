@@ -14,6 +14,9 @@ ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', 'meet.
 # SITE_URL: env-var 우선, 기본값은 운영 도메인
 SITE_URL = os.environ.get('SITE_URL', 'https://meet.onebitebitcoin.com')
 
+# Nginx 1단 뒤에서 X-Forwarded-For의 마지막 항목을 클라이언트 IP로 신뢰한다(요청 횟수 제한 우회 방지)
+REST_FRAMEWORK = {**REST_FRAMEWORK, 'NUM_PROXIES': 1}  # noqa: F405
+
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True

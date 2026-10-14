@@ -4,7 +4,7 @@ import pytest
 from django.core.cache import cache
 from django.utils import timezone
 
-from lite.models import ChatRoom, Meetup, Member
+from lite.models import Meetup, Member
 
 
 @pytest.fixture(autouse=True)
@@ -42,10 +42,8 @@ def auth(api_client):
 @pytest.fixture
 def make_meetup(db):
     def _make(title='독서 모임', days=1, capacity=10, **kwargs):
-        meetup = Meetup.objects.create(
+        return Meetup.objects.create(
             title=title, starts_at=timezone.now() + timedelta(days=days),
             location='강남', capacity=capacity, **kwargs,
         )
-        ChatRoom.objects.create(kind=ChatRoom.Kind.MEETUP, meetup=meetup)
-        return meetup
     return _make

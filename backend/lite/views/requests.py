@@ -5,14 +5,17 @@ from django.db import transaction
 from meetups.views.helpers import APIResponse
 
 from ..models import LiteConfig, MeetupRequest, RequestVote
-from ..serializers import request_card
+from ..serializers import request_card, voted_request_ids
 from ..services import requests_with_votes
+from ..throttles import RequestCreateThrottle
 from .base import ApiError, LiteView, clean_text, get_or_404
 
 logger = logging.getLogger(__name__)
 
 
 class RequestListView(LiteView):
+    throttle_classes = [RequestCreateThrottle]
+
     def get(self, request):
         member = self.member
         threshold = LiteConfig.get().vote_threshold
@@ -20,7 +23,8 @@ class RequestListView(LiteView):
             requests_with_votes(),
             key=lambda r: (r.status != MeetupRequest.Status.OPEN, -r.vote_count, -r.id),
         )
-        return APIResponse.success({'requests': [request_card(r, member, threshold) for r in reqs]})
+        voted_ids = voted_request_ids(member)
+        return APIResponse.success({'requests': [request_card(r, voted_ids, threshold) for r in reqs]})
 
     def post(self, request):
         member = self.member
@@ -33,7 +37,7 @@ class RequestListView(LiteView):
             req = MeetupRequest.objects.create(title=title, preferred_period=period, created_by=member)
             RequestVote.objects.create(request=req, member=member)
         logger.info('LITE 모임 요청 생성: id=%s', req.id)
-        card = request_card(requests_with_votes().get(pk=req.pk), member, LiteConfig.get().vote_threshold)
+        card = request_card(requests_with_votes().get(pk=req.pk), {req.pk}, LiteConfig.get().vote_threshold)
         return APIResponse.created({'request': card})
 
 
@@ -47,5 +51,6 @@ class RequestVoteView(LiteView):
             deleted, _ = RequestVote.objects.filter(request=req, member=member).delete()
             if not deleted:
                 RequestVote.objects.create(request=req, member=member)
-        card = request_card(requests_with_votes().get(pk=req.pk), member, LiteConfig.get().vote_threshold)
+        voted_ids = set() if deleted else {req.pk}
+        card = request_card(requests_with_votes().get(pk=req.pk), voted_ids, LiteConfig.get().vote_threshold)
         return APIResponse.success({'request': card})

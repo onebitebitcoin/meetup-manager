@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
-from lite.models import ChatRoom
 from lite.models import Meetup as LiteMeetup
 from meetups.models import Meetup as LegacyMeetup
 
@@ -26,7 +25,7 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
             with transaction.atomic():
-                meetup = LiteMeetup.objects.create(
+                LiteMeetup.objects.create(
                     title=old.name[:80],
                     description=old.description or '',
                     starts_at=old.date_time,
@@ -34,6 +33,5 @@ class Command(BaseCommand):
                     capacity=max(old.max_participants, 1),
                     legacy_meetup_id=old.id,
                 )
-                ChatRoom.objects.create(kind=ChatRoom.Kind.MEETUP, meetup=meetup)
             created += 1
         self.stdout.write(self.style.SUCCESS(f'가져온 모임 {created}개, 건너뜀 {skipped}개'))

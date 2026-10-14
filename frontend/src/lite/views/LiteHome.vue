@@ -31,6 +31,12 @@
         >
           {{ error }}
         </p>
+        <p
+          v-if="loaded && !home.meetups.length"
+          class="l-state"
+        >
+          예정된 모임이 없어요
+        </p>
         <LiteMeetupCard
           v-for="meetup in home.meetups"
           :key="meetup.id"
@@ -77,6 +83,7 @@ const router = useRouter()
 const store = useLiteStore()
 const home = ref({ meetups: [], my_seminar: null, seminars: [], ready_request_count: 0 })
 const error = ref('')
+const loaded = ref(false)
 
 const tab = computed(() => (route.query.tab === 'requests' ? 'requests' : 'meetups'))
 const SEMINAR_ORDER = { received: 0, guide: 1, confirmed: 2 }
@@ -89,6 +96,7 @@ const load = async () => {
   try {
     home.value = await liteApi.home()
     error.value = ''
+    loaded.value = true
   } catch (e) {
     error.value = e.message
     store.notify(e.message, 'error')

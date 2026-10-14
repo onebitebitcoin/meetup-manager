@@ -196,6 +196,14 @@ REST_FRAMEWORK = {
     ],
 }
 
+# LITE 요청 횟수 제한 카운터를 gunicorn 워커 간에 공유하기 위해 파일 기반 캐시를 사용한다
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.environ.get('DJANGO_CACHE_DIR', '/tmp/meetup_django_cache'),
+    }
+}
+
 # Disable CSRF for development
 CSRF_COOKIE_SECURE = False
 CSRF_USE_SESSIONS = False

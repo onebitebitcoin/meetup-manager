@@ -1,6 +1,16 @@
 """LITE 응답 객체 직렬화 함수. 계약은 SPEC.md 11.4 공통 객체를 따른다."""
-from .models import ChatMessage, RequestVote, Rsvp
+from django.core.exceptions import ObjectDoesNotExist
+
+from .models import RequestVote, Rsvp
 from .services import is_today
+
+
+def room_id_of(obj):
+    """Meetup/SeminarRequest의 채팅방 id. 방이 없으면 500 대신 None을 돌려준다."""
+    try:
+        return obj.room.id
+    except ObjectDoesNotExist:
+        return None
 
 
 def member_brief(member):
@@ -24,7 +34,7 @@ def meetup_card(meetup, my_status=None):
         'my_status': my_status,
         'from_request': meetup.from_request_id is not None,
         'is_today': is_today(meetup.starts_at),
-        'room_id': meetup.room.id,
+        'room_id': room_id_of(meetup),
     }
 
 
@@ -45,26 +55,30 @@ def message_obj(message):
 
 
 def seminar_card(seminar):
-    last = ChatMessage.objects.filter(room=seminar.room).order_by('-id').values_list('body', flat=True).first()
+    """seminar는 services.seminars_with_last_message()로 조회한 객체(last_message annotate 필요)."""
     return {
         'id': seminar.id,
         'member': member_brief(seminar.member),
         'mode': seminar.mode,
         'status': seminar.status,
-        'room_id': seminar.room.id,
-        'last_message': last,
+        'room_id': room_id_of(seminar),
+        'last_message': seminar.last_message,
     }
 
 
-def request_card(req, member, threshold):
-    """req는 requests_with_votes()로 조회한 객체(vote_count annotate 필요)."""
+def voted_request_ids(member):
+    return set(RequestVote.objects.filter(member=member).values_list('request_id', flat=True))
+
+
+def request_card(req, voted_ids, threshold):
+    """req는 requests_with_votes()로 조회한 객체(vote_count annotate 필요), voted_ids는 내가 투표한 요청 id 집합."""
     return {
         'id': req.id,
         'title': req.title,
         'preferred_period': req.preferred_period,
         'created_by': member_brief(req.created_by),
         'vote_count': req.vote_count,
-        'voted': RequestVote.objects.filter(request=req, member=member).exists(),
+        'voted': req.id in voted_ids,
         'status': req.status,
         'meetup_id': req.meetup_id,
         'threshold': threshold,

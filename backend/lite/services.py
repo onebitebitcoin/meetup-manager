@@ -2,10 +2,10 @@
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
-from django.db.models import Count, Q
+from django.db.models import Count, OuterRef, Q, Subquery
 from django.utils import timezone
 
-from .models import ChatMessage, Meetup, MeetupRequest, Rsvp
+from .models import ChatMessage, Meetup, MeetupRequest, Rsvp, SeminarRequest
 
 KST = ZoneInfo('Asia/Seoul')
 
@@ -35,3 +35,8 @@ def meetups_with_counts():
 
 def requests_with_votes():
     return MeetupRequest.objects.select_related('created_by').annotate(vote_count=Count('votes'))
+
+
+def seminars_with_last_message():
+    last_body = ChatMessage.objects.filter(room__seminar=OuterRef('pk')).order_by('-id').values('body')[:1]
+    return SeminarRequest.objects.select_related('member', 'room').annotate(last_message=Subquery(last_body))
