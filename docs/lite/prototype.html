@@ -1,0 +1,622 @@
+<title>밋업 라이트 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gothic+A1:wght@400;600;800&display=swap">
+<script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+<style>
+/* Layout: 왼쪽에 고정된 폰 프로토타입, 오른쪽에 프로세스 문서. 좁은 화면에서는 위아래로 쌓인다. 테마: 쿠키 테이블 */
+:root{
+  --bg:#FFF8EC; --surface:#FFFFFF; --sunk:#F6E3BF; --ink:#2B1A17; --muted:#7A5D52; --hair:#EAD9BE;
+  --line:#2B1A17; --shadow:#2B1A17;
+  --accent:#F5C431; --accent-ink:#2B1A17; --accent-soft:#FCE9A6; --accent-text:#7A5A00;
+  --going:#2FBF8A; --going-soft:#D3F5E7; --going-text:#11704D;
+  --maybe-soft:#FCE9A6; --maybe-text:#7A5A00;
+  --no-soft:#FBE0E0; --no-text:#A3333A;
+  --plum:#8E3A59; --plum-soft:#F3DCE5;
+  --display:"Do Hyeon","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1C1311; --surface:#281B18; --sunk:#35241F; --ink:#FFF1DC; --muted:#C2A898; --hair:#3F2B25;
+  --line:#6B4A3E; --shadow:#000000;
+  --accent-soft:#3A2F10; --accent-text:#F5C431;
+  --going:#3DDBA0; --going-soft:#173B2E; --going-text:#7BE8BF;
+  --maybe-soft:#3A2F10; --maybe-text:#F5C431; --no-soft:#3D1F20; --no-text:#F49A9E;
+  --plum:#D27A9B; --plum-soft:#3A1E29; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1C1311; --surface:#281B18; --sunk:#35241F; --ink:#FFF1DC; --muted:#C2A898; --hair:#3F2B25;
+  --line:#6B4A3E; --shadow:#000000;
+  --accent-soft:#3A2F10; --accent-text:#F5C431;
+  --going:#3DDBA0; --going-soft:#173B2E; --going-text:#7BE8BF;
+  --maybe-soft:#3A2F10; --maybe-text:#F5C431; --no-soft:#3D1F20; --no-text:#F49A9E;
+  --plum:#D27A9B; --plum-soft:#3A1E29; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:32px 64px;display:grid;grid-template-columns:400px minmax(0,1fr);gap:48px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:40px;padding-block:20px 48px}}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;line-height:1.25;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+svg.lucide{width:18px;height:18px;stroke-width:2.2;flex:none}
+
+/* ---------- 프로토타입 ---------- */
+.proto{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);display:flex;flex-direction:column;gap:12px}
+@media (max-width:900px){.proto{position:static}}
+.proto-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--sunk);border-radius:999px;padding:3px;border:2px solid var(--line)}
+.seg button{border:0;background:transparent;padding:4px 12px;border-radius:999px;font-size:13px;cursor:pointer;color:var(--muted);font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.ghost{border:0;background:none;color:var(--muted);font-size:13px;display:inline-flex;gap:4px;align-items:center;cursor:pointer;padding:5px 6px;font-weight:600}
+.ghost:hover{color:var(--ink)}
+.ex-note{font-size:12px;color:var(--muted);margin-left:auto}
+
+.phone{width:100%;max-width:400px;height:740px;background:var(--bg);border:3px solid var(--line);border-radius:32px;overflow:hidden;display:flex;flex-direction:column;position:relative;box-shadow:6px 6px 0 var(--shadow)}
+@media (max-width:900px){.phone{height:680px;max-width:100%}}
+.scr{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:8px;padding:13px 16px;border-bottom:2px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:2}
+.top h2{font-size:20px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{border:0;background:none;padding:6px;margin:-6px;border-radius:8px;display:inline-flex;cursor:pointer;color:var(--ink)}
+.me{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);font-weight:600}
+.av{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);border:2px solid var(--line);display:inline-grid;place-items:center;font-size:12px;font-weight:800;flex:none}
+.av.bot{background:var(--plum-soft);color:var(--plum)}
+.av.bot svg.lucide{width:15px;height:15px}
+.body{padding:14px;display:flex;flex-direction:column;gap:12px}
+.nav{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--line);background:var(--surface)}
+.nav button{border:0;background:none;padding:9px 0 11px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:13px;color:var(--muted);cursor:pointer;position:relative;font-family:var(--display)}
+.nav button[aria-current="page"]{color:var(--ink)}
+.nav button[aria-current="page"] svg.lucide{color:var(--ink);fill:var(--accent)}
+.dot{position:absolute;top:6px;left:calc(50% + 8px);min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:var(--accent-ink);border:2px solid var(--line);font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px;font-family:var(--font)}
+
+.mcard{border:2px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;cursor:pointer;background:var(--surface)}
+.mcard:hover{box-shadow:3px 3px 0 var(--shadow);transform:translate(-1px,-1px)}
+.mcard.pinned{background:var(--plum-soft);border-style:solid}
+.mrow{display:flex;gap:12px;align-items:flex-start}
+.date{width:50px;flex:none;text-align:center;border-radius:14px;background:var(--sunk);padding:6px 0 4px;line-height:1.1;font-family:var(--display)}
+.date b{display:block;font-size:24px;font-weight:400}
+.date span{font-size:12px;color:var(--muted)}
+.date.today{background:var(--accent);color:var(--accent-ink)}
+.date.today span{color:inherit}
+.date.always{background:var(--surface);border:2px solid var(--line);color:var(--plum);display:grid;place-items:center;height:58px}
+.date.always svg.lucide{width:24px;height:24px}
+.mtitle{font-family:var(--display);font-size:19px;line-height:1.3}
+.sub{font-size:12.5px;color:var(--muted);display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.sub svg.lucide{width:14px;height:14px}
+.grow{flex:1;min-width:0}
+.chip{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;font-weight:800;padding:1px 8px;border-radius:999px;white-space:nowrap;border:1.5px solid currentColor}
+.chip svg.lucide{width:12px;height:12px;stroke-width:3}
+.c-going{background:var(--going-soft);color:var(--going-text)}
+.c-maybe{background:var(--maybe-soft);color:var(--maybe-text)}
+.c-no{background:var(--no-soft);color:var(--no-text)}
+.c-none{background:var(--sunk);color:var(--muted);border-color:transparent}
+.c-plum{background:var(--surface);color:var(--plum)}
+.counts{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.rsvp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.rsvp button{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 0;display:flex;align-items:center;justify-content:center;gap:4px;font-family:var(--display);font-size:17px;cursor:pointer;min-height:44px}
+.rsvp.sm button{min-height:38px;font-size:15px;padding:5px 0}
+.rsvp button svg.lucide{stroke-width:3}
+.rsvp button[aria-pressed="true"]{box-shadow:2px 2px 0 var(--shadow)}
+.rsvp button[data-v="going"][aria-pressed="true"]{background:var(--going);color:#0B2B1F}
+.rsvp button[data-v="maybe"][aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.rsvp button[data-v="no"][aria-pressed="true"]{background:var(--no-soft);color:var(--no-text)}
+
+.h-sec{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.04em;margin-top:6px}
+.info{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.info div{display:flex;gap:8px;align-items:center}
+.info svg.lucide{color:var(--muted)}
+.btn{border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-family:var(--display);font-size:18px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;min-height:46px;box-shadow:3px 3px 0 var(--shadow);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--shadow)}
+.btn-p{background:var(--accent);color:var(--accent-ink)}
+.btn-s{background:var(--surface);color:var(--ink)}
+.btn-row{display:flex;gap:8px}
+.btn-row .btn{flex:1;min-height:42px;font-size:17px}
+.panel{background:var(--sunk);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.panel-h{display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px}
+.code{font-family:var(--display);font-size:42px;letter-spacing:.25em;text-align:center}
+.pin{display:flex;gap:8px}
+.pin input{flex:1;min-width:0;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;font-family:var(--display);font-size:22px;letter-spacing:.3em;text-align:center}
+.people{display:flex;flex-direction:column}
+.person{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1.5px dashed var(--hair);font-size:14px}
+.person:last-child{border-bottom:0}
+.chat-link{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:16px;padding:10px 12px;cursor:pointer;background:var(--surface);text-align:left;width:100%}
+.chat-link .grow{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-link b{display:block;color:var(--ink);font-family:var(--display);font-weight:400;font-size:17px}
+
+.msgs{flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.msg{display:flex;gap:8px;max-width:86%}
+.msg .bub{background:var(--surface);border:2px solid var(--line);border-radius:4px 14px 14px 14px;padding:6px 11px;font-size:14px;overflow-wrap:anywhere;white-space:pre-line}
+.msg .who{font-size:11px;color:var(--muted);margin-bottom:2px;font-weight:600}
+.msg.mine{align-self:flex-end;flex-direction:row-reverse}
+.msg.mine .bub{background:var(--accent);color:var(--accent-ink);border-radius:14px 4px 14px 14px}
+.msg.bot .bub{background:var(--plum-soft)}
+.choices{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.choice{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 14px;display:inline-flex;gap:5px;align-items:center;font-family:var(--display);font-size:16px;cursor:pointer;box-shadow:2px 2px 0 var(--shadow)}
+.choice:active{transform:translate(2px,2px);box-shadow:none}
+.sys{align-self:center;font-size:12px;color:var(--muted);background:var(--sunk);padding:2px 10px;border-radius:999px;text-align:center}
+.composer{display:flex;gap:8px;padding:10px 12px;border-top:2px solid var(--line);background:var(--surface)}
+.composer input{flex:1;min-width:0;border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px}
+.composer button{border:2px solid var(--line);background:var(--accent);color:var(--accent-ink);border-radius:50%;width:42px;height:42px;display:grid;place-items:center;cursor:pointer;flex:none}
+.hostbar{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:2px solid var(--line);background:var(--sunk);font-size:13px}
+.hostbar .btn{min-height:34px;font-size:15px;padding:4px 12px;margin-left:auto;box-shadow:2px 2px 0 var(--shadow)}
+.locked{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;color:var(--muted);font-size:14px}
+
+.rcard{border:2px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.rdesc{font-size:13px;color:var(--muted)}
+.cookies{display:flex;gap:4px;align-items:center}
+.cookies svg{width:24px;height:24px}
+.vote{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;display:inline-flex;align-items:center;gap:5px;font-family:var(--display);font-size:15px;cursor:pointer;min-height:36px}
+.vote[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.vote.primary{background:var(--accent);color:var(--accent-ink);box-shadow:2px 2px 0 var(--shadow)}
+.rfoot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hint{font-size:12.5px;color:var(--muted)}
+.lead{font-size:13px;color:var(--muted);margin:0}
+
+.field{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:800}
+.field input,.field select{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 12px;font-weight:400;font-size:15px;width:100%}
+.field small{font-weight:400;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.thread{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:16px;padding:10px 12px;background:var(--surface);cursor:pointer;text-align:left;width:100%}
+.thread .grow{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thread b{display:block;font-family:var(--display);font-weight:400;font-size:17px;color:var(--ink)}
+
+.onb{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:28px 24px}
+.onb h2{font-size:28px}
+.logo{width:56px;height:56px;border-radius:50%;background:var(--accent);border:3px solid var(--line);display:grid;place-items:center;box-shadow:3px 3px 0 var(--shadow)}
+.logo svg{width:34px;height:34px}
+
+
+.big-input{border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;font-family:var(--display);font-size:22px;width:100%}
+.field-in{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 12px;font-size:15px;width:100%;min-width:0}
+.inline-num{display:flex;align-items:center;gap:8px;font-weight:800}
+.inline-num .field-in{width:90px}
+.seg.wide{display:grid;grid-template-columns:repeat(3,1fr);border-radius:14px}
+.seg.wide label{display:block;cursor:pointer}
+.seg.wide input{position:absolute;opacity:0;pointer-events:none}
+.seg.wide span{display:block;text-align:center;padding:7px 0;border-radius:11px;font-weight:700;font-size:14px;color:var(--muted)}
+.seg.wide input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.seg.wide input:focus-visible+span{outline:3px solid var(--accent);outline-offset:1px}
+.hostbar.strong{background:var(--accent-soft)}
+.hostbar .grow{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.code-sm{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.2em}
+.pin-sm{flex:1;min-width:0;border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 10px;font-family:var(--display);font-size:18px;letter-spacing:.15em}
+.counts{display:inline-flex;align-items:center;gap:3px}
+.counts svg.lucide{width:13px;height:13px}
+.rcard.done{cursor:pointer;background:var(--sunk);border-style:dashed}
+.rcard.done .mrow{align-items:center}
+.locked .btn-row{width:100%}
+.toast{position:absolute;left:16px;right:16px;bottom:76px;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;font-size:14px;display:flex;gap:8px;align-items:center;z-index:5;animation:up .2s ease}
+@keyframes up{from{transform:translateY(8px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}.btn{transition:none}}
+
+/* ---------- 문서 ---------- */
+.doc{display:flex;flex-direction:column;gap:44px;min-width:0}
+.doc header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--plum)}
+.doc h1{font-size:clamp(30px,4.4vw,40px)}
+.doc h2{font-size:24px;margin-bottom:14px}
+.doc p{margin:0;max-width:62ch}
+.muted{color:var(--muted)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.cmp{grid-template-columns:1fr}}
+.cmp > div{border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;border:2px solid var(--line)}
+.cmp .before{background:var(--surface)}
+.cmp .after{background:var(--accent-soft)}
+.cmp h3{font-size:19px;display:flex;align-items:center;gap:6px}
+.cmp ol{margin:0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:3px}
+.cmp .tally{font-family:var(--display);font-size:17px;color:var(--muted)}
+.after .tally{color:var(--ink)}
+.flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.flow li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:14px;padding-bottom:18px;position:relative}
+.flow li:not(:last-child)::before{content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;background:var(--line)}
+.flow .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--display);font-size:18px}
+.flow b{display:block;font-size:15px}
+.flow span{font-size:14px;color:var(--muted)}
+.states{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 18px}
+.states svg.lucide{color:var(--muted);width:16px;height:16px}
+.callout{border:2px solid var(--line);border-radius:16px;background:var(--plum-soft);padding:14px 16px;display:flex;gap:10px;font-size:14px;margin-bottom:18px}
+.callout svg.lucide{color:var(--plum);margin-top:2px}
+.tbl{overflow-x:auto;border:2px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1.5px solid var(--hair);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:800;background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td code,p code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:var(--sunk);padding:1px 5px;border-radius:5px}
+.qs{display:flex;flex-direction:column;gap:10px}
+.q{border:2px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;background:var(--surface)}
+.q b{font-size:15px}
+.q span{font-size:14px;color:var(--muted)}
+.q em{font-style:normal;font-size:13px;color:var(--plum);font-weight:800}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="cookie" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="#E2A55A" stroke="var(--line)" stroke-width="3"/><circle cx="15" cy="20" r="2.6" fill="#2B1A17"/><circle cx="22" cy="34" r="2.6" fill="#2B1A17"/><circle cx="32" cy="28" r="2.6" fill="#2B1A17"/><circle cx="13" cy="31" r="2" fill="#2B1A17"/><circle cx="27" cy="16" r="2" fill="#2B1A17"/></symbol>
+  <symbol id="cookie-empty" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" fill="none" stroke="var(--hair)" stroke-width="3" stroke-dasharray="5 4"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <section class="proto" aria-label="프로토타입">
+    <div class="proto-bar">
+      <div class="seg" role="group" aria-label="보기 역할">
+        <button id="role-member" data-act="role" data-v="member" aria-pressed="true">참가자</button>
+        <button id="role-host" data-act="role" data-v="host" aria-pressed="false">운영자</button>
+      </div>
+      <button class="ghost" id="reset" data-act="reset"><i data-lucide="rotate-ccw"></i>처음부터</button>
+      <span class="ex-note">예시 데이터 · 직접 눌러보세요</span>
+    </div>
+    <div class="phone" id="phone"></div>
+  </section>
+
+  <article class="doc">
+    <header>
+      <span class="eyebrow">한입 모임 LITE · 시안 v0.4</span>
+      <h1>신청은 탭 한 번, 모임은 요청에서 시작</h1>
+      <p class="muted">원칙은 두 가지입니다. 글자는 최소로 줄이고, 화면 깊이는 1단계(목록 → 채팅방)로 맞춥니다. 모임 정보, 응답 변경, 도착 확인은 모두 채팅방 위쪽 줄에서 처리합니다.</p>
+    </header>
+
+    <section>
+      <h2>참석 신청 과정 비교</h2>
+      <div class="cmp">
+        <div class="before">
+          <h3><i data-lucide="clock"></i>지금</h3>
+          <ol>
+            <li>회원가입 (이메일, 비밀번호)</li>
+            <li>로그인</li>
+            <li>대시보드에서 모임 찾기</li>
+            <li>상세 페이지 진입</li>
+            <li>참가 신청, 정원이 차면 대기열</li>
+          </ol>
+          <span class="tally">입력 4개 · 화면 5개 이상</span>
+        </div>
+        <div class="after">
+          <h3><i data-lucide="sparkles"></i>바뀌는 방식</h3>
+          <ol>
+            <li>공유받은 링크로 접속</li>
+            <li>처음 한 번만 이름 입력</li>
+            <li>목록에서 "신청하기" 탭, 바로 채팅방 입장</li>
+          </ol>
+          <span class="tally">로그인 없음 · 입력 1개 · 화면 1개</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>참석 응답과 도착 확인 흐름</h2>
+      <ol class="flow">
+        <li><span class="n">1</span><div><b>링크로 들어와 이름만 입력</b><span>로그인 과정이 없습니다. 서버가 기기 토큰을 발급해 브라우저에 저장하므로, 다음 접속부터는 바로 목록이 열립니다. 이미 쓰고 있는 이름은 새로 만들 수 없습니다. 기기를 바꿀 때는 설정 화면의 "내 링크"를 새 기기에서 열면 같은 사람으로 이어집니다.</span></div></li>
+        <li><span class="n">2</span><div><b>목록에서 "신청하기"를 누르면 바로 채팅방으로</b><span>아직 응답하지 않은 모임 카드에는 "신청하기"와 "못 가요" 두 버튼만 보입니다. "신청하기"를 누르면 참석으로 기록되고 곧바로 그 모임의 채팅방이 열리며, 환영 안내 메시지가 나옵니다. 1:1 세미나와 같은 방식이라 모든 신청이 채팅방에서 이어집니다.</span></div></li>
+        <li><span class="n">3</span><div><b>응답 변경은 채팅방 위쪽에서</b><span>채팅방 위쪽 줄의 상태 버튼을 누르면 그 자리에서 참석·미정·불참 버튼이 펼쳐집니다. 별도 상세 화면은 없습니다. 참석이나 미정이 아닌 사람에게는 메시지 대신 "신청하기" 버튼만 보입니다.</span></div></li>
+        <li><span class="n">4</span><div><b>당일 도착 확인도 채팅방 위쪽에서</b><span>모임 당일에는 채팅방 위쪽에 도착 코드 입력 칸이 생깁니다. 운영자에게는 같은 자리에 코드와 도착 인원이 보입니다.</span></div></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>1:1 세미나 (상시 모임)</h2>
+      <div class="callout"><i data-lucide="eye-off"></i><span>목록 카드와 공유 미리보기에는 가격을 표시하지 않습니다. 비용은 사용자가 직접 1:1 채팅방에 들어왔을 때 첫 안내 메시지에서만 알려 줍니다.</span></div>
+      <div class="states">
+        <span class="chip c-none">안내 중</span><i data-lucide="arrow-right"></i>
+        <span class="chip c-maybe">접수됨</span><i data-lucide="arrow-right"></i>
+        <span class="chip c-going">일정 확정</span>
+      </div>
+      <ol class="flow">
+        <li><span class="n">1</span><div><b>목록 맨 위에 항상 고정</b><span>날짜와 정원이 없는 상시 항목입니다. "원하는 주제로 1:1로 배워요" 정도의 소개만 보입니다.</span></div></li>
+        <li><span class="n">2</span><div><b>들어오면 1:1 채팅방과 안내 메시지</b><span>신청자와 운영자만 보는 채팅방이 자동으로 열립니다. 안내 메시지가 비용(시간당 50,000원)을 알려 주고, 온라인과 오프라인 중 하나를 고르는 버튼을 보여 줍니다.</span></div></li>
+        <li><span class="n">3</span><div><b>주제와 희망 일정 입력</b><span>진행 방식을 고르면 안내 메시지가 주제와 희망 일정을 묻습니다. 답을 보내면 요청이 "접수됨"으로 바뀌고 운영자에게 알림이 갑니다.</span></div></li>
+        <li><span class="n">4</span><div><b>운영자가 채팅으로 조율하고 확정</b><span>운영자 목록 맨 위에 1:1 대화가 사람별 카드로 바로 보입니다. 대화를 열어 일정을 조율하고 "확정"을 누릅니다.</span></div></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>"이런 모임 열어주세요" 요청 흐름</h2>
+      <div class="states">
+        <span class="chip c-none">모으는 중</span><i data-lucide="arrow-right"></i>
+        <span class="chip c-maybe">개설 가능 (5명 이상)</span><i data-lucide="arrow-right"></i>
+        <span class="chip c-going">개설됨</span>
+      </div>
+      <ol class="flow">
+        <li><span class="n">1</span><div><b>누구나 요청 작성</b><span>주제, 한 줄 설명, 원하는 시기만 적습니다. 작성자는 자동으로 첫 번째 "나도 원해요"로 집계됩니다.</span></div></li>
+        <li><span class="n">2</span><div><b>"나도 원해요" 5명이면 개설 가능</b><span>공감 수는 쿠키 5개로 표시됩니다. 5명이 모이면 운영자에게 알림이 갑니다.</span></div></li>
+        <li><span class="n">3</span><div><b>운영자가 요청을 모임으로 전환</b><span>"모임 열기"를 누르면 제목이 채워진 개설 화면이 열리고, 날짜와 장소만 정하면 됩니다.</span></div></li>
+        <li><span class="n">4</span><div><b>요청자에게 자동 안내</b><span>개설과 동시에 채팅방이 생기고, 새 모임은 "요청한 모임" 표시와 함께 목록에 나타납니다.</span></div></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>데이터 모델 초안</h2>
+      <p class="muted" style="margin-bottom:12px">기존 테이블은 건드리지 않고, 같은 프로젝트에 새 <code>lite</code> 앱을 만들어 아래 테이블을 새로 추가합니다. 기존 회원과 기록은 이어 가지 않고 새로 시작합니다.</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>모델</th><th>주요 필드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>Member</td><td><code>name</code>(unique), <code>device_token</code>, <code>is_host</code></td><td>로그인 정보 없이 이름과 기기 토큰만 가집니다.</td></tr>
+            <tr><td>Meetup</td><td><code>title</code>, <code>starts_at</code>, <code>location</code>, <code>capacity</code>, <code>checkin_code</code>, <code>from_request</code></td><td>일반 모임입니다.</td></tr>
+            <tr><td>Rsvp</td><td><code>member</code>, <code>meetup</code>, <code>status</code>(going/maybe/no), <code>checked_in_at</code></td><td>참석 응답과 도착 기록입니다.</td></tr>
+            <tr><td>ChatRoom</td><td><code>kind</code>(meetup/seminar), <code>meetup</code>, <code>seminar</code></td><td>모임 채팅방과 1:1 채팅방을 같은 구조로 다룹니다.</td></tr>
+            <tr><td>ChatMessage</td><td><code>room</code>, <code>member</code>, <code>kind</code>(user/system/guide), <code>body</code></td><td>guide는 1:1 세미나 안내 메시지입니다.</td></tr>
+            <tr><td>SeminarRequest</td><td><code>member</code>, <code>mode</code>(online/offline), <code>topic</code>, <code>status</code></td><td>1:1 세미나 요청입니다. 안내 문구와 시간당 비용은 운영자 설정 값으로 둡니다.</td></tr>
+            <tr><td>MeetupRequest</td><td><code>title</code>, <code>description</code>, <code>preferred_period</code>, <code>status</code>, <code>meetup</code></td><td>"이런 모임 열어주세요" 요청입니다.</td></tr>
+            <tr><td>RequestVote</td><td><code>request</code>, <code>member</code> (unique 조합)</td><td>"나도 원해요" 기록입니다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>정해야 할 것</h2>
+      <div class="qs">
+        <div class="q"><b>1:1 세미나 결제 방식</b><span>일정이 확정된 뒤 어떻게 비용을 받을지 정해야 합니다. 채팅으로 계좌나 라이트닝 주소를 안내하는 방법과, 기존 앱의 라이트닝 결제 링크 기능을 옮겨 오는 방법이 있습니다.</span><em>제안: 첫 버전은 운영자가 채팅으로 안내</em></div>
+        <div class="q"><b>1:1 세미나 최소 시간</b><span>안내 메시지에서 1시간 단위로만 받을지, 30분 단위도 받을지 정해야 합니다.</span><em>제안: 1시간 단위</em></div>
+        <div class="q"><b>정원과 대기열</b><span>정원이 찬 뒤 "참석"을 누르는 경우의 처리 방식입니다.</span><em>제안: 정원 초과 시 "미정"으로만 응답 가능, 자리가 나면 채팅방에 안내</em></div>
+        <div class="q"><b>채팅 실시간 방식</b><span>지금 서버 구성(gunicorn 동기 워커)에서는 몇 초마다 새 메시지를 확인하는 폴링 방식이 가장 단순합니다.</span><em>제안: 첫 버전은 3초 폴링</em></div>
+      </div>
+    </section>
+  </article>
+</div>
+
+<script>
+(function(){
+  const THRESHOLD=5;
+  const TODAY="2026-10-14";
+  const WD=["일","월","화","수","목","금","토"];
+  const LABEL={going:"참석",maybe:"미정",no:"불참"};
+  const ICON={going:"check",maybe:"help-circle",no:"x"};
+  const SEM_STATUS={guide:["안내 중","c-none"],received:["접수됨","c-maybe"],confirmed:["확정","c-going"]};
+  const MODE={online:"온라인",offline:"오프라인"};
+  const GUIDE_1="원하는 주제로 운영자와 1:1로 진행해요.";
+  const GUIDE_2="시간당 50,000원이에요.\n진행 방식을 골라 주세요.";
+  const GUIDE_3="주제와 희망 날짜·시간을 적어 주세요.";
+  const GUIDE_4="접수됐어요. 여기서 일정을 안내해 드릴게요.";
+
+  function seed(){
+    const r=(list)=>Object.fromEntries(list);
+    return {
+      role:"member", me:"지민", screen:"home", tab:"meetups", meetupId:null, semId:null, reqDraft:null, toast:null, rsvpOpen:false,
+      meetups:[
+        {id:1,title:"라이트닝 노드 실습",at:"2026-10-14T19:30",loc:"강남 토즈 3층 C룸",cap:12,code:"4821",
+          rsvps:r([["지민","going"],["하늘","going"],["도윤","going"],["서연","going"],["민재","going"],["유진","maybe"],["태호","going"],["수아","no"],["지후","going"]]),
+          checked:["하늘","도윤","태호"]},
+        {id:2,title:"비트코인 백서 읽기 4주차",at:"2026-10-18T14:00",loc:"성수 카페 오르",cap:10,code:"1937",
+          rsvps:r([["하늘","going"],["서연","going"],["은비","going"],["준서","maybe"],["예린","going"]]),checked:[]},
+        {id:3,title:"초보자 비트코인 101",at:"2026-10-25T15:00",loc:"온라인 (Zoom)",cap:30,code:"5560",fromRequest:true,
+          rsvps:r([["지민","maybe"],["유진","going"],["시우","going"],["지후","going"],["수아","going"],["은비","maybe"],["태호","going"]]),checked:[]}
+      ],
+      chats:{
+        1:[{sys:"채팅방이 열렸어요"},{who:"하늘",t:"노트북 충전기 꼭 챙겨오세요"},{who:"도윤",t:"도착! 창가 쪽이에요"},{sys:"유진님 미정"},{who:"태호",t:"5분 늦어요"}],
+        2:[{sys:"채팅방이 열렸어요"},{who:"서연",t:"이번 주는 7장부터예요"}],
+        3:[{sys:"요청으로 열린 모임이에요"},{who:"유진",t:"열어주셔서 감사해요!"}]
+      },
+      seminars:[
+        {id:101,member:"서연",mode:"offline",status:"received",msgs:[{bot:1,t:GUIDE_1},{bot:1,t:GUIDE_2},{who:"서연",t:"오프라인"},{bot:1,t:GUIDE_3},{who:"서연",t:"하드웨어 지갑 백업이요. 다음 주 토 오후 2시"},{bot:1,t:GUIDE_4}]},
+        {id:102,member:"민재",mode:"online",status:"confirmed",msgs:[{bot:1,t:GUIDE_1},{bot:1,t:GUIDE_2},{who:"민재",t:"온라인"},{bot:1,t:GUIDE_3},{who:"민재",t:"라이트닝 채널 관리. 평일 저녁"},{bot:1,t:GUIDE_4},{who:"운영자",t:"10/22(수) 저녁 8시 Zoom으로 해요"},{sys:"일정 확정"}]}
+      ],
+      requests:[
+        {id:1,title:"세금·회계 Q&A",when:"다음 달",by:"유진",votes:["유진","하늘","도윤","서연","민재","태호"],status:"open"},
+        {id:2,title:"멀티시그 지갑 실습",when:"다음 달",by:"하늘",votes:["하늘","도윤","서연","민재"],status:"open"},
+        {id:3,title:"주말 등산 번개",when:"상관없음",by:"시우",votes:["시우","예린"],status:"open"},
+        {id:4,title:"초보자 비트코인 101",when:"이번 달",by:"유진",votes:["유진","시우","지후","수아","은비","태호"],status:"done",meetupId:3}
+      ]
+    };
+  }
+  let S=seed();
+  const $phone=document.getElementById("phone");
+  const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const meetup=()=>S.meetups.find(m=>m.id===S.meetupId);
+  const isHost=()=>S.role==="host";
+  const mySem=()=>S.seminars.find(s=>s.member===S.me);
+  const d=(at)=>{const x=new Date(at);return {m:x.getMonth()+1,day:x.getDate(),wd:WD[x.getDay()],hm:at.slice(11,16),today:at.slice(0,10)===TODAY};};
+  const count=(m,s)=>Object.values(m.rsvps).filter(v=>v===s).length;
+  const joined=(m)=>["going","maybe"].includes(m.rsvps[S.me]);
+  const chip=(s)=>s?`<span class="chip c-${s}"><i data-lucide="${ICON[s]}"></i>${LABEL[s]}</span>`:"";
+  const semChip=(s)=>`<span class="chip ${SEM_STATUS[s][1]}">${SEM_STATUS[s][0]}</span>`;
+  const av=(n)=>`<span class="av">${esc(n.slice(0,1))}</span>`;
+  const botAv=`<span class="av bot"><i data-lucide="megaphone"></i></span>`;
+  const readyReqs=()=>S.requests.filter(r=>r.status==="open"&&r.votes.length>=THRESHOLD).length;
+  const cookies=(n)=>Array.from({length:THRESHOLD},(_,i)=>`<svg aria-hidden="true"><use href="#${i<n?"cookie":"cookie-empty"}"/></svg>`).join("");
+  const composer=(form,ph)=>`<form class="composer" data-form="${form}"><input id="${form}-input" name="t" placeholder="${ph}" autocomplete="off" aria-label="메시지"><button type="submit" aria-label="보내기"><i data-lucide="send"></i></button></form>`;
+
+  function toast(msg,icon){S.toast={msg,icon:icon||"check-circle-2"};clearTimeout(toast.t);toast.t=setTimeout(()=>{S.toast=null;render();},1800);}
+
+  function topbar(title,back,right){
+    return `<div class="top">${back?`<button class="icon-btn" data-act="home" aria-label="뒤로"><i data-lucide="chevron-left"></i></button>`:""}<h2>${title}</h2>${right||(back?"":`<span class="me">${av(S.me)}${esc(S.me)}</span>`)}</div>`;
+  }
+  function nav(){
+    const n=isHost()?readyReqs():0;
+    return `<nav class="nav"><button data-act="tab" data-v="meetups" aria-current="${S.tab==="meetups"?"page":"false"}"><i data-lucide="calendar-days"></i>모임</button><button data-act="tab" data-v="requests" aria-current="${S.tab==="requests"?"page":"false"}"><i data-lucide="hand"></i>요청${n?`<span class="dot">${n}</span>`:""}</button></nav>`;
+  }
+
+  function vOnboard(){
+    return `<div class="scr"><div class="onb"><span class="logo"><svg aria-hidden="true"><use href="#cookie"/></svg></span>
+      <h2>이름만 알려주세요</h2>
+      <form data-form="onboard" style="display:flex;flex-direction:column;gap:14px">
+        <input class="big-input" id="onb-name" name="name" maxlength="12" placeholder="이름" value="지민" required autocomplete="nickname" aria-label="이름">
+        <button class="btn btn-p" type="submit">시작</button>
+      </form></div></div>`;
+  }
+
+  function seminarCards(){
+    if(!isHost()){
+      const s=mySem();
+      return `<div class="mcard pinned" data-act="seminar" role="button" tabindex="0"><div class="mrow"><div class="date always"><i data-lucide="graduation-cap"></i></div>
+        <div class="grow"><div class="mtitle">1:1 세미나</div><div class="sub"><span class="chip c-plum"><i data-lucide="pin"></i>언제든</span>${s?semChip(s.status):""}</div></div>
+        <i data-lucide="chevron-right"></i></div></div>`;
+    }
+    const order={received:0,guide:1,confirmed:2};
+    return [...S.seminars].sort((a,b)=>order[a.status]-order[b.status]).map(s=>
+      `<div class="mcard pinned" data-act="semopen" data-id="${s.id}" role="button" tabindex="0"><div class="mrow"><div class="date always"><i data-lucide="graduation-cap"></i></div>
+        <div class="grow"><div class="mtitle">1:1 · ${esc(s.member)}</div><div class="sub">${s.mode?`<span class="chip c-plum">${MODE[s.mode]}</span>`:""}${semChip(s.status)}</div></div>
+        <i data-lucide="chevron-right"></i></div></div>`).join("");
+  }
+
+  function vHome(){
+    const list=[...S.meetups].sort((a,b)=>a.at.localeCompare(b.at));
+    const cards=list.map(m=>{const x=d(m.at);const mine=m.rsvps[S.me];
+      return `<div class="mcard" data-act="open" data-id="${m.id}" role="button" tabindex="0">
+        <div class="mrow"><div class="date${x.today?" today":""}"><span>${x.today?"오늘":x.m+"월"}</span><b>${x.day}</b><span>${x.wd}</span></div>
+          <div class="grow"><div class="mtitle">${esc(m.title)}</div>
+            <div class="sub">${x.hm} · ${esc(m.loc)}</div>
+            <div class="sub" style="margin-top:4px">${isHost()?"":chip(mine)}<span class="counts"><i data-lucide="users"></i>${count(m,"going")}/${m.cap}</span></div>
+          </div></div>
+        ${!mine&&!isHost()?joinRow(m):""}
+      </div>`;}).join("");
+    return `${topbar("모임")}<div class="scr"><div class="body">
+      ${seminarCards()}
+      ${isHost()?`<button class="btn btn-s" data-act="create"><i data-lucide="plus"></i>모임 만들기</button>`:""}
+      ${cards}</div></div>${nav()}`;
+  }
+  const joinRow=(m)=>`<div class="btn-row"><button class="btn btn-p" data-act="join" data-id="${m.id}">신청하기</button><button class="btn btn-s" data-act="rsvp" data-id="${m.id}" data-v="no" style="flex:0 0 auto">못 가요</button></div>`;
+
+  function msgHtml(c,viewer,extra){
+    if(c.sys) return `<div class="sys">${esc(c.sys)}</div>`;
+    if(c.bot) return `<div class="msg bot">${botAv}<div><div class="bub">${esc(c.t)}</div>${extra||""}</div></div>`;
+    const mine=c.who===viewer;
+    return `<div class="msg${mine?" mine":""}">${mine?"":av(c.who)}<div>${mine?"":`<div class="who">${esc(c.who)}</div>`}<div class="bub">${esc(c.t)}</div></div></div>`;
+  }
+
+  function vChat(){
+    const m=meetup();const x=d(m.at);const mine=m.rsvps[S.me];
+    const n=count(m,"going")+count(m,"maybe");
+    const top=topbar(esc(m.title),true,`<span class="counts"><i data-lucide="users"></i>${count(m,"going")}/${m.cap}</span>`);
+    const info=`<div class="hostbar"><i data-lucide="calendar-days"></i><span class="grow">${x.today?"오늘":`${x.m}/${x.day}(${x.wd})`} ${x.hm} · ${esc(m.loc)}</span>
+      ${isHost()?"":`<button class="chip ${mine?"c-"+mine:"c-none"}" data-act="rsvptoggle" aria-expanded="${S.rsvpOpen}" style="cursor:pointer">${LABEL[mine]||"응답"}<i data-lucide="chevron-down"></i></button>`}</div>`;
+    const rsvpRow=S.rsvpOpen&&!isHost()?`<div class="hostbar"><div class="rsvp sm" style="flex:1">${["going","maybe","no"].map(v=>`<button data-act="rsvp" data-id="${m.id}" data-v="${v}" aria-pressed="${mine===v}"><i data-lucide="${ICON[v]}"></i>${LABEL[v]}</button>`).join("")}</div></div>`:"";
+    let check="";
+    if(x.today){
+      if(isHost()) check=`<div class="hostbar strong"><i data-lucide="qr-code"></i><span class="grow">도착 코드</span><b class="code-sm">${m.code}</b><span class="counts">${m.checked.length}/${count(m,"going")}</span></div>`;
+      else if(joined(m)) check=m.checked.includes(S.me)
+        ?`<div class="hostbar strong"><i data-lucide="check-circle-2"></i><span class="grow">도착 완료</span></div>`
+        :`<form class="hostbar strong" data-form="checkin"><i data-lucide="map-pin"></i><input class="pin-sm" id="pin" name="pin" inputmode="numeric" maxlength="4" placeholder="도착 코드" aria-label="도착 코드 4자리 (예시: ${m.code})" title="예시 코드: ${m.code}"><button class="btn btn-p" type="submit">도착</button></form>`;
+    }
+    if(!isHost()&&!joined(m)){
+      return `${top}${info}<div class="locked"><div class="mtitle" style="font-size:24px;color:var(--ink)">${esc(m.title)}</div><span>${n}명 함께해요</span>${mine==="no"?`<button class="btn btn-p" data-act="join" data-id="${m.id}">다시 신청하기</button>`:joinRow(m)}</div>`;
+    }
+    const viewer=isHost()?"운영자":S.me;
+    return `${top}${info}${rsvpRow}${check}<div class="scr" id="chat-scroll"><div class="msgs">${S.chats[m.id].map(c=>msgHtml(c,viewer)).join("")}</div></div>${composer("chat","메시지")}`;
+  }
+
+  function vSeminar(){
+    const s=isHost()?S.seminars.find(x=>x.id===S.semId):mySem();
+    if(!s) return "";
+    const viewer=isHost()?"운영자":S.me;
+    const choices=`<div class="choices">${Object.entries(MODE).map(([k,v])=>`<button class="choice" data-act="mode" data-v="${k}"><i data-lucide="${k==="online"?"monitor":"map-pin"}"></i>${v}</button>`).join("")}</div>`;
+    const lastIdx=s.msgs.length-1;
+    const msgs=s.msgs.map((c,i)=>msgHtml(c,viewer,!isHost()&&!s.mode&&i===lastIdx?choices:"")).join("");
+    const title=isHost()?`1:1 · ${esc(s.member)}`:"1:1 세미나";
+    const bar=`<div class="hostbar"><i data-lucide="lock"></i><span class="grow">${isHost()?(s.mode?MODE[s.mode]:"방식 선택 전"):"운영자와 둘만 봐요"}</span>${semChip(s.status)}${isHost()&&s.status==="received"?`<button class="btn btn-p" data-act="confirm">확정</button>`:""}</div>`;
+    const canType=isHost()||s.mode;
+    return `${topbar(title,true," ")}${bar}<div class="scr" id="chat-scroll"><div class="msgs">${msgs}</div></div>${canType?composer("semchat",isHost()?"메시지":s.status==="guide"?"주제, 희망 일정":"메시지"):""}`;
+  }
+
+  function vRequests(){
+    const order={open:0,done:1};
+    const list=[...S.requests].sort((a,b)=>order[a.status]-order[b.status]||b.votes.length-a.votes.length);
+    const cards=list.map(r=>{
+      const voted=r.votes.includes(S.me);const ready=r.votes.length>=THRESHOLD;
+      if(r.status==="done") return `<div class="rcard done" data-act="open" data-id="${r.meetupId}" role="button" tabindex="0"><div class="mrow"><div class="grow"><div class="mtitle">${esc(r.title)}</div></div><span class="chip c-going">열렸어요</span><i data-lucide="chevron-right"></i></div></div>`;
+      const right=isHost()
+        ?`<button class="vote${ready?" primary":""}" data-act="convert" data-id="${r.id}" style="margin-left:auto"><i data-lucide="plus"></i>열기</button>`
+        :(ready?`<span class="chip c-maybe" style="margin-left:auto">검토 중</span>`:"");
+      return `<div class="rcard"><div class="mtitle">${esc(r.title)}</div>
+        <div class="cookies" aria-label="${THRESHOLD}명 중 ${Math.min(r.votes.length,THRESHOLD)}명">${cookies(r.votes.length)}<span class="counts" style="margin-left:4px">${esc(r.when)}</span></div>
+        <div class="rfoot"><button class="vote" data-act="vote" data-id="${r.id}" aria-pressed="${voted}"><i data-lucide="hand"></i>나도 ${r.votes.length}</button>${right}</div></div>`;}).join("");
+    return `${topbar("모임 요청")}<div class="scr"><div class="body">
+      <button class="btn btn-p" data-act="newreq"><i data-lucide="plus"></i>이런 모임 열어주세요</button>
+      ${cards}</div></div>${nav()}`;
+  }
+
+  function vReqForm(){
+    return `${topbar("이런 모임 열어주세요",true," ")}<div class="scr"><form class="body" data-form="req">
+      <input class="big-input" id="req-title" name="title" maxlength="40" required placeholder="어떤 모임?" aria-label="모임 주제">
+      <div class="seg wide" role="radiogroup" aria-label="원하는 시기">${["이번 달","다음 달","상관없음"].map((w,i)=>`<label><input type="radio" name="when" value="${w}" ${i===1?"checked":""}><span>${w}</span></label>`).join("")}</div>
+      <button class="btn btn-p" type="submit">올리기</button>
+    </form></div>`;
+  }
+
+  function vCreate(){
+    const dr=S.reqDraft||{title:""};
+    return `${topbar(dr.reqId?`${dr.votes}명이 원해요`:"모임 만들기",true," ")}<div class="scr"><form class="body" data-form="create">
+      <input class="big-input" id="c-title" name="title" required maxlength="40" value="${esc(dr.title)}" placeholder="모임 이름" aria-label="모임 이름">
+      <div class="grid2"><input class="field-in" id="c-date" name="date" type="date" required value="2026-11-08" aria-label="날짜"><input class="field-in" id="c-time" name="time" type="time" required value="14:00" aria-label="시간"></div>
+      <input class="field-in" id="c-loc" name="loc" required maxlength="40" value="강남 토즈 3층 C룸" placeholder="장소" aria-label="장소">
+      <label class="inline-num"><i data-lucide="users"></i><input class="field-in" id="c-cap" name="cap" type="number" min="2" max="200" required value="15" aria-label="정원">명</label>
+      <button class="btn btn-p" type="submit">열기</button>
+    </form></div>`;
+  }
+
+  function render(){
+    const views={onboard:vOnboard,home:()=>S.tab==="requests"?vRequests():vHome(),chat:vChat,seminar:vSeminar,reqForm:vReqForm,create:vCreate};
+    $phone.innerHTML=views[S.screen]()+(S.toast?`<div class="toast" role="status"><i data-lucide="${S.toast.icon}"></i>${esc(S.toast.msg)}</div>`:"");
+    document.querySelectorAll('[data-act="role"]').forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===S.role));
+    if(window.lucide) lucide.createIcons();
+    const cs=document.getElementById("chat-scroll");if(cs) cs.scrollTop=cs.scrollHeight;
+  }
+
+  function setRsvp(id,v){
+    const m=S.meetups.find(x=>x.id===id);const prev=m.rsvps[S.me];
+    if(prev===v) return;
+    if(v==="going"&&count(m,"going")>=m.cap){toast("정원이 찼어요","help-circle");return;}
+    m.rsvps={...m.rsvps,[S.me]:v};
+    S.chats[id]=[...S.chats[id],{sys:`${S.me}님 ${LABEL[v]}`}];
+    S.rsvpOpen=false;
+    toast(LABEL[v]);
+  }
+  function updateSem(id,fn){S.seminars=S.seminars.map(s=>s.id===id?fn(s):s);}
+
+  document.addEventListener("click",(e)=>{
+    const el=e.target.closest("[data-act]");if(!el) return;
+    const a=el.dataset.act,id=Number(el.dataset.id);
+    if(a==="rsvp"){e.stopPropagation();setRsvp(id,el.dataset.v);}
+    else if(a==="join"){e.stopPropagation();const m=S.meetups.find(x=>x.id===id);
+      if(count(m,"going")>=m.cap){toast("정원이 찼어요","help-circle");render();return;}
+      m.rsvps={...m.rsvps,[S.me]:"going"};
+      S.chats[id]=[...S.chats[id],{sys:`${S.me}님 참석`},{bot:1,t:"신청 완료! 공지는 여기서 안내해요."}];
+      S.meetupId=id;S.rsvpOpen=false;S.screen="chat";}
+    else if(a==="role"){S.role=el.dataset.v;S.screen="home";}
+    else if(a==="reset"){S=seed();S.screen="onboard";S.me="";}
+    else if(a==="tab"){S.tab=el.dataset.v;S.screen="home";}
+    else if(a==="home"){S.screen="home";}
+    else if(a==="open"){S.meetupId=id;S.rsvpOpen=false;S.screen="chat";}
+    else if(a==="rsvptoggle"){S.rsvpOpen=!S.rsvpOpen;}
+    else if(a==="seminar"){
+      if(!mySem()) S.seminars=[...S.seminars,{id:Date.now(),member:S.me,mode:null,status:"guide",msgs:[{bot:1,t:GUIDE_1},{bot:1,t:GUIDE_2}]}];
+      S.screen="seminar";}
+    else if(a==="semopen"){S.semId=id;S.screen="seminar";}
+    else if(a==="mode"){const s=mySem();const m=el.dataset.v;
+      updateSem(s.id,x=>({...x,mode:m,msgs:[...x.msgs,{who:S.me,t:MODE[m]},{bot:1,t:GUIDE_3}]}));}
+    else if(a==="confirm"){updateSem(S.semId,x=>({...x,status:"confirmed",msgs:[...x.msgs,{sys:"일정 확정"}]}));toast("확정했어요");}
+    else if(a==="newreq"){S.screen="reqForm";}
+    else if(a==="create"){S.reqDraft=null;S.screen="create";}
+    else if(a==="vote"){const r=S.requests.find(x=>x.id===id);const on=r.votes.includes(S.me);
+      r.votes=on?r.votes.filter(n=>n!==S.me):[...r.votes,S.me];
+      toast(on?"취소했어요":r.votes.length===THRESHOLD?"5명 모였어요!":"나도 원해요");}
+    else if(a==="convert"){const r=S.requests.find(x=>x.id===id);S.reqDraft={reqId:r.id,title:r.title,votes:r.votes.length};S.screen="create";}
+    else return;
+    render();
+  });
+  document.addEventListener("keydown",(e)=>{if(e.key==="Enter"&&e.target.matches('[role="button"][data-act]')) e.target.click();});
+
+  document.addEventListener("submit",(e)=>{
+    const f=e.target.closest("[data-form]");if(!f) return;e.preventDefault();
+    const v=Object.fromEntries(new FormData(f));const kind=f.dataset.form;
+    if(kind==="onboard"){const n=(v.name||"").trim();if(!n){toast("이름을 입력해 주세요","x");render();return;}S.me=n;S.screen="home";S.tab="meetups";toast(`${n}님, 반가워요`);}
+    else if(kind==="checkin"){const m=meetup();
+      if(v.pin!==m.code){toast(`코드가 달라요 (예시: ${m.code})`,"x");render();return;}
+      m.checked=[...m.checked,S.me];S.chats[m.id]=[...S.chats[m.id],{sys:`${S.me}님 도착`}];toast("도착!");}
+    else if(kind==="chat"){const t=(v.t||"").trim();if(!t) return;const m=meetup();S.chats[m.id]=[...S.chats[m.id],{who:isHost()?"운영자":S.me,t}];}
+    else if(kind==="semchat"){const t=(v.t||"").trim();if(!t) return;
+      if(isHost()){updateSem(S.semId,x=>({...x,msgs:[...x.msgs,{who:"운영자",t}]}));}
+      else{const s=mySem();
+        if(s.status==="guide"){updateSem(s.id,x=>({...x,status:"received",msgs:[...x.msgs,{who:S.me,t},{bot:1,t:GUIDE_4}]}));toast("접수됐어요");}
+        else updateSem(s.id,x=>({...x,msgs:[...x.msgs,{who:S.me,t}]}));}}
+    else if(kind==="req"){const t=(v.title||"").trim();if(!t) return;
+      S.requests=[{id:Date.now(),title:t,when:v.when,by:S.me,votes:[S.me],status:"open"},...S.requests];
+      S.screen="home";S.tab="requests";toast("올렸어요");}
+    else if(kind==="create"){const id=Date.now();const dr=S.reqDraft;
+      S.meetups=[...S.meetups,{id,title:v.title.trim(),at:`${v.date}T${v.time}`,loc:v.loc.trim(),cap:Number(v.cap),code:String(1000+id%9000),fromRequest:!!dr,rsvps:{},checked:[]}];
+      S.chats[id]=[{sys:dr?`요청으로 열린 모임이에요 · ${dr.votes}명에게 알림`:"채팅방이 열렸어요"}];
+      if(dr) S.requests=S.requests.map(r=>r.id===dr.reqId?{...r,status:"done",meetupId:id}:r);
+      S.reqDraft=null;S.meetupId=id;S.screen="chat";toast("열었어요");}
+    render();
+  });
+
+  render();
+})();
+</script>
