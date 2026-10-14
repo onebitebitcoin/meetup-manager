@@ -32,3 +32,23 @@ jobs:
         run: |
           sleep 5
           curl -fsS http://localhost:8000/api/health/ || ($COMPOSE -f "$TARGET_DIR/docker-compose.yml" logs web && exit 1)
+
+      # nginx 가 / 를 /var/www/meet 에서 직접 서빙하므로, 이미지 안의 프론트 빌드를 꺼내 반영한다
+      - name: Publish frontend
+        env:
+          WEB_ROOT: /var/www/meet
+        run: |
+          DIST="$RUNNER_TEMP/meet-dist"
+          rm -rf "$DIST" && mkdir -p "$DIST"
+          CID=$($COMPOSE -f "$TARGET_DIR/docker-compose.yml" ps -q web)
+          docker cp "$CID:/app/backend/frontend_dist/." "$DIST/"
+          test -f "$DIST/index.html"
+          # 해시 에셋을 먼저 올리고 index.html 은 마지막에 교체 (이전 에셋은 캐시된 클라이언트용으로 남긴다)
+          cp -r "$DIST/assets/." "$WEB_ROOT/assets/"
+          cp -r "$DIST/icons/." "$WEB_ROOT/icons/"
+          # 루트 파일은 임시 파일로 쓴 뒤 mv 로 교체 (기존 파일 소유자와 무관하게 원자적으로 바뀐다)
+          for f in $(cd "$DIST" && find . -maxdepth 1 -type f ! -name index.html) index.html; do
+            cp "$DIST/$f" "$WEB_ROOT/$f.tmp"
+            mv -f "$WEB_ROOT/$f.tmp" "$WEB_ROOT/$f"
+          done
+          grep -oE 'assets/index-[^"]+\.js' "$WEB_ROOT/index.html"
