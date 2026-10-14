@@ -486,19 +486,22 @@ npm run test
 | Rsvp | member FK, meetup FK, status(going/maybe/no), checked_in_at(null), updated_at · unique(member, meetup) |
 | SeminarRequest | member(O2O Member), mode(online/offline, null), topic(Text blank), status(guide/received/confirmed), created_at |
 | ChatRoom | kind(meetup/seminar), meetup(O2O null), seminar(O2O SeminarRequest null) |
-| ChatMessage | room FK, member FK null, kind(user/system/guide), body(Text ≤ 1000), created_at · ordering id |
+| ChatMessage | room FK, member FK null, kind(user/system/guide), body(Text ≤ 1000), created_at · ordering id · 복합 인덱스(room, id) |
 | MeetupRequest | title(60), preferred_period(this_month/next_month/any), created_by FK Member, status(open/done), meetup(FK Meetup null), created_at |
 | RequestVote | request FK, member FK · unique(request, member) |
 | LiteConfig | 싱글턴(pk=1). vote_threshold(기본 5), seminar_guide_1="원하는 주제로 운영자와 1:1로 진행해요.", seminar_guide_2="시간당 50,000원이에요.\n진행 방식을 골라 주세요.", seminar_guide_3="주제와 희망 날짜·시간을 적어 주세요.", seminar_guide_4="접수됐어요. 여기서 일정을 안내해 드릴게요.", join_guide="신청 완료! 공지는 여기서 안내해요." · Django admin에서 수정 |
 
-- Meetup 생성 시 ChatRoom(kind=meetup)을 함께 만든다. SeminarRequest 생성 시 ChatRoom(kind=seminar)을 함께 만든다.
+- Meetup 생성 시 ChatRoom(kind=meetup)을 함께 만든다(뷰·관리 명령·Django admin 어디서 만들어도 보장, 모델 계층에서 처리). ChatRoom은 admin에서 읽기 전용. SeminarRequest 생성 시 ChatRoom(kind=seminar)을 함께 만든다.
 - 참석 인원(going_count)은 Rsvp(status=going) 수로 계산한다. 별도 카운터 필드는 두지 않는다.
 
 ### 11.3 인증
 - 요청 헤더 `X-Member-Token: <token>`. DRF 인증 클래스 `lite.auth.MemberTokenAuthentication`이 `request.user` 대신 `request.member`를 채운다(`request.auth`=Member도 허용).
 - lite 뷰는 `authentication_classes=[MemberTokenAuthentication]`만 사용한다(세션 미사용 → CSRF 불필요).
 - 토큰 없음/잘못됨 → 401 `{"error": "이름을 먼저 입력해 주세요"}`. 운영자 전용 → 403 `{"error": "운영자만 할 수 있어요"}`.
-- 운영자 승격: 환경 변수 `LITE_HOST_KEY`(비어 있으면 승격 불가)와 일치하는 key를 `POST host/claim/`으로 보내면 is_host=True.
+- 운영자 승격: 환경 변수 `LITE_HOST_KEY`(비어 있으면 승격 불가, 운영에서는 `secrets.token_urlsafe(32)` 수준의 무작위 값)와 일치하는 key를 `POST host/claim/`으로 보내면 is_host=True.
+- 이름 검증: NFKC 정규화 후 앞뒤 공백 제거, 1~20자, 제어문자·줄바꿈·제로폭 문자 거부, 예약어("운영자", "관리자", "admin", "host") 거부.
+- 요청 횟수 제한(DRF throttle, 캐시는 워커 간 공유되는 FileBasedCache): 회원 생성 IP당 60/hour, 운영자 승격 회원·IP당 5/hour, 도착 코드 확인 회원·모임당 5회/10분, 메시지 전송 회원당 30/min, 요청 작성 회원당 10/hour, 세미나 mode 선택 회원당 10/hour. 초과 시 429 `{"error": "잠시 후 다시 시도해 주세요"}`.
+- 프록시 뒤 클라이언트 IP: 운영 설정에서 `REST_FRAMEWORK['NUM_PROXIES'] = 1`(nginx 1단).
 
 ### 11.4 API 계약 (prefix `/api/lite/`, trailing slash 유지)
 에러는 항상 `{"error": "<사용자에게 보여줄 한국어 메시지>"}` + 적절한 상태 코드.
@@ -521,11 +524,11 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | me/ | member | - | 200 {member: Member} |
 | POST | host/claim/ | member | {key} | 200 {member} · 키 불일치 403 |
 | GET | home/ | member | - | 200 {meetups: [MeetupCard], my_seminar: SeminarCard\|null, seminars: [SeminarCard] (운영자만, 아니면 []), ready_request_count: int} — meetups는 starts_at가 오늘(서울) 0시 이후인 것, 시간순 |
-| POST | meetups/ | host | {title, starts_at, location, capacity, description?, request_id?} | 201 {meetup: MeetupCard} (request_id가 있으면 해당 요청 status=done, meetup 연결, 시스템 메시지 "요청으로 열린 모임이에요 · N명에게 알림") |
+| POST | meetups/ | host | {title(≤80), starts_at(현재 이후), location(≤100), capacity(2~500), description?(≤1000), request_id?} | 201 {meetup: MeetupCard} (request_id가 있으면 해당 요청 status=done, meetup 연결, 시스템 메시지 "요청으로 열린 모임이에요 · N명에게 알림") |
 | GET | meetups/<id>/ | member | - | 200 {meetup: MeetupCard, checkin_code: str\|null (운영자 + 오늘만), checked_in: bool, checked_in_count: int} |
-| PUT | meetups/<id>/rsvp/ | member | {status} | 200 {meetup: MeetupCard} · going인데 정원 초과 409 "정원이 찼어요" · 상태가 바뀌면 시스템 메시지 "<이름>님 참석/미정/불참", 처음 going/maybe가 되면 guide 메시지 join_guide 추가 |
+| PUT | meetups/<id>/rsvp/ | member | {status} | 200 {meetup: MeetupCard} · 이미 지난 모임(시작 시각 + 12시간 경과)은 400 · going인데 정원 초과 409 "정원이 찼어요" · 상태가 바뀌면 시스템 메시지 "<이름>님 참석/미정/불참", 처음 going/maybe가 되면 guide 메시지 join_guide 추가 |
 | POST | meetups/<id>/checkin/ | member(going/maybe) | {code} | 200 {checked_in: true} · 오늘이 아니면 400 · 코드 불일치 400 "코드가 달라요" · 시스템 메시지 "<이름>님 도착" |
-| GET | rooms/<id>/messages/?after=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | 200 {messages: [Message]} (after 이후, 최대 200개) |
+| GET | rooms/<id>/messages/?after=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | 200 {messages: [Message]} — after가 없으면 최신 100개(id 오름차순으로 정렬해 반환), after가 있으면 그 이후 최대 200개. after는 0 이상 정수(범위 밖이면 400) |
 | POST | rooms/<id>/messages/ | 위와 동일 | {body} (1~1000자) | 201 {message: Message} · 세미나방에서 신청자 본인이 보낸 메시지이고 status=guide이며 mode가 정해져 있으면: topic=body, status=received, guide 메시지 seminar_guide_4 추가 |
 | POST | seminar/ | member | - | 200 {seminar: SeminarCard} — 내 SeminarRequest get-or-create. 새로 만들 때 guide 메시지 seminar_guide_1, seminar_guide_2 추가 |
 | POST | seminar/mode/ | member | {mode} | 200 {seminar} — 사용자 메시지 "온라인"/"오프라인" + guide 메시지 seminar_guide_3 추가 |
@@ -546,7 +549,9 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | /lite/seminar/:id | 운영자용 1:1 세미나 채팅방 + 확정 버튼 |
 | /lite/new-request | 요청 작성(주제 + 시기 세그먼트) |
 | /lite/new-meetup | 운영자 모임 만들기. `?request=<id>`면 요청 제목을 채운다 |
-| /lite/r/:token | 복구 링크: 토큰 저장 후 /lite로 이동 |
-| /lite/host/:key | 운영자 링크: host/claim 호출 후 /lite로 이동 |
-- 채팅방은 3초 간격으로 `?after=`를 사용해 새 메시지를 가져온다. 화면을 벗어나면 폴링을 멈춘다.
+| /lite/r#<token> | 복구 링크: fragment의 토큰으로 `GET me/`를 확인한 뒤에만 저장, 실패하면 기존 토큰 유지. 읽은 즉시 `history.replaceState`로 fragment 제거 후 /lite로 이동 |
+| /lite/host#<key> | 운영자 링크: fragment의 key로 host/claim 호출(이름이 없으면 먼저 이름 입력), 읽은 즉시 fragment 제거 후 /lite로 이동 |
+- 토큰과 운영자 키는 URL 경로나 쿼리에 넣지 않는다(서버 접속 로그·방문 기록 노출 방지). fragment는 서버로 전송되지 않는다.
+- 채팅방은 3초 간격으로 `?after=`를 사용해 새 메시지를 가져온다. after 기준은 폴링으로 받은 마지막 id만 사용한다(내가 보낸 메시지 응답으로 기준을 앞당기지 않는다, id로 중복 제거). 화면을 벗어나거나 탭이 숨겨지면 멈추고, 401/403이면 중단한다.
+- 홈에 예정된 모임이 없으면 "예정된 모임이 없어요" 한 줄을 표시한다.
 - 테마 "쿠키 테이블": 제목 Do Hyeon, 본문 Gothic A1, 머스타드 #F5C431, 초코 #2B1A17, 크림 #FFF8EC, 반죽 #F6E3BF, 민트(참석) #2FBF8A, 볼터치(불참) #E5646A, 자두 #8E3A59. 2px 갈색 윤곽선, 버튼만 3px 단색 오프셋 그림자. 다크 모드: 배경 #1C1311.
