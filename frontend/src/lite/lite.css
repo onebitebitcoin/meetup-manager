@@ -1,14 +1,20 @@
 /* LITE 테마: 원장(Ledger) 구조(1px 테두리, 그림자 없음) + 한입 로고 팔레트. 다크 모드는 html.dark 클래스를 따른다. */
 .lite-root {
-  --lite-bg: #FFF8EC; --lite-surface: #FFFFFF; --lite-sunk: #F8EEDC; --lite-ink: #2B1A17; --lite-muted: #7A5D52;
-  --lite-line: #EAD9BE; --lite-line-strong: #D9C3A0;
-  --lite-btn: #F5C431; --lite-btn-ink: #2B1A17;
-  --lite-accent: #F5C431; --lite-accent-ink: #2B1A17; --lite-accent-text: #8A6400; --lite-accent-soft: #FCEFC4;
-  --lite-going: #11704D; --lite-going-soft: #D3F5E7; --lite-going-strong: #2FBF8A;
-  --lite-maybe: #7A5A00; --lite-maybe-soft: #FCE9A6;
-  --lite-no: #A3333A; --lite-no-soft: #FBE0E0;
-  --lite-plum: #8E3A59; --lite-plum-soft: #F3DCE5;
-  --lite-progress: #E2A55A;
+  /* 기본 3색: 종이, 잉크, 노랑. 나머지는 잉크를 종이에 섞어 파생한다. 다크 블록은 기본값만 다시 정의한다. */
+  --lite-paper: #FFF8EC; --lite-ink: #2B1A17; --lite-yellow: #F5C431; --lite-surface: #FFFFFF;
+  --lite-bg: var(--lite-paper);
+  --lite-sunk: color-mix(in srgb, var(--lite-ink) 6%, var(--lite-paper));
+  --lite-line: color-mix(in srgb, var(--lite-ink) 14%, var(--lite-paper));
+  --lite-line-strong: color-mix(in srgb, var(--lite-ink) 26%, var(--lite-paper));
+  --lite-muted: color-mix(in srgb, var(--lite-ink) 64%, var(--lite-paper));
+  --lite-yellow-soft: color-mix(in srgb, var(--lite-yellow) 30%, var(--lite-paper));
+  --lite-btn: var(--lite-yellow); --lite-btn-ink: #2B1A17;
+  --lite-accent: var(--lite-yellow); --lite-accent-ink: #2B1A17; --lite-accent-text: var(--lite-ink);
+  --lite-going: var(--lite-btn-ink); --lite-going-soft: var(--lite-yellow); --lite-going-strong: var(--lite-yellow);
+  --lite-maybe: var(--lite-ink); --lite-maybe-soft: var(--lite-yellow-soft);
+  --lite-no: var(--lite-muted); --lite-no-soft: var(--lite-sunk);
+  --lite-plum: var(--lite-ink); --lite-plum-soft: var(--lite-sunk);
+  --lite-progress: var(--lite-yellow);
   --lite-font: "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --lite-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   font-family: var(--lite-font);
@@ -16,13 +22,7 @@
   min-height: 100vh; min-height: 100dvh;
 }
 .dark .lite-root {
-  --lite-bg: #1C1311; --lite-surface: #281B18; --lite-sunk: #35241F; --lite-ink: #FFF1DC; --lite-muted: #C2A898;
-  --lite-line: #3F2B25; --lite-line-strong: #5A4037;
-  --lite-accent-text: #F5C431; --lite-accent-soft: #3A2F10;
-  --lite-going: #7BE8BF; --lite-going-soft: #173B2E; --lite-going-strong: #3DDBA0;
-  --lite-maybe: #F5C431; --lite-maybe-soft: #3A2F10;
-  --lite-no: #F49A9E; --lite-no-soft: #3D1F20;
-  --lite-plum: #D27A9B; --lite-plum-soft: #3A1E29;
+  --lite-paper: #1C1311; --lite-ink: #FFF1DC; --lite-surface: #281B18;
   color-scheme: dark;
 }
 .lite-root *, .lite-root *::before, .lite-root *::after { box-sizing: border-box; }
@@ -43,7 +43,7 @@
 .l-top h2 { font-size: 18px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-icon-btn { border: 0; background: none; padding: 8px; margin: -8px; min-width: 44px; min-height: 44px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
 .l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--lite-muted); }
-.l-av { width: 26px; height: 26px; border-radius: 50%; background: var(--lite-accent-soft); color: var(--lite-accent-text); display: inline-grid; place-items: center; font-size: 11.5px; font-weight: 700; flex: none; }
+.l-av { width: 26px; height: 26px; border-radius: 50%; background: var(--lite-sunk); color: var(--lite-ink); display: inline-grid; place-items: center; font-size: 11.5px; font-weight: 700; flex: none; }
 .l-av.bot { background: var(--lite-plum-soft); color: var(--lite-plum); }
 
 .l-card { border: 1px solid var(--lite-line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: var(--lite-surface); text-align: left; width: 100%; transition: border-color .12s; }
@@ -63,7 +63,7 @@
 .l-sub { font-size: 12.5px; color: var(--lite-muted); display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 .l-grow { flex: 1; min-width: 0; }
 .l-thumb { width: 64px; height: 64px; flex: none; border-radius: 10px; object-fit: cover; background: var(--lite-sunk); border: 1px solid var(--lite-line); }
-.l-dday { font-weight: 600; color: var(--lite-accent-text); }
+.l-dday { font-weight: 700; color: var(--lite-accent-text); }
 .l-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; background: var(--lite-sunk); color: var(--lite-muted); }
 .l-chip.going { background: var(--lite-going-soft); color: var(--lite-going); }
 .l-chip.maybe { background: var(--lite-maybe-soft); color: var(--lite-maybe); }
@@ -84,12 +84,12 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 
 .l-rsvp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 1; }
 .l-rsvp button { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600; min-height: 44px; }
-.l-rsvp button[data-v="going"][aria-pressed="true"] { background: var(--lite-going-strong); border-color: var(--lite-going-strong); color: #0B2B1F; }
-.l-rsvp button[data-v="maybe"][aria-pressed="true"] { background: var(--lite-maybe-soft); border-color: var(--lite-maybe); color: var(--lite-maybe); }
-.l-rsvp button[data-v="no"][aria-pressed="true"] { background: var(--lite-no-soft); border-color: var(--lite-no); color: var(--lite-no); }
+.l-rsvp button[data-v="going"][aria-pressed="true"] { background: var(--lite-going-strong); border-color: var(--lite-going-strong); color: var(--lite-btn-ink); }
+.l-rsvp button[data-v="maybe"][aria-pressed="true"] { background: var(--lite-maybe-soft); border-color: var(--lite-yellow); color: var(--lite-maybe); }
+.l-rsvp button[data-v="no"][aria-pressed="true"] { background: var(--lite-no-soft); border-color: var(--lite-line-strong); color: var(--lite-no); }
 
 .l-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--lite-line); background: var(--lite-surface); font-size: 13px; color: var(--lite-muted); min-height: 48px; }
-.l-bar.strong { background: var(--lite-accent-soft); color: var(--lite-ink); }
+.l-bar.strong { background: var(--lite-sunk); color: var(--lite-ink); }
 .l-bar .l-grow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-bar .l-btn { min-height: 40px; font-size: 14px; padding: 4px 14px; margin-left: auto; }
 .l-code { font-family: var(--lite-mono); font-size: 22px; font-weight: 600; letter-spacing: .2em; color: var(--lite-ink); }
@@ -136,8 +136,9 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-onb { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 28px 24px; }
 .l-onb h2 { font-size: 24px; }
 .l-logo { width: 48px; height: 48px; border-radius: 12px; background: var(--lite-accent); color: var(--lite-accent-ink); display: grid; place-items: center; }
-.l-toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 76px; width: calc(100% - 32px); max-width: 448px; background: var(--lite-ink); color: var(--lite-bg); border-radius: 10px; padding: 10px 14px; font-size: 14px; display: flex; gap: 8px; align-items: center; z-index: 50; }
-.l-toast.error { background: var(--lite-no); color: #FFFFFF; }
+.l-toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 76px; width: calc(100% - 32px); max-width: 448px; background: var(--lite-ink); color: var(--lite-paper); border-radius: 10px; padding: 10px 14px; font-size: 14px; display: flex; gap: 8px; align-items: center; z-index: 50; }
+.l-toast.error { font-weight: 600; }
+.l-toast.error svg { color: var(--lite-yellow); }
 .l-state { padding: 24px; text-align: center; color: var(--lite-muted); font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .l-btn, .l-card { transition: none; } }
 .l-cardbtn { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
