@@ -39,7 +39,7 @@
 @media (min-width: 400px) { .l-body { padding-inline: 12px; } }
 .lite-display { font-weight: 600; }
 
-.l-top { display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid var(--lite-line); background: var(--lite-surface); position: sticky; top: 0; z-index: 2; }
+.l-top { min-height: 53px; display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid var(--lite-line); background: var(--lite-surface); position: sticky; top: 0; z-index: 2; }
 .l-top h2 { font-size: 18px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-icon-btn { border: 0; background: none; padding: 8px; margin: -8px; min-width: 44px; min-height: 44px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
 .l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--lite-muted); }
@@ -100,6 +100,15 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-msgs { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 9px; background: var(--lite-bg); }
 .l-msg { display: flex; gap: 8px; max-width: 86%; }
 .l-bub { background: var(--lite-surface); border: 1px solid var(--lite-line); border-radius: 4px 12px 12px 12px; padding: 6px 11px; font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
+.l-pinbar { position: sticky; top: 53px; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 13px; }
+.l-pinbar svg { flex: none; color: var(--lite-muted); }
+.l-pinbar-who { flex: none; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.l-pinbar-body { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l-pinbar .l-icon-btn { margin: -8px -8px -8px 0; }
+.l-msg-more { flex: none; align-self: center; border: 0; background: none; color: var(--lite-muted); min-width: 44px; min-height: 44px; margin: -8px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
+.l-msg-menu { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; }
+.l-msg-menu button { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 999px; padding: 4px 12px; min-height: 44px; font-weight: 600; }
+.l-msg-menu button.danger { color: var(--lite-no); }
 .l-who { font-size: 11px; color: var(--lite-muted); margin-bottom: 2px; }
 .l-msg.mine { align-self: flex-end; flex-direction: row-reverse; }
 .l-msg.mine .l-bub { background: var(--lite-btn); color: var(--lite-btn-ink); border-color: transparent; border-radius: 12px 4px 12px 12px; }

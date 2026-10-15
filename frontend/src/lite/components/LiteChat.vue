@@ -1,5 +1,22 @@
 <template>
   <div class="lite-scroll">
+    <div
+      v-if="pinned"
+      class="l-pinbar"
+    >
+      <Pin :size="15" />
+      <span class="l-pinbar-who">{{ pinned.member?.name }}</span>
+      <span class="l-pinbar-body">{{ pinned.body }}</span>
+      <button
+        v-if="store.isHost"
+        type="button"
+        class="l-icon-btn"
+        aria-label="공지 해제"
+        @click="unpin"
+      >
+        <X :size="16" />
+      </button>
+    </div>
     <div class="l-msgs">
       <button
         v-if="hasMore"
@@ -15,6 +32,10 @@
         :key="message.id"
         :message="message"
         :mine="message.kind === 'user' && message.member?.id === store.member?.id"
+        :menu-open="openMenuId === message.id"
+        @toggle-menu="openMenuId = openMenuId === message.id ? null : message.id"
+        @pin="pin(message.id)"
+        @delete="remove(message.id)"
       />
       <slot name="after" />
       <div ref="bottom" />
@@ -44,7 +65,7 @@
 
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { Send } from 'lucide-vue-next'
+import { Pin, Send, X } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteMessage from './LiteMessage.vue'
@@ -64,6 +85,8 @@ const sending = ref(false)
 const bottom = ref(null)
 const hasMore = ref(false)
 const loadingOlder = ref(false)
+const pinned = ref(null)
+const openMenuId = ref(null)
 let timer = null
 let polling = false
 let failing = false
@@ -95,6 +118,7 @@ const poll = async () => {
     failing = false
     // 첫 조회(after 없음)는 최신 100개만 오므로, 더 오래된 메시지가 있는지 응답으로 알 수 있다
     if (first) hasMore.value = !!data.has_more
+    pinned.value = data.pinned ?? null
     lastPolled = data.messages.reduce((max, m) => Math.max(max, m.id), lastPolled)
     if (await append(data.messages)) emit('received')
   } catch (error) {
@@ -123,8 +147,28 @@ const loadOlder = async () => {
   const known = new Set(messages.value.map((m) => m.id))
   messages.value = [...data.messages.filter((m) => !known.has(m.id)), ...messages.value]
   hasMore.value = !!data.has_more
+  pinned.value = data.pinned ?? null
   await nextTick()
   if (scroller) scroller.scrollTop += scroller.scrollHeight - before
+}
+
+const pin = async (id) => {
+  openMenuId.value = null
+  const data = await store.act(() => liteApi.pinMessage(props.roomId, id), '공지로 고정했어요')
+  if (data) pinned.value = data.pinned ?? null
+}
+
+const unpin = async () => {
+  const data = await store.act(() => liteApi.pinMessage(props.roomId, null), '공지를 내렸어요')
+  if (data) pinned.value = data.pinned ?? null
+}
+
+const remove = async (id) => {
+  openMenuId.value = null
+  const data = await store.act(() => liteApi.deleteMessage(props.roomId, id), '삭제했어요')
+  if (!data) return
+  messages.value = messages.value.filter((m) => m.id !== id)
+  if (pinned.value?.id === id) pinned.value = null
 }
 
 const send = async () => {

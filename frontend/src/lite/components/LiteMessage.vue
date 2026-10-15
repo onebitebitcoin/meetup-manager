@@ -33,15 +33,72 @@
       <div class="l-bub">
         {{ message.body }}
       </div>
+      <div
+        v-if="showMenu && menuOpen"
+        class="l-msg-menu"
+      >
+        <template v-if="!confirming">
+          <button
+            type="button"
+            @click="emit('pin')"
+          >
+            공지로 고정
+          </button>
+          <button
+            type="button"
+            class="danger"
+            @click="confirming = true"
+          >
+            삭제
+          </button>
+        </template>
+        <template v-else>
+          <span>삭제할까요?</span>
+          <button
+            type="button"
+            class="danger"
+            @click="emit('delete')"
+          >
+            삭제
+          </button>
+          <button
+            type="button"
+            @click="confirming = false"
+          >
+            그만두기
+          </button>
+        </template>
+      </div>
     </div>
+    <button
+      v-if="showMenu"
+      type="button"
+      class="l-msg-more"
+      aria-label="메시지 관리"
+      :aria-expanded="menuOpen"
+      @click="emit('toggle-menu')"
+    >
+      <MoreHorizontal :size="18" />
+    </button>
   </div>
 </template>
 
 <script setup>
-import { Megaphone } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
+import { Megaphone, MoreHorizontal } from 'lucide-vue-next'
+import { useLiteStore } from '../store'
 
-defineProps({
+const props = defineProps({
   message: { type: Object, required: true },
   mine: { type: Boolean, default: false },
+  menuOpen: { type: Boolean, default: false },
 })
+const emit = defineEmits(['toggle-menu', 'pin', 'delete'])
+
+const store = useLiteStore()
+const confirming = ref(false)
+const showMenu = computed(() => store.isHost && props.message.kind === 'user')
+
+// 메뉴가 닫히면 삭제 확인 단계도 처음으로 돌린다
+watch(() => props.menuOpen, (open) => { if (!open) confirming.value = false })
 </script>
