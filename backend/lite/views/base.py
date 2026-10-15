@@ -1,5 +1,6 @@
 import logging
 
+from django.db.utils import DataError
 from rest_framework import status
 from rest_framework.exceptions import APIException, NotAuthenticated, Throttled
 from rest_framework.views import APIView
@@ -22,7 +23,10 @@ def not_found(message='찾을 수 없어요'):
 
 
 def get_or_404(queryset, message='찾을 수 없어요', **kwargs):
-    obj = queryset.filter(**kwargs).first()
+    try:
+        obj = queryset.filter(**kwargs).first()
+    except (OverflowError, DataError):
+        raise not_found(message) from None
     if obj is None:
         raise not_found(message)
     return obj

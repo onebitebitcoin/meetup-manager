@@ -1,6 +1,7 @@
 import logging
+from urllib.parse import urlsplit
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from meetups.views.helpers import APIResponse
@@ -15,7 +16,7 @@ from .meetups import DESCRIPTION_MAX, parse_capacity, parse_starts_at
 logger = logging.getLogger(__name__)
 
 IMAGE_URL_MAX = 500
-IMAGE_URL_PREFIXES = ('http://', 'https://', '/media/')
+MEDIA_PREFIX = '/media/'
 WEEKDAYS = '월화수목금토일'
 STATUS_ORDER = {Rsvp.Status.GOING: 0, Rsvp.Status.MAYBE: 1, Rsvp.Status.NO: 2}
 
@@ -26,14 +27,25 @@ def format_schedule(starts_at, location):
     return f'일정이 바뀌었어요 · {when} · {location}'
 
 
+def is_valid_image_url(value):
+    if any(ch.isspace() or ord(ch) < 32 or ord(ch) == 127 for ch in value):
+        return False
+    if value.startswith(MEDIA_PREFIX):
+        return not any(bad in value for bad in ('//', '..', '\\'))
+    try:
+        parts = urlsplit(value)
+    except ValueError:
+        return False
+    return parts.scheme in ('http', 'https') and bool(parts.netloc)
+
+
 def parse_image_url(value):
     if not isinstance(value, str):
         raise ApiError('썸네일 주소 형식이 올바르지 않아요')
-    value = value.strip()
     if len(value) > IMAGE_URL_MAX:
         raise ApiError(f'썸네일 주소는 {IMAGE_URL_MAX}자 이내로 입력해 주세요')
-    if value and not value.startswith(IMAGE_URL_PREFIXES):
-        raise ApiError('썸네일 주소는 http://, https:// 또는 /media/로 시작해야 해요')
+    if value and not is_valid_image_url(value):
+        raise ApiError('썸네일 주소는 http://, https:// 또는 /media/로 시작하는 올바른 주소여야 해요')
     return value
 
 
@@ -47,7 +59,7 @@ def parse_description(value):
 
 
 def locked_meetup(meetup_id):
-    queryset = Meetup.objects.select_for_update().select_related('room')
+    queryset = Meetup.objects.select_for_update()
     return get_or_404(queryset, '모임을 찾을 수 없어요', pk=meetup_id)
 
 
@@ -159,11 +171,15 @@ class AdminMemberRemoveView(LiteView):
     permission_classes = [IsHost]
 
     def delete(self, request, meetup_id, member_id):
-        get_or_404(Meetup.objects, '모임을 찾을 수 없어요', pk=meetup_id)
-        rsvp = get_or_404(Rsvp.objects, '참석 신청한 회원이 아니에요', meetup_id=meetup_id, member_id=member_id)
-        rsvp.status = Rsvp.Status.NO
-        rsvp.removed_at = timezone.now()
-        rsvp.save(update_fields=['status', 'removed_at', 'updated_at'])
+        with transaction.atomic():
+            locked_meetup(meetup_id)
+            rsvp = get_or_404(
+                Rsvp.objects.select_for_update(), '참석 신청한 회원이 아니에요', meetup_id=meetup_id, member_id=member_id
+            )
+            rsvp.status = Rsvp.Status.NO
+            rsvp.checked_in_at = None
+            rsvp.removed_at = timezone.now()
+            rsvp.save(update_fields=['status', 'checked_in_at', 'removed_at', 'updated_at'])
         logger.info('LITE 참석자 내보내기: meetup_id=%s member_id=%s', meetup_id, member_id)
         return APIResponse.success(admin_detail(meetup_id))
 
@@ -183,16 +199,23 @@ class AdminPinView(LiteView):
 
     def put(self, request, room_id):
         room = get_or_404(ChatRoom.objects, '채팅방을 찾을 수 없어요', pk=room_id)
-        message_id = self.json_body().get('message_id')
+        data = self.json_body()
+        if 'message_id' not in data:
+            raise ApiError('message_id가 필요해요')
+        message_id = data['message_id']
         if message_id is None:
             message = None
         elif isinstance(message_id, int) and not isinstance(message_id, bool):
-            message = ChatMessage.objects.select_related('member').filter(pk=message_id, room=room).first()
-            if message is None:
-                raise not_found('메시지를 찾을 수 없어요')
+            message = get_or_404(
+                ChatMessage.objects.select_related('member'), '메시지를 찾을 수 없어요', pk=message_id, room=room
+            )
         else:
             raise ApiError('message_id 값이 올바르지 않아요')
-        room.pinned_message = message
-        room.save(update_fields=['pinned_message'])
+        try:
+            with transaction.atomic():
+                room.pinned_message = message
+                room.save(update_fields=['pinned_message'])
+        except IntegrityError:
+            raise not_found('메시지를 찾을 수 없어요') from None
         logger.info('LITE 공지 고정: room_id=%s message_id=%s', room_id, message_id)
         return APIResponse.success({'pinned': message_obj(message) if message else None})

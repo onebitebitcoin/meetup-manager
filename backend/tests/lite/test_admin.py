@@ -1,8 +1,10 @@
 from datetime import timedelta
 
+from django.db import IntegrityError, connection
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
-from lite.models import ChatMessage, Meetup, MeetupRequest, Rsvp
+from lite.models import ChatMessage, ChatRoom, Meetup, MeetupRequest, Rsvp
 
 BASE = '/api/lite/admin/meetups/'
 
@@ -233,3 +235,133 @@ def test_delete_meetup(api_client, host, member, auth, make_meetup):
     assert not Rsvp.objects.filter(meetup_id=meetup.id).exists()
     req.refresh_from_db()
     assert req.meetup_id is None and req.status == 'done'
+
+
+def test_image_url_rules(api_client, host, auth, make_meetup):
+    meetup = make_meetup()
+    bad = [
+        '//evil.com/x.png', 'data:image/png;base64,xx', 'https://', 'https://a b.com',
+        '/media//x', '/media/../x', '/media/a\\b', 'https://a.com/x\ny.png', 'https://a.com/x\n',
+    ]
+    for value in bad:
+        assert patch(api_client, auth(host), meetup, image_url=value).status_code == 400, value
+    for value in ['HTTP://ok.com/a.png', 'https://ok.com/a.png', '/media/a/b.png', '']:
+        assert patch(api_client, auth(host), meetup, image_url=value).status_code == 200, value
+
+
+def test_locked_meetup_sql_has_no_join(api_client, host, auth, make_meetup):
+    meetup = make_meetup()
+    with CaptureQueriesContext(connection) as ctx:
+        assert patch(api_client, auth(host), meetup, title='새 제목').status_code == 200
+        r = api_client.post(f'{BASE}{meetup.id}/cancel/', {'cancelled': True}, format='json', **auth(host))
+        assert r.status_code == 200
+        r = api_client.delete(f'{BASE}{meetup.id}/members/1/', **auth(host))
+    sqls = [q['sql'].upper() for q in ctx.captured_queries]
+    # PostgreSQL은 FOR UPDATE가 붙은 쿼리에 OUTER JOIN이 있으면 거부한다. SQLite는 FOR UPDATE를 생략하므로
+    # 잠금용 조회(첫 번째 lite_meetup SELECT)에 JOIN이 없는지로 같은 조건을 확인한다.
+    locking = [q for q in sqls if 'FOR UPDATE' in q]
+    assert not any('OUTER JOIN' in q for q in locking)
+    lock_selects = [q for q in sqls if q.startswith('SELECT') and 'FROM "LITE_MEETUP"' in q and 'COUNT' not in q]
+    assert lock_selects and 'JOIN' not in lock_selects[0]
+
+
+def test_remove_member_clears_checkin_and_count(api_client, host, member, auth, make_meetup):
+    meetup = make_meetup(days=0)
+    put_rsvp(api_client, auth(member), meetup, 'going')
+    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': meetup.checkin_code}, format='json', **auth(member))
+    assert r.status_code == 200
+    detail = f'/api/lite/meetups/{meetup.id}/'
+    assert api_client.get(detail, **auth(host)).json()['checked_in_count'] == 1
+    api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
+    assert Rsvp.objects.get(member=member, meetup=meetup).checked_in_at is None
+    assert api_client.get(detail, **auth(host)).json()['checked_in_count'] == 0
+    # 기존 데이터(removed_at만 있고 checked_in_at이 남은 행)도 집계에서 제외된다.
+    Rsvp.objects.filter(member=member, meetup=meetup).update(checked_in_at=timezone.now())
+    assert api_client.get(detail, **auth(host)).json()['checked_in_count'] == 0
+    body = api_client.get(detail, **auth(member)).json()
+    assert body['removed'] is True
+
+
+def test_detail_removed_flag_false_by_default(api_client, member, auth, make_meetup):
+    meetup = make_meetup()
+    detail = f'/api/lite/meetups/{meetup.id}/'
+    assert api_client.get(detail, **auth(member)).json()['removed'] is False
+    put_rsvp(api_client, auth(member), meetup, 'going')
+    assert api_client.get(detail, **auth(member)).json()['removed'] is False
+
+
+def test_removed_member_checkin_forbidden(api_client, host, member, auth, make_meetup):
+    meetup = make_meetup(days=0)
+    put_rsvp(api_client, auth(member), meetup, 'going')
+    api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
+    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': meetup.checkin_code}, format='json', **auth(member))
+    assert r.status_code == 403 and r.json()['error'] == '운영자가 내보낸 모임이에요'
+
+
+def test_checkin_cancelled_checked_inside_lock(api_client, host, member, auth, make_meetup):
+    meetup = make_meetup(days=0, cancelled_at=timezone.now())
+    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': 'x'}, format='json', **auth(member))
+    assert r.status_code == 400 and r.json()['error'] == '취소된 모임이에요'
+
+
+def test_remove_member_already_no(api_client, host, member, auth, make_meetup):
+    meetup = make_meetup()
+    put_rsvp(api_client, auth(member), meetup, 'going')
+    put_rsvp(api_client, auth(member), meetup, 'no')
+    r = api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
+    assert r.status_code == 200 and r.json()['attendees'][0]['removed'] is True
+    assert Rsvp.objects.get(member=member, meetup=meetup).removed_at is not None
+
+
+def test_message_delete_and_pin_in_seminar_room(api_client, host, member, auth):
+    assert api_client.post('/api/lite/seminar/', **auth(member)).status_code == 200
+    room = ChatRoom.objects.get(kind='seminar')
+    msg = ChatMessage.objects.create(room=room, member=member, body='주제')
+    pin_url = f'/api/lite/rooms/{room.id}/pin/'
+    r = api_client.put(pin_url, {'message_id': msg.id}, format='json', **auth(host))
+    assert r.status_code == 200 and r.json()['pinned']['id'] == msg.id
+    r = api_client.delete(f'/api/lite/rooms/{room.id}/messages/{msg.id}/', **auth(host))
+    assert r.status_code == 200
+    assert not ChatMessage.objects.filter(pk=msg.pk).exists()
+
+
+def test_pin_requires_message_id_key_and_types(api_client, host, member, auth, make_meetup):
+    meetup = make_meetup()
+    msg = ChatMessage.objects.create(room=meetup.room, member=host, body='공지')
+    url = f'/api/lite/rooms/{meetup.room.id}/pin/'
+    assert api_client.put(url, {}, format='json', **auth(host)).status_code == 400
+    for bad in [True, '1', 1.5]:
+        assert api_client.put(url, {'message_id': bad}, format='json', **auth(host)).status_code == 400, bad
+    assert api_client.put(url, {'message_id': 2**63}, format='json', **auth(host)).status_code == 404
+    assert api_client.put(url, {'message_id': msg.id}, format='json', **auth(host)).status_code == 200
+    assert api_client.put(url, {'message_id': None}, format='json', **auth(host)).json() == {'pinned': None}
+
+
+def test_pin_integrity_error_returns_404(api_client, host, auth, make_meetup, monkeypatch):
+    meetup = make_meetup()
+    msg = ChatMessage.objects.create(room=meetup.room, member=host, body='공지')
+
+    def boom(self, *args, **kwargs):
+        raise IntegrityError('fk')
+
+    monkeypatch.setattr(ChatRoom, 'save', boom)
+    r = api_client.put(f'/api/lite/rooms/{meetup.room.id}/pin/', {'message_id': msg.id}, format='json', **auth(host))
+    assert r.status_code == 404 and r.json()['error'] == '메시지를 찾을 수 없어요'
+
+
+def test_huge_ids_return_404(api_client, host, member, auth, make_meetup):
+    meetup = make_meetup()
+    big = 2**63
+    assert api_client.get(f'/api/lite/meetups/{big}/', **auth(member)).status_code == 404
+    assert api_client.get(f'{BASE}{big}/', **auth(host)).status_code == 404
+    assert api_client.delete(f'{BASE}{meetup.id}/members/{big}/', **auth(host)).status_code == 404
+    assert api_client.delete(f'/api/lite/rooms/{meetup.room.id}/messages/{big}/', **auth(host)).status_code == 404
+
+
+def test_missing_meetup_returns_404(api_client, host, auth):
+    missing = 999999
+    assert api_client.patch(f'{BASE}{missing}/', {'title': 'x'}, format='json', **auth(host)).status_code == 404
+    assert api_client.delete(f'{BASE}{missing}/', **auth(host)).status_code == 404
+    r = api_client.post(f'{BASE}{missing}/cancel/', {'cancelled': True}, format='json', **auth(host))
+    assert r.status_code == 404
+    assert api_client.delete(f'{BASE}{missing}/members/1/', **auth(host)).status_code == 404

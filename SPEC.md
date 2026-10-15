@@ -497,8 +497,8 @@ npm run test
 #### 11.2.1 운영자 관리 동작
 - 취소: `Meetup.cancelled_at`을 기록한다. 취소된 모임은 홈에 그대로 남고 카드의 `cancelled`로 표시한다. 참석 응답·도착 체크는 400 "취소된 모임이에요". 채팅방에 시스템 메시지 "모임이 취소됐어요"를 남기고, 되돌리면 "모임이 다시 열렸어요"를 남긴다. 이미 같은 상태면 메시지 없이 200.
 - 삭제: 모임, 응답, 채팅방, 메시지를 함께 지운다(CASCADE). 이 모임으로 완료 처리된 요청은 meetup만 NULL이 되고 status는 그대로 둔다.
-- 수정: 제목, 시작 시각, 장소, 정원, 설명, 썸네일 URL. 생성과 달리 "현재 이후" 조건이 없다. 정원은 현재 참석(going) 인원보다 작게 줄일 수 없다. 썸네일 URL은 빈 문자열 허용, 500자 이하, `http://`·`https://`·`/media/` 중 하나로 시작해야 한다. 시작 시각이나 장소가 실제로 바뀌면 시스템 메시지 "일정이 바뀌었어요 · 10월 18일 (토) 19:00 · 장소"(서울 시간)를 남긴다.
-- 내보내기: 해당 회원의 응답을 `no`로 바꾸고 `Rsvp.removed_at`을 기록한다. 내보낸 회원은 그 모임에 다시 응답할 수 없고(403 "운영자가 내보낸 모임이에요"), 응답이 `no`이므로 채팅방에도 들어갈 수 없다. 시스템 메시지는 남기지 않는다.
+- 수정: 제목, 시작 시각, 장소, 정원, 설명, 썸네일 URL. 생성과 달리 "현재 이후" 조건이 없다. 정원은 현재 참석(going) 인원보다 작게 줄일 수 없다. 썸네일 URL은 빈 문자열 허용, 500자 이하이며 공백·제어문자는 거부한다. `urlsplit` 결과 scheme이 `http` 또는 `https`(대소문자 무시)이고 netloc이 비어 있지 않거나, `/media/`로 시작하면서 `//`, `..`, `\`가 없어야 한다(`//host/x`, `data:` 등은 400). 시작 시각이나 장소가 실제로 바뀌면 시스템 메시지 "일정이 바뀌었어요 · 10월 18일 (토) 19:00 · 장소"(서울 시간)를 남긴다. 취소된 모임의 일정을 수정해도 이 메시지는 똑같이 남는다.
+- 내보내기: 모임 행을 잠근 뒤 해당 회원의 응답을 `no`로 바꾸고 `checked_in_at`을 비우고 `Rsvp.removed_at`을 기록한다. 도착 인원(`checked_in_count`)은 `removed_at`이 없는 응답만 센다. 내보낸 회원은 그 모임에 다시 응답할 수 없고(403 "운영자가 내보낸 모임이에요"), 응답이 `no`이므로 채팅방에도 들어갈 수 없다. 시스템 메시지는 남기지 않는다.
 - 메시지 삭제: DB에서 지운다. 폴링은 새 메시지만 가져오므로 다른 사람 화면에서는 새로고침 후 사라진다.
 - 공지 고정: 방마다 1개. 메시지 조회 응답(폴링 포함)에 `pinned`(Message|null)를 담는다. 고정된 메시지를 삭제하면 `pinned`는 null이 된다.
 
@@ -533,9 +533,9 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | POST | host/claim/ | member | {key} | 200 {member} · 키 불일치 403 |
 | GET | home/ | member | - | 200 {meetups: [MeetupCard], my_seminar: SeminarCard\|null, seminars: [SeminarCard] (운영자만, 아니면 []), ready_request_count: int} — meetups는 starts_at가 오늘(서울) 0시 이후인 것, 시간순 |
 | POST | meetups/ | host | {title(≤80), starts_at(현재 이후), location(≤100), capacity(2~500), description?(≤1000), request_id?} | 201 {meetup: MeetupCard} (request_id가 있으면 해당 요청 status=done, meetup 연결, 시스템 메시지 "요청으로 열린 모임이에요 · N명에게 알림") |
-| GET | meetups/<id>/ | member | - | 200 {meetup: MeetupCard, checkin_code: str\|null (운영자 + 오늘만), checked_in: bool, checked_in_count: int} |
+| GET | meetups/<id>/ | member | - | 200 {meetup: MeetupCard, checkin_code: str\|null (운영자 + 오늘만), checked_in: bool, checked_in_count: int (내보낸 회원 제외), removed: bool (요청한 회원 본인이 운영자에게 내보내졌는지)} |
 | PUT | meetups/<id>/rsvp/ | member | {status} | 200 {meetup: MeetupCard} · 이미 지난 모임(시작 시각 + 12시간 경과)은 400 · 취소된 모임은 400 "취소된 모임이에요" · 운영자가 내보낸 회원은 403 · going인데 정원 초과 409 "정원이 찼어요" · 상태가 바뀌면 시스템 메시지 "<이름>님 참석/미정/불참", 처음 going/maybe가 되면 guide 메시지 join_guide 추가 |
-| POST | meetups/<id>/checkin/ | member(going/maybe) | {code} | 200 {checked_in: true} · 취소된 모임이면 400 · 오늘이 아니면 400 · 코드 불일치 400 "코드가 달라요" · 시스템 메시지 "<이름>님 도착" |
+| POST | meetups/<id>/checkin/ | member(going/maybe) | {code} | 200 {checked_in: true} · 취소된 모임이면 400 · 내보낸 회원이면 403 "운영자가 내보낸 모임이에요" · 오늘이 아니면 400 · 코드 불일치 400 "코드가 달라요" · 시스템 메시지 "<이름>님 도착" |
 | GET | rooms/<id>/messages/?after=<msg_id> 또는 ?before=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | after가 있으면 200 {messages, pinned} (그 이후 최대 200개, 폴링용). after가 없으면 200 {messages, has_more, pinned} — 최신 100개, before가 있으면 그 id보다 오래된 메시지 중 최신 100개(둘 다 id 오름차순). has_more는 더 오래된 메시지가 남았는지. after·before는 0 이상 정수(아니면 400) |
 | POST | rooms/<id>/messages/ | 위와 동일 | {body} (1~1000자) | 201 {message: Message} · 세미나방에서 신청자 본인이 보낸 메시지이고 status=guide이며 mode가 정해져 있으면: topic=body, status=received, guide 메시지 seminar_guide_4 추가 |
 | POST | seminar/ | member | - | 200 {seminar: SeminarCard} — 내 SeminarRequest get-or-create. 새로 만들 때 guide 메시지 seminar_guide_1, seminar_guide_2 추가 |
@@ -551,7 +551,7 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | POST | admin/meetups/<id>/cancel/ | host | {cancelled: bool} | 200 AdminMeetup · bool이 아니면 400 |
 | DELETE | admin/meetups/<id>/members/<member_id>/ | host | - | 200 AdminMeetup · 신청 기록이 없으면 404 "참석 신청한 회원이 아니에요" |
 | DELETE | rooms/<id>/messages/<msg_id>/ | host | - | 200 {deleted: true} · 그 방의 메시지가 아니면 404 |
-| PUT | rooms/<id>/pin/ | host | {message_id: int\|null} | 200 {pinned: Message\|null} · 그 방의 메시지가 아니면 404 · kind 제한 없음 |
+| PUT | rooms/<id>/pin/ | host | {message_id: int\|null} (키 필수, 해제는 null을 명시) | 200 {pinned: Message\|null} · 키가 없거나 bool·문자열·실수면 400 · 그 방의 메시지가 아니거나 범위(2^63-1) 초과, 고정 중 삭제되면 404 · kind 제한 없음 |
 
 ### 11.5 관리 명령
 - `python manage.py import_legacy_meetups [--all]`: 기존 `meetups.Meetup` → `lite.Meetup`. 기본은 starts_at가 현재 이후인 모임만, `--all`이면 전부. name→title, description, date_time→starts_at, location, max_participants→capacity, legacy_meetup_id=원래 id. image가 있으면 그 /media/ 경로, 없으면 image_url을 썸네일로 쓴다. 이미 있는 legacy_meetup_id는 다시 만들지 않고, lite 쪽 썸네일이 비어 있을 때만 채운다(재실행 안전). 결과 개수를 출력한다.

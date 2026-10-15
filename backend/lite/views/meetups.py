@@ -151,7 +151,10 @@ class MeetupDetailView(LiteView):
             'meetup': meetup_card(meetup, rsvp.status if rsvp else None),
             'checkin_code': meetup.checkin_code if show_code else None,
             'checked_in': bool(rsvp and rsvp.checked_in_at),
-            'checked_in_count': Rsvp.objects.filter(meetup=meetup, checked_in_at__isnull=False).count(),
+            'checked_in_count': Rsvp.objects.filter(
+                meetup=meetup, checked_in_at__isnull=False, removed_at__isnull=True
+            ).count(),
+            'removed': bool(rsvp and rsvp.removed_at),
         })
 
 
@@ -194,10 +197,12 @@ class CheckinView(LiteView):
     def post(self, request, meetup_id):
         member = self.member
         code = self.json_body().get('code')
-        meetup = get_or_404(Meetup.objects.select_related('room'), '모임을 찾을 수 없어요', pk=meetup_id)
-        ensure_not_cancelled(meetup)
         with transaction.atomic():
+            meetup = get_or_404(Meetup.objects.select_for_update(), '모임을 찾을 수 없어요', pk=meetup_id)
+            ensure_not_cancelled(meetup)
             rsvp = Rsvp.objects.select_for_update().filter(member=member, meetup=meetup).first()
+            if rsvp and rsvp.removed_at:
+                raise ApiError('운영자가 내보낸 모임이에요', 403)
             if rsvp is None or rsvp.status == Rsvp.Status.NO:
                 raise ApiError('먼저 참석을 신청해 주세요', 403)
             if not is_today(meetup.starts_at):
