@@ -57,6 +57,7 @@ class Meetup(models.Model):
         MeetupRequest, on_delete=models.SET_NULL, null=True, blank=True, related_name='opened_meetups'
     )
     legacy_meetup_id = models.IntegerField(unique=True, null=True, blank=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -73,6 +74,7 @@ class Rsvp(models.Model):
     meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, related_name='rsvps')
     status = models.CharField(max_length=10, choices=Status.choices)
     checked_in_at = models.DateTimeField(null=True, blank=True)
+    removed_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -105,6 +107,9 @@ class ChatRoom(models.Model):
     meetup = models.OneToOneField(Meetup, on_delete=models.CASCADE, null=True, blank=True, related_name='room')
     seminar = models.OneToOneField(
         SeminarRequest, on_delete=models.CASCADE, null=True, blank=True, related_name='room'
+    )
+    pinned_message = models.ForeignKey(
+        'ChatMessage', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
     )
 
 

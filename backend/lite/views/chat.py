@@ -20,7 +20,7 @@ MAX_AFTER = 2**63 - 1
 def room_with_access(room_id, member):
     """채팅방과 접근 권한을 한 번의 쿼리로 조회한다. 권한이 없으면 403, 방이 없으면 404."""
     room = get_or_404(
-        ChatRoom.objects.select_related('seminar').annotate(
+        ChatRoom.objects.select_related('seminar', 'pinned_message__member').annotate(
             has_rsvp=Exists(
                 Rsvp.objects.filter(
                     member=member, meetup_id=OuterRef('meetup_id'),
@@ -65,13 +65,14 @@ class RoomMessagesView(LiteView):
         after = request.query_params.get('after')
         before = request.query_params.get('before')
         qs = ChatMessage.objects.select_related('member').filter(room=room)
+        pinned = message_obj(room.pinned_message) if room.pinned_message_id else None
         if after not in (None, ''):
             messages = list(qs.filter(id__gt=parse_message_id(after, 'after')).order_by('id')[:MESSAGE_LIMIT])
-            return APIResponse.success({'messages': [message_obj(m) for m in messages]})
+            return APIResponse.success({'messages': [message_obj(m) for m in messages], 'pinned': pinned})
         if before not in (None, ''):
             qs = qs.filter(id__lt=parse_message_id(before, 'before'))
         messages, has_more = latest_page(qs, INITIAL_MESSAGE_LIMIT)
-        return APIResponse.success({'messages': [message_obj(m) for m in messages], 'has_more': has_more})
+        return APIResponse.success({'messages': [message_obj(m) for m in messages], 'has_more': has_more, 'pinned': pinned})
 
     def post(self, request, room_id):
         room = self._room(room_id)

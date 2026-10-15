@@ -482,10 +482,10 @@ npm run test
 | 모델 | 필드 |
 |------|------|
 | Member | name(CharField 20, unique), token(CharField 64, unique, `secrets.token_urlsafe(32)`), is_host(bool), created_at |
-| Meetup | title(80), description(blank), starts_at(DateTime), location(100), capacity(PositiveInt), image_url(500, blank: 썸네일 주소, 기존 모임은 /media/ 경로 또는 외부 URL), checkin_code(CharField 4, 생성 시 랜덤 숫자 4자리), from_request(FK MeetupRequest null), legacy_meetup_id(Int unique null), created_at |
-| Rsvp | member FK, meetup FK, status(going/maybe/no), checked_in_at(null), updated_at · unique(member, meetup) |
+| Meetup | title(80), description(blank), starts_at(DateTime), location(100), capacity(PositiveInt), image_url(500, blank: 썸네일 주소, 기존 모임은 /media/ 경로 또는 외부 URL), checkin_code(CharField 4, 생성 시 랜덤 숫자 4자리), from_request(FK MeetupRequest null), legacy_meetup_id(Int unique null), cancelled_at(DateTime null: 운영자 취소 시각), created_at |
+| Rsvp | member FK, meetup FK, status(going/maybe/no), checked_in_at(null), removed_at(DateTime null: 운영자가 내보낸 시각), updated_at · unique(member, meetup) |
 | SeminarRequest | member(O2O Member), mode(online/offline, null), topic(Text blank), status(guide/received/confirmed), created_at |
-| ChatRoom | kind(meetup/seminar), meetup(O2O null), seminar(O2O SeminarRequest null) |
+| ChatRoom | kind(meetup/seminar), meetup(O2O null), seminar(O2O SeminarRequest null), pinned_message(FK ChatMessage null, SET_NULL: 방마다 고정 공지 1개) |
 | ChatMessage | room FK, member FK null, kind(user/system/guide), body(Text ≤ 1000), created_at · ordering id · 복합 인덱스(room, id) |
 | MeetupRequest | title(60), preferred_period(this_month/next_month/any), created_by FK Member, status(open/done), meetup(FK Meetup null), created_at |
 | RequestVote | request FK, member FK · unique(request, member) |
@@ -493,6 +493,14 @@ npm run test
 
 - Meetup 생성 시 ChatRoom(kind=meetup)을 함께 만든다(뷰·관리 명령·Django admin 어디서 만들어도 보장, 모델 계층에서 처리). ChatRoom은 admin에서 읽기 전용. SeminarRequest 생성 시 ChatRoom(kind=seminar)을 함께 만든다.
 - 참석 인원(going_count)은 Rsvp(status=going) 수로 계산한다. 별도 카운터 필드는 두지 않는다.
+
+#### 11.2.1 운영자 관리 동작
+- 취소: `Meetup.cancelled_at`을 기록한다. 취소된 모임은 홈에 그대로 남고 카드의 `cancelled`로 표시한다. 참석 응답·도착 체크는 400 "취소된 모임이에요". 채팅방에 시스템 메시지 "모임이 취소됐어요"를 남기고, 되돌리면 "모임이 다시 열렸어요"를 남긴다. 이미 같은 상태면 메시지 없이 200.
+- 삭제: 모임, 응답, 채팅방, 메시지를 함께 지운다(CASCADE). 이 모임으로 완료 처리된 요청은 meetup만 NULL이 되고 status는 그대로 둔다.
+- 수정: 제목, 시작 시각, 장소, 정원, 설명, 썸네일 URL. 생성과 달리 "현재 이후" 조건이 없다. 정원은 현재 참석(going) 인원보다 작게 줄일 수 없다. 썸네일 URL은 빈 문자열 허용, 500자 이하, `http://`·`https://`·`/media/` 중 하나로 시작해야 한다. 시작 시각이나 장소가 실제로 바뀌면 시스템 메시지 "일정이 바뀌었어요 · 10월 18일 (토) 19:00 · 장소"(서울 시간)를 남긴다.
+- 내보내기: 해당 회원의 응답을 `no`로 바꾸고 `Rsvp.removed_at`을 기록한다. 내보낸 회원은 그 모임에 다시 응답할 수 없고(403 "운영자가 내보낸 모임이에요"), 응답이 `no`이므로 채팅방에도 들어갈 수 없다. 시스템 메시지는 남기지 않는다.
+- 메시지 삭제: DB에서 지운다. 폴링은 새 메시지만 가져오므로 다른 사람 화면에서는 새로고침 후 사라진다.
+- 공지 고정: 방마다 1개. 메시지 조회 응답(폴링 포함)에 `pinned`(Message|null)를 담는다. 고정된 메시지를 삭제하면 `pinned`는 null이 된다.
 
 ### 11.3 인증
 - 요청 헤더 `X-Member-Token: <token>`. DRF 인증 클래스 `lite.auth.MemberTokenAuthentication`이 `request.user` 대신 `request.member`를 채운다(`request.auth`=Member도 허용).
@@ -510,7 +518,7 @@ npm run test
 ```
 Member      {id, name, is_host}
 MeetupCard  {id, title, starts_at(ISO8601), location, capacity, image_url: string|null, going_count, maybe_count,
-             my_status: "going"|"maybe"|"no"|null, from_request: bool, is_today: bool, room_id}
+             my_status: "going"|"maybe"|"no"|null, from_request: bool, is_today: bool, cancelled: bool, room_id}
 Message     {id, kind: "user"|"system"|"guide", member: {id,name}|null, body, created_at}
 SeminarCard {id, member: {id,name}, mode: "online"|"offline"|null, status: "guide"|"received"|"confirmed",
              room_id, last_message: string|null}
@@ -526,9 +534,9 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | home/ | member | - | 200 {meetups: [MeetupCard], my_seminar: SeminarCard\|null, seminars: [SeminarCard] (운영자만, 아니면 []), ready_request_count: int} — meetups는 starts_at가 오늘(서울) 0시 이후인 것, 시간순 |
 | POST | meetups/ | host | {title(≤80), starts_at(현재 이후), location(≤100), capacity(2~500), description?(≤1000), request_id?} | 201 {meetup: MeetupCard} (request_id가 있으면 해당 요청 status=done, meetup 연결, 시스템 메시지 "요청으로 열린 모임이에요 · N명에게 알림") |
 | GET | meetups/<id>/ | member | - | 200 {meetup: MeetupCard, checkin_code: str\|null (운영자 + 오늘만), checked_in: bool, checked_in_count: int} |
-| PUT | meetups/<id>/rsvp/ | member | {status} | 200 {meetup: MeetupCard} · 이미 지난 모임(시작 시각 + 12시간 경과)은 400 · going인데 정원 초과 409 "정원이 찼어요" · 상태가 바뀌면 시스템 메시지 "<이름>님 참석/미정/불참", 처음 going/maybe가 되면 guide 메시지 join_guide 추가 |
-| POST | meetups/<id>/checkin/ | member(going/maybe) | {code} | 200 {checked_in: true} · 오늘이 아니면 400 · 코드 불일치 400 "코드가 달라요" · 시스템 메시지 "<이름>님 도착" |
-| GET | rooms/<id>/messages/?after=<msg_id> 또는 ?before=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | after가 있으면 200 {messages} (그 이후 최대 200개, 폴링용). after가 없으면 200 {messages, has_more} — 최신 100개, before가 있으면 그 id보다 오래된 메시지 중 최신 100개(둘 다 id 오름차순). has_more는 더 오래된 메시지가 남았는지. after·before는 0 이상 정수(아니면 400) |
+| PUT | meetups/<id>/rsvp/ | member | {status} | 200 {meetup: MeetupCard} · 이미 지난 모임(시작 시각 + 12시간 경과)은 400 · 취소된 모임은 400 "취소된 모임이에요" · 운영자가 내보낸 회원은 403 · going인데 정원 초과 409 "정원이 찼어요" · 상태가 바뀌면 시스템 메시지 "<이름>님 참석/미정/불참", 처음 going/maybe가 되면 guide 메시지 join_guide 추가 |
+| POST | meetups/<id>/checkin/ | member(going/maybe) | {code} | 200 {checked_in: true} · 취소된 모임이면 400 · 오늘이 아니면 400 · 코드 불일치 400 "코드가 달라요" · 시스템 메시지 "<이름>님 도착" |
+| GET | rooms/<id>/messages/?after=<msg_id> 또는 ?before=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | after가 있으면 200 {messages, pinned} (그 이후 최대 200개, 폴링용). after가 없으면 200 {messages, has_more, pinned} — 최신 100개, before가 있으면 그 id보다 오래된 메시지 중 최신 100개(둘 다 id 오름차순). has_more는 더 오래된 메시지가 남았는지. after·before는 0 이상 정수(아니면 400) |
 | POST | rooms/<id>/messages/ | 위와 동일 | {body} (1~1000자) | 201 {message: Message} · 세미나방에서 신청자 본인이 보낸 메시지이고 status=guide이며 mode가 정해져 있으면: topic=body, status=received, guide 메시지 seminar_guide_4 추가 |
 | POST | seminar/ | member | - | 200 {seminar: SeminarCard} — 내 SeminarRequest get-or-create. 새로 만들 때 guide 메시지 seminar_guide_1, seminar_guide_2 추가 |
 | POST | seminar/mode/ | member | {mode} | 200 {seminar} — 사용자 메시지 "온라인"/"오프라인" + guide 메시지 seminar_guide_3 추가 |
@@ -536,6 +544,14 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | requests/ | member | - | 200 {requests: [RequestCard]} (open 먼저, vote_count 내림차순, done 뒤) |
 | POST | requests/ | member | {title(1~60), preferred_period} | 201 {request: RequestCard} (작성자 자동 투표) |
 | POST | requests/<id>/vote/ | member | - | 200 {request: RequestCard} (토글) |
+| GET | admin/meetups/?scope=upcoming\|past | host | - | 200 {meetups: [MeetupCard]} — upcoming(기본)은 starts_at가 오늘(서울) 0시 이후, 시간 오름차순. past는 그 이전, 시간 내림차순. 취소된 모임 포함. 그 외 scope는 400 |
+| GET | admin/meetups/<id>/ | host | - | 200 AdminMeetup {meetup: MeetupCard, description, image_url, checkin_code, attendees: [{member: {id,name}, status, checked_in_at: ISO\|null, removed: bool}]} — attendees는 going, maybe, no 순이고 같은 상태 안에서는 updated_at 순 |
+| PATCH | admin/meetups/<id>/ | host | {title?, starts_at?, location?, capacity?, description?, image_url?} (보낸 필드만 수정) | 200 AdminMeetup · 정원이 현재 참석 인원보다 작으면 400 "정원은 현재 참석 인원(N명)보다 작게 줄일 수 없어요" · image_url 형식 오류 400 |
+| DELETE | admin/meetups/<id>/ | host | - | 200 {deleted: true} |
+| POST | admin/meetups/<id>/cancel/ | host | {cancelled: bool} | 200 AdminMeetup · bool이 아니면 400 |
+| DELETE | admin/meetups/<id>/members/<member_id>/ | host | - | 200 AdminMeetup · 신청 기록이 없으면 404 "참석 신청한 회원이 아니에요" |
+| DELETE | rooms/<id>/messages/<msg_id>/ | host | - | 200 {deleted: true} · 그 방의 메시지가 아니면 404 |
+| PUT | rooms/<id>/pin/ | host | {message_id: int\|null} | 200 {pinned: Message\|null} · 그 방의 메시지가 아니면 404 · kind 제한 없음 |
 
 ### 11.5 관리 명령
 - `python manage.py import_legacy_meetups [--all]`: 기존 `meetups.Meetup` → `lite.Meetup`. 기본은 starts_at가 현재 이후인 모임만, `--all`이면 전부. name→title, description, date_time→starts_at, location, max_participants→capacity, legacy_meetup_id=원래 id. image가 있으면 그 /media/ 경로, 없으면 image_url을 썸네일로 쓴다. 이미 있는 legacy_meetup_id는 다시 만들지 않고, lite 쪽 썸네일이 비어 있을 때만 채운다(재실행 안전). 결과 개수를 출력한다.
@@ -546,6 +562,8 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | /lite | 홈(제목 "한입 모임"). 토큰이 없으면 이름 입력. 하단 탭 없음. 맨 위 1:1 세미나 카드(운영자는 세미나 대화별 카드), 그 아래 "이런 모임 열어주세요" 항목(운영자에게는 개설 가능 수), 그 아래 모임 카드. 모임 카드는 "오늘/내일/N일 후"(서울 날짜 기준)와 썸네일(image_url이 있을 때)을 보여준다 |
 | /lite/requests | 모임 요청 목록과 "이런 모임 열어주세요" 작성 버튼 |
 | /lite/m/:id | 모임 채팅방. 상단 줄: 일정·장소, 내 응답 칩(누르면 참석/미정/불참 펼침), 당일 도착 코드 입력(운영자는 코드와 도착 인원). 미신청자는 메시지 대신 신청하기/못 가요 |
+| /lite/admin | 운영자 전용. 다가오는/지난 탭 모임 목록(날짜·제목·참석/정원·취소됨 칩)과 모임 만들기 버튼. 운영자가 아니면 홈으로 이동 |
+| /lite/admin/m/:id | 운영자 전용 모임 관리. 수정 폼(썸네일 URL 포함), 참석자 명단과 내보내기, 채팅방 링크, 취소/되돌리기, 삭제. 내보내기·삭제는 화면 안에서 한 번 더 확인 |
 | /lite/seminar | 내 1:1 세미나 채팅방. 마지막 안내 메시지 아래 온라인/오프라인 선택 버튼 |
 | /lite/seminar/:id | 운영자용 1:1 세미나 채팅방 + 확정 버튼 |
 | /lite/new-request | 요청 작성(주제 + 시기 세그먼트) |

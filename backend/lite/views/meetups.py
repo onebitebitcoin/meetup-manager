@@ -32,6 +32,11 @@ DESCRIPTION_MAX = 1000
 RSVP_LABELS = {Rsvp.Status.GOING: '참석', Rsvp.Status.MAYBE: '미정', Rsvp.Status.NO: '불참'}
 
 
+def ensure_not_cancelled(meetup):
+    if meetup.cancelled_at is not None:
+        raise ApiError('취소된 모임이에요')
+
+
 def card_for(meetup_id, member):
     meetup = meetups_with_counts().get(pk=meetup_id)
     return meetup_card(meetup, my_statuses(member, [meetup_id]).get(meetup_id))
@@ -158,9 +163,12 @@ class RsvpView(LiteView):
             raise ApiError('참석 상태는 going, maybe, no 중 하나여야 해요')
         with transaction.atomic():
             meetup = get_or_404(Meetup.objects.select_for_update(), '모임을 찾을 수 없어요', pk=meetup_id)
+            ensure_not_cancelled(meetup)
             if meetup.starts_at + MEETUP_END_GRACE < timezone.now():
                 raise ApiError('이미 끝난 모임이에요')
             rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first()
+            if rsvp and rsvp.removed_at:
+                raise ApiError('운영자가 내보낸 모임이에요', 403)
             previous = rsvp.status if rsvp else None
             if previous != new_status:
                 if new_status == Rsvp.Status.GOING:
@@ -187,6 +195,7 @@ class CheckinView(LiteView):
         member = self.member
         code = self.json_body().get('code')
         meetup = get_or_404(Meetup.objects.select_related('room'), '모임을 찾을 수 없어요', pk=meetup_id)
+        ensure_not_cancelled(meetup)
         with transaction.atomic():
             rsvp = Rsvp.objects.select_for_update().filter(member=member, meetup=meetup).first()
             if rsvp is None or rsvp.status == Rsvp.Status.NO:

@@ -35,6 +35,7 @@ def meetup_card(meetup, my_status=None):
         'my_status': my_status,
         'from_request': meetup.from_request_id is not None,
         'is_today': is_today(meetup.starts_at),
+        'cancelled': meetup.cancelled_at is not None,
         'room_id': room_id_of(meetup),
     }
 
