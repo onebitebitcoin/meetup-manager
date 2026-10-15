@@ -1,7 +1,16 @@
 <template>
   <LiteOnboard v-if="!store.member" />
   <template v-else>
-    <LiteTopbar title="한입 모임" />
+    <LiteTopbar title="한입 모임">
+      <button
+        v-if="store.isHost"
+        class="l-icon-btn"
+        aria-label="관리"
+        @click="router.push('/lite/admin')"
+      >
+        <Settings :size="20" />
+      </button>
+    </LiteTopbar>
     <div class="lite-scroll">
       <div class="l-body">
         <LiteSeminarCard
@@ -47,7 +56,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Settings } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteMeetupCard from '../components/LiteMeetupCard.vue'

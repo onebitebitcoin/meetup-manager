@@ -9,45 +9,10 @@
     class="l-body"
     @submit.prevent="submit"
   >
-    <input
-      v-model="form.title"
-      class="l-big-input"
-      maxlength="80"
-      placeholder="모임 이름"
-      aria-label="모임 이름"
-    >
-    <div class="l-grid2">
-      <input
-        v-model="form.date"
-        class="l-field"
-        type="date"
-        aria-label="날짜"
-      >
-      <input
-        v-model="form.time"
-        class="l-field"
-        type="time"
-        aria-label="시간"
-      >
-    </div>
-    <input
-      v-model="form.location"
-      class="l-field"
-      maxlength="100"
-      placeholder="장소"
-      aria-label="장소"
-    >
-    <label class="l-num">
-      <Users :size="18" />
-      <input
-        v-model.number="form.capacity"
-        class="l-field"
-        type="number"
-        min="2"
-        max="200"
-        aria-label="정원"
-      >명
-    </label>
+    <LiteMeetupForm
+      :initial="initial"
+      @change="form = $event"
+    />
     <button
       class="l-btn p"
       type="submit"
@@ -59,12 +24,12 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Users } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { toSeoulIso } from '../format'
 import { useLiteStore } from '../store'
+import LiteMeetupForm from '../components/LiteMeetupForm.vue'
 import LiteTopbar from '../components/LiteTopbar.vue'
 
 const route = useRoute()
@@ -72,20 +37,23 @@ const router = useRouter()
 const store = useLiteStore()
 const busy = ref(false)
 const fromRequest = ref(null)
-const form = reactive({ title: '', date: '', time: '', location: '', capacity: 15 })
+const initial = ref({})
+const form = ref({ title: '', date: '', time: '', location: '', capacity: 15, description: '' })
 
 const submit = async () => {
-  const missing = !form.title.trim() || !form.date || !form.time || !form.location.trim() || !form.capacity
+  const f = form.value
+  const missing = !f.title.trim() || !f.date || !f.time || !f.location.trim() || !f.capacity
   if (missing) {
     store.notify('모든 항목을 입력해 주세요', 'error')
     return
   }
   const payload = {
-    title: form.title.trim(),
-    starts_at: toSeoulIso(form.date, form.time),
-    location: form.location.trim(),
-    capacity: form.capacity,
+    title: f.title.trim(),
+    starts_at: toSeoulIso(f.date, f.time),
+    location: f.location.trim(),
+    capacity: f.capacity,
   }
+  if (f.description.trim()) payload.description = f.description.trim()
   if (fromRequest.value) payload.request_id = fromRequest.value.id
   busy.value = true
   const data = await store.act(() => liteApi.createMeetup(payload), '열었어요')
@@ -97,7 +65,7 @@ const loadRequest = async (id) => {
   const found = (await liteApi.requests()).requests.find((r) => String(r.id) === String(id))
   if (!found) throw new Error('요청을 찾을 수 없어요')
   fromRequest.value = found
-  form.title = found.title
+  initial.value = { title: found.title }
 }
 
 onMounted(async () => {

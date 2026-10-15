@@ -69,4 +69,12 @@ export const liteApi = {
     body: { title, preferred_period: preferredPeriod },
   }),
   vote: (id) => request(`requests/${id}/vote/`, { method: 'POST' }),
+  adminMeetups: (scope = 'upcoming') => request(`admin/meetups/?scope=${scope}`),
+  adminMeetup: (id) => request(`admin/meetups/${id}/`),
+  updateMeetup: (id, body) => request(`admin/meetups/${id}/`, { method: 'PATCH', body }),
+  deleteMeetup: (id) => request(`admin/meetups/${id}/`, { method: 'DELETE' }),
+  cancelMeetup: (id, cancelled) => request(`admin/meetups/${id}/cancel/`, { method: 'POST', body: { cancelled } }),
+  removeAttendee: (meetupId, memberId) => request(`admin/meetups/${meetupId}/members/${memberId}/`, { method: 'DELETE' }),
+  deleteMessage: (roomId, msgId) => request(`rooms/${roomId}/messages/${msgId}/`, { method: 'DELETE' }),
+  pinMessage: (roomId, messageId) => request(`rooms/${roomId}/pin/`, { method: 'PUT', body: { message_id: messageId } }),
 }

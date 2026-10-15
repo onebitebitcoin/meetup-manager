@@ -20,6 +20,11 @@ export const dateParts = (iso) => {
 
 export const toSeoulIso = (date, time) => dayjs.tz(`${date} ${time}`, TZ).toISOString()
 
+export const toSeoulParts = (iso) => {
+  const d = dayjs(iso).tz(TZ)
+  return { date: d.format('YYYY-MM-DD'), time: d.format('HH:mm') }
+}
+
 export const todaySeoul = () => dayjs().tz(TZ).format('YYYY-MM-DD')
 
 // 서울 날짜 기준으로 모임까지 남은 날: 오늘 / 내일 / N일 후 (지난 모임은 빈 문자열)

@@ -30,6 +30,10 @@
             style="margin-top: 4px"
           >
             <span
+              v-if="meetup.cancelled"
+              class="l-chip no"
+            >취소됨</span>
+            <span
               v-if="meetup.my_status && !store.isHost"
               class="l-chip"
               :class="meetup.my_status"
@@ -51,7 +55,7 @@
       </div>
     </button>
     <LiteJoinRow
-      v-if="!meetup.my_status && !store.isHost"
+      v-if="!meetup.my_status && !store.isHost && !meetup.cancelled"
       :meetup="meetup"
       @done="onJoinDone"
     />

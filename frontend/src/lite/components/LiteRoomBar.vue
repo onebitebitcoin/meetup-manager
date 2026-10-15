@@ -2,9 +2,12 @@
   <div class="l-bar">
     <CalendarDays :size="18" />
     <span class="l-grow">{{ when }} {{ parts.time }} · {{ meetup.location }}</span>
+    <span
+      v-if="!store.isHost && meetup.cancelled"
+      class="l-chip no"
+    >취소된 모임이에요</span>
     <button
-      v-if="!store.isHost"
-      class="l-chip"
+      v-else-if="!store.isHost"
       :class="meetup.my_status || 'none'"
       :aria-expanded="open"
       @click="open = !open"
@@ -13,7 +16,7 @@
     </button>
   </div>
   <div
-    v-if="open && !store.isHost"
+    v-if="open && !store.isHost && !meetup.cancelled"
     class="l-bar"
   >
     <div class="l-rsvp">

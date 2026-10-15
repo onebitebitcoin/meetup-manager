@@ -145,3 +145,14 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-cardbtn.l-row { display: flex; }
 .l-older { align-self: center; border: 1px solid var(--lite-line-strong); background: var(--lite-surface); color: var(--lite-muted); border-radius: 999px; padding: 4px 14px; min-height: 36px; font-size: 12.5px; font-weight: 600; }
 .l-older:disabled { opacity: .5; }
+
+.l-seg.two { grid-template-columns: repeat(2, 1fr); }
+textarea.l-field { min-height: 88px; resize: vertical; }
+.l-row-btn { display: flex; width: 100%; gap: 12px; align-items: center; padding: 10px 0; border: 0; border-bottom: 1px solid var(--lite-line); background: none; text-align: left; min-height: 56px; }
+.l-section { display: flex; flex-direction: column; gap: 8px; }
+.l-section h3 { font-size: 14px; font-weight: 600; color: var(--lite-muted); }
+.l-person { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--lite-line); min-height: 48px; }
+.l-person .l-btn { min-height: 44px; font-size: 14px; padding: 4px 12px; }
+.l-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
+.l-confirm span { flex: 1; font-size: 14px; }
+.l-confirm .l-btn { min-height: 44px; font-size: 14px; padding: 4px 12px; }

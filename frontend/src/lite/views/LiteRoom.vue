@@ -9,6 +9,14 @@
     >
       <Users :size="13" />{{ meetup.going_count }}/{{ meetup.capacity }}
     </span>
+    <button
+      v-if="meetup && store.isHost"
+      class="l-icon-btn"
+      aria-label="관리"
+      @click="router.push(`/lite/admin/m/${meetup.id}`)"
+    >
+      <Settings :size="20" />
+    </button>
   </LiteTopbar>
   <p
     v-if="error"
@@ -50,7 +58,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Users } from 'lucide-vue-next'
+import { Settings, Users } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteChat from '../components/LiteChat.vue'
