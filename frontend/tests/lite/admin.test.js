@@ -133,6 +133,87 @@ describe('LiteAdminMeetup', () => {
   })
 })
 
+describe('LiteAdminMeetup 폼 유지와 부분 저장', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    fetch.mockReset()
+    push.mockReset()
+    replace.mockReset()
+  })
+
+  const titleInput = (wrapper) => wrapper.find('input[aria-label="모임 이름"]')
+  const button = (wrapper, label) => wrapper.findAll('button').find((b) => b.text() === label)
+
+  it('제목을 고친 상태에서 내보내기를 해도 입력한 제목이 유지된다', async () => {
+    asMember(true)
+    routeFetch({ 'admin/meetups/5/': detail() })
+    const wrapper = mount(LiteAdminMeetup)
+    await flushPromises()
+
+    await titleInput(wrapper).setValue('고치는 중인 제목')
+    await wrapper.findAll('.l-person button').find((b) => b.text() === '내보내기').trigger('click')
+    await wrapper.findAll('.l-person button').find((b) => b.text() === '내보내기').trigger('click')
+    await flushPromises()
+
+    expect(fetch.mock.calls.at(-1)[1].method).toBe('DELETE')
+    expect(titleInput(wrapper).element.value).toBe('고치는 중인 제목')
+  })
+
+  it('제목만 바꾸면 PATCH 본문에 starts_at이 없다', async () => {
+    asMember(true)
+    routeFetch({ 'admin/meetups/5/': detail() })
+    const wrapper = mount(LiteAdminMeetup)
+    await flushPromises()
+    fetch.mockClear()
+
+    await titleInput(wrapper).setValue('새 제목')
+    await button(wrapper, '저장').trigger('click')
+    await flushPromises()
+
+    const body = JSON.parse(fetch.mock.calls[0][1].body)
+    expect(fetch.mock.calls[0][1].method).toBe('PATCH')
+    expect(body).toEqual({ title: '새 제목' })
+  })
+
+  it('날짜를 바꾸면 starts_at을 보낸다', async () => {
+    asMember(true)
+    routeFetch({ 'admin/meetups/5/': detail() })
+    const wrapper = mount(LiteAdminMeetup)
+    await flushPromises()
+    fetch.mockClear()
+
+    await wrapper.find('input[aria-label="날짜"]').setValue('2026-11-01')
+    await button(wrapper, '저장').trigger('click')
+    await flushPromises()
+
+    const body = JSON.parse(fetch.mock.calls[0][1].body)
+    expect(Object.keys(body)).toEqual(['starts_at'])
+  })
+
+  it('바뀐 내용이 없으면 요청하지 않고 안내한다', async () => {
+    asMember(true)
+    routeFetch({ 'admin/meetups/5/': detail() })
+    const wrapper = mount(LiteAdminMeetup)
+    await flushPromises()
+    fetch.mockClear()
+
+    await button(wrapper, '저장').trigger('click')
+    await flushPromises()
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(useLiteStore().toast.message).toBe('바뀐 내용이 없어요')
+  })
+
+  it('참석 인원은 going 상태이고 내보내지 않은 회원만 정원과 함께 센다', async () => {
+    asMember(true)
+    routeFetch({ 'admin/meetups/5/': detail() })
+    const wrapper = mount(LiteAdminMeetup)
+    await flushPromises()
+
+    expect(wrapper.find('.l-section h3').text()).toBe('참석 1/12명')
+  })
+})
+
 describe('관리 api 함수', () => {
   beforeEach(() => {
     fetch.mockReset()

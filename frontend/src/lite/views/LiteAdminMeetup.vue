@@ -20,7 +20,7 @@
   </p>
   <div
     v-else
-    class="l-body"
+    class="l-body l-body-toast"
   >
     <span
       v-if="data.meetup.cancelled"
@@ -40,7 +40,7 @@
     </button>
 
     <div class="l-section">
-      <h3>참석자 {{ data.attendees.length }}명</h3>
+      <h3>참석 {{ goingCount }}/{{ data.meetup.capacity }}명</h3>
       <div
         v-for="a in data.attendees"
         :key="a.member.id"
@@ -113,11 +113,11 @@
       >
         <span>삭제할까요?</span>
         <button
-          class="l-btn p"
+          class="l-btn p danger"
           :disabled="busy"
           @click="destroy"
         >
-          삭제
+          <Trash2 :size="18" />삭제
         </button>
         <button
           class="l-btn s"
@@ -128,7 +128,7 @@
       </div>
       <button
         v-else
-        class="l-btn s"
+        class="l-btn s danger"
         @click="deleting = true"
       >
         <Trash2 :size="18" />삭제
@@ -138,7 +138,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { MessageCircle, Trash2 } from 'lucide-vue-next'
 import { liteApi } from '../api'
@@ -158,8 +158,15 @@ const busy = ref(false)
 const removing = ref(null)
 const deleting = ref(false)
 
+const goingCount = computed(() => (data.value?.attendees || []).filter((a) => a.status === 'going' && !a.removed).length)
+
+// 명단과 취소 상태만 갱신한다. 폼 값(initial)은 건드리지 않아 입력 중인 내용이 남는다.
 const apply = (next) => {
   data.value = next
+}
+
+// 폼의 기준값은 처음 불러올 때와 저장에 성공했을 때만 서버 값으로 맞춘다
+const applyForm = (next) => {
   const m = next.meetup
   initial.value = {
     title: m.title,
@@ -173,7 +180,9 @@ const apply = (next) => {
 
 const load = async () => {
   try {
-    apply(await liteApi.adminMeetup(route.params.id))
+    const next = await liteApi.adminMeetup(route.params.id)
+    apply(next)
+    applyForm(next)
     error.value = ''
   } catch (e) {
     error.value = e.message
@@ -182,11 +191,14 @@ const load = async () => {
 }
 
 // 서버 동작을 실행하고 성공하면 응답으로 화면을 갱신한다
-const run = async (fn, okMessage) => {
+const run = async (fn, okMessage, { syncForm = false } = {}) => {
   busy.value = true
   const result = await store.act(fn, okMessage)
   busy.value = false
-  if (result) apply(result)
+  if (result) {
+    apply(result)
+    if (syncForm) applyForm(result)
+  }
   return result
 }
 
@@ -196,15 +208,21 @@ const save = () => {
     store.notify('모든 항목을 입력해 주세요', 'error')
     return Promise.resolve(null)
   }
-  const body = {
+  const base = initial.value
+  const next = {
     title: v.title.trim(),
-    starts_at: toSeoulIso(v.date, v.time),
     location: v.location.trim(),
     capacity: v.capacity,
     description: v.description.trim(),
     image_url: v.image_url.trim(),
   }
-  return run(() => liteApi.updateMeetup(data.value.meetup.id, body), '저장했어요')
+  const body = Object.fromEntries(Object.entries(next).filter(([key, value]) => value !== base[key]))
+  if (v.date !== base.date || v.time !== base.time) body.starts_at = toSeoulIso(v.date, v.time)
+  if (Object.keys(body).length === 0) {
+    store.notify('바뀐 내용이 없어요')
+    return Promise.resolve(null)
+  }
+  return run(() => liteApi.updateMeetup(data.value.meetup.id, body), '저장했어요', { syncForm: true })
 }
 
 const remove = async (memberId) => {

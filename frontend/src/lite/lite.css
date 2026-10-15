@@ -78,6 +78,9 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-btn:disabled { opacity: .5; }
 .l-btn.p { background: var(--lite-btn); color: var(--lite-btn-ink); }
 .l-btn.s { background: var(--lite-surface); color: var(--lite-ink); border-color: var(--lite-line-strong); }
+.l-btn.danger { font-weight: 800; }
+/* 토스트(bottom 76px + 높이)에 가려지지 않도록 관리 화면 아래에 여백을 둔다 */
+.l-body-toast { padding-bottom: 140px; }
 .l-btn-row { display: flex; gap: 8px; }
 .l-btn-row .l-btn { flex: 1; min-height: 44px; font-size: 14px; }
 .l-btn-row .l-btn.fit { flex: 0 0 auto; }
@@ -100,7 +103,7 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-msgs { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 9px; background: var(--lite-bg); }
 .l-msg { display: flex; gap: 8px; max-width: 86%; }
 .l-bub { background: var(--lite-surface); border: 1px solid var(--lite-line); border-radius: 4px 12px 12px 12px; padding: 6px 11px; font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
-.l-pinbar { position: sticky; top: 53px; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 13px; }
+.l-pinbar { position: sticky; top: var(--l-top-h, 0px); z-index: 1; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 13px; }
 .l-pinbar svg { flex: none; color: var(--lite-muted); }
 .l-pinbar-who { flex: none; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
 .l-pinbar-body { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -108,7 +111,8 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-msg-more { flex: none; align-self: center; border: 0; background: none; color: var(--lite-muted); min-width: 44px; min-height: 44px; margin: -8px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
 .l-msg-menu { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; }
 .l-msg-menu button { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 999px; padding: 4px 12px; min-height: 44px; font-weight: 600; }
-.l-msg-menu button.danger { color: var(--lite-no); }
+.l-msg-menu button { display: inline-flex; align-items: center; gap: 4px; }
+.l-msg-menu button.danger { color: var(--lite-no); font-weight: 800; }
 .l-who { font-size: 11px; color: var(--lite-muted); margin-bottom: 2px; }
 .l-msg.mine { align-self: flex-end; flex-direction: row-reverse; }
 .l-msg.mine .l-bub { background: var(--lite-btn); color: var(--lite-btn-ink); border-color: transparent; border-radius: 12px 4px 12px 12px; }

@@ -49,7 +49,7 @@
             class="danger"
             @click="confirming = true"
           >
-            삭제
+            <Trash2 :size="16" />삭제
           </button>
         </template>
         <template v-else>
@@ -59,7 +59,7 @@
             class="danger"
             @click="emit('delete')"
           >
-            삭제
+            <Trash2 :size="16" />삭제
           </button>
           <button
             type="button"
@@ -85,7 +85,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { Megaphone, MoreHorizontal } from 'lucide-vue-next'
+import { Megaphone, MoreHorizontal, Trash2 } from 'lucide-vue-next'
 import { useLiteStore } from '../store'
 
 const props = defineProps({

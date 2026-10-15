@@ -43,6 +43,7 @@
       </div>
       <span class="l-counts">{{ meetup.going_count }}명 참석</span>
       <LiteJoinRow
+        v-if="!detail.removed"
         :meetup="meetup"
         @done="load"
       />
@@ -70,7 +71,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useLiteStore()
 const meetup = ref(null)
-const detail = ref({ checkin_code: null, checked_in: false, checked_in_count: 0 })
+const detail = ref({ checkin_code: null, checked_in: false, checked_in_count: 0, removed: undefined })
 const error = ref('')
 
 const joined = computed(() => ['going', 'maybe'].includes(meetup.value?.my_status))
@@ -83,6 +84,7 @@ const load = async () => {
       checkin_code: data.checkin_code,
       checked_in: data.checked_in,
       checked_in_count: data.checked_in_count,
+      removed: data.removed,
     }
     error.value = ''
   } catch (e) {

@@ -119,4 +119,19 @@ describe('LiteRoom', () => {
     expect(wrapper.find('.l-composer').exists()).toBe(false)
     expect(fetch.mock.calls.some(([url]) => url.includes('rooms/'))).toBe(false)
   })
+
+  it('내보내진 회원에게는 신청, 응답 버튼을 숨기고 안내 문구만 보여준다', async () => {
+    memberStore()
+    routeFetch({
+      'meetups/5/': { meetup: card({ my_status: 'no' }), checkin_code: null, checked_in: false, checked_in_count: 0, removed: true },
+    })
+
+    const wrapper = mount(LiteRoom)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('운영자가 내보낸 모임이에요')
+    expect(wrapper.text()).not.toContain('신청하기')
+    expect(wrapper.text()).not.toContain('다시 신청하기')
+    expect(wrapper.find('.l-bar button').exists()).toBe(false)
+  })
 })

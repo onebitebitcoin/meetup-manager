@@ -3,7 +3,11 @@
     <CalendarDays :size="18" />
     <span class="l-grow">{{ when }} {{ parts.time }} · {{ meetup.location }}</span>
     <span
-      v-if="!store.isHost && meetup.cancelled"
+      v-if="!store.isHost && detail.removed"
+      class="l-chip no"
+    >운영자가 내보낸 모임이에요</span>
+    <span
+      v-else-if="!store.isHost && meetup.cancelled"
       class="l-chip no"
     >취소된 모임이에요</span>
     <button
@@ -16,7 +20,7 @@
     </button>
   </div>
   <div
-    v-if="open && !store.isHost && !meetup.cancelled"
+    v-if="open && !store.isHost && !meetup.cancelled && !detail.removed"
     class="l-bar"
   >
     <div class="l-rsvp">

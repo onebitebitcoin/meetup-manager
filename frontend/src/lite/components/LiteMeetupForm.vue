@@ -35,14 +35,14 @@
         class="l-field"
         type="number"
         min="2"
-        max="200"
+        max="500"
         aria-label="정원"
       >명
     </label>
     <textarea
       v-model="form.description"
       class="l-field"
-      maxlength="2000"
+      maxlength="1000"
       placeholder="설명"
       aria-label="설명"
     />
