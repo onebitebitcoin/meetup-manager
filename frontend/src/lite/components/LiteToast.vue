@@ -5,7 +5,7 @@
     :class="{ error: store.toast.kind === 'error' }"
     role="status"
   >
-    <AlertCircle
+    <TriangleAlert
       v-if="store.toast.kind === 'error'"
       :size="18"
     />
@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { AlertCircle, CheckCircle2 } from 'lucide-vue-next'
+import { TriangleAlert, CheckCircle2 } from 'lucide-vue-next'
 import { useLiteStore } from '../store'
 
 const store = useLiteStore()
