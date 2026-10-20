@@ -76,14 +76,17 @@ def parse_capacity(value):
     return capacity
 
 
+# 모임 목록과 상세는 이름 없이도 볼 수 있다. 이름은 신청할 때 받는다.
 class HomeView(LiteView):
+    permission_classes = []
+
     def get(self, request):
         member = self.member
         meetups = list(meetups_with_counts().filter(starts_at__gte=today_start_kst()).order_by('starts_at', 'id'))
         mine = my_statuses(member, [m.id for m in meetups])
-        my_seminar = seminars_with_last_message().filter(member=member).first()
+        my_seminar = seminars_with_last_message().filter(member=member).first() if member else None
         seminars = []
-        if member.is_host:
+        if member and member.is_host:
             seminars = [seminar_card(s) for s in seminars_with_last_message().order_by('-id')]
         threshold = LiteConfig.get().vote_threshold
         ready = requests_with_votes().filter(status=MeetupRequest.Status.OPEN, vote_count__gte=threshold).count()
@@ -142,11 +145,13 @@ def _to_int(value):
 
 
 class MeetupDetailView(LiteView):
+    permission_classes = []
+
     def get(self, request, meetup_id):
         member = self.member
         meetup = get_or_404(meetups_with_counts(), '모임을 찾을 수 없어요', pk=meetup_id)
-        rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first()
-        show_code = member.is_host and is_today(meetup.starts_at)
+        rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first() if member else None
+        show_code = bool(member and member.is_host) and is_today(meetup.starts_at)
         return APIResponse.success({
             'meetup': meetup_card(meetup, rsvp.status if rsvp else None),
             'checkin_code': meetup.checkin_code if show_code else None,

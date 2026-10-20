@@ -8,30 +8,47 @@
   <div
     v-else-if="message.kind === 'guide'"
     class="l-msg bot"
+    :class="{ cont: !head }"
   >
-    <span class="l-av bot"><Megaphone :size="15" /></span>
-    <div class="l-bub">
-      {{ message.body }}
+    <span
+      class="l-av bot"
+      :class="{ ghost: !head }"
+    ><Megaphone :size="15" /></span>
+    <div class="l-bub-row">
+      <div class="l-bub">
+        {{ message.body }}
+      </div>
+      <span
+        v-if="time"
+        class="l-time"
+      >{{ time }}</span>
     </div>
   </div>
   <div
     v-else
     class="l-msg"
-    :class="{ mine }"
+    :class="{ mine, cont: !head }"
   >
     <span
       v-if="!mine"
       class="l-av"
+      :class="{ ghost: !head }"
     >{{ message.member?.name?.slice(0, 1) }}</span>
     <div>
       <div
-        v-if="!mine"
+        v-if="!mine && head"
         class="l-who"
       >
         {{ message.member?.name }}
       </div>
-      <div class="l-bub">
-        {{ message.body }}
+      <div class="l-bub-row">
+        <div class="l-bub">
+          {{ message.body }}
+        </div>
+        <span
+          v-if="time"
+          class="l-time"
+        >{{ time }}</span>
       </div>
       <div
         v-if="showMenu && menuOpen"
@@ -91,6 +108,8 @@ import { useLiteStore } from '../store'
 const props = defineProps({
   message: { type: Object, required: true },
   mine: { type: Boolean, default: false },
+  head: { type: Boolean, default: true },
+  time: { type: String, default: '' },
   menuOpen: { type: Boolean, default: false },
 })
 const emit = defineEmits(['toggle-menu', 'pin', 'delete'])

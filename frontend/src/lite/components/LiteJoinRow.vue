@@ -21,9 +21,14 @@ const emit = defineEmits(['done'])
 const store = useLiteStore()
 const busy = ref(false)
 
+// 처음 온 방문자는 자동 닉네임으로 가입한 뒤 바로 신청한다
 const join = async () => {
   if (busy.value) return
   busy.value = true
+  if (!(await store.ensureMember())) {
+    busy.value = false
+    return
+  }
   const data = await store.act(() => liteApi.rsvp(props.meetup.id, 'going'), '신청했어요')
   busy.value = false
   if (data) emit('done', { status: 'going', meetup: data.meetup })

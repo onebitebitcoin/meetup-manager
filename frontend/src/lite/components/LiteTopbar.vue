@@ -1,7 +1,7 @@
 <template>
   <div
-    ref="bar"
     class="l-top"
+    :class="{ scrolled }"
   >
     <button
       v-if="back"
@@ -13,13 +13,7 @@
     </button>
     <h2>{{ title }}</h2>
     <slot>
-      <span
-        v-if="!back && store.member"
-        class="l-me"
-      >
-        <span class="l-av">{{ store.member.name.slice(0, 1) }}</span>
-        {{ store.member.name }}
-      </span>
+      <LiteMeMenu v-if="!back && store.member" />
     </slot>
   </div>
 </template>
@@ -29,6 +23,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronLeft } from 'lucide-vue-next'
 import { useLiteStore } from '../store'
+import LiteMeMenu from './LiteMeMenu.vue'
 
 defineProps({
   title: { type: String, required: true },
@@ -38,17 +33,16 @@ defineProps({
 
 const router = useRouter()
 const store = useLiteStore()
-const bar = ref(null)
-let observer = null
+const scrolled = ref(false)
 
-// 고정 공지 바가 상단 바 바로 아래 붙도록 실제 높이를 부모(.lite-shell)에 CSS 변수로 알린다
-const publishHeight = () => bar.value?.parentElement?.style.setProperty('--l-top-h', `${bar.value.offsetHeight}px`)
+// 배경과 같은 색인 상단 바는 내용이 아래로 지나갈 때만 구분선을 보인다
+const updateScrolled = () => { scrolled.value = window.scrollY > 0 }
 
 onMounted(() => {
-  publishHeight()
-  if (typeof ResizeObserver === 'undefined') return
-  observer = new ResizeObserver(publishHeight)
-  observer.observe(bar.value)
+  updateScrolled()
+  window.addEventListener('scroll', updateScrolled, { passive: true })
 })
-onBeforeUnmount(() => observer?.disconnect())
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', updateScrolled)
+})
 </script>

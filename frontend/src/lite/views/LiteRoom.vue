@@ -107,9 +107,6 @@ const checkin = async (code) => {
   if (data) await load()
 }
 
-onMounted(() => {
-  if (!store.member) router.replace('/lite')
-  else load()
-})
+onMounted(load)
 watch(() => route.params.id, load)
 </script>

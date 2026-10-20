@@ -143,7 +143,7 @@ class LiteConfig(models.Model):
 
     vote_threshold = models.PositiveIntegerField(default=5)
     seminar_guide_1 = models.TextField(default='원하는 주제로 운영자와 1:1로 진행해요.')
-    seminar_guide_2 = models.TextField(default='시간당 50,000원이에요.\n진행 방식을 골라 주세요.')
+    seminar_guide_2 = models.TextField(default='진행 방식을 골라 주세요.')
     seminar_guide_3 = models.TextField(default='주제와 희망 날짜·시간을 적어 주세요.')
     seminar_guide_4 = models.TextField(default='접수됐어요. 여기서 일정을 안내해 드릴게요.')
     join_guide = models.TextField(default='신청 완료! 공지는 여기서 안내해요.')

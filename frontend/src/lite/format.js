@@ -44,3 +44,22 @@ export const takeHash = () => {
   window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search)
   return value
 }
+
+const senderKey = (m) => (m.kind === 'user' ? `user:${m.member?.id}` : m.kind)
+const minuteKey = (iso) => dayjs(iso).tz(TZ).format('YYYY-MM-DD HH:mm')
+const sameGroup = (a, b) => !!a && !!b && a.kind !== 'system' && senderKey(a) === senderKey(b) && minuteKey(a.created_at) === minuteKey(b.created_at)
+
+// 채팅방처럼 보이도록 같은 사람이 같은 분에 보낸 메시지를 묶는다.
+// head: 묶음의 첫 메시지라 이름·아바타를 보인다 / time: 묶음의 마지막 메시지라 시각을 붙인다 / day: 날짜가 바뀌는 자리에 넣을 구분 문구
+export const layoutMessages = (messages) => messages.map((message, i) => {
+  const prev = messages[i - 1]
+  const next = messages[i + 1]
+  const d = dayjs(message.created_at).tz(TZ)
+  const newDay = !prev || dayjs(prev.created_at).tz(TZ).format('YYYY-MM-DD') !== d.format('YYYY-MM-DD')
+  return {
+    message,
+    day: newDay ? `${d.month() + 1}월 ${d.date()}일 ${WEEKDAYS[d.day()]}요일` : '',
+    head: newDay || !sameGroup(prev, message),
+    time: sameGroup(message, next) ? '' : d.format('HH:mm'),
+  }
+})

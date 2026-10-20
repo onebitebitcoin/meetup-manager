@@ -37,9 +37,9 @@ describe('LiteHome 레이아웃', () => {
     image_url: '/media/meetups/a.png', ...over,
   })
 
-  it('제목은 한입 모임이고, 하단 탭 없이 1:1 세미나 아래에 요청 항목이 있다', async () => {
+  it('일반 회원은 1:1 세미나와 요청을 목록 대신 플로팅 버튼 메뉴로 연다', async () => {
     useLiteStore().member = { id: 1, name: '지민', is_host: false }
-    fetch.mockResolvedValue(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 }))
+    fetch.mockResolvedValue(jsonResponse({ meetups: [card()], my_seminar: { id: 3, status: 'received', mode: 'online' }, seminars: [], ready_request_count: 0 }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
 
     const wrapper = mount(LiteHome)
@@ -48,10 +48,34 @@ describe('LiteHome 레이아웃', () => {
     expect(wrapper.find('.l-top h2').text()).toBe('한입 모임')
     expect(wrapper.find('nav').exists()).toBe(false)
     const titles = wrapper.findAll('.l-title').map((t) => t.text())
-    expect(titles.indexOf('1:1 세미나')).toBe(0)
-    expect(titles.indexOf('이런 모임 열어주세요')).toBe(1)
-    await wrapper.findAll('button').find((b) => b.text().includes('이런 모임 열어주세요')).trigger('click')
+    expect(titles).not.toContain('1:1 세미나')
+    expect(titles).not.toContain('이런 모임 열어주세요')
+    expect(wrapper.find('.l-fab-menu').exists()).toBe(false)
+
+    await wrapper.find('.l-fab-btn').trigger('click')
+    const items = wrapper.findAll('.l-fab-menu button')
+    expect(items.map((b) => b.text())).toEqual(['1:1 세미나접수됨', '이런 모임 열어주세요'])
+
+    await items[1].trigger('click')
     expect(push).toHaveBeenCalledWith('/lite/requests')
+    expect(wrapper.find('.l-fab-menu').exists()).toBe(false)
+  })
+
+  it('운영자는 플로팅 버튼 없이 세미나 대화 카드와 요청 항목을 목록에서 본다', async () => {
+    useLiteStore().member = { id: 9, name: '운영', is_host: true }
+    fetch.mockResolvedValue(jsonResponse({
+      meetups: [], my_seminar: null, ready_request_count: 2,
+      seminars: [{ id: 4, status: 'received', mode: null, member: { id: 1, name: '지민' } }],
+    }))
+    const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
+
+    const wrapper = mount(LiteHome)
+    await flushPromises()
+
+    expect(wrapper.find('.l-fab-btn').exists()).toBe(false)
+    const titles = wrapper.findAll('.l-title').map((t) => t.text())
+    expect(titles).toEqual(['1:1 · 지민', '이런 모임 열어주세요'])
+    expect(wrapper.text()).toContain('개설 가능 2')
   })
 
   it('모임 카드에 썸네일과 남은 날짜를 보여주고, 이미지가 없으면 썸네일을 그리지 않는다', async () => {

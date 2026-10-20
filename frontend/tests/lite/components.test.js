@@ -52,10 +52,27 @@ describe('LiteHome', () => {
     push.mockReset()
   })
 
-  it('이름이 없으면 온보딩을 보여준다', () => {
-    const wrapper = mount(LiteHome)
+  it('이름이 없어도 모임을 보여 주고, 신청하기를 누르면 자동 닉네임으로 가입·신청한 뒤 모임방으로 보낸다', async () => {
+    fetch.mockImplementation((url, init = {}) => {
+      if (url.includes('members/')) return Promise.resolve(jsonResponse({ token: 't1', member: { id: 1, name: '느긋한 수달', is_host: false } }, 201))
+      if (url.includes('rsvp/')) return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }) }))
+      return Promise.resolve(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0, method: init.method }))
+    })
 
-    expect(wrapper.text()).toContain('이름만 알려주세요')
+    const wrapper = mount(LiteHome)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('라이트닝 노드 실습')
+    expect(fetch.mock.calls.some(([url]) => url.includes('members/'))).toBe(false)
+    await wrapper.findAll('button').find((b) => b.text() === '신청하기').trigger('click')
+    await flushPromises()
+
+    const calls = fetch.mock.calls.map(([url, init]) => `${init?.method || 'GET'} ${url}`)
+    const created = calls.findIndex((c) => c.startsWith('POST') && c.includes('members/'))
+    const joined = calls.findIndex((c) => c.startsWith('PUT') && c.includes('meetups/5/rsvp/'))
+    expect(created).toBeGreaterThan(-1)
+    expect(joined).toBeGreaterThan(created)
+    expect(push).toHaveBeenCalledWith('/lite/m/5')
   })
 
   it('미신청 모임에는 신청하기만 보이고 못 가요는 없다', async () => {
@@ -68,7 +85,7 @@ describe('LiteHome', () => {
     expect(wrapper.text()).toContain('라이트닝 노드 실습')
     expect(wrapper.text()).toContain('신청하기')
     expect(wrapper.text()).not.toContain('못 가요')
-    expect(wrapper.text()).toContain('1:1 세미나')
+    expect(wrapper.find('.l-fab-btn').exists()).toBe(true)
   })
 
   it('신청한 모임에는 응답 칩만 보인다', async () => {
@@ -102,6 +119,35 @@ describe('LiteRoom', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     fetch.mockReset()
+  })
+
+  it('이름이 없어도 이름을 묻지 않고, 신청하기를 누르면 자동 닉네임으로 가입·신청해 채팅방을 연다', async () => {
+    let status = null
+    fetch.mockImplementation((url, init = {}) => {
+      if (url.includes('members/')) return Promise.resolve(jsonResponse({ token: 't1', member: { id: 1, name: '느긋한 수달', is_host: false } }, 201))
+      if (url.includes('rsvp/')) {
+        status = 'going'
+        return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }) }))
+      }
+      if (url.includes('rooms/')) return Promise.resolve(jsonResponse({ messages: [], has_more: false, pinned: null }))
+      return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }), checkin_code: null, checked_in: false, checked_in_count: 0, removed: false, method: init.method }))
+    })
+
+    const wrapper = mount(LiteRoom)
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain('이름을 알려주세요')
+    expect(wrapper.find('input[aria-label="이름"]').exists()).toBe(false)
+
+    await wrapper.findAll('button').find((b) => b.text() === '신청하기').trigger('click')
+    await flushPromises()
+
+    const calls = fetch.mock.calls.map(([url, init]) => `${init?.method || 'GET'} ${url}`)
+    const created = calls.findIndex((c) => c.startsWith('POST') && c.includes('members/'))
+    const joined = calls.findIndex((c) => c.startsWith('PUT') && c.includes('meetups/5/rsvp/'))
+    expect(created).toBeGreaterThan(-1)
+    expect(joined).toBeGreaterThan(created)
+    expect(wrapper.find('input[aria-label="메시지"]').exists()).toBe(true)
   })
 
   it('미신청자에게는 메시지 대신 참석 인원과 신청하기를 보여준다', async () => {

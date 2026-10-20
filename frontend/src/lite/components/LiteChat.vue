@@ -1,5 +1,5 @@
 <template>
-  <div class="lite-scroll">
+  <div class="l-chatbox">
     <div
       v-if="pinned"
       class="l-pinbar"
@@ -17,7 +17,10 @@
         <X :size="16" />
       </button>
     </div>
-    <div class="l-msgs">
+    <div
+      ref="scroller"
+      class="l-msgs"
+    >
       <button
         v-if="hasMore"
         type="button"
@@ -27,48 +30,59 @@
       >
         이전 메시지 보기
       </button>
-      <LiteMessage
-        v-for="message in messages"
+      <template
+        v-for="{ message, day, head, time } in rows"
         :key="message.id"
-        :message="message"
-        :mine="message.kind === 'user' && message.member?.id === store.member?.id"
-        :menu-open="openMenuId === message.id"
-        @toggle-menu="openMenuId = openMenuId === message.id ? null : message.id"
-        @pin="pin(message.id)"
-        @delete="remove(message.id)"
-      />
+      >
+        <div
+          v-if="day"
+          class="l-day"
+        >
+          {{ day }}
+        </div>
+        <LiteMessage
+          :message="message"
+          :mine="message.kind === 'user' && message.member?.id === store.member?.id"
+          :head="head"
+          :time="time"
+          :menu-open="openMenuId === message.id"
+          @toggle-menu="openMenuId = openMenuId === message.id ? null : message.id"
+          @pin="pin(message.id)"
+          @delete="remove(message.id)"
+        />
+      </template>
       <slot name="after" />
-      <div ref="bottom" />
     </div>
+    <form
+      v-if="canSend"
+      class="l-composer"
+      @submit.prevent="send"
+    >
+      <input
+        v-model="draft"
+        :placeholder="placeholder"
+        maxlength="1000"
+        autocomplete="off"
+        aria-label="메시지"
+      >
+      <button
+        type="submit"
+        aria-label="보내기"
+        :disabled="sending"
+      >
+        <Send :size="18" />
+      </button>
+    </form>
   </div>
-  <form
-    v-if="canSend"
-    class="l-composer"
-    @submit.prevent="send"
-  >
-    <input
-      v-model="draft"
-      :placeholder="placeholder"
-      maxlength="1000"
-      autocomplete="off"
-      aria-label="메시지"
-    >
-    <button
-      type="submit"
-      aria-label="보내기"
-      :disabled="sending"
-    >
-      <Send :size="18" />
-    </button>
-  </form>
 </template>
 
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Pin, Send, X } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteMessage from './LiteMessage.vue'
+import { layoutMessages } from '../format'
 
 const props = defineProps({
   roomId: { type: Number, required: true },
@@ -82,11 +96,12 @@ const store = useLiteStore()
 const messages = ref([])
 const draft = ref('')
 const sending = ref(false)
-const bottom = ref(null)
+const scroller = ref(null)
 const hasMore = ref(false)
 const loadingOlder = ref(false)
 const pinned = ref(null)
 const openMenuId = ref(null)
+const rows = computed(() => layoutMessages(messages.value))
 let timer = null
 let polling = false
 let failing = false
@@ -100,7 +115,7 @@ const append = async (incoming) => {
   if (!fresh.length) return false
   messages.value = [...messages.value, ...fresh].sort((a, b) => a.id - b.id)
   await nextTick()
-  bottom.value?.scrollIntoView?.({ block: 'end' })
+  if (scroller.value) scroller.value.scrollTop = scroller.value.scrollHeight
   return true
 }
 
@@ -142,14 +157,14 @@ const loadOlder = async () => {
   const data = await store.act(() => liteApi.olderMessages(props.roomId, oldest.id))
   loadingOlder.value = false
   if (!data) return
-  const scroller = document.scrollingElement
-  const before = scroller?.scrollHeight ?? 0
+  const box = scroller.value
+  const before = box?.scrollHeight ?? 0
   const known = new Set(messages.value.map((m) => m.id))
   messages.value = [...data.messages.filter((m) => !known.has(m.id)), ...messages.value]
   hasMore.value = !!data.has_more
   pinned.value = data.pinned ?? null
   await nextTick()
-  if (scroller) scroller.scrollTop += scroller.scrollHeight - before
+  if (box) box.scrollTop += box.scrollHeight - before
 }
 
 const pin = async (id) => {

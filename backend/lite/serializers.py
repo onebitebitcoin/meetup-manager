@@ -41,6 +41,8 @@ def meetup_card(meetup, my_status=None):
 
 
 def my_statuses(member, meetup_ids):
+    if member is None:
+        return {}
     return dict(
         Rsvp.objects.filter(member=member, meetup_id__in=meetup_ids).values_list('meetup_id', 'status')
     )

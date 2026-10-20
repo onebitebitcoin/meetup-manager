@@ -14,15 +14,42 @@ describe('lite store', () => {
     fetch.mockReset()
   })
 
-  it('가입하면 토큰을 localStorage에 저장한다', async () => {
-    fetch.mockResolvedValue(jsonResponse({ token: 'tok', member: { id: 1, name: '지민', is_host: false } }, 201))
+  it('이름 없이 자동 닉네임(형용사 + 동물/곤충)으로 가입하고 토큰을 저장한다', async () => {
+    fetch.mockImplementation((url, init) => {
+      const { name } = JSON.parse(init.body)
+      return Promise.resolve(jsonResponse({ token: 'tok', member: { id: 1, name, is_host: false } }, 201))
+    })
     const store = useLiteStore()
 
-    const ok = await store.register('지민')
+    const ok = await store.ensureMember()
 
     expect(ok).toBe(true)
     expect(localStorage.setItem).toHaveBeenCalledWith('lite_token', 'tok')
-    expect(store.member.name).toBe('지민')
+    expect(store.member.name).toMatch(/^\S+( 많은)? \S+$/)
+    expect(store.member.name.length).toBeLessThanOrEqual(20)
+  })
+
+  it('자동 닉네임이 겹치면(409) 다시 뽑아 가입한다', async () => {
+    fetch
+      .mockResolvedValueOnce(jsonResponse({ error: '이미 사용 중인 이름이에요' }, 409))
+      .mockImplementationOnce((url, init) => Promise.resolve(
+        jsonResponse({ token: 'tok', member: { id: 2, name: JSON.parse(init.body).name, is_host: false } }, 201),
+      ))
+    const store = useLiteStore()
+
+    const ok = await store.ensureMember()
+
+    expect(ok).toBe(true)
+    expect(fetch).toHaveBeenCalledTimes(2)
+    expect(store.toast.kind).toBe('ok')
+  })
+
+  it('이미 회원이면 가입 요청을 보내지 않는다', async () => {
+    const store = useLiteStore()
+    store.member = { id: 1, name: '느긋한 수달', is_host: false }
+
+    expect(await store.ensureMember()).toBe(true)
+    expect(fetch).not.toHaveBeenCalled()
   })
 
   it('새 스토어는 저장된 토큰을 복구한다', () => {

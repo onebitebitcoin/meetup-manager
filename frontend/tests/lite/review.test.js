@@ -197,24 +197,21 @@ describe('복구 링크와 운영자 링크', () => {
     expect(store.toast.kind).toBe('error')
   })
 
-  it('운영자: 이름이 없으면 온보딩을 거친 뒤 claim을 호출한다', async () => {
+  it('운영자: 이름이 없으면 자동 닉네임으로 가입한 뒤 claim을 호출한다', async () => {
     setLocation('/lite/host', '#secret')
     const store = useLiteStore()
+    fetch.mockImplementation((url) => {
+      if (url.endsWith('members/')) return Promise.resolve(json({ token: 't', member: { id: 1, name: '느긋한 수달', is_host: false } }, 201))
+      return Promise.resolve(json({ member: { id: 1, name: '느긋한 수달', is_host: true } }))
+    })
+
     const wrapper = mount(LiteHostClaim)
     await flushPromises()
 
     expect(window.history.replaceState).toHaveBeenCalledWith(window.history.state, '', '/lite/host')
-    expect(wrapper.text()).toContain('이름만 알려주세요')
-    expect(fetch).not.toHaveBeenCalled()
-
-    fetch.mockImplementation((url) => {
-      if (url.endsWith('members/')) return Promise.resolve(json({ token: 't', member: { id: 1, name: '지민', is_host: false } }, 201))
-      return Promise.resolve(json({ member: { id: 1, name: '지민', is_host: true } }))
-    })
-    await wrapper.find('input').setValue('지민')
-    await wrapper.find('form').trigger('submit')
-    await flushPromises()
-
+    expect(wrapper.find('input').exists()).toBe(false)
+    const calls = fetch.mock.calls.map(([u]) => u)
+    expect(calls.findIndex((u) => u.endsWith('members/'))).toBeLessThan(calls.findIndex((u) => u.endsWith('host/claim/')))
     const claim = fetch.mock.calls.filter(([u]) => u.endsWith('host/claim/'))
     expect(claim).toHaveLength(1)
     expect(JSON.parse(claim[0][1].body)).toEqual({ key: 'secret' })

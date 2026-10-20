@@ -16,6 +16,7 @@
       <Lock :size="18" />
       <span class="l-grow">{{ barText }}</span>
       <span
+        v-if="seminar.status !== 'guide'"
         class="l-chip"
         :class="STATUS_CLASS[seminar.status]"
       >{{ SEMINAR_STATUS_LABEL[seminar.status] }}</span>
@@ -61,7 +62,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { Lock, MapPin, Monitor } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { MODE_LABEL, SEMINAR_STATUS_LABEL } from '../format'
@@ -71,7 +72,6 @@ import LiteTopbar from '../components/LiteTopbar.vue'
 
 const STATUS_CLASS = { guide: 'none', received: 'maybe', confirmed: 'going' }
 const route = useRoute()
-const router = useRouter()
 const store = useLiteStore()
 const seminar = ref(null)
 const chat = ref(null)
@@ -128,8 +128,7 @@ const confirm = async () => {
   chat.value?.poll()
 }
 
-onMounted(() => {
-  if (!store.member) router.replace('/lite')
-  else refresh()
+onMounted(async () => {
+  if (await store.ensureMember()) refresh()
 })
 </script>

@@ -11,7 +11,7 @@
       class="l-chip no"
     >취소된 모임이에요</span>
     <button
-      v-else-if="!store.isHost"
+      v-else-if="store.member && !store.isHost"
       :class="meetup.my_status || 'none'"
       :aria-expanded="open"
       @click="open = !open"

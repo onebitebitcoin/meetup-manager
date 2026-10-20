@@ -39,10 +39,13 @@
 @media (min-width: 400px) { .l-body { padding-inline: 12px; } }
 .lite-display { font-weight: 600; }
 
-.l-top { min-height: 53px; display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid var(--lite-line); background: var(--lite-surface); position: sticky; top: 0; z-index: 2; }
+.l-top { min-height: 53px; display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid transparent; background: var(--lite-bg); position: sticky; top: 0; z-index: 2; transition: border-color .15s; }
+.l-top.scrolled { border-bottom-color: var(--lite-line); }
 .l-top h2 { font-size: 18px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-icon-btn { border: 0; background: none; padding: 8px; margin: -8px; min-width: 44px; min-height: 44px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
-.l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--lite-muted); }
+.l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--lite-muted); border: 0; background: none; min-height: 44px; padding: 0 4px; margin-right: -4px; }
+.l-me-wrap { position: relative; }
+.l-me-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; width: 240px; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: var(--lite-surface); border: 1px solid var(--lite-line-strong); border-radius: 12px; font-size: 14px; }
 .l-av { width: 26px; height: 26px; border-radius: 50%; background: var(--lite-sunk); color: var(--lite-ink); display: inline-grid; place-items: center; font-size: 11.5px; font-weight: 700; flex: none; }
 .l-av.bot { background: var(--lite-plum-soft); color: var(--lite-plum); }
 
@@ -81,6 +84,16 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-btn.danger { font-weight: 800; }
 /* 토스트(bottom 76px + 높이)에 가려지지 않도록 관리 화면 아래에 여백을 둔다 */
 .l-body-toast { padding-bottom: 140px; }
+/* 일반 회원 홈의 플로팅 버튼. PC에서도 480px 칼럼의 오른쪽 아래에 맞춘다. */
+.l-body-fab { padding-bottom: 96px; }
+.l-fab { position: fixed; z-index: 40; right: max(16px, calc((100vw - 480px) / 2 + 16px)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.l-fab-btn { width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--lite-btn); color: var(--lite-btn-ink); display: grid; place-items: center; }
+.l-fab-ask { font-size: 15px; font-weight: 700; }
+.l-fab-menu { display: flex; flex-direction: column; width: min(280px, calc(100vw - 32px)); background: var(--lite-surface); border: 1px solid var(--lite-line); border-radius: 14px; overflow: hidden; }
+.l-fab-menu button { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 10px 14px; border: 0; background: none; text-align: left; font-size: 15px; font-weight: 600; }
+.l-fab-menu button + button { border-top: 1px solid var(--lite-line); }
+.l-fab-menu button:active { background: var(--lite-sunk); }
+.l-fab-backdrop { position: fixed; inset: 0; z-index: 39; border: 0; background: color-mix(in srgb, var(--lite-ink) 12%, transparent); }
 .l-btn-row { display: flex; gap: 8px; }
 .l-btn-row .l-btn { flex: 1; min-height: 44px; font-size: 14px; }
 .l-btn-row .l-btn.fit { flex: 0 0 auto; }
@@ -91,8 +104,11 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-rsvp button[data-v="maybe"][aria-pressed="true"] { background: var(--lite-maybe-soft); border-color: var(--lite-yellow); color: var(--lite-maybe); }
 .l-rsvp button[data-v="no"][aria-pressed="true"] { background: var(--lite-no-soft); border-color: var(--lite-line-strong); color: var(--lite-no); }
 
-.l-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--lite-line); background: var(--lite-surface); font-size: 13px; color: var(--lite-muted); min-height: 48px; }
-.l-bar.strong { background: var(--lite-sunk); color: var(--lite-ink); }
+/* 상단 바 아래 띠들은 칼럼 끝까지 깔지 않고 본문 여백 안쪽의 둥근 상자로 둔다. PC에서 띠가 바탕 위에 떠 보이지 않게 하기 위함이다. */
+.l-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; margin: 4px 8px 0; border: 1px solid var(--lite-line); border-radius: 10px; background: var(--lite-surface); font-size: 13px; color: var(--lite-muted); min-height: 48px; }
+.l-bar.strong { background: var(--lite-sunk); border-color: transparent; color: var(--lite-ink); }
+.l-bar > button { flex: none; display: inline-flex; align-items: center; gap: 3px; border: 1px solid var(--lite-line-strong); background: var(--lite-surface); color: var(--lite-ink); border-radius: 999px; padding: 4px 10px; min-height: 36px; font-size: 13px; font-weight: 600; }
+.l-bar > button.going { background: var(--lite-going-soft); border-color: transparent; color: var(--lite-going); }
 .l-bar .l-grow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-bar .l-btn { min-height: 40px; font-size: 14px; padding: 4px 14px; margin-left: auto; }
 .l-code { font-family: var(--lite-mono); font-size: 22px; font-weight: 600; letter-spacing: .2em; color: var(--lite-ink); }
@@ -100,14 +116,25 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-locked { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; color: var(--lite-muted); font-size: 14px; }
 .l-locked .l-btn-row { width: 100%; }
 
-.l-msgs { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 9px; background: var(--lite-bg); }
+/* 채팅은 테두리가 있는 창 하나로 묶는다. 화면 높이에 맞춰 고정하고 메시지만 창 안에서 스크롤한다. */
+.lite-shell:has(.l-chatbox) { height: 100vh; height: 100dvh; }
+.l-chatbox { flex: 1; min-height: 0; display: flex; flex-direction: column; margin: 8px; border: 1px solid var(--lite-line); border-radius: 14px; background: var(--lite-surface); overflow: hidden; }
+.l-msgs { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 10px; display: flex; flex-direction: column; gap: 9px; }
+.l-msgs > :first-child { margin-top: auto; }
 .l-msg { display: flex; gap: 8px; max-width: 86%; }
-.l-bub { background: var(--lite-surface); border: 1px solid var(--lite-line); border-radius: 4px 12px 12px 12px; padding: 6px 11px; font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
-.l-pinbar { position: sticky; top: var(--l-top-h, 0px); z-index: 1; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 13px; }
+.l-msg.cont { margin-top: -5px; }
+.l-av.ghost { visibility: hidden; }
+.l-bub-row { display: flex; align-items: flex-end; gap: 5px; }
+.l-msg.mine .l-bub-row { flex-direction: row-reverse; }
+.l-time { flex: none; font-size: 10.5px; color: var(--lite-muted); line-height: 1.4; }
+.l-day { align-self: center; font-size: 11.5px; color: var(--lite-muted); padding: 6px 0 2px; }
+.l-bub { background: var(--lite-sunk); border: 1px solid transparent; border-radius: 4px 12px 12px 12px; padding: 6px 11px; font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
+.l-pinbar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 13px; }
 .l-pinbar svg { flex: none; color: var(--lite-muted); }
 .l-pinbar-who { flex: none; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
 .l-pinbar-body { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-pinbar .l-icon-btn { margin: -8px -8px -8px 0; }
+@media (min-width: 400px) { .l-bar, .l-chatbox { margin-inline: 12px; } .l-chatbox { margin-bottom: 12px; } }
 .l-msg-more { flex: none; align-self: center; border: 0; background: none; color: var(--lite-muted); min-width: 44px; min-height: 44px; margin: -8px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
 .l-msg-menu { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; }
 .l-msg-menu button { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 999px; padding: 4px 12px; min-height: 44px; font-weight: 600; }
@@ -121,7 +148,7 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-choices { display: flex; gap: 6px; flex-wrap: wrap; margin-left: 34px; }
 .l-choice { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 999px; padding: 5px 14px; min-height: 44px; display: inline-flex; gap: 5px; align-items: center; font-size: 14px; font-weight: 600; }
 .l-choice:active { background: var(--lite-sunk); }
-.l-composer { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--lite-line); background: var(--lite-surface); position: sticky; bottom: 0; }
+.l-composer { flex: none; display: flex; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--lite-line); background: var(--lite-surface); }
 .l-composer input { flex: 1; min-width: 0; min-height: 44px; border: 1px solid var(--lite-line-strong); background: var(--lite-bg); border-radius: 999px; padding: 8px 14px; }
 .l-composer button { border: 0; background: var(--lite-btn); color: var(--lite-btn-ink); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; flex: none; }
 .l-composer button:disabled { opacity: .5; }
