@@ -11,7 +11,7 @@
   </LiteTopbar>
   <div class="lite-scroll">
     <div
-      class="l-body"
+      class="l-body l-home"
       :class="{ 'l-body-fab': !store.isHost }"
     >
       <template v-if="store.isHost">

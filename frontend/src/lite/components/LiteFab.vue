@@ -25,7 +25,7 @@
       </button>
       <button
         type="button"
-        @click="go('/lite/requests')"
+        @click="go('/lite/new-request')"
       >
         <Hand :size="20" />
         <span class="l-grow">이런 모임 열어주세요</span>
@@ -42,10 +42,10 @@
         v-if="open"
         :size="24"
       />
-      <b
-        v-else
-        class="l-fab-ask"
-      >문의</b>
+      <template v-else>
+        <MessageCircle :size="20" />
+        <b class="l-fab-ask">문의</b>
+      </template>
     </button>
   </div>
 </template>
@@ -53,7 +53,7 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { GraduationCap, Hand, X } from 'lucide-vue-next'
+import { GraduationCap, Hand, MessageCircle, X } from 'lucide-vue-next'
 import { SEMINAR_STATUS_LABEL } from '../format'
 
 // 운영자가 아닌 방문자 홈의 1:1 세미나·모임 요청 진입점. seminar가 없으면 아직 시작하지 않은 상태다.

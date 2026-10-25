@@ -47,6 +47,8 @@ class MeetupRequest(models.Model):
 class Meetup(models.Model):
     title = models.CharField(max_length=80)
     description = models.TextField(blank=True)
+    # 어떤 분께 맞는 모임인지 한 줄로 적는다 (예: 비트코인을 처음 접하는 분)
+    audience = models.CharField(max_length=100, blank=True, default='')
     starts_at = models.DateTimeField()
     location = models.CharField(max_length=100)
     capacity = models.PositiveIntegerField()

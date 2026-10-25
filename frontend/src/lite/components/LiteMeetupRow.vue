@@ -17,6 +17,11 @@
       loading="lazy"
     >
     <span
+      v-else
+      class="l-thumb sm l-thumb-empty"
+      aria-hidden="true"
+    />
+    <span
       v-if="meetup.cancelled"
       class="l-chip no"
     >취소됨</span>

@@ -38,7 +38,7 @@ const store = useLiteStore()
 const busy = ref(false)
 const fromRequest = ref(null)
 const initial = ref({})
-const form = ref({ title: '', date: '', time: '', location: '', capacity: 15, description: '' })
+const form = ref({ title: '', date: '', time: '', location: '', capacity: 15, audience: '', description: '' })
 
 const submit = async () => {
   const f = form.value
@@ -53,6 +53,7 @@ const submit = async () => {
     location: f.location.trim(),
     capacity: f.capacity,
   }
+  if (f.audience.trim()) payload.audience = f.audience.trim()
   if (f.description.trim()) payload.description = f.description.trim()
   if (fromRequest.value) payload.request_id = fromRequest.value.id
   busy.value = true

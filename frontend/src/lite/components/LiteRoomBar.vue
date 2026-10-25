@@ -1,5 +1,9 @@
 <template>
-  <div class="l-bar">
+  <!-- 미신청자는 아래 안내 패널에 같은 정보가 있으므로, 취소·내보냄 안내가 필요할 때만 요약 줄을 둔다 -->
+  <div
+    v-if="joined || store.isHost || meetup.cancelled || detail.removed"
+    class="l-bar"
+  >
     <CalendarDays :size="18" />
     <span class="l-grow">{{ when }} {{ parts.time }} · {{ meetup.location }}</span>
     <span
@@ -11,29 +15,48 @@
       class="l-chip no"
     >취소된 모임이에요</span>
     <button
-      v-else-if="store.member && !store.isHost"
-      :class="meetup.my_status || 'none'"
-      :aria-expanded="open"
-      @click="open = !open"
+      v-else-if="joined || store.isHost"
+      type="button"
+      :aria-expanded="infoOpen"
+      @click="infoOpen = !infoOpen"
     >
-      {{ STATUS_LABEL[meetup.my_status] || '응답' }}<ChevronDown :size="12" />
+      안내<component
+        :is="infoOpen ? ChevronUp : ChevronDown"
+        :size="14"
+      />
     </button>
   </div>
   <div
-    v-if="open && !store.isHost && !meetup.cancelled && !detail.removed"
+    v-if="infoOpen"
+    class="l-bar l-bar-info"
+  >
+    <LiteMeetupInfo
+      :meetup="meetup"
+      :description="detail.description"
+      :audience="detail.audience"
+    />
+  </div>
+  <div
+    v-if="joined && !store.isHost && !meetup.cancelled && !detail.removed"
     class="l-bar"
   >
-    <div class="l-rsvp">
+    <span class="l-rsvp-label">내 참석</span>
+    <div
+      class="l-rsvp two"
+      role="group"
+      aria-label="참석 여부"
+    >
       <button
-        v-for="status in ['going', 'maybe', 'no']"
+        v-for="status in ['going', 'no']"
         :key="status"
+        type="button"
         :data-v="status"
         :aria-pressed="meetup.my_status === status"
         @click="pick(status)"
       >
         <component
           :is="ICONS[status]"
-          :size="16"
+          :size="18"
         />{{ STATUS_LABEL[status] }}
       </button>
     </div>
@@ -80,10 +103,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import {
-  CalendarDays, CheckCircle2, Check, ChevronDown, HelpCircle, MapPin, QrCode, X,
+  CalendarDays, CheckCircle2, Check, ChevronDown, ChevronUp, MapPin, QrCode, X,
 } from 'lucide-vue-next'
 import { dateParts, daysUntilLabel, STATUS_LABEL } from '../format'
 import { useLiteStore } from '../store'
+import LiteMeetupInfo from './LiteMeetupInfo.vue'
 
 const props = defineProps({
   meetup: { type: Object, required: true },
@@ -91,9 +115,10 @@ const props = defineProps({
 })
 const emit = defineEmits(['rsvp', 'checkin'])
 
-const ICONS = { going: Check, maybe: HelpCircle, no: X }
+// 응답은 참석/불참 두 가지만 고른다. 예전에 고른 미정은 둘 다 눌리지 않은 상태로 보인다.
+const ICONS = { going: Check, no: X }
 const store = useLiteStore()
-const open = ref(false)
+const infoOpen = ref(false)
 const code = ref('')
 const parts = computed(() => dateParts(props.meetup.starts_at))
 const joined = computed(() => ['going', 'maybe'].includes(props.meetup.my_status))
@@ -101,7 +126,6 @@ const dday = computed(() => daysUntilLabel(props.meetup.starts_at))
 const when = computed(() => (props.meetup.is_today ? '오늘' : `${parts.value.month}/${parts.value.day}(${parts.value.weekday}) · ${dday.value}`))
 
 const pick = (status) => {
-  open.value = false
   if (status !== props.meetup.my_status) emit('rsvp', status)
 }
 </script>

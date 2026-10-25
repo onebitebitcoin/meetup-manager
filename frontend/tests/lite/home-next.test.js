@@ -73,7 +73,9 @@ describe('LiteHome 다음 모임 카드', () => {
 
     const hero = wrapper.find('.l-next')
     expect(hero.findAll('.l-next-title').map((t) => t.text())).toEqual(['거래소 탈출', '셀프 커스터디'])
-    expect(hero.text()).toContain('정원 각 10명')
+    // 정원은 홈 카드에 두지 않고 신청 후 채팅방 상단에서 보여 준다
+    expect(hero.find('.l-next-info').text()).toBe('석우동카페')
+    expect(hero.text()).not.toContain('정원')
     expect(hero.findAll('.l-pill-btn').length).toBe(1)
     expect(hero.find('.l-chip.going').text()).toBe('참석')
     expect(wrapper.findAll('.l-mrow-title').map((t) => t.text())).toEqual(['온라인 AI 밋업'])
@@ -92,5 +94,19 @@ describe('LiteHome 다음 모임 카드', () => {
 
     expect(wrapper.find('.l-next').exists()).toBe(true)
     expect(wrapper.find('.l-pill-btn').exists()).toBe(false)
+  })
+})
+
+describe('LiteNextCard 사진', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it('첫 모임에 사진이 있으면 카드 위에 보여 주고, 없으면 사진 자리를 두지 않는다', async () => {
+    const { default: LiteNextCard } = await import('@/lite/components/LiteNextCard.vue')
+
+    const withImage = mount(LiteNextCard, { props: { meetups: [card({ image_url: '/media/meetups/a.png' })] } })
+    expect(withImage.find('img.l-next-img').attributes('src')).toBe('/media/meetups/a.png')
+
+    const without = mount(LiteNextCard, { props: { meetups: [card()] } })
+    expect(without.find('.l-next-img').exists()).toBe(false)
   })
 })

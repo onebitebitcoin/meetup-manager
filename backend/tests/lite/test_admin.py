@@ -365,3 +365,12 @@ def test_missing_meetup_returns_404(api_client, host, auth):
     r = api_client.post(f'{BASE}{missing}/cancel/', {'cancelled': True}, format='json', **auth(host))
     assert r.status_code == 404
     assert api_client.delete(f'{BASE}{missing}/members/1/', **auth(host)).status_code == 404
+
+
+def test_patch_audience(api_client, host, auth, make_meetup):
+    meetup = make_meetup()
+    r = patch(api_client, auth(host), meetup, audience='지갑을 이미 써 본 분')
+    assert r.status_code == 200 and r.json()['audience'] == '지갑을 이미 써 본 분'
+    assert patch(api_client, auth(host), meetup, audience='x' * 101).status_code == 400
+    r = patch(api_client, auth(host), meetup, audience='')
+    assert r.status_code == 200 and r.json()['audience'] == ''

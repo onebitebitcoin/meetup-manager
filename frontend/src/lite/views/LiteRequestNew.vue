@@ -2,7 +2,7 @@
   <LiteTopbar
     title="이런 모임 열어주세요"
     back
-    back-to="/lite/requests"
+    :back-to="backTo"
   >
     <span />
   </LiteTopbar>
@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { liteApi } from '../api'
 import { PERIOD_LABEL } from '../format'
@@ -58,6 +58,8 @@ const store = useLiteStore()
 const title = ref('')
 const period = ref('next_month')
 const busy = ref(false)
+// 방문자는 홈의 문의 메뉴에서 바로 오고, 운영자는 요청 목록에서 온다
+const backTo = computed(() => (store.isHost ? '/lite/requests' : '/lite'))
 
 const submit = async () => {
   const trimmed = title.value.trim()
@@ -66,12 +68,13 @@ const submit = async () => {
     return
   }
   busy.value = true
-  const data = await store.act(() => liteApi.createRequest(trimmed, period.value), '올렸어요')
+  // 이름 없이 들어온 방문자는 올리는 순간 자동 닉네임으로 가입한다
+  if (!(await store.ensureMember())) {
+    busy.value = false
+    return
+  }
+  const data = await store.act(() => liteApi.createRequest(trimmed, period.value), '요청을 올렸어요')
   busy.value = false
-  if (data) router.push('/lite/requests')
+  if (data) router.push(backTo.value)
 }
-
-onMounted(() => {
-  if (!store.member) router.replace('/lite')
-})
 </script>

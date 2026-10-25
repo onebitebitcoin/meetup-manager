@@ -173,6 +173,7 @@ const applyForm = (next) => {
     ...toSeoulParts(m.starts_at),
     location: m.location,
     capacity: m.capacity,
+    audience: next.audience || '',
     description: next.description || '',
     image_url: next.image_url || '',
   }
@@ -213,6 +214,7 @@ const save = () => {
     title: v.title.trim(),
     location: v.location.trim(),
     capacity: v.capacity,
+    audience: v.audience.trim(),
     description: v.description.trim(),
     image_url: v.image_url.trim(),
   }

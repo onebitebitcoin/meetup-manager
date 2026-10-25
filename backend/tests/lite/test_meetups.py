@@ -180,3 +180,27 @@ def test_checkin_requires_rsvp(api_client, member, auth, make_meetup):
     assert checkin(api_client, auth(member), meetup, meetup.checkin_code).status_code == 403
     rsvp(api_client, auth(member), meetup, 'no')
     assert checkin(api_client, auth(member), meetup, meetup.checkin_code).status_code == 403
+
+
+def test_create_meetup_with_audience_and_detail_shows_info(api_client, host, member, auth):
+    payload = create_payload(description='멀티시그 지갑을 직접 만들어 봅니다', audience='  비트코인을 처음 접하는 분  ')
+    r = api_client.post('/api/lite/meetups/', payload, format='json', **auth(host))
+    assert r.status_code == 201
+    meetup_id = r.json()['meetup']['id']
+
+    # 신청하지 않은 회원과 이름 없는 방문자도 상세 안내(내용, 대상)를 본다
+    for headers in (auth(member), {}):
+        body = api_client.get(f'/api/lite/meetups/{meetup_id}/', **headers).json()
+        assert body['description'] == '멀티시그 지갑을 직접 만들어 봅니다'
+        assert body['audience'] == '비트코인을 처음 접하는 분'
+
+
+def test_create_meetup_audience_validation(api_client, host, auth):
+    for bad in ['x' * 101, 5]:
+        r = api_client.post('/api/lite/meetups/', create_payload(audience=bad), format='json', **auth(host))
+        assert r.status_code == 400, bad
+
+
+def test_detail_without_audience_is_empty_string(api_client, member, auth, make_meetup):
+    body = api_client.get(f'/api/lite/meetups/{make_meetup().id}/', **auth(member)).json()
+    assert body['audience'] == ''

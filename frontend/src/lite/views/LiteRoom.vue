@@ -33,15 +33,13 @@
     />
     <div
       v-if="!store.isHost && !joined"
-      class="l-locked"
+      class="l-intro"
     >
-      <div
-        class="l-title"
-        style="font-size: 24px; color: var(--lite-ink)"
-      >
-        {{ meetup.title }}
-      </div>
-      <span class="l-counts">{{ meetup.going_count }}명 참석</span>
+      <LiteMeetupInfo
+        :meetup="meetup"
+        :description="detail.description"
+        :audience="detail.audience"
+      />
       <LiteJoinRow
         v-if="!detail.removed"
         :meetup="meetup"
@@ -64,6 +62,7 @@ import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteChat from '../components/LiteChat.vue'
 import LiteJoinRow from '../components/LiteJoinRow.vue'
+import LiteMeetupInfo from '../components/LiteMeetupInfo.vue'
 import LiteRoomBar from '../components/LiteRoomBar.vue'
 import LiteTopbar from '../components/LiteTopbar.vue'
 
@@ -71,7 +70,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useLiteStore()
 const meetup = ref(null)
-const detail = ref({ checkin_code: null, checked_in: false, checked_in_count: 0, removed: undefined })
+const detail = ref({ checkin_code: null, checked_in: false, checked_in_count: 0, removed: undefined, description: '', audience: '' })
 const error = ref('')
 
 const joined = computed(() => ['going', 'maybe'].includes(meetup.value?.my_status))
@@ -85,6 +84,8 @@ const load = async () => {
       checked_in: data.checked_in,
       checked_in_count: data.checked_in_count,
       removed: data.removed,
+      description: data.description || '',
+      audience: data.audience || '',
     }
     error.value = ''
   } catch (e) {

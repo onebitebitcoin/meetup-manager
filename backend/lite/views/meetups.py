@@ -28,6 +28,7 @@ MIN_YEAR = 2000
 MAX_YEAR = 2100
 MEETUP_END_GRACE = timedelta(hours=12)
 DESCRIPTION_MAX = 1000
+AUDIENCE_MAX = 100
 
 RSVP_LABELS = {Rsvp.Status.GOING: '참석', Rsvp.Status.MAYBE: '미정', Rsvp.Status.NO: '불참'}
 
@@ -114,6 +115,7 @@ class MeetupCreateView(LiteView):
             raise ApiError('설명 형식이 올바르지 않아요')
         if len(description.strip()) > DESCRIPTION_MAX:
             raise ApiError(f'설명은 {DESCRIPTION_MAX}자 이내로 입력해 주세요')
+        audience = parse_audience(data.get('audience'))
         request_id = data.get('request_id')
 
         with transaction.atomic():
@@ -125,7 +127,7 @@ class MeetupCreateView(LiteView):
                 if req.status != MeetupRequest.Status.OPEN:
                     raise ApiError('이미 모임이 열린 요청이에요')
             meetup = Meetup.objects.create(
-                title=title, description=description.strip(), starts_at=starts_at,
+                title=title, description=description.strip(), audience=audience, starts_at=starts_at,
                 location=location, capacity=capacity, from_request=req,
             )
             if req is not None:
@@ -135,6 +137,18 @@ class MeetupCreateView(LiteView):
                 add_message(meetup.room, f'요청으로 열린 모임이에요 · {req.votes.count()}명에게 알림')
         logger.info('LITE 모임 생성: id=%s request_id=%s', meetup.id, req.id if req else None)
         return APIResponse.created({'meetup': card_for(meetup.id, self.member)})
+
+
+def parse_audience(value):
+    """대상 한 줄. 비워 둘 수 있다."""
+    if value is None:
+        return ''
+    if not isinstance(value, str):
+        raise ApiError('대상 형식이 올바르지 않아요')
+    value = value.strip()
+    if len(value) > AUDIENCE_MAX:
+        raise ApiError(f'대상은 {AUDIENCE_MAX}자 이내로 입력해 주세요')
+    return value
 
 
 def _to_int(value):
@@ -154,6 +168,8 @@ class MeetupDetailView(LiteView):
         show_code = bool(member and member.is_host) and is_today(meetup.starts_at)
         return APIResponse.success({
             'meetup': meetup_card(meetup, rsvp.status if rsvp else None),
+            'description': meetup.description,
+            'audience': meetup.audience,
             'checkin_code': meetup.checkin_code if show_code else None,
             'checked_in': bool(rsvp and rsvp.checked_in_at),
             'checked_in_count': Rsvp.objects.filter(

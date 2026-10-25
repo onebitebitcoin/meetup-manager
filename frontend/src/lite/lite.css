@@ -1,36 +1,34 @@
-/* LITE 테마: 원장(Ledger) 구조(1px 테두리, 그림자 없음) + 한입 로고 팔레트. 다크 모드는 html.dark 클래스를 따른다. */
+/* LITE 테마: 흑백 화면 틀 + 머스타드 강조 하나. 색은 모임 사진이 내고, 글자는 Pretendard. 어르신도 읽기 쉽도록 글자 대비 7:1 이상, 본문 16px을 기준으로 한다. html.dark와 관계없이 밝은 테마 하나만 쓴다. */
 .lite-root {
-  /* 기본 3색: 종이, 잉크, 노랑. 나머지는 잉크를 종이에 섞어 파생한다. 다크 블록은 기본값만 다시 정의한다. */
-  --lite-paper: #FFF8EC; --lite-ink: #2B1A17; --lite-yellow: #F5C431; --lite-surface: #FFFFFF;
+  /* 기본 색: 바탕(paper), 글자(ink), 강조(yellow). 선과 흐린 글자는 대비를 직접 맞춘 값을 쓴다. */
+  --lite-paper: #FAFAF9; --lite-ink: #111111; --lite-yellow: #F5C431; --lite-surface: #FFFFFF;
   --lite-bg: var(--lite-paper);
-  --lite-sunk: color-mix(in srgb, var(--lite-ink) 6%, var(--lite-paper));
-  --lite-line: color-mix(in srgb, var(--lite-ink) 14%, var(--lite-paper));
-  --lite-line-strong: color-mix(in srgb, var(--lite-ink) 26%, var(--lite-paper));
-  --lite-muted: color-mix(in srgb, var(--lite-ink) 64%, var(--lite-paper));
+  --lite-sunk: #F1F0EE;
+  --lite-line: #E6E4E0;
+  --lite-line-strong: #CFCCC6;
+  /* 흐린 글자도 바탕 대비 8:1 이상 (어르신 권장 7:1) */
+  --lite-muted: #4A4A4A;
   --lite-yellow-soft: color-mix(in srgb, var(--lite-yellow) 30%, var(--lite-paper));
-  --lite-btn: var(--lite-yellow); --lite-btn-ink: #2B1A17;
-  --lite-accent: var(--lite-yellow); --lite-accent-ink: #2B1A17; --lite-accent-text: var(--lite-ink);
+  --lite-btn: var(--lite-yellow); --lite-btn-ink: #111111;
+  --lite-accent: var(--lite-yellow); --lite-accent-ink: #111111; --lite-accent-text: var(--lite-ink);
   --lite-going: var(--lite-btn-ink); --lite-going-soft: var(--lite-yellow); --lite-going-strong: var(--lite-yellow);
   --lite-maybe: var(--lite-ink); --lite-maybe-soft: var(--lite-yellow-soft);
   --lite-no: var(--lite-muted); --lite-no-soft: var(--lite-sunk);
   --lite-plum: var(--lite-ink); --lite-plum-soft: var(--lite-sunk);
   --lite-progress: var(--lite-yellow);
-  --lite-font: "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  --lite-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --lite-font: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --lite-mono: var(--lite-font);
+  color-scheme: light;
   font-family: var(--lite-font);
-  font-size: 15px; line-height: 1.6; color: var(--lite-ink); background: var(--lite-bg);
+  font-size: 16px; line-height: 1.55; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--lite-ink); background: var(--lite-bg);
   min-height: 100vh; min-height: 100dvh;
-}
-.dark .lite-root {
-  --lite-paper: #1C1311; --lite-ink: #FFF1DC; --lite-surface: #281B18;
-  color-scheme: dark;
 }
 .lite-root *, .lite-root *::before, .lite-root *::after { box-sizing: border-box; }
 /* :where()로 감싸 우선순위를 0으로 둔다. 그래야 .l-btn 같은 컴포넌트 규칙의 font-weight가 덮어써지지 않는다. */
 .lite-root :where(button, input, select, textarea) { font: inherit; color: inherit; }
 .lite-root :where(button) { cursor: pointer; }
 .lite-root :focus-visible { outline: 2px solid var(--lite-accent); outline-offset: 2px; }
-.lite-root h1, .lite-root h2 { font-weight: 600; line-height: 1.3; margin: 0; letter-spacing: -0.01em; }
+.lite-root h1, .lite-root h2 { font-weight: 800; line-height: 1.3; margin: 0; letter-spacing: -0.01em; }
 
 .lite-shell { max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; position: relative; background: var(--lite-bg); }
 .lite-shell.bordered { border-inline: 1px solid var(--lite-line); }
@@ -41,12 +39,12 @@
 
 .l-top { min-height: 53px; display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid transparent; background: var(--lite-bg); position: sticky; top: 0; z-index: 2; transition: border-color .15s; }
 .l-top.scrolled { border-bottom-color: var(--lite-line); }
-.l-top h2 { font-size: 18px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l-top h2 { font-size: 20px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-icon-btn { border: 0; background: none; padding: 8px; margin: -8px; min-width: 44px; min-height: 44px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
-.l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--lite-muted); border: 0; background: none; min-height: 44px; padding: 0 4px; margin-right: -4px; }
+.l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--lite-muted); border: 0; background: none; min-height: 44px; padding: 0 4px; margin-right: -4px; }
 .l-me-wrap { position: relative; }
 .l-me-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; width: 240px; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: var(--lite-surface); border: 1px solid var(--lite-line-strong); border-radius: 12px; font-size: 14px; }
-.l-av { width: 26px; height: 26px; border-radius: 50%; background: var(--lite-sunk); color: var(--lite-ink); display: inline-grid; place-items: center; font-size: 11.5px; font-weight: 700; flex: none; }
+.l-av { width: 30px; height: 30px; border-radius: 50%; background: var(--lite-sunk); color: var(--lite-ink); display: inline-grid; place-items: center; font-size: 13px; font-weight: 700; flex: none; }
 .l-av.bot { background: var(--lite-plum-soft); color: var(--lite-plum); }
 
 .l-card { border: 1px solid var(--lite-line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: var(--lite-surface); text-align: left; width: 100%; transition: border-color .12s; }
@@ -63,20 +61,20 @@
 .l-date.today span { color: inherit; opacity: .8; }
 .l-date.always { background: var(--lite-surface); border: 1px solid var(--lite-line); color: var(--lite-plum); display: grid; place-items: center; height: 52px; }
 .l-title { font-size: 16px; font-weight: 600; line-height: 1.35; }
-.l-sub { font-size: 12.5px; color: var(--lite-muted); display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.l-sub { font-size: 14px; color: var(--lite-muted); display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 .l-grow { flex: 1; min-width: 0; }
 .l-thumb { width: 64px; height: 64px; flex: none; border-radius: 10px; object-fit: cover; background: var(--lite-sunk); border: 1px solid var(--lite-line); }
 .l-dday { font-weight: 700; color: var(--lite-accent-text); }
-.l-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; background: var(--lite-sunk); color: var(--lite-muted); }
+.l-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; background: var(--lite-sunk); color: var(--lite-muted); }
 .l-chip.going { background: var(--lite-going-soft); color: var(--lite-going); }
 .l-chip.maybe { background: var(--lite-maybe-soft); color: var(--lite-maybe); }
 .l-chip.no { background: var(--lite-no-soft); color: var(--lite-no); }
 .l-chip.plum { background: var(--lite-surface); color: var(--lite-plum); }
 .l-chip.none { background: var(--lite-sunk); }
 button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
-.l-counts { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; color: var(--lite-muted); font-family: var(--lite-mono); font-variant-numeric: tabular-nums; }
+.l-counts { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; color: var(--lite-muted); font-family: var(--lite-mono); font-variant-numeric: tabular-nums; }
 
-.l-btn { border: 1px solid transparent; border-radius: 10px; padding: 10px 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; transition: opacity .12s; }
+.l-btn { border: 1px solid transparent; border-radius: 12px; padding: 10px 14px; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 50px; transition: opacity .12s; }
 .l-btn:active { opacity: .85; }
 .l-btn:disabled { opacity: .5; }
 .l-btn.p { background: var(--lite-btn); color: var(--lite-btn-ink); }
@@ -87,10 +85,10 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 /* 일반 회원 홈의 플로팅 버튼. PC에서도 480px 칼럼의 오른쪽 아래에 맞춘다. */
 .l-body-fab { padding-bottom: 96px; }
 .l-fab { position: fixed; z-index: 40; right: max(16px, calc((100vw - 480px) / 2 + 16px)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-.l-fab-btn { width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--lite-btn); color: var(--lite-btn-ink); display: grid; place-items: center; }
-.l-fab-ask { font-size: 15px; font-weight: 700; }
+.l-fab-btn { width: auto; height: 52px; border-radius: 999px; border: 0; background: var(--lite-ink); color: #FFFFFF; display: inline-flex; place-items: center; min-width: 56px; padding: 0 20px; align-items: center; justify-content: center; gap: 8px; }
+.l-fab-ask { font-size: 16px; font-weight: 700; }
 .l-fab-menu { display: flex; flex-direction: column; width: min(280px, calc(100vw - 32px)); background: var(--lite-surface); border: 1px solid var(--lite-line); border-radius: 14px; overflow: hidden; }
-.l-fab-menu button { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 10px 14px; border: 0; background: none; text-align: left; font-size: 15px; font-weight: 600; }
+.l-fab-menu button { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 14px; border: 0; background: none; text-align: left; font-size: 16px; font-weight: 600; }
 .l-fab-menu button + button { border-top: 1px solid var(--lite-line); }
 .l-fab-menu button:active { background: var(--lite-sunk); }
 .l-fab-backdrop { position: fixed; inset: 0; z-index: 39; border: 0; background: color-mix(in srgb, var(--lite-ink) 12%, transparent); }
@@ -102,10 +100,10 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-rsvp button { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600; min-height: 44px; }
 .l-rsvp button[data-v="going"][aria-pressed="true"] { background: var(--lite-going-strong); border-color: var(--lite-going-strong); color: var(--lite-btn-ink); }
 .l-rsvp button[data-v="maybe"][aria-pressed="true"] { background: var(--lite-maybe-soft); border-color: var(--lite-yellow); color: var(--lite-maybe); }
-.l-rsvp button[data-v="no"][aria-pressed="true"] { background: var(--lite-no-soft); border-color: var(--lite-line-strong); color: var(--lite-no); }
+.l-rsvp button[data-v="no"][aria-pressed="true"] { background: var(--lite-ink); border-color: var(--lite-ink); color: #FFFFFF; }
 
 /* 상단 바 아래 띠들은 칼럼 끝까지 깔지 않고 본문 여백 안쪽의 둥근 상자로 둔다. PC에서 띠가 바탕 위에 떠 보이지 않게 하기 위함이다. */
-.l-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; margin: 4px 8px 0; border: 1px solid var(--lite-line); border-radius: 10px; background: var(--lite-surface); font-size: 13px; color: var(--lite-muted); min-height: 48px; }
+.l-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; margin: 4px 8px 0; border: 1px solid var(--lite-line); border-radius: 10px; background: var(--lite-surface); font-size: 14px; color: var(--lite-muted); min-height: 48px; }
 .l-bar.strong { background: var(--lite-sunk); border-color: transparent; color: var(--lite-ink); }
 .l-bar > button { flex: none; display: inline-flex; align-items: center; gap: 3px; border: 1px solid var(--lite-line-strong); background: var(--lite-surface); color: var(--lite-ink); border-radius: 999px; padding: 4px 10px; min-height: 36px; font-size: 13px; font-weight: 600; }
 .l-bar > button.going { background: var(--lite-going-soft); border-color: transparent; color: var(--lite-going); }
@@ -113,8 +111,11 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-bar .l-btn { min-height: 40px; font-size: 14px; padding: 4px 14px; margin-left: auto; }
 .l-code { font-family: var(--lite-mono); font-size: 22px; font-weight: 600; letter-spacing: .2em; color: var(--lite-ink); }
 .l-pin { flex: 1; min-width: 0; min-height: 40px; border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 8px; padding: 5px 10px; font-family: var(--lite-mono); font-size: 17px; letter-spacing: .2em; }
-.l-locked { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; text-align: center; color: var(--lite-muted); font-size: 14px; }
-.l-locked .l-btn-row { width: 100%; }
+/* 미신청자 화면: 채팅 대신 모임 안내와 신청 버튼을 보여 준다 */
+.l-intro { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 12px 8px 24px; }
+.l-intro .l-btn-row { width: 100%; }
+.l-intro .l-btn { min-height: 52px; font-size: 17px; }
+@media (min-width: 400px) { .l-intro { padding-inline: 12px; } }
 
 /* 채팅은 테두리가 있는 창 하나로 묶는다. 화면 높이에 맞춰 고정하고 메시지만 창 안에서 스크롤한다. */
 .lite-shell:has(.l-chatbox) { height: 100vh; height: 100dvh; }
@@ -126,10 +127,10 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-av.ghost { visibility: hidden; }
 .l-bub-row { display: flex; align-items: flex-end; gap: 5px; }
 .l-msg.mine .l-bub-row { flex-direction: row-reverse; }
-.l-time { flex: none; font-size: 10.5px; color: var(--lite-muted); line-height: 1.4; }
-.l-day { align-self: center; font-size: 11.5px; color: var(--lite-muted); padding: 6px 0 2px; }
-.l-bub { background: var(--lite-sunk); border: 1px solid transparent; border-radius: 4px 12px 12px 12px; padding: 6px 11px; font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
-.l-pinbar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 13px; }
+.l-time { flex: none; font-size: 12px; color: var(--lite-muted); line-height: 1.4; }
+.l-day { align-self: center; font-size: 13px; color: var(--lite-muted); padding: 6px 0 2px; }
+.l-bub { background: var(--lite-sunk); border: 1px solid transparent; border-radius: 4px 16px 16px 16px; padding: 8px 13px; font-size: 16px; overflow-wrap: anywhere; white-space: pre-line; }
+.l-pinbar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 14px; }
 .l-pinbar svg { flex: none; color: var(--lite-muted); }
 .l-pinbar-who { flex: none; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
 .l-pinbar-body { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -140,11 +141,11 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-msg-menu button { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 999px; padding: 4px 12px; min-height: 44px; font-weight: 600; }
 .l-msg-menu button { display: inline-flex; align-items: center; gap: 4px; }
 .l-msg-menu button.danger { color: var(--lite-no); font-weight: 800; }
-.l-who { font-size: 11px; color: var(--lite-muted); margin-bottom: 2px; }
+.l-who { font-size: 13px; color: var(--lite-muted); margin-bottom: 2px; font-weight: 600; }
 .l-msg.mine { align-self: flex-end; flex-direction: row-reverse; }
-.l-msg.mine .l-bub { background: var(--lite-btn); color: var(--lite-btn-ink); border-color: transparent; border-radius: 12px 4px 12px 12px; }
+.l-msg.mine .l-bub { background: var(--lite-btn); color: var(--lite-btn-ink); border-color: transparent; border-radius: 16px 4px 16px 16px; }
 .l-msg.bot .l-bub { background: var(--lite-plum-soft); border-color: transparent; }
-.l-sys { align-self: center; font-size: 11.5px; color: var(--lite-muted); background: var(--lite-sunk); padding: 2px 10px; border-radius: 999px; text-align: center; }
+.l-sys { align-self: center; font-size: 13px; color: var(--lite-muted); background: none; padding: 2px 4px; border-radius: 999px; text-align: center; }
 .l-choices { display: flex; gap: 6px; flex-wrap: wrap; margin-left: 34px; }
 .l-choice { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 999px; padding: 5px 14px; min-height: 44px; display: inline-flex; gap: 5px; align-items: center; font-size: 14px; font-weight: 600; }
 .l-choice:active { background: var(--lite-sunk); }
@@ -183,7 +184,7 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 @media (prefers-reduced-motion: reduce) { .l-btn, .l-card { transition: none; } }
 .l-cardbtn { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .l-cardbtn.l-row { display: flex; }
-.l-older { align-self: center; border: 1px solid var(--lite-line-strong); background: var(--lite-surface); color: var(--lite-muted); border-radius: 999px; padding: 4px 14px; min-height: 36px; font-size: 12.5px; font-weight: 600; }
+.l-older { align-self: center; border: 1px solid var(--lite-line-strong); background: var(--lite-surface); color: var(--lite-muted); border-radius: 999px; padding: 4px 14px; min-height: 44px; font-size: 14px; font-weight: 600; }
 .l-older:disabled { opacity: .5; }
 
 .l-seg.two { grid-template-columns: repeat(2, 1fr); }
@@ -198,27 +199,30 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-confirm .l-btn { min-height: 44px; font-size: 14px; padding: 4px 12px; }
 
 /* 홈: 가장 가까운 날짜의 모임을 노란 카드로 강조하고, 나머지는 한 줄 목록으로 보인다 */
-.l-next { border-radius: 16px; background: var(--lite-yellow); color: #2B1A17; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
-.l-next-head { display: flex; align-items: baseline; justify-content: space-between; font-size: 13px; font-weight: 700; }
+.l-next { border-radius: 18px; background: var(--lite-surface); border: 1px solid var(--lite-line); color: var(--lite-ink); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+/* 머리글은 흰 카드 위에서도 7:1을 넘는 짙은 머스타드로 쓴다 */
+.l-next-head { display: flex; align-items: baseline; justify-content: space-between; font-size: 14px; font-weight: 700; color: #6E5000; }
+.l-next { overflow: hidden; }
+.l-next-img { display: block; width: calc(100% + 36px); height: 150px; margin: -18px -18px 2px; object-fit: cover; background: var(--lite-sunk); }
 .l-next-date { font-family: var(--lite-mono); font-weight: 600; }
 .l-next-slots { display: flex; flex-direction: column; gap: 6px; }
 .l-next-slot { display: flex; align-items: center; gap: 8px; min-height: 44px; }
 .l-next-open { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 12px; }
-.l-next-time { font-family: var(--lite-mono); font-size: 15px; font-weight: 600; width: 48px; flex: none; }
-.l-next-title { font-size: 19px; font-weight: 700; line-height: 1.3; }
-.l-next-info { font-size: 13px; }
-.l-next .l-chip { background: #2B1A17; color: #FFF8EC; }
+.l-next-time { font-family: var(--lite-mono); font-size: 16px; font-weight: 600; width: 52px; flex: none; }
+.l-next-title { font-size: 20px; font-weight: 800; line-height: 1.3; }
+.l-next-info { font-size: 15px; color: var(--lite-muted); }
+.l-next .l-chip { background: var(--lite-yellow); color: var(--lite-btn-ink); }
 .l-join-compact { flex: none; }
-.l-pill-btn { min-height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: #2B1A17; color: #FFF8EC; font-size: 13px; font-weight: 700; }
+.l-pill-btn { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--lite-btn); color: var(--lite-btn-ink); font-size: 14px; font-weight: 700; }
 .l-pill-btn:disabled { opacity: .6; }
-.l-section { margin: 14px 4px 0; font-size: 13px; font-weight: 600; color: var(--lite-muted); }
+.l-section { margin: 18px 0 2px; font-size: 18px; font-weight: 800; color: var(--lite-ink); }
 .l-mlist { display: flex; flex-direction: column; }
-.l-mrow.l-cardbtn { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 4px; border-top: 1px solid var(--lite-line); }
-.l-mrow-date { width: 64px; flex: none; font-family: var(--lite-mono); font-size: 13px; font-weight: 600; color: var(--lite-muted); }
-.l-mrow-title { display: block; font-size: 15px; font-weight: 600; line-height: 1.35; }
-.l-mrow-sub { display: block; font-size: 12.5px; color: var(--lite-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l-mrow.l-cardbtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 10px 0; border-top: 1px solid var(--lite-line); }
+.l-mrow-date { width: 66px; flex: none; font-family: var(--lite-mono); font-size: 14px; font-weight: 600; color: var(--lite-muted); }
+.l-mrow-title { display: block; font-size: 17px; font-weight: 700; line-height: 1.35; }
+.l-mrow-sub { display: block; font-size: 14px; color: var(--lite-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-mrow-go { flex: none; color: var(--lite-muted); }
-.l-thumb.sm { width: 40px; height: 40px; border-radius: 8px; }
+.l-thumb.sm { width: 56px; height: 56px; border-radius: 12px; }
 .l-next .l-dday { color: inherit; }
 
 /* 채팅 첨부, 링크, 미리보기 */
@@ -235,15 +239,73 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-lp { display: flex; flex-direction: column; width: 240px; max-width: 100%; border: 1px solid var(--lite-line-strong); border-radius: 12px; overflow: hidden; background: var(--lite-surface); color: var(--lite-ink); text-decoration: none; }
 .l-lp-img { display: block; width: 100%; max-height: 140px; object-fit: cover; background: var(--lite-sunk); }
 .l-lp-text { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; min-width: 0; text-align: left; }
-.l-lp-site { font-size: 11px; color: var(--lite-muted); }
-.l-lp-title { font-size: 13.5px; font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.l-lp-desc { font-size: 12px; color: var(--lite-muted); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.l-lp-site { font-size: 12px; color: var(--lite-muted); }
+.l-lp-title { font-size: 15px; font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.l-lp-desc { font-size: 13px; color: var(--lite-muted); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .l-composer .l-attach-btn { background: none; color: var(--lite-muted); border: 1px solid var(--lite-line-strong); }
 .l-file-input { display: none; }
 .l-attach-preview { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-top: 1px solid var(--lite-line); background: var(--lite-surface); font-size: 13px; }
 .l-attach-preview img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex: none; }
 .l-attach-preview .l-icon-btn { margin: 0; flex: none; }
-.l-viewer { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(20, 12, 10, .92); }
+.l-viewer { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--lite-paper) 94%, transparent); }
 .l-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .l-viewer-bar { position: absolute; top: 0; right: 0; display: flex; gap: 4px; padding: 12px; z-index: 1; }
-.l-viewer-bar .l-icon-btn { margin: 0; color: #FFF1DC; text-decoration: none; }
+.l-viewer-bar .l-icon-btn { margin: 0; color: var(--lite-ink); text-decoration: none; }
+
+/* PC 홈: 1024px 이상에서 홈 화면만 칼럼을 넓히고, 다음 모임은 가로 배치, 다가오는 모임은 이미지 카드 그리드로 바꾼다. 다른 화면과 모바일은 480px 칼럼을 그대로 쓴다. */
+.l-thumb-empty { display: none; }
+@media (min-width: 1024px) {
+  .lite-shell:has(.l-home) { max-width: 1040px; }
+  .lite-shell:has(.l-home) .l-top { padding-inline: 24px; }
+  .l-home { padding: 16px 24px 48px; gap: 16px; }
+  .l-home.l-body-fab { padding-bottom: 112px; }
+  .lite-shell:has(.l-home) .l-fab { right: max(16px, calc((100vw - 1040px) / 2 + 24px)); bottom: 32px; }
+  .lite-shell:has(.l-home) .l-fab-btn { height: 56px; }
+
+  .l-home .l-next { display: grid; grid-template-columns: minmax(240px, 1fr) 2fr; grid-template-areas: "head slots" "info slots"; gap: 12px 28px; padding: 26px 28px; border-radius: 18px; }
+  .l-home .l-next:has(.l-next-img) { grid-template-columns: 220px minmax(200px, 1fr) 2fr; grid-template-areas: "img head slots" "img info slots"; padding-left: 0; padding-block: 0; }
+  .l-home .l-next:has(.l-next-img) .l-next-head { padding-top: 24px; }
+  .l-home .l-next:has(.l-next-img) .l-next-info { padding-bottom: 24px; }
+  .l-home .l-next-img { grid-area: img; width: 100%; height: 100%; min-height: 160px; margin: 0; }
+  .l-home .l-next-head { grid-area: head; flex-direction: column; justify-content: flex-start; gap: 2px; font-size: 14px; }
+  .l-home .l-next-date { font-size: 34px; line-height: 1.2; color: var(--lite-ink); }
+  .l-home .l-next-info { grid-area: info; align-self: end; font-size: 14px; }
+  /* 카드 안에 상자를 한 겹 더 두지 않는다. 같은 날 모임이 여러 개면 구분선으로만 나눈다. */
+  .l-home .l-next-slots { grid-area: slots; gap: 0; align-self: center; }
+  .l-home .l-next-slot { min-height: 64px; }
+  .l-home .l-next-slot + .l-next-slot { border-top: 1px solid var(--lite-line); }
+  .l-home .l-next-open { align-items: center; }
+  .l-home .l-next-time { font-size: 16px; width: 56px; }
+  .l-home .l-next-title { font-size: 20px; }
+
+  .l-home .l-section { margin: 12px 0 0; font-size: 17px; font-weight: 700; color: var(--lite-ink); }
+  .l-home .l-mlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+  .l-home .l-mrow.l-cardbtn { position: relative; flex-direction: column; align-items: stretch; gap: 2px; padding: 0 0 14px; min-height: 0; border: 1px solid var(--lite-line); border-radius: 14px; overflow: hidden; background: var(--lite-surface); transition: border-color .12s; }
+  .l-home .l-mrow.l-cardbtn:hover { border-color: var(--lite-line-strong); }
+  .l-home .l-mrow .l-thumb.sm { order: -1; display: block; width: 100%; height: 150px; border: 0; border-bottom: 1px solid var(--lite-line); border-radius: 0; margin-bottom: 10px; }
+  .l-home .l-mrow-date { width: auto; padding: 0 14px; }
+  .l-home .l-mrow .l-grow { padding: 0 14px; min-width: 0; }
+  .l-home .l-mrow-title { font-size: 16px; font-weight: 700; }
+  .l-home .l-mrow .l-chip { position: absolute; top: 10px; left: 10px; }
+  .l-home .l-mrow-go { display: none; }
+}
+
+/* 모임 안내: 어르신도 한눈에 읽도록 항목 이름(언제·어디서·정원·대상·내용)을 왼쪽에 고정하고 값은 크게 쓴다 */
+.l-info { margin: 0; display: flex; flex-direction: column; border: 1px solid var(--lite-line); border-radius: 14px; background: var(--lite-surface); }
+.l-info-row { display: flex; gap: 12px; padding: 14px 16px; align-items: baseline; }
+.l-info-row + .l-info-row { border-top: 1px solid var(--lite-line); }
+.l-info dt { flex: none; width: 84px; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: var(--lite-muted); }
+.l-info dt svg { flex: none; align-self: center; }
+.l-info dd { margin: 0; flex: 1; min-width: 0; font-size: 17px; font-weight: 600; line-height: 1.5; color: var(--lite-ink); word-break: keep-all; overflow-wrap: anywhere; }
+.l-info-sub { display: block; font-size: 14px; font-weight: 500; color: var(--lite-muted); }
+.l-info-long { flex-direction: column; gap: 6px; }
+.l-info-long dd { font-weight: 400; white-space: pre-line; }
+/* 채팅방 상단에서 펼친 안내는 상자 안에 다시 상자를 두지 않도록 바깥 테두리를 뺀다 */
+.l-bar.l-bar-info { display: block; padding: 0; overflow: hidden; }
+.l-bar-info .l-info { border: 0; border-radius: 0; }
+.l-rsvp-label { flex: none; font-size: 14px; font-weight: 600; color: var(--lite-ink); }
+.l-rsvp.two { grid-template-columns: repeat(2, 1fr); }
+.l-rsvp.two button { font-size: 16px; min-height: 46px; }
+
+/* 홈 제목은 화면의 이름표 역할이라 다른 화면 제목보다 크게 쓴다 */
+.lite-shell:has(.l-home) .l-top h2 { font-size: 24px; letter-spacing: -0.02em; }

@@ -181,3 +181,68 @@ describe('LiteRoom', () => {
     expect(wrapper.find('.l-bar button').exists()).toBe(false)
   })
 })
+
+describe('LiteRoom 모임 안내와 참석 응답', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    fetch.mockReset()
+    push.mockReset()
+  })
+
+  const info = { description: '멀티시그 지갑을 직접 만들어 봅니다', audience: '비트코인을 처음 접하는 분' }
+
+  it('미신청자에게 언제·어디서·정원·대상·내용을 풀어 쓴 안내로 보여준다', async () => {
+    memberStore()
+    routeFetch({ 'meetups/5/': { meetup: card(), checkin_code: null, checked_in: false, checked_in_count: 0, ...info } })
+
+    const wrapper = mount(LiteRoom)
+    await flushPromises()
+
+    const rows = wrapper.findAll('.l-info-row').map((r) => [r.find('dt').text(), r.find('dd').text()])
+    expect(rows.map(([label]) => label)).toEqual(['언제', '어디서', '정원', '대상', '내용'])
+    // 2026-10-25T10:30Z는 서울 기준 10월 25일 일요일 오후 7시 30분이다
+    expect(rows[0][1]).toContain('10월 25일 일요일 오후 7시 30분')
+    expect(rows[2][1]).toContain('12명')
+    expect(rows[2][1]).toContain('지금 3명 참석')
+    expect(rows[3][1]).toBe(info.audience)
+    expect(rows[4][1]).toBe(info.description)
+  })
+
+  it('대상과 내용이 비어 있으면 그 줄을 그리지 않는다', async () => {
+    memberStore()
+    routeFetch({ 'meetups/5/': { meetup: card(), checkin_code: null, checked_in: false, checked_in_count: 0, description: '', audience: '' } })
+
+    const wrapper = mount(LiteRoom)
+    await flushPromises()
+
+    expect(wrapper.findAll('.l-info dt').map((d) => d.text())).toEqual(['언제', '어디서', '정원'])
+  })
+
+  it('신청한 회원은 참석·불참 두 버튼으로 바로 응답을 바꾸고, 안내는 눌러서 펼친다', async () => {
+    memberStore()
+    fetch.mockImplementation((url, init = {}) => {
+      if (url.includes('rsvp/')) return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'no' }), method: init.method }))
+      if (url.includes('rooms/')) return Promise.resolve(jsonResponse({ messages: [], has_more: false, pinned: null }))
+      return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }), checkin_code: null, checked_in: false, checked_in_count: 0, ...info }))
+    })
+
+    const wrapper = mount(LiteRoom)
+    await flushPromises()
+
+    const choices = wrapper.findAll('.l-rsvp button')
+    expect(choices.map((b) => b.text())).toEqual(['참석', '불참'])
+    expect(choices[0].attributes('aria-pressed')).toBe('true')
+    expect(wrapper.text()).not.toContain('미정')
+
+    expect(wrapper.find('.l-info').exists()).toBe(false)
+    const toggle = wrapper.findAll('.l-bar > button').find((b) => b.text().startsWith('안내'))
+    await toggle.trigger('click')
+    expect(wrapper.find('.l-info').text()).toContain(info.audience)
+
+    await choices[1].trigger('click')
+    await flushPromises()
+    const rsvpCall = fetch.mock.calls.find(([url]) => url.includes('rsvp/'))
+    expect(JSON.parse(rsvpCall[1].body)).toEqual({ status: 'no' })
+    wrapper.unmount()
+  })
+})

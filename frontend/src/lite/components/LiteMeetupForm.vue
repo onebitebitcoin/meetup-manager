@@ -39,11 +39,18 @@
         aria-label="정원"
       >명
     </label>
+    <input
+      v-model="form.audience"
+      class="l-field"
+      maxlength="100"
+      placeholder="대상 (예: 비트코인을 처음 접하는 분)"
+      aria-label="대상"
+    >
     <textarea
       v-model="form.description"
       class="l-field"
       maxlength="1000"
-      placeholder="설명"
+      placeholder="어떤 내용을 다루나요?"
       aria-label="설명"
     />
     <input
@@ -67,7 +74,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['change'])
 
-const blank = { title: '', date: '', time: '', location: '', capacity: 15, description: '', image_url: '' }
+const blank = { title: '', date: '', time: '', location: '', capacity: 15, audience: '', description: '', image_url: '' }
 const form = reactive({ ...blank, ...props.initial })
 
 watch(() => props.initial, (value) => Object.assign(form, value), { deep: true })

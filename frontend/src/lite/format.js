@@ -75,3 +75,16 @@ export const layoutMessages = (messages) => messages.map((message, i) => {
     time: sameGroup(message, next) ? '' : d.format('HH:mm'),
   }
 })
+
+// 어르신도 바로 읽을 수 있게 풀어 쓴 날짜와 오전/오후 시각: "11월 8일 일요일", "오후 2시 30분"
+export const longDate = (iso) => {
+  const d = dayjs(iso).tz(TZ)
+  return `${d.month() + 1}월 ${d.date()}일 ${WEEKDAYS[d.day()]}요일`
+}
+
+export const koreanTime = (iso) => {
+  const d = dayjs(iso).tz(TZ)
+  const hour = d.hour() % 12 === 0 ? 12 : d.hour() % 12
+  const minute = d.minute() ? ` ${d.minute()}분` : ''
+  return `${d.hour() < 12 ? '오전' : '오후'} ${hour}시${minute}`
+}

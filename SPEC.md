@@ -482,7 +482,7 @@ npm run test
 | 모델 | 필드 |
 |------|------|
 | Member | name(CharField 20, unique), token(CharField 64, unique, `secrets.token_urlsafe(32)`), is_host(bool), created_at |
-| Meetup | title(80), description(blank), starts_at(DateTime), location(100), capacity(PositiveInt), image_url(500, blank: 썸네일 주소, 기존 모임은 /media/ 경로 또는 외부 URL), checkin_code(CharField 4, 생성 시 랜덤 숫자 4자리), from_request(FK MeetupRequest null), legacy_meetup_id(Int unique null), cancelled_at(DateTime null: 운영자 취소 시각), created_at |
+| Meetup | title(80), description(blank), audience(100, blank: 대상 한 줄, 예 "비트코인을 처음 접하는 분"), starts_at(DateTime), location(100), capacity(PositiveInt), image_url(500, blank: 썸네일 주소, 기존 모임은 /media/ 경로 또는 외부 URL), checkin_code(CharField 4, 생성 시 랜덤 숫자 4자리), from_request(FK MeetupRequest null), legacy_meetup_id(Int unique null), cancelled_at(DateTime null: 운영자 취소 시각), created_at |
 | Rsvp | member FK, meetup FK, status(going/maybe/no), checked_in_at(null), removed_at(DateTime null: 운영자가 내보낸 시각), updated_at · unique(member, meetup) |
 | SeminarRequest | member(O2O Member), mode(online/offline, null), topic(Text blank), status(guide/received/confirmed), created_at |
 | ChatRoom | kind(meetup/seminar), meetup(O2O null), seminar(O2O SeminarRequest null), pinned_message(FK ChatMessage null, SET_NULL: 방마다 고정 공지 1개) |
@@ -532,8 +532,8 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | me/ | member | - | 200 {member: Member} |
 | POST | host/claim/ | member | {key} | 200 {member} · 키 불일치 403 |
 | GET | home/ | 없음(토큰이 있으면 회원 기준) | - | 200 {meetups: [MeetupCard], my_seminar: SeminarCard\|null (이름 없으면 null), seminars: [SeminarCard] (운영자만, 아니면 []), ready_request_count: int} — meetups는 starts_at가 오늘(서울) 0시 이후인 것, 시간순 |
-| POST | meetups/ | host | {title(≤80), starts_at(현재 이후), location(≤100), capacity(2~500), description?(≤1000), request_id?} | 201 {meetup: MeetupCard} (request_id가 있으면 해당 요청 status=done, meetup 연결, 시스템 메시지 "요청으로 열린 모임이에요 · N명에게 알림") |
-| GET | meetups/<id>/ | 없음(토큰이 있으면 회원 기준, 이름 없으면 my_status·checkin_code는 null) | - | 200 {meetup: MeetupCard, checkin_code: str\|null (운영자 + 오늘만), checked_in: bool, checked_in_count: int (내보낸 회원 제외), removed: bool (요청한 회원 본인이 운영자에게 내보내졌는지)} |
+| POST | meetups/ | host | {title(≤80), starts_at(현재 이후), location(≤100), capacity(2~500), description?(≤1000), audience?(≤100), request_id?} | 201 {meetup: MeetupCard} (request_id가 있으면 해당 요청 status=done, meetup 연결, 시스템 메시지 "요청으로 열린 모임이에요 · N명에게 알림") |
+| GET | meetups/<id>/ | 없음(토큰이 있으면 회원 기준, 이름 없으면 my_status·checkin_code는 null) | - | 200 {meetup: MeetupCard, description: str, audience: str (비어 있으면 ""), checkin_code: str\|null (운영자 + 오늘만), checked_in: bool, checked_in_count: int (내보낸 회원 제외), removed: bool (요청한 회원 본인이 운영자에게 내보내졌는지)} |
 | PUT | meetups/<id>/rsvp/ | member | {status} | 200 {meetup: MeetupCard} · 이미 지난 모임(시작 시각 + 12시간 경과)은 400 · 취소된 모임은 400 "취소된 모임이에요" · 운영자가 내보낸 회원은 403 · going인데 정원 초과 409 "정원이 찼어요" · 상태가 바뀌면 시스템 메시지 "<이름>님 참석/미정/불참", 처음 going/maybe가 되면 guide 메시지 join_guide 추가 |
 | POST | meetups/<id>/checkin/ | member(going/maybe) | {code} | 200 {checked_in: true} · 취소된 모임이면 400 · 내보낸 회원이면 403 "운영자가 내보낸 모임이에요" · 오늘이 아니면 400 · 코드 불일치 400 "코드가 달라요" · 시스템 메시지 "<이름>님 도착" |
 | GET | rooms/<id>/messages/?after=<msg_id> 또는 ?before=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | after가 있으면 200 {messages, pinned} (그 이후 최대 200개, 폴링용). after가 없으면 200 {messages, has_more, pinned} — 최신 100개, before가 있으면 그 id보다 오래된 메시지 중 최신 100개(둘 다 id 오름차순). has_more는 더 오래된 메시지가 남았는지. after·before는 0 이상 정수(아니면 400) |
@@ -545,8 +545,8 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | POST | requests/ | member | {title(1~60), preferred_period} | 201 {request: RequestCard} (작성자 자동 투표) |
 | POST | requests/<id>/vote/ | member | - | 200 {request: RequestCard} (토글) |
 | GET | admin/meetups/?scope=upcoming\|past | host | - | 200 {meetups: [MeetupCard]} — upcoming(기본)은 starts_at가 오늘(서울) 0시 이후, 시간 오름차순. past는 그 이전, 시간 내림차순. 취소된 모임 포함. 그 외 scope는 400 |
-| GET | admin/meetups/<id>/ | host | - | 200 AdminMeetup {meetup: MeetupCard, description, image_url, checkin_code, attendees: [{member: {id,name}, status, checked_in_at: ISO\|null, removed: bool}]} — attendees는 going, maybe, no 순이고 같은 상태 안에서는 updated_at 순 |
-| PATCH | admin/meetups/<id>/ | host | {title?, starts_at?, location?, capacity?, description?, image_url?} (보낸 필드만 수정) | 200 AdminMeetup · 정원이 현재 참석 인원보다 작으면 400 "정원은 현재 참석 인원(N명)보다 작게 줄일 수 없어요" · image_url 형식 오류 400 |
+| GET | admin/meetups/<id>/ | host | - | 200 AdminMeetup {meetup: MeetupCard, description, audience, image_url, checkin_code, attendees: [{member: {id,name}, status, checked_in_at: ISO\|null, removed: bool}]} — attendees는 going, maybe, no 순이고 같은 상태 안에서는 updated_at 순 |
+| PATCH | admin/meetups/<id>/ | host | {title?, starts_at?, location?, capacity?, description?, audience?, image_url?} (보낸 필드만 수정) | 200 AdminMeetup · 정원이 현재 참석 인원보다 작으면 400 "정원은 현재 참석 인원(N명)보다 작게 줄일 수 없어요" · image_url 형식 오류 400 |
 | DELETE | admin/meetups/<id>/ | host | - | 200 {deleted: true} |
 | POST | admin/meetups/<id>/cancel/ | host | {cancelled: bool} | 200 AdminMeetup · bool이 아니면 400 |
 | DELETE | admin/meetups/<id>/members/<member_id>/ | host | - | 200 AdminMeetup · 신청 기록이 없으면 404 "참석 신청한 회원이 아니에요" |
@@ -578,20 +578,21 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 ### 11.6 프론트엔드 라우트 (`frontend/src/lite/`)
 | 경로 | 화면 |
 |---|---|
-| /lite | 홈(제목 "한입 모임"). 이름 없이도 모임 목록을 본다(이름은 신청할 때 받는다). 이름이 있으면 오른쪽 위 이름을 눌러 "이 기기에서 이름 지우기"를 할 수 있다(한 번 더 확인, 브라우저의 토큰만 지우고 서버의 회원·기록은 남긴다). 하단 탭 없음. 운영자가 아닌 방문자: 목록에는 모임 카드만 두고, 오른쪽 아래 "문의" 플로팅 버튼을 누르면 "1:1 세미나"(내 세미나 상태 칩)와 "이런 모임 열어주세요" 메뉴가 펼쳐진다. 운영자: 플로팅 버튼 없이 맨 위에 세미나 대화별 카드, 그 아래 "이런 모임 열어주세요" 항목(개설 가능 수), 그 아래 모임 카드. 모임 카드는 "오늘/내일/N일 후"(서울 날짜 기준)와 썸네일(image_url이 있을 때)을 보여준다 |
+| /lite | 홈(제목 "한입 모임"). 이름 없이도 모임 목록을 본다(이름은 신청할 때 받는다). 이름이 있으면 오른쪽 위 이름을 눌러 "이 기기에서 이름 지우기"를 할 수 있다(한 번 더 확인, 브라우저의 토큰만 지우고 서버의 회원·기록은 남긴다). 하단 탭 없음. 운영자가 아닌 방문자: 목록에는 모임 카드만 두고, 오른쪽 아래 "문의" 플로팅 버튼을 누르면 "1:1 세미나"(내 세미나 상태 칩)와 "이런 모임 열어주세요"(요청 입력 화면으로 바로 이동) 메뉴가 펼쳐진다. 운영자: 플로팅 버튼 없이 맨 위에 세미나 대화별 카드, 그 아래 "이런 모임 열어주세요" 항목(개설 가능 수), 그 아래 모임 카드. 모임 카드는 "오늘/내일/N일 후"(서울 날짜 기준)와 썸네일(image_url이 있을 때)을 보여준다. 다음 모임 카드에는 장소만 적고 정원은 적지 않는다(정원과 참석 인원은 신청 후 채팅방 상단에서 본다) |
 | /lite/requests | 모임 요청 목록과 "이런 모임 열어주세요" 작성 버튼. 이름이 없으면 자동 닉네임으로 가입한 뒤 보여 준다 |
-| /lite/m/:id | 모임 채팅방. 이름이 없어도 이름을 묻지 않는다. "신청하기"를 누르면 자동 닉네임으로 가입하고 참석 신청까지 마친 뒤 채팅방을 연다. 홈 카드의 "신청하기"도 같은 방식으로 가입·신청한 뒤 이 화면으로 보낸다. 상단 줄: 일정·장소, 내 응답 칩(누르면 참석/미정/불참 펼침), 당일 도착 코드 입력(운영자는 코드와 도착 인원). 미신청자는 메시지 대신 신청하기/못 가요 |
+| /lite/m/:id | 모임 채팅방. 이름이 없어도 이름을 묻지 않는다. "신청하기"를 누르면 자동 닉네임으로 가입하고 참석 신청까지 마친 뒤 채팅방을 연다. 홈 카드의 "신청하기"도 같은 방식으로 가입·신청한 뒤 이 화면으로 보낸다. 상단 줄: 일정·장소와 "안내" 버튼(누르면 모임 안내 패널을 펼치고 접는다). 신청한 회원은 그 아래 "내 참석" 줄에서 [참석] [불참] 두 버튼으로 바로 응답을 바꾼다(미정은 고를 수 없고, 예전에 미정으로 응답한 회원은 두 버튼 모두 눌리지 않은 상태로 보인다). 당일 도착 코드 입력(운영자는 코드와 도착 인원). 미신청자는 메시지 대신 모임 안내 패널과 큰 신청하기 버튼을 보고, 상단 요약 줄은 취소·내보냄 안내가 있을 때만 보인다. 모임 안내 패널은 어르신도 읽기 쉽게 항목 이름(언제·어디서·정원·대상·내용)을 왼쪽에 두고 값을 크게 쓴다. 언제는 "11월 8일 일요일 오후 2시"와 남은 날, 정원은 "15명"과 "지금 N명 참석", 대상·내용은 운영자가 적었을 때만 보인다 |
 | /lite/admin | 운영자 전용. 다가오는/지난 탭 모임 목록(날짜·제목·참석/정원·취소됨 칩)과 모임 만들기 버튼. 운영자가 아니면 홈으로 이동 |
-| /lite/admin/m/:id | 운영자 전용 모임 관리. 수정 폼(썸네일 URL 포함), 참석자 명단과 내보내기, 채팅방 링크, 취소/되돌리기, 삭제. 내보내기·삭제는 화면 안에서 한 번 더 확인 |
+| /lite/admin/m/:id | 운영자 전용 모임 관리. 수정 폼(대상, 내용, 썸네일 URL 포함), 참석자 명단과 내보내기, 채팅방 링크, 취소/되돌리기, 삭제. 내보내기·삭제는 화면 안에서 한 번 더 확인 |
 | /lite/seminar | 내 1:1 세미나 채팅방. 이름이 없으면 자동 닉네임으로 가입한 뒤 바로 시작한다. 마지막 안내 메시지 아래 온라인/오프라인 선택 버튼 |
 | /lite/seminar/:id | 운영자용 1:1 세미나 채팅방 + 확정 버튼 |
-| /lite/new-request | 요청 작성(주제 + 시기 세그먼트) |
-| /lite/new-meetup | 운영자 모임 만들기. `?request=<id>`면 요청 제목을 채운다 |
+| /lite/new-request | 요청 작성(주제 + 시기 세그먼트). 방문자는 홈 "문의" 메뉴의 "이런 모임 열어주세요"에서 목록을 거치지 않고 이 화면으로 바로 온다. 이름이 없어도 열리고, "올리기"를 누를 때 자동 닉네임으로 가입한 뒤 요청을 올린다. 올린 뒤와 뒤로 가기는 방문자는 홈, 운영자는 /lite/requests로 간다 |
+| /lite/new-meetup | 운영자 모임 만들기(제목, 일시, 장소, 정원, 대상, 내용). `?request=<id>`면 요청 제목을 채운다 |
 | /lite/r#<token> | 복구 링크: fragment의 토큰으로 `GET me/`를 확인한 뒤에만 저장, 실패하면 기존 토큰 유지. 읽은 즉시 `history.replaceState`로 fragment 제거 후 /lite로 이동 |
 | /lite/host#<key> | 운영자 링크: fragment의 key로 host/claim 호출(이름이 없으면 먼저 자동 닉네임으로 가입), 읽은 즉시 fragment 제거 후 /lite로 이동 |
 - 토큰과 운영자 키는 URL 경로나 쿼리에 넣지 않는다(서버 접속 로그·방문 기록 노출 방지). fragment는 서버로 전송되지 않는다.
 - 채팅방은 처음에 최신 100개를 보여 주고, 더 오래된 메시지가 있으면 맨 위의 "이전 메시지 보기"로 100개씩 더 불러온다(`?before=`). 새 메시지는 3초 간격으로 `?after=`를 사용해 가져온다. after 기준은 폴링으로 받은 마지막 id만 사용한다(내가 보낸 메시지 응답으로 기준을 앞당기지 않는다, id로 중복 제거). 화면을 벗어나거나 탭이 숨겨지면 멈추고, 401/403이면 중단한다.
 - 홈에 예정된 모임이 없으면 "예정된 모임이 없어요" 한 줄을 표시한다.
+- 레이아웃 폭: 모든 LITE 화면은 최대 480px 칼럼을 쓴다. 홈(/lite)만 화면 폭 1024px 이상에서 칼럼을 1040px로 넓히고, 다음 모임 카드는 왼쪽에 날짜·장소, 오른쪽에 모임 행을 두는 가로 배치로, 다가오는 모임은 위쪽에 이미지가 붙은 카드 그리드(최소 220px 칸)로 보여 준다. image_url이 없는 모임은 그리드에서 빈 이미지 영역을 두고, 모바일 목록에서는 썸네일을 그리지 않는다. 채팅방 등 다른 화면은 PC에서도 480px 칼럼을 유지한다.
 - 상단 바는 배경과 같은 색이고, 스크롤해서 내용이 그 밑을 지나갈 때만 아래 구분선을 보인다. 상단 바 아래의 정보 줄(일정·세미나 상태)은 칼럼 끝까지 깔지 않고 본문 여백 안쪽의 둥근 상자로 둔다.
 - 채팅(모임방·세미나방)은 테두리가 있는 창 하나로 보인다. 창은 화면 높이에 맞춰 고정되고 메시지만 창 안에서 스크롤한다. 창 맨 위에 고정 공지, 맨 아래에 입력창을 둔다. 같은 사람이 같은 분(서울 시간)에 보낸 메시지는 묶어서 이름·아바타는 첫 메시지에만, 시각(HH:mm)은 마지막 말풍선 옆에만 표시한다. 날짜가 바뀌는 자리에는 "10월 19일 월요일" 구분 문구를 넣는다.
-- 테마: 원장(Ledger) 구조 + 한입 로고 팔레트. 글자 IBM Plex Sans KR, 숫자 IBM Plex Mono. 배경 크림 #FFF8EC, 글자 초코 #2B1A17, 주요 버튼·오늘 날짜·내 말풍선 머스타드 #F5C431, 참석 민트 #2FBF8A, 1:1 세미나·안내 메시지 자두 #8E3A59, 요청 진행 막대 쿠키 #E2A55A. 1px 옅은 테두리, 그림자 없음(플로팅 버튼 포함), 모서리 10~14px. 다크 모드: 배경 #1C1311, 표면 #281B18, 글자 #FFF1DC. 미신청 모임에는 "신청하기"만 두고 불참 버튼은 두지 않는다(참석 인원만 표시).
+- 테마: 흑백 화면 틀 + 머스타드 강조 하나(Luma·Meetup처럼 색은 모임 사진이 낸다). 바탕 #FAFAF9, 표면 #FFFFFF, 글자 #111111, 흐린 글자 #4A4A4A(바탕 대비 8:1 이상, 어르신 권장 7:1 충족), 선 #E6E4E0, 강조 머스타드 #F5C431(신청하기·참석·내 말풍선에만), 다음 모임 머리글 #6E5000. 글자는 Pretendard(jsDelivr CDN의 가변 글꼴 dynamic subset), 본문 16px, 제목 800 굵기, 숫자는 tabular-nums. 버튼 높이 50px 이상. 다음 모임 카드는 흰 카드이고 첫 모임에 사진(image_url)이 있으면 카드 위쪽(PC에서는 왼쪽 칸)에 보인다. 다가오는 모임 목록은 56px 썸네일과 17px 제목을 쓴다. 참석 버튼은 누르면 머스타드, 불참은 검정으로 칠해진다. "문의" 버튼은 검정 알약 모양에 말풍선 아이콘과 글자를 함께 쓴다. html.dark와 관계없이 밝은 테마 하나만 쓴다. 미신청 모임에는 "신청하기"만 두고 불참 버튼은 두지 않는다(참석 인원만 표시).

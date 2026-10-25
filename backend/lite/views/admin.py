@@ -11,7 +11,7 @@ from ..models import ChatMessage, ChatRoom, Meetup, Rsvp
 from ..serializers import meetup_card, member_brief, message_obj
 from ..services import KST, add_message, meetups_with_counts, today_start_kst
 from .base import ApiError, LiteView, clean_text, get_or_404, not_found
-from .meetups import DESCRIPTION_MAX, parse_capacity, parse_starts_at
+from .meetups import DESCRIPTION_MAX, parse_audience, parse_capacity, parse_starts_at
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +79,7 @@ def admin_detail(meetup_id):
     return {
         'meetup': meetup_card(meetup),
         'description': meetup.description,
+        'audience': meetup.audience,
         'image_url': meetup.image_url,
         'checkin_code': meetup.checkin_code,
         'attendees': attendees,
@@ -102,6 +103,8 @@ def apply_meetup_changes(meetup, data):
         changes['capacity'] = capacity
     if 'description' in data:
         changes['description'] = parse_description(data['description'])
+    if 'audience' in data:
+        changes['audience'] = parse_audience(data['audience'])
     if 'image_url' in data:
         changes['image_url'] = parse_image_url(data['image_url'])
     changed = [name for name, value in changes.items() if getattr(meetup, name) != value]
