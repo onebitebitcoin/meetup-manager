@@ -119,10 +119,18 @@ class ChatMessage(models.Model):
         SYSTEM = 'system', '시스템'
         GUIDE = 'guide', '안내'
 
+    class AttachmentKind(models.TextChoices):
+        IMAGE = 'image', '이미지'
+        FILE = 'file', '파일'
+
     room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='messages')
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, blank=True, related_name='messages')
     kind = models.CharField(max_length=10, choices=Kind.choices, default=Kind.USER)
-    body = models.TextField(max_length=1000)
+    body = models.TextField(max_length=1000, blank=True)
+    attachment = models.FileField(upload_to='lite/chat/%Y/%m/', blank=True)
+    attachment_name = models.CharField(max_length=120, blank=True)
+    attachment_size = models.PositiveIntegerField(null=True, blank=True)
+    attachment_kind = models.CharField(max_length=5, choices=AttachmentKind.choices, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

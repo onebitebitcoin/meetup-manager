@@ -16,7 +16,7 @@
     ><Megaphone :size="15" /></span>
     <div class="l-bub-row">
       <div class="l-bub">
-        {{ message.body }}
+        <LiteLinkText :text="message.body" />
       </div>
       <span
         v-if="time"
@@ -42,8 +42,23 @@
         {{ message.member?.name }}
       </div>
       <div class="l-bub-row">
-        <div class="l-bub">
-          {{ message.body }}
+        <div class="l-msg-col">
+          <div
+            v-if="message.body"
+            class="l-bub"
+          >
+            <LiteLinkText :text="message.body" />
+          </div>
+          <LiteAttachment
+            v-if="message.attachment"
+            :attachment="message.attachment"
+            @loaded="emit('media-loaded')"
+          />
+          <LiteLinkPreview
+            v-if="link"
+            :url="link"
+            @loaded="emit('media-loaded')"
+          />
         </div>
         <span
           v-if="time"
@@ -104,6 +119,10 @@
 import { computed, ref, watch } from 'vue'
 import { Megaphone, MoreHorizontal, Trash2 } from 'lucide-vue-next'
 import { useLiteStore } from '../store'
+import { firstLink } from '../linkify'
+import LiteLinkText from './LiteLinkText.vue'
+import LiteAttachment from './LiteAttachment.vue'
+import LiteLinkPreview from './LiteLinkPreview.vue'
 
 const props = defineProps({
   message: { type: Object, required: true },
@@ -112,10 +131,11 @@ const props = defineProps({
   time: { type: String, default: '' },
   menuOpen: { type: Boolean, default: false },
 })
-const emit = defineEmits(['toggle-menu', 'pin', 'delete'])
+const emit = defineEmits(['toggle-menu', 'pin', 'delete', 'media-loaded'])
 
 const store = useLiteStore()
 const confirming = ref(false)
+const link = computed(() => firstLink(props.message.body ?? ''))
 const showMenu = computed(() => store.isHost && props.message.kind === 'user')
 
 // 메뉴가 닫히면 삭제 확인 단계도 처음으로 돌린다

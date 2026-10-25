@@ -2,12 +2,14 @@ import logging
 
 from django.db import transaction
 from django.db.models import Exists, OuterRef
+from rest_framework.parsers import FormParser, MultiPartParser
 
 from meetups.views.helpers import APIResponse
 
 from ..models import ChatMessage, ChatRoom, LiteConfig, Rsvp, SeminarRequest
 from ..serializers import message_obj
 from ..throttles import MessageSendThrottle
+from ..uploads import validate_attachment
 from .base import ApiError, LiteView, clean_text, get_or_404
 
 logger = logging.getLogger(__name__)
@@ -94,4 +96,21 @@ class RoomMessagesView(LiteView):
                         room=room, kind=ChatMessage.Kind.GUIDE, body=LiteConfig.get().seminar_guide_4
                     )
                     logger.info('LITE 세미나 접수: seminar_id=%s', seminar.id)
+        return APIResponse.created({'message': message_obj(message)})
+
+
+class RoomFilesView(LiteView):
+    parser_classes = [MultiPartParser, FormParser]
+    throttle_classes = [MessageSendThrottle]
+
+    def post(self, request, room_id):
+        room = room_with_access(room_id, self.member)
+        data = self.json_body()
+        upload = request.FILES.get('file')
+        raw_body = data.get('body') or ''
+        body = clean_text(raw_body, '메시지', 0, 1000) if raw_body else ''
+        info = validate_attachment(upload)
+        message = ChatMessage.objects.create(
+            room=room, member=self.member, kind=ChatMessage.Kind.USER, body=body, attachment=upload, **info
+        )
         return APIResponse.created({'message': message_obj(message)})

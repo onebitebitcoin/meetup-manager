@@ -6,7 +6,7 @@
     >
       <Pin :size="15" />
       <span class="l-pinbar-who">{{ pinned.member?.name }}</span>
-      <span class="l-pinbar-body">{{ pinned.body }}</span>
+      <span class="l-pinbar-body">{{ pinned.body || (pinned.attachment && attachmentLabel(pinned.attachment)) }}</span>
       <button
         v-if="store.isHost"
         type="button"
@@ -49,21 +49,61 @@
           @toggle-menu="openMenuId = openMenuId === message.id ? null : message.id"
           @pin="pin(message.id)"
           @delete="remove(message.id)"
+          @media-loaded="keepBottom"
         />
       </template>
       <slot name="after" />
+    </div>
+    <div
+      v-if="canSend && attachment"
+      class="l-attach-preview"
+    >
+      <img
+        v-if="previewUrl"
+        :src="previewUrl"
+        alt=""
+      >
+      <FileText
+        v-else
+        :size="20"
+      />
+      <span class="l-att-name">{{ attachment.name }}</span>
+      <button
+        type="button"
+        class="l-icon-btn"
+        aria-label="첨부 취소"
+        @click="clearAttachment"
+      >
+        <X :size="18" />
+      </button>
     </div>
     <form
       v-if="canSend"
       class="l-composer"
       @submit.prevent="send"
     >
+      <button
+        type="button"
+        class="l-attach-btn"
+        aria-label="파일 첨부"
+        :disabled="sending"
+        @click="fileInput?.click()"
+      >
+        <Paperclip :size="20" />
+      </button>
       <input
         v-model="draft"
         :placeholder="placeholder"
         maxlength="1000"
         autocomplete="off"
         aria-label="메시지"
+      >
+      <input
+        ref="fileInput"
+        type="file"
+        class="l-file-input"
+        tabindex="-1"
+        @change="pickFile"
       >
       <button
         type="submit"
@@ -78,11 +118,12 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { Pin, Send, X } from 'lucide-vue-next'
+import { FileText, Paperclip, Pin, Send, X } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteMessage from './LiteMessage.vue'
 import { layoutMessages } from '../format'
+import { MAX_UPLOAD_BYTES, attachmentLabel } from '../attachment'
 
 const props = defineProps({
   roomId: { type: Number, required: true },
@@ -96,6 +137,9 @@ const store = useLiteStore()
 const messages = ref([])
 const draft = ref('')
 const sending = ref(false)
+const fileInput = ref(null)
+const attachment = ref(null)
+const previewUrl = ref('')
 const scroller = ref(null)
 const hasMore = ref(false)
 const loadingOlder = ref(false)
@@ -109,10 +153,22 @@ let failing = false
 let lastPolled = 0
 let halted = false
 
+const isAtBottom = () => {
+  const box = scroller.value
+  return !box || box.scrollHeight - box.scrollTop - box.clientHeight < 80
+}
+
+// 이미지가 늦게 로드되면 높이가 늘어나 맨 아래에서 밀려나므로, 보던 곳이 맨 아래였다면 다시 맞춘다
+let stickBottom = true
+const keepBottom = () => {
+  if (stickBottom && scroller.value) scroller.value.scrollTop = scroller.value.scrollHeight
+}
+
 const append = async (incoming) => {
   const known = new Set(messages.value.map((m) => m.id))
   const fresh = incoming.filter((m) => !known.has(m.id))
   if (!fresh.length) return false
+  stickBottom = isAtBottom()
   messages.value = [...messages.value, ...fresh].sort((a, b) => a.id - b.id)
   await nextTick()
   if (scroller.value) scroller.value.scrollTop = scroller.value.scrollHeight
@@ -186,14 +242,38 @@ const remove = async (id) => {
   if (pinned.value?.id === id) pinned.value = null
 }
 
+const clearAttachment = () => {
+  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+  previewUrl.value = ''
+  attachment.value = null
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+const pickFile = (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  if (file.size > MAX_UPLOAD_BYTES) {
+    clearAttachment()
+    store.notify('파일은 10MB까지 올릴 수 있어요', 'error')
+    return
+  }
+  clearAttachment()
+  attachment.value = file
+  if (file.type.startsWith('image/')) previewUrl.value = URL.createObjectURL(file)
+}
+
 const send = async () => {
   const body = draft.value.trim()
-  if (!body || sending.value) return
+  const file = attachment.value
+  if ((!body && !file) || sending.value) return
   sending.value = true
-  const data = await store.act(() => liteApi.sendMessage(props.roomId, body))
+  const data = await store.act(() => (
+    file ? liteApi.uploadFile(props.roomId, file, body) : liteApi.sendMessage(props.roomId, body)
+  ))
   sending.value = false
   if (!data) return
   draft.value = ''
+  clearAttachment()
   await append([data.message])
   emit('sent')
   poll()
@@ -221,6 +301,7 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   stop()
+  clearAttachment()
   document.removeEventListener('visibilitychange', onVisibility)
 })
 

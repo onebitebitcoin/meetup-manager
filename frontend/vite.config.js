@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const apiTarget = process.env.VITE_API_TARGET || 'http://localhost:8000'
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -49,11 +51,10 @@ export default defineConfig({
   },
   server: {
     port: 7173,
+    // 채팅 첨부는 Django가 /media/로 서빙하므로 함께 넘긴다
     proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
+      '/api': { target: apiTarget, changeOrigin: true },
+      '/media': { target: apiTarget, changeOrigin: true },
     },
   },
   build: {

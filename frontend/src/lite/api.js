@@ -18,8 +18,9 @@ export const writeToken = (token) => {
   }
 }
 
-export const request = async (path, { method = 'GET', body, token = readToken() } = {}) => {
-  const headers = { 'Content-Type': 'application/json' }
+// form(FormData)을 주면 Content-Type을 지정하지 않아 브라우저가 multipart boundary를 붙인다
+export const request = async (path, { method = 'GET', body, form, token = readToken() } = {}) => {
+  const headers = form ? {} : { 'Content-Type': 'application/json' }
   if (token) headers['X-Member-Token'] = token
 
   let response
@@ -27,7 +28,7 @@ export const request = async (path, { method = 'GET', body, token = readToken() 
     response = await fetch(`${BASE}/${path}`, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: form ?? (body === undefined ? undefined : JSON.stringify(body)),
     })
   } catch {
     throw new Error('네트워크 오류')
@@ -60,6 +61,13 @@ export const liteApi = {
   messages: (roomId, after) => request(`rooms/${roomId}/messages/${after ? `?after=${after}` : ''}`),
   olderMessages: (roomId, before) => request(`rooms/${roomId}/messages/?before=${before}`),
   sendMessage: (roomId, body) => request(`rooms/${roomId}/messages/`, { method: 'POST', body: { body } }),
+  uploadFile: (roomId, file, body) => {
+    const form = new FormData()
+    form.append('file', file)
+    if (body) form.append('body', body)
+    return request(`rooms/${roomId}/files/`, { method: 'POST', form })
+  },
+  linkPreview: (url) => request(`link-preview/?url=${encodeURIComponent(url)}`),
   seminar: () => request('seminar/', { method: 'POST' }),
   seminarMode: (mode) => request('seminar/mode/', { method: 'POST', body: { mode } }),
   confirmSeminar: (id) => request(`seminars/${id}/confirm/`, { method: 'POST' }),

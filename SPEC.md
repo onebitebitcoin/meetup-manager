@@ -553,6 +553,25 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | DELETE | rooms/<id>/messages/<msg_id>/ | host | - | 200 {deleted: true} · 그 방의 메시지가 아니면 404 |
 | PUT | rooms/<id>/pin/ | host | {message_id: int\|null} (키 필수, 해제는 null을 명시) | 200 {pinned: Message\|null} · 키가 없거나 bool·문자열·실수면 400 · 그 방의 메시지가 아니거나 범위(2^63-1) 초과, 고정 중 삭제되면 404 · kind 제한 없음 |
 
+### 11.4.1 채팅 첨부·링크
+- 모델: `ChatMessage`에 `attachment`(FileField, `upload_to='lite/chat/%Y/%m/'`, blank), `attachment_name`(CharField 120, blank: 원래 파일 이름), `attachment_size`(PositiveInteger null), `attachment_kind`(`image`/`file`, blank) 추가. 저장 파일 이름은 `uuid4().hex + 소문자 확장자`로 바꿔서 추측할 수 없게 한다. 메시지를 삭제하면(운영자 삭제·모임 삭제 CASCADE 모두) 저장된 파일도 지운다(post_delete 시그널).
+- Message 객체에 `attachment: {url, name, size, kind: "image"|"file"}|null` 추가. `url`은 `/media/...` 경로. 첨부만 있는 메시지는 `body`가 빈 문자열이다. 폴링·이전 메시지·공지(`pinned`) 응답 모두 같은 형태.
+- 업로드: `POST rooms/<id>/files/` (multipart/form-data, 필드 `file` 필수, `body` 선택 0~1000자). 권한·throttle은 메시지 전송과 같다(MessageSendThrottle 공유). 201 {message: Message}. 세미나 접수 전환(topic=body)은 텍스트 메시지 전송에서만 일어난다.
+  - 최대 10MB(10 * 1024 * 1024 바이트). 초과 시 413 "파일은 10MB까지 올릴 수 있어요". `file`이 없거나 0바이트면 400 "파일을 선택해 주세요".
+  - 이미지: 확장자 jpg/jpeg/png/gif/webp이고 Pillow `verify()`를 통과하면 kind=image. 확장자는 이미지인데 검증에 실패하면 400 "이미지 파일이 올바르지 않아요".
+  - 그 밖의 파일: kind=file. 실행·스크립트 위험 확장자(html, htm, xhtml, svg, svgz, xml, js, mjs, exe, bat, cmd, sh, php, jsp, asp, aspx)와 확장자 없는 파일은 400 "올릴 수 없는 파일 형식이에요". `/media/`는 nginx가 같은 출처에서 그대로 서빙하므로 브라우저가 실행할 수 있는 형식은 받지 않는다.
+  - `attachment_name`은 NFKC 정규화, 경로 구분자·제어문자 제거, 120자로 자른다.
+  - 운영 nginx `location /media/lite/chat/`에 `add_header X-Content-Type-Options nosniff` 와 `Content-Disposition attachment`(이미지 제외)를 둔다.
+- 링크 미리보기: `GET link-preview/?url=<http(s) URL>` (member, 회원당 60/min throttle). 200 {preview: {url, title, description, image, site_name}|null}. 서버가 대상 페이지를 받아 `og:title`/`og:description`/`og:image`/`og:site_name`(없으면 `<title>`, `meta[name=description]`)을 읽는다. 결과(null 포함)는 Django 캐시에 URL 기준 24시간 저장한다.
+  - SSRF 방지: scheme http/https만, 포트 80/443만, 호스트를 DNS 조회한 모든 IP가 공인 IP여야 한다(`ipaddress`의 is_private/is_loopback/is_link_local/is_reserved/is_multicast/is_unspecified 거부). 리다이렉트는 직접 따라가며 최대 3회, 매번 같은 검사를 한다. 타임아웃 3초, 본문 최대 512KB, `text/html`만 파싱한다. 실패·비HTML·검사 거부는 모두 200 {preview: null}로 돌려준다(URL 형식 자체가 틀리면 400 "링크 주소가 올바르지 않아요").
+  - 표준 라이브러리(`urllib`, `html.parser`)만 쓴다. `og:image`는 http(s) 절대 URL로 정규화하고 아니면 null.
+- 프론트엔드:
+  - 메시지 본문 안의 `http://`, `https://`, `www.` 링크를 눌러서 새 탭으로 여는 링크로 바꾼다(`target="_blank" rel="noopener noreferrer"`, `v-html` 금지, 텍스트/링크 조각으로 나눠 렌더링). 끝에 붙은 `.,)!?` 같은 문장부호는 링크에서 뺀다.
+  - 본문의 첫 번째 링크로 미리보기 카드(이미지·제목·설명·사이트)를 말풍선 아래에 보여준다. 결과는 URL별로 메모리에 캐시하고, null이면 카드를 그리지 않는다.
+  - 첨부 버튼(클립 아이콘)으로 파일을 고른다. 이미지(`image/*`)는 보내기 전 미리보기와 취소 버튼을 보여준다. 10MB를 넘으면 보내기 전에 에러 토스트를 띄운다. 업로드 중에는 보내기 버튼을 막는다.
+  - 이미지 첨부는 말풍선 안 썸네일(최대 너비 240px, `loading="lazy"`)로, 누르면 전체 화면 뷰어(닫기·다운로드 버튼)를 연다. 파일 첨부는 파일 아이콘·이름·크기(KB/MB)가 있는 행이고 누르면 `download` 속성으로 내려받는다.
+  - 공지 바에서 첨부만 있는 메시지는 "사진" 또는 "파일 · <이름>"으로 보여준다.
+
 ### 11.5 관리 명령
 - `python manage.py import_legacy_meetups [--all]`: 기존 `meetups.Meetup` → `lite.Meetup`. 기본은 starts_at가 현재 이후인 모임만, `--all`이면 전부. name→title, description, date_time→starts_at, location, max_participants→capacity, legacy_meetup_id=원래 id. image가 있으면 그 /media/ 경로, 없으면 image_url을 썸네일로 쓴다. 이미 있는 legacy_meetup_id는 다시 만들지 않고, lite 쪽 썸네일이 비어 있을 때만 채운다(재실행 안전). 결과 개수를 출력한다.
 

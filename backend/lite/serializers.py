@@ -48,12 +48,24 @@ def my_statuses(member, meetup_ids):
     )
 
 
+def attachment_obj(message):
+    if not message.attachment:
+        return None
+    return {
+        'url': message.attachment.url,
+        'name': message.attachment_name,
+        'size': message.attachment_size,
+        'kind': message.attachment_kind,
+    }
+
+
 def message_obj(message):
     return {
         'id': message.id,
         'kind': message.kind,
         'member': member_brief(message.member) if message.member else None,
         'body': message.body,
+        'attachment': attachment_obj(message),
         'created_at': message.created_at.isoformat(),
     }
 
