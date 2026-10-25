@@ -57,7 +57,6 @@ export const liteApi = {
   createMeetup: (payload) => request('meetups/', { method: 'POST', body: payload }),
   meetup: (id) => request(`meetups/${id}/`),
   rsvp: (id, status) => request(`meetups/${id}/rsvp/`, { method: 'PUT', body: { status } }),
-  checkin: (id, code) => request(`meetups/${id}/checkin/`, { method: 'POST', body: { code } }),
   messages: (roomId, after) => request(`rooms/${roomId}/messages/${after ? `?after=${after}` : ''}`),
   olderMessages: (roomId, before) => request(`rooms/${roomId}/messages/?before=${before}`),
   sendMessage: (roomId, body) => request(`rooms/${roomId}/messages/`, { method: 'POST', body: { body } }),

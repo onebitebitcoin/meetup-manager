@@ -114,8 +114,7 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-bar > button.going { background: var(--lite-going-soft); border-color: transparent; color: var(--lite-going); }
 .l-bar .l-grow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-bar .l-btn { min-height: 40px; font-size: 14px; padding: 4px 14px; margin-left: auto; }
-.l-code { font-family: var(--lite-mono); font-size: 22px; font-weight: 600; letter-spacing: .2em; color: var(--lite-ink); }
-.l-pin { flex: 1; min-width: 0; min-height: 40px; border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 8px; padding: 5px 10px; font-family: var(--lite-mono); font-size: 17px; letter-spacing: .2em; }
+.l-bar .l-thumb.sm { width: 40px; height: 40px; border-radius: 8px; }
 /* 미신청자 화면: 채팅 대신 모임 안내와 신청 버튼을 보여 준다 */
 .l-intro { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 12px 8px 24px; }
 .l-intro .l-btn-row { width: 100%; }
@@ -135,6 +134,8 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-time { flex: none; font-size: 12px; color: var(--lite-muted); line-height: 1.4; }
 .l-day { align-self: center; font-size: 13px; color: var(--lite-muted); padding: 6px 0 2px; }
 .l-bub { background: var(--lite-sunk); border: 1px solid transparent; border-radius: 4px 16px 16px 16px; padding: 8px 13px; font-size: 16px; overflow-wrap: anywhere; white-space: pre-line; }
+/* 전역 user-select: none(style.css)을 말풍선에서만 풀어 메시지를 복사할 수 있게 한다 */
+.l-bub { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 .l-pinbar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 14px; }
 .l-pinbar svg { flex: none; color: var(--lite-muted); }
 .l-pinbar-who { flex: none; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }

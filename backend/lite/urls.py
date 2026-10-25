@@ -10,7 +10,6 @@ urlpatterns = [
     path('api/lite/meetups/', views.MeetupCreateView.as_view()),
     path('api/lite/meetups/<int:meetup_id>/', views.MeetupDetailView.as_view()),
     path('api/lite/meetups/<int:meetup_id>/rsvp/', views.RsvpView.as_view()),
-    path('api/lite/meetups/<int:meetup_id>/checkin/', views.CheckinView.as_view()),
     path('api/lite/rooms/<int:room_id>/messages/', views.RoomMessagesView.as_view()),
     path('api/lite/rooms/<int:room_id>/files/', views.RoomFilesView.as_view()),
     path('api/lite/admin/meetups/', views.AdminMeetupListView.as_view()),

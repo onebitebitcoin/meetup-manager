@@ -126,60 +126,19 @@ def test_rsvp_capacity_exceeded(api_client, member, make_member, auth, make_meet
     assert not Rsvp.objects.filter(member=member, status='going').exists()
 
 
-def test_detail_checkin_code_visibility(api_client, member, host, auth, make_meetup):
-    today = make_meetup(days=0)
-    today.starts_at = timezone.now()
-    today.save()
-    future = make_meetup(days=3)
-    assert api_client.get(f'/api/lite/meetups/{today.id}/', **auth(host)).json()['checkin_code'] == today.checkin_code
-    assert api_client.get(f'/api/lite/meetups/{future.id}/', **auth(host)).json()['checkin_code'] is None
-    body = api_client.get(f'/api/lite/meetups/{today.id}/', **auth(member)).json()
-    assert body['checkin_code'] is None and body['checked_in'] is False and body['checked_in_count'] == 0
-    assert api_client.get('/api/lite/meetups/999/', **auth(member)).status_code == 404
-
-
-def _today_meetup(make_meetup):
+def test_detail_has_no_checkin_fields(api_client, host, auth, make_meetup):
     meetup = make_meetup(days=0)
     meetup.starts_at = timezone.now()
     meetup.save()
-    return meetup
+    body = api_client.get(f'/api/lite/meetups/{meetup.id}/', **auth(host)).json()
+    assert not {'checkin_code', 'checked_in', 'checked_in_count'} & body.keys()
+    assert api_client.get('/api/lite/meetups/999/', **auth(host)).status_code == 404
 
 
-def checkin(client, headers, meetup, code):
-    return client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': code}, format='json', **headers)
-
-
-def test_checkin_success(api_client, member, auth, make_meetup):
-    meetup = _today_meetup(make_meetup)
-    rsvp(api_client, auth(member), meetup, 'going')
-    r = checkin(api_client, auth(member), meetup, meetup.checkin_code)
-    assert r.status_code == 200 and r.json() == {'checked_in': True}
-    assert ChatMessage.objects.filter(room=meetup.room, body='민수님 도착').count() == 1
-    checkin(api_client, auth(member), meetup, meetup.checkin_code)
-    assert ChatMessage.objects.filter(room=meetup.room, body='민수님 도착').count() == 1
-    detail = api_client.get(f'/api/lite/meetups/{meetup.id}/', **auth(member)).json()
-    assert detail['checked_in'] is True and detail['checked_in_count'] == 1
-
-
-def test_checkin_wrong_code(api_client, member, auth, make_meetup):
-    meetup = _today_meetup(make_meetup)
-    rsvp(api_client, auth(member), meetup, 'maybe')
-    wrong = '0000' if meetup.checkin_code != '0000' else '1111'
-    r = checkin(api_client, auth(member), meetup, wrong)
-    assert r.status_code == 400 and r.json() == {'error': '코드가 달라요'}
-
-
-def test_checkin_not_today(api_client, member, auth, make_meetup):
-    meetup = make_meetup(days=3)
-    rsvp(api_client, auth(member), meetup, 'going')
-    assert checkin(api_client, auth(member), meetup, meetup.checkin_code).status_code == 400
-
-
-def test_checkin_requires_rsvp(api_client, member, auth, make_meetup):
-    meetup = _today_meetup(make_meetup)
-    assert checkin(api_client, auth(member), meetup, meetup.checkin_code).status_code == 403
-    rsvp(api_client, auth(member), meetup, 'no')
-    assert checkin(api_client, auth(member), meetup, meetup.checkin_code).status_code == 403
+def test_checkin_endpoint_removed(api_client, member, auth, make_meetup):
+    meetup = make_meetup(days=0)
+    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': '1234'}, format='json', **auth(member))
+    assert r.status_code == 404
 
 
 def test_create_meetup_with_audience_and_detail_shows_info(api_client, host, member, auth):

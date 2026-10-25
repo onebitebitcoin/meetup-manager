@@ -7,6 +7,7 @@ def generate_token():
     return secrets.token_urlsafe(32)
 
 
+# 도착 코드는 없앴지만 0001_initial 마이그레이션이 이 함수를 참조한다
 def generate_checkin_code():
     return f'{secrets.randbelow(10000):04d}'
 
@@ -54,7 +55,6 @@ class Meetup(models.Model):
     capacity = models.PositiveIntegerField()
     # 썸네일 주소. 기존 앱 모임은 업로드 파일의 /media/ 경로 또는 외부 URL을 그대로 담는다.
     image_url = models.CharField(max_length=500, blank=True, default='')
-    checkin_code = models.CharField(max_length=4, default=generate_checkin_code)
     from_request = models.ForeignKey(
         MeetupRequest, on_delete=models.SET_NULL, null=True, blank=True, related_name='opened_meetups'
     )
@@ -75,7 +75,6 @@ class Rsvp(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='rsvps')
     meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, related_name='rsvps')
     status = models.CharField(max_length=10, choices=Status.choices)
-    checked_in_at = models.DateTimeField(null=True, blank=True)
     removed_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -11,11 +11,6 @@ def test_member_token_and_name_unique(db):
         Member.objects.create(name='a')
 
 
-def test_meetup_checkin_code_is_four_digits(make_meetup):
-    meetup = make_meetup()
-    assert len(meetup.checkin_code) == 4 and meetup.checkin_code.isdigit()
-
-
 def test_rsvp_unique(member, make_meetup):
     meetup = make_meetup()
     Rsvp.objects.create(member=member, meetup=meetup, status='going')

@@ -4,7 +4,16 @@
     v-if="joined || store.isHost || meetup.cancelled || detail.removed"
     class="l-bar"
   >
-    <CalendarDays :size="18" />
+    <img
+      v-if="meetup.image_url"
+      class="l-thumb sm"
+      :src="meetup.image_url"
+      alt=""
+    >
+    <CalendarDays
+      v-else
+      :size="18"
+    />
     <span class="l-grow">{{ when }} {{ parts.time }} · {{ meetup.location }}</span>
     <span
       v-if="!store.isHost && detail.removed"
@@ -61,49 +70,12 @@
       </button>
     </div>
   </div>
-  <div
-    v-if="store.isHost && meetup.is_today && detail.checkin_code"
-    class="l-bar strong"
-  >
-    <QrCode :size="18" />
-    <span class="l-grow">도착 코드</span>
-    <b class="l-code">{{ detail.checkin_code }}</b>
-    <span class="l-counts">{{ detail.checked_in_count }}/{{ meetup.going_count }}</span>
-  </div>
-  <div
-    v-else-if="joined && meetup.is_today && detail.checked_in"
-    class="l-bar strong"
-  >
-    <CheckCircle2 :size="18" />
-    <span class="l-grow">도착 완료</span>
-  </div>
-  <form
-    v-else-if="joined && meetup.is_today"
-    class="l-bar strong"
-    @submit.prevent="emit('checkin', code)"
-  >
-    <MapPin :size="18" />
-    <input
-      v-model="code"
-      class="l-pin"
-      inputmode="numeric"
-      maxlength="4"
-      placeholder="도착 코드"
-      aria-label="도착 코드 4자리"
-    >
-    <button
-      class="l-btn p"
-      type="submit"
-    >
-      도착
-    </button>
-  </form>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import {
-  CalendarDays, CheckCircle2, Check, ChevronDown, ChevronUp, MapPin, QrCode, X,
+  CalendarDays, Check, ChevronDown, ChevronUp, X,
 } from 'lucide-vue-next'
 import { dateParts, daysUntilLabel, STATUS_LABEL } from '../format'
 import { useLiteStore } from '../store'
@@ -113,13 +85,12 @@ const props = defineProps({
   meetup: { type: Object, required: true },
   detail: { type: Object, required: true },
 })
-const emit = defineEmits(['rsvp', 'checkin'])
+const emit = defineEmits(['rsvp'])
 
 // 응답은 참석/불참 두 가지만 고른다. 예전에 고른 미정은 둘 다 눌리지 않은 상태로 보인다.
 const ICONS = { going: Check, no: X }
 const store = useLiteStore()
 const infoOpen = ref(false)
-const code = ref('')
 const parts = computed(() => dateParts(props.meetup.starts_at))
 const joined = computed(() => ['going', 'maybe'].includes(props.meetup.my_status))
 const dday = computed(() => daysUntilLabel(props.meetup.starts_at))

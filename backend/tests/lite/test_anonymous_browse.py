@@ -25,7 +25,7 @@ def test_meetup_detail_without_name(api_client, db):
     assert r.status_code == 200
     body = r.json()
     assert body['meetup']['title'] == '보드게임'
-    assert body['checkin_code'] is None and body['removed'] is False and body['checked_in'] is False
+    assert body['removed'] is False and 'checkin_code' not in body
 
 
 def test_rsvp_still_needs_name(api_client, db):

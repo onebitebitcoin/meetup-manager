@@ -54,10 +54,6 @@
           :class="a.status"
         >{{ STATUS_LABEL[a.status] }}</span>
         <span
-          v-if="a.checked_in_at"
-          class="l-chip plum"
-        >도착</span>
-        <span
           v-if="a.removed"
           class="l-chip no"
         >내보냄</span>

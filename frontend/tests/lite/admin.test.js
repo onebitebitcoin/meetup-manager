@@ -47,10 +47,9 @@ const detail = () => ({
   meetup: card(),
   description: '',
   image_url: null,
-  checkin_code: '1234',
   attendees: [
-    { member: { id: 2, name: '지민' }, status: 'going', checked_in_at: null, removed: false },
-    { member: { id: 3, name: '수아' }, status: 'no', checked_in_at: null, removed: true },
+    { member: { id: 2, name: '지민' }, status: 'going', removed: false },
+    { member: { id: 3, name: '수아' }, status: 'no', removed: true },
   ],
 })
 

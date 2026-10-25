@@ -71,7 +71,6 @@ def admin_detail(meetup_id):
         {
             'member': member_brief(r.member),
             'status': r.status,
-            'checked_in_at': r.checked_in_at.isoformat() if r.checked_in_at else None,
             'removed': r.removed_at is not None,
         }
         for r in rsvps
@@ -81,7 +80,6 @@ def admin_detail(meetup_id):
         'description': meetup.description,
         'audience': meetup.audience,
         'image_url': meetup.image_url,
-        'checkin_code': meetup.checkin_code,
         'attendees': attendees,
     }
 
@@ -180,9 +178,8 @@ class AdminMemberRemoveView(LiteView):
                 Rsvp.objects.select_for_update(), '참석 신청한 회원이 아니에요', meetup_id=meetup_id, member_id=member_id
             )
             rsvp.status = Rsvp.Status.NO
-            rsvp.checked_in_at = None
             rsvp.removed_at = timezone.now()
-            rsvp.save(update_fields=['status', 'checked_in_at', 'removed_at', 'updated_at'])
+            rsvp.save(update_fields=['status', 'removed_at', 'updated_at'])
         logger.info('LITE 참석자 내보내기: meetup_id=%s member_id=%s', meetup_id, member_id)
         return APIResponse.success(admin_detail(meetup_id))
 

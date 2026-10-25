@@ -55,27 +55,6 @@ def test_host_claim_throttle(api_client, member, auth, settings):
     assert r.status_code == 429 and r.json() == THROTTLED
 
 
-def test_checkin_throttle_counts_failures_and_success(api_client, member, auth, make_meetup):
-    meetup = make_meetup(days=0)
-    meetup.starts_at = timezone.now() + timedelta(minutes=1)
-    meetup.save()
-    api_client.put(f'/api/lite/meetups/{meetup.id}/rsvp/', {'status': 'going'}, format='json', **auth(member))
-    url = f'/api/lite/meetups/{meetup.id}/checkin/'
-    for _ in range(4):
-        assert post(api_client, url, {'code': 'x'}, auth(member)).status_code == 400
-    assert post(api_client, url, {'code': meetup.checkin_code}, auth(member)).status_code in (200, 400)
-    r = post(api_client, url, {'code': meetup.checkin_code}, auth(member))
-    assert r.status_code == 429 and r.json() == THROTTLED
-
-
-def test_checkin_throttle_is_per_meetup(api_client, member, auth, make_meetup):
-    a, b = make_meetup('a'), make_meetup('b')
-    for _ in range(5):
-        post(api_client, f'/api/lite/meetups/{a.id}/checkin/', {'code': 'x'}, auth(member))
-    assert post(api_client, f'/api/lite/meetups/{a.id}/checkin/', {'code': 'x'}, auth(member)).status_code == 429
-    assert post(api_client, f'/api/lite/meetups/{b.id}/checkin/', {'code': 'x'}, auth(member)).status_code != 429
-
-
 def test_message_send_throttle_only_counts_post(api_client, host, auth, make_meetup):
     room_id = make_meetup().room.id
     url = f'/api/lite/rooms/{room_id}/messages/'

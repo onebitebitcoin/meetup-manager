@@ -68,8 +68,8 @@ def test_detail_attendees_order(api_client, host, make_member, auth, make_meetup
     body = r.json()
     assert [x['status'] for x in body['attendees']] == ['going', 'maybe', 'no']
     assert body['attendees'][0]['member'] == {'id': c.id, 'name': '다'}
-    assert body['checkin_code'] == meetup.checkin_code
-    assert body['attendees'][0]['removed'] is False and body['attendees'][0]['checked_in_at'] is None
+    assert 'checkin_code' not in body
+    assert body['attendees'][0]['removed'] is False and 'checked_in_at' not in body['attendees'][0]
 
 
 def test_patch_success_and_schedule_message(api_client, host, auth, make_meetup):
@@ -143,15 +143,12 @@ def test_cancel_and_reopen(api_client, host, member, auth, make_meetup):
     assert api_client.post(url, {'cancelled': 'yes'}, format='json', **auth(host)).status_code == 400
 
 
-def test_cancelled_blocks_rsvp_and_checkin(api_client, host, member, auth, make_meetup):
+def test_cancelled_blocks_rsvp(api_client, host, member, auth, make_meetup):
     meetup = make_meetup(days=0)
     meetup.starts_at = timezone.now()
     meetup.save()
     assert put_rsvp(api_client, auth(member), meetup, 'going').status_code == 200
     api_client.post(f'{BASE}{meetup.id}/cancel/', {'cancelled': True}, format='json', **auth(host))
-    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': meetup.checkin_code},
-                        format='json', **auth(member))
-    assert r.status_code == 400 and r.json()['error'] == '취소된 모임이에요'
     r = put_rsvp(api_client, auth(member), meetup, 'no')
     assert r.status_code == 400 and r.json()['error'] == '취소된 모임이에요'
 
@@ -265,43 +262,12 @@ def test_locked_meetup_sql_has_no_join(api_client, host, auth, make_meetup):
     assert lock_selects and 'JOIN' not in lock_selects[0]
 
 
-def test_remove_member_clears_checkin_and_count(api_client, host, member, auth, make_meetup):
-    meetup = make_meetup(days=0)
-    put_rsvp(api_client, auth(member), meetup, 'going')
-    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': meetup.checkin_code}, format='json', **auth(member))
-    assert r.status_code == 200
-    detail = f'/api/lite/meetups/{meetup.id}/'
-    assert api_client.get(detail, **auth(host)).json()['checked_in_count'] == 1
-    api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
-    assert Rsvp.objects.get(member=member, meetup=meetup).checked_in_at is None
-    assert api_client.get(detail, **auth(host)).json()['checked_in_count'] == 0
-    # 기존 데이터(removed_at만 있고 checked_in_at이 남은 행)도 집계에서 제외된다.
-    Rsvp.objects.filter(member=member, meetup=meetup).update(checked_in_at=timezone.now())
-    assert api_client.get(detail, **auth(host)).json()['checked_in_count'] == 0
-    body = api_client.get(detail, **auth(member)).json()
-    assert body['removed'] is True
-
-
 def test_detail_removed_flag_false_by_default(api_client, member, auth, make_meetup):
     meetup = make_meetup()
     detail = f'/api/lite/meetups/{meetup.id}/'
     assert api_client.get(detail, **auth(member)).json()['removed'] is False
     put_rsvp(api_client, auth(member), meetup, 'going')
     assert api_client.get(detail, **auth(member)).json()['removed'] is False
-
-
-def test_removed_member_checkin_forbidden(api_client, host, member, auth, make_meetup):
-    meetup = make_meetup(days=0)
-    put_rsvp(api_client, auth(member), meetup, 'going')
-    api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
-    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': meetup.checkin_code}, format='json', **auth(member))
-    assert r.status_code == 403 and r.json()['error'] == '운영자가 내보낸 모임이에요'
-
-
-def test_checkin_cancelled_checked_inside_lock(api_client, host, member, auth, make_meetup):
-    meetup = make_meetup(days=0, cancelled_at=timezone.now())
-    r = api_client.post(f'/api/lite/meetups/{meetup.id}/checkin/', {'code': 'x'}, format='json', **auth(member))
-    assert r.status_code == 400 and r.json()['error'] == '취소된 모임이에요'
 
 
 def test_remove_member_already_no(api_client, host, member, auth, make_meetup):

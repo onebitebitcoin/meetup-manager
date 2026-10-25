@@ -29,7 +29,6 @@
       :meetup="meetup"
       :detail="detail"
       @rsvp="changeRsvp"
-      @checkin="checkin"
     />
     <div
       v-if="!store.isHost && !joined"
@@ -70,7 +69,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useLiteStore()
 const meetup = ref(null)
-const detail = ref({ checkin_code: null, checked_in: false, checked_in_count: 0, removed: undefined, description: '', audience: '' })
+const detail = ref({ removed: undefined, description: '', audience: '' })
 const error = ref('')
 
 const joined = computed(() => ['going', 'maybe'].includes(meetup.value?.my_status))
@@ -80,9 +79,6 @@ const load = async () => {
     const data = await liteApi.meetup(route.params.id)
     meetup.value = data.meetup
     detail.value = {
-      checkin_code: data.checkin_code,
-      checked_in: data.checked_in,
-      checked_in_count: data.checked_in_count,
       removed: data.removed,
       description: data.description || '',
       audience: data.audience || '',
@@ -96,15 +92,6 @@ const load = async () => {
 
 const changeRsvp = async (status) => {
   const data = await store.act(() => liteApi.rsvp(meetup.value.id, status), '응답을 바꿨어요')
-  if (data) await load()
-}
-
-const checkin = async (code) => {
-  if (!/^\d{4}$/.test(code)) {
-    store.notify('코드 4자리를 입력해 주세요', 'error')
-    return
-  }
-  const data = await store.act(() => liteApi.checkin(meetup.value.id, code), '도착!')
   if (data) await load()
 }
 

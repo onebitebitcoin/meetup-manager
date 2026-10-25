@@ -32,20 +32,6 @@ class HostClaimThrottle(MemberThrottle):
         return f'{request.auth.pk}_{self.get_ident(request)}'
 
 
-class CheckinThrottle(MemberThrottle):
-    """도착 코드 대입 방어: 회원·모임 기준, 성공과 실패 모두 센다."""
-
-    scope = 'lite_checkin'
-    rate = '5/10min'
-
-    def parse_rate(self, rate):
-        # DRF는 'N/단위'만 지원하므로 10분 창은 직접 지정한다
-        return 5, 600
-
-    def get_ident_for(self, request, view):
-        return f'{request.auth.pk}_{view.kwargs["meetup_id"]}'
-
-
 class MessageSendThrottle(MemberThrottle):
     scope = 'lite_message_send'
     rate = '30/min'

@@ -130,7 +130,7 @@ describe('LiteRoom', () => {
         return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }) }))
       }
       if (url.includes('rooms/')) return Promise.resolve(jsonResponse({ messages: [], has_more: false, pinned: null }))
-      return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }), checkin_code: null, checked_in: false, checked_in_count: 0, removed: false, method: init.method }))
+      return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }), removed: false, method: init.method }))
     })
 
     const wrapper = mount(LiteRoom)
@@ -153,7 +153,7 @@ describe('LiteRoom', () => {
   it('미신청자에게는 메시지 대신 참석 인원과 신청하기를 보여준다', async () => {
     memberStore()
     routeFetch({
-      'meetups/5/': { meetup: card(), checkin_code: null, checked_in: false, checked_in_count: 0 },
+      'meetups/5/': { meetup: card() },
     })
 
     const wrapper = mount(LiteRoom)
@@ -166,10 +166,41 @@ describe('LiteRoom', () => {
     expect(fetch.mock.calls.some(([url]) => url.includes('rooms/'))).toBe(false)
   })
 
+  it('썸네일이 있으면 상단 줄에 달력 아이콘 대신 보여준다', async () => {
+    memberStore()
+    // 상단 요약 줄은 신청한 회원에게 보인다
+    routeFetch({
+      'meetups/5/': { meetup: card({ my_status: 'going', image_url: '/media/meetups/a.png' }) },
+      'rooms/': { messages: [], has_more: false, pinned: null },
+    })
+
+    const wrapper = mount(LiteRoom)
+    await flushPromises()
+
+    const img = wrapper.find('.l-bar img.l-thumb')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toBe('/media/meetups/a.png')
+  })
+
+  it('썸네일이 없으면 상단 줄에 이미지를 그리지 않는다', async () => {
+    memberStore()
+    // 상단 요약 줄은 신청한 회원에게 보인다
+    routeFetch({
+      'meetups/5/': { meetup: card({ my_status: 'going', image_url: null }) },
+      'rooms/': { messages: [], has_more: false, pinned: null },
+    })
+
+    const wrapper = mount(LiteRoom)
+    await flushPromises()
+
+    expect(wrapper.find('.l-bar img').exists()).toBe(false)
+    expect(wrapper.find('.l-bar svg').exists()).toBe(true)
+  })
+
   it('내보내진 회원에게는 신청, 응답 버튼을 숨기고 안내 문구만 보여준다', async () => {
     memberStore()
     routeFetch({
-      'meetups/5/': { meetup: card({ my_status: 'no' }), checkin_code: null, checked_in: false, checked_in_count: 0, removed: true },
+      'meetups/5/': { meetup: card({ my_status: 'no' }), removed: true },
     })
 
     const wrapper = mount(LiteRoom)
@@ -193,7 +224,7 @@ describe('LiteRoom 모임 안내와 참석 응답', () => {
 
   it('미신청자에게 언제·어디서·정원·대상·내용을 풀어 쓴 안내로 보여준다', async () => {
     memberStore()
-    routeFetch({ 'meetups/5/': { meetup: card(), checkin_code: null, checked_in: false, checked_in_count: 0, ...info } })
+    routeFetch({ 'meetups/5/': { meetup: card(), ...info } })
 
     const wrapper = mount(LiteRoom)
     await flushPromises()
@@ -210,7 +241,7 @@ describe('LiteRoom 모임 안내와 참석 응답', () => {
 
   it('대상과 내용이 비어 있으면 그 줄을 그리지 않는다', async () => {
     memberStore()
-    routeFetch({ 'meetups/5/': { meetup: card(), checkin_code: null, checked_in: false, checked_in_count: 0, description: '', audience: '' } })
+    routeFetch({ 'meetups/5/': { meetup: card(), description: '', audience: '' } })
 
     const wrapper = mount(LiteRoom)
     await flushPromises()
@@ -223,7 +254,7 @@ describe('LiteRoom 모임 안내와 참석 응답', () => {
     fetch.mockImplementation((url, init = {}) => {
       if (url.includes('rsvp/')) return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'no' }), method: init.method }))
       if (url.includes('rooms/')) return Promise.resolve(jsonResponse({ messages: [], has_more: false, pinned: null }))
-      return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }), checkin_code: null, checked_in: false, checked_in_count: 0, ...info }))
+      return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }), ...info }))
     })
 
     const wrapper = mount(LiteRoom)

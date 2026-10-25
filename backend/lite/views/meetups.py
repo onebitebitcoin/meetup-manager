@@ -13,13 +13,11 @@ from ..serializers import meetup_card, my_statuses, seminar_card
 from ..services import (
     KST,
     add_message,
-    is_today,
     meetups_with_counts,
     requests_with_votes,
     seminars_with_last_message,
     today_start_kst,
 )
-from ..throttles import CheckinThrottle
 from .base import ApiError, LiteView, clean_text, get_or_404
 
 logger = logging.getLogger(__name__)
@@ -165,16 +163,10 @@ class MeetupDetailView(LiteView):
         member = self.member
         meetup = get_or_404(meetups_with_counts(), '모임을 찾을 수 없어요', pk=meetup_id)
         rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first() if member else None
-        show_code = bool(member and member.is_host) and is_today(meetup.starts_at)
         return APIResponse.success({
             'meetup': meetup_card(meetup, rsvp.status if rsvp else None),
             'description': meetup.description,
             'audience': meetup.audience,
-            'checkin_code': meetup.checkin_code if show_code else None,
-            'checked_in': bool(rsvp and rsvp.checked_in_at),
-            'checked_in_count': Rsvp.objects.filter(
-                meetup=meetup, checked_in_at__isnull=False, removed_at__isnull=True
-            ).count(),
             'removed': bool(rsvp and rsvp.removed_at),
         })
 
@@ -210,29 +202,4 @@ class RsvpView(LiteView):
                 if joined and previous in (None, Rsvp.Status.NO):
                     add_message(room, LiteConfig.get().join_guide, kind=ChatMessage.Kind.GUIDE)
         return APIResponse.success({'meetup': card_for(meetup.id, member)})
-
-
-class CheckinView(LiteView):
-    throttle_classes = [CheckinThrottle]
-
-    def post(self, request, meetup_id):
-        member = self.member
-        code = self.json_body().get('code')
-        with transaction.atomic():
-            meetup = get_or_404(Meetup.objects.select_for_update(), '모임을 찾을 수 없어요', pk=meetup_id)
-            ensure_not_cancelled(meetup)
-            rsvp = Rsvp.objects.select_for_update().filter(member=member, meetup=meetup).first()
-            if rsvp and rsvp.removed_at:
-                raise ApiError('운영자가 내보낸 모임이에요', 403)
-            if rsvp is None or rsvp.status == Rsvp.Status.NO:
-                raise ApiError('먼저 참석을 신청해 주세요', 403)
-            if not is_today(meetup.starts_at):
-                raise ApiError('오늘 열리는 모임이 아니에요')
-            if not isinstance(code, str) or code.strip() != meetup.checkin_code:
-                raise ApiError('코드가 달라요')
-            if rsvp.checked_in_at is None:
-                rsvp.checked_in_at = timezone.now()
-                rsvp.save(update_fields=['checked_in_at', 'updated_at'])
-                add_message(meetup.room, f'{member.name}님 도착')
-        return APIResponse.success({'checked_in': True})
 
