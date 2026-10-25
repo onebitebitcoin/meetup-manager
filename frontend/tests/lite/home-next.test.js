@@ -76,19 +76,20 @@ describe('LiteHome 다음 모임 카드', () => {
     // 정원과 장소는 홈 카드에 두지 않고 자세히(모임 화면)에서 보여 준다
     expect(hero.text()).not.toContain('정원')
     expect(hero.text()).not.toContain('석우동카페')
-    // 아직 응답하지 않은 모임은 신청하기, 응답한 모임은 참석 스위치를 보여 준다
-    expect(hero.findAll('.l-pill-btn').length).toBe(1)
-    const sw = hero.find('[role="switch"]')
-    expect(sw.attributes('aria-checked')).toBe('true')
-    expect(sw.text()).toBe('참석')
+    // 응답하지 않은 모임은 꺼진 불참 스위치, 참석한 모임은 켜진 참석 스위치로 보인다
+    expect(hero.findAll('.l-pill-btn').length).toBe(0)
+    const switches = hero.findAll('[role="switch"]')
+    expect(switches.map((sw) => [sw.attributes('aria-checked'), sw.text()])).toEqual([['false', '불참'], ['true', '참석']])
+    // 다가오는 모임 목록에도 스위치가 있다
+    expect(wrapper.find('.l-mrow [role="switch"]').attributes('aria-checked')).toBe('false')
     expect(hero.findAll('.l-more').map((b) => b.text())).toEqual(['자세히', '자세히'])
     expect(wrapper.findAll('.l-mrow-title').map((t) => t.text())).toEqual(['온라인 AI 밋업'])
 
-    await wrapper.find('.l-mrow').trigger('click')
+    await wrapper.find('.l-mrow-open').trigger('click')
     expect(push).toHaveBeenCalledWith('/lite/m/3')
   })
 
-  it('운영자에게는 신청 버튼을 보이지 않는다', async () => {
+  it('운영자에게는 참석 스위치를 보이지 않는다', async () => {
     useLiteStore().member = { id: 9, name: '운영', is_host: true }
     fetch.mockResolvedValue(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
@@ -97,21 +98,25 @@ describe('LiteHome 다음 모임 카드', () => {
     await flushPromises()
 
     expect(wrapper.find('.l-next').exists()).toBe(true)
-    expect(wrapper.find('.l-pill-btn').exists()).toBe(false)
+    expect(wrapper.find('[role="switch"]').exists()).toBe(false)
   })
 })
 
 describe('LiteNextCard 사진', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('첫 모임에 사진이 있으면 카드 위에 보여 주고, 없으면 사진 자리를 두지 않는다', async () => {
+  it('같은 날 모임이 여럿이면 줄마다 자기 썸네일을 보여 주고, 사진이 없는 모임은 썸네일 자리를 두지 않는다', async () => {
     const { default: LiteNextCard } = await import('@/lite/components/LiteNextCard.vue')
 
-    const withImage = mount(LiteNextCard, { props: { meetups: [card({ image_url: '/media/meetups/a.png' })] } })
-    expect(withImage.find('img.l-next-img').attributes('src')).toBe('/media/meetups/a.png')
+    const wrapper = mount(LiteNextCard, { props: { meetups: [
+      card({ id: 1, image_url: '/media/meetups/exit.png' }),
+      card({ id: 2, title: '셀프 커스터디', image_url: '/media/meetups/custody.png' }),
+      card({ id: 3, title: '사진 없는 모임' }),
+    ] } })
 
-    const without = mount(LiteNextCard, { props: { meetups: [card()] } })
-    expect(without.find('.l-next-img').exists()).toBe(false)
+    const slots = wrapper.findAll('.l-next-slot')
+    expect(slots.map((s) => s.find('img.l-next-thumb').exists() ? s.find('img.l-next-thumb').attributes('src') : null))
+      .toEqual(['/media/meetups/exit.png', '/media/meetups/custody.png', null])
   })
 })
 

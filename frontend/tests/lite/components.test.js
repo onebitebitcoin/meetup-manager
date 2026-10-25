@@ -52,11 +52,11 @@ describe('LiteHome', () => {
     push.mockReset()
   })
 
-  it('이름이 없어도 모임을 보여 주고, 신청하기를 누르면 자동 닉네임으로 가입·신청한 뒤 모임방으로 보낸다', async () => {
-    fetch.mockImplementation((url, init = {}) => {
+  it('이름이 없어도 모임을 보여 주고, 참석 스위치를 켜면 자동 닉네임으로 가입한 뒤 참석으로 신청한다', async () => {
+    fetch.mockImplementation((url) => {
       if (url.includes('members/')) return Promise.resolve(jsonResponse({ token: 't1', member: { id: 1, name: '느긋한 수달', is_host: false } }, 201))
       if (url.includes('rsvp/')) return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }) }))
-      return Promise.resolve(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0, method: init.method }))
+      return Promise.resolve(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 }))
     })
 
     const wrapper = mount(LiteHome)
@@ -64,7 +64,10 @@ describe('LiteHome', () => {
 
     expect(wrapper.text()).toContain('라이트닝 노드 실습')
     expect(fetch.mock.calls.some(([url]) => url.includes('members/'))).toBe(false)
-    await wrapper.findAll('button').find((b) => b.text() === '신청하기').trigger('click')
+    const sw = wrapper.find('[role="switch"]')
+    expect(sw.attributes('aria-checked')).toBe('false')
+    expect(sw.text()).toBe('불참')
+    await sw.trigger('click')
     await flushPromises()
 
     const calls = fetch.mock.calls.map(([url, init]) => `${init?.method || 'GET'} ${url}`)
@@ -72,46 +75,40 @@ describe('LiteHome', () => {
     const joined = calls.findIndex((c) => c.startsWith('PUT') && c.includes('meetups/5/rsvp/'))
     expect(created).toBeGreaterThan(-1)
     expect(joined).toBeGreaterThan(created)
-    expect(push).toHaveBeenCalledWith('/lite/m/5')
+    // 홈에 머문 채 목록을 다시 불러온다
+    expect(push).not.toHaveBeenCalled()
+    expect(calls.filter((c) => c.includes('home/')).length).toBeGreaterThanOrEqual(2)
   })
 
-  it('미신청 모임에는 신청하기만 보이고 못 가요는 없다', async () => {
+  it('응답하지 않은 모임도 신청하기 대신 꺼진 불참 스위치로 보여 준다', async () => {
     memberStore()
     routeFetch({ 'home/': { meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 } })
 
     const wrapper = mount(LiteHome)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('라이트닝 노드 실습')
-    expect(wrapper.text()).toContain('신청하기')
-    expect(wrapper.text()).not.toContain('못 가요')
+    expect(wrapper.text()).not.toContain('신청하기')
+    expect(wrapper.find('[role="switch"]').attributes('aria-checked')).toBe('false')
     expect(wrapper.find('.l-fab-btn').exists()).toBe(true)
   })
 
-  it('신청한 모임에는 응답 칩만 보인다', async () => {
-    memberStore()
-    routeFetch({ 'home/': { meetups: [card({ my_status: 'going' })], my_seminar: null, seminars: [], ready_request_count: 0 } })
-
-    const wrapper = mount(LiteHome)
-    await flushPromises()
-
-    expect(wrapper.text()).toContain('참석')
-    expect(wrapper.text()).not.toContain('신청하기')
-  })
-
-  it('신청하기를 누르면 PUT rsvp 후 채팅방으로 이동한다', async () => {
+  it('참석한 모임은 켜진 참석 스위치로 보이고, 끄면 불참으로 바꾼다', async () => {
     memberStore()
     fetch.mockImplementation((url, options) => {
-      if (options?.method === 'PUT') return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }) }))
-      return Promise.resolve(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 }))
+      if (options?.method === 'PUT') return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'no' }) }))
+      return Promise.resolve(jsonResponse({ meetups: [card({ my_status: 'going' })], my_seminar: null, seminars: [], ready_request_count: 0 }))
     })
 
     const wrapper = mount(LiteHome)
     await flushPromises()
-    await wrapper.findAll('button').find((b) => b.text() === '신청하기').trigger('click')
+    const sw = wrapper.find('[role="switch"]')
+    expect(sw.attributes('aria-checked')).toBe('true')
+    expect(sw.text()).toBe('참석')
+    await sw.trigger('click')
     await flushPromises()
 
-    expect(push).toHaveBeenCalledWith('/lite/m/5')
+    const put = fetch.mock.calls.find(([, init]) => init?.method === 'PUT')
+    expect(JSON.parse(put[1].body)).toEqual({ status: 'no' })
   })
 })
 

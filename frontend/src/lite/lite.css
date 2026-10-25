@@ -208,11 +208,11 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-next { border-radius: 18px; background: var(--lite-surface); border: 1px solid var(--lite-line); color: var(--lite-ink); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 12px; }
 /* 머리글은 흰 카드 위에서도 7:1을 넘는 짙은 머스타드로 쓴다 */
 .l-next { overflow: hidden; }
-.l-next-img { display: block; width: calc(100% + 36px); height: 150px; margin: -18px -18px 2px; object-fit: cover; background: var(--lite-sunk); }
+.l-next-thumb { width: 64px; height: 64px; flex: none; border-radius: 14px; object-fit: cover; background: var(--lite-sunk); border: 1px solid var(--lite-line); }
 .l-next-slots { display: flex; flex-direction: column; gap: 6px; }
 .l-next-slot { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 6px 0; }
 .l-next-slot + .l-next-slot { border-top: 1px solid var(--lite-line); padding-top: 12px; }
-.l-next-actions { display: flex; align-items: center; gap: 10px; padding-left: 102px; }
+.l-next-actions { display: flex; align-items: center; gap: 10px; }
 /* 자세히: 모임 화면(안내·채팅)으로 넘어가는 버튼 */
 .l-more { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; min-height: 44px; padding: 0 12px 0 16px; border: 1px solid var(--lite-line-strong); border-radius: 999px; background: var(--lite-surface); color: var(--lite-ink); font-size: 15px; font-weight: 600; }
 /* 참석 스위치: 켜면 참석(초록), 끄면 불참(빨강 글자). 상태 글자를 옆에 함께 쓴다. */
@@ -226,18 +226,21 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-switch.going .l-switch-label { color: var(--lite-going); }
 .l-switch.no .l-switch-label { color: var(--lite-no); }
 @media (prefers-reduced-motion: reduce) { .l-switch-track, .l-switch-thumb { transition: none; } }
-.l-next-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; }
+.l-next-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; }
 /* 원형 배지: 날짜 "11/8 (일)"과 시각 "오후 2시"를 두 줄로 */
-.l-next-badge { width: 88px; height: 88px; flex: none; border-radius: 50%; background: var(--lite-yellow); color: var(--lite-btn-ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; line-height: 1.25; }
-.l-next-badge b { font-size: 15px; font-weight: 800; }
-.l-next-badge span { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
-.l-next-title { font-size: 20px; font-weight: 800; line-height: 1.3; }
+.l-next-badge { width: 76px; height: 76px; flex: none; border-radius: 50%; background: var(--lite-yellow); color: var(--lite-btn-ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; line-height: 1.25; }
+.l-next-badge b { font-size: 14px; font-weight: 800; }
+.l-next-badge span { font-size: 12px; font-weight: 600; white-space: nowrap; }
+.l-next-title { font-size: 20px; font-weight: 800; line-height: 1.3; word-break: keep-all; overflow-wrap: anywhere; }
 .l-join-compact { flex: none; }
 .l-pill-btn { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--lite-btn); color: var(--lite-btn-ink); font-size: 14px; font-weight: 700; }
 .l-pill-btn:disabled { opacity: .6; }
 .l-section { margin: 18px 0 2px; font-size: 18px; font-weight: 800; color: var(--lite-ink); }
 .l-mlist { display: flex; flex-direction: column; }
-.l-mrow.l-cardbtn { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 10px 0; border-top: 1px solid var(--lite-line); }
+.l-mrow { border-top: 1px solid var(--lite-line); padding: 6px 0 10px; }
+.l-mrow-open.l-cardbtn { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 4px 0; width: 100%; }
+/* 참석 스위치는 제목 아래 줄에, 날짜 칸만큼 들여 쓴다 */
+.l-mrow-rsvp { padding-left: 80px; }
 .l-mrow-date { width: 66px; flex: none; font-family: var(--lite-mono); font-size: 14px; font-weight: 600; color: var(--lite-muted); }
 .l-mrow-title { display: block; font-size: 17px; font-weight: 700; line-height: 1.35; }
 .l-mrow-sub { display: block; font-size: 14px; color: var(--lite-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -282,21 +285,23 @@ textarea.l-field { min-height: 88px; resize: vertical; }
   .lite-shell:has(.l-home) .l-fab-btn { height: 56px; }
 
   .l-home .l-next { padding: 22px 28px; }
-  .l-home .l-next:has(.l-next-img) { display: grid; grid-template-columns: 220px 1fr; grid-template-areas: "img slots"; column-gap: 28px; padding: 0 28px 0 0; }
-  .l-home .l-next-img { grid-area: img; width: 100%; height: 100%; min-height: 160px; margin: 0; }
   /* 날짜와 모임 제목은 같은 크기(22px)로 두어 한 줄의 정보처럼 읽히게 한다 */
   /* 카드 안에 상자를 한 겹 더 두지 않는다. 같은 날 모임이 여러 개면 구분선으로만 나눈다. */
   .l-home .l-next-slots { grid-area: slots; gap: 0; padding-block: 8px; }
-  .l-home .l-next:has(.l-next-img) .l-next-slots { align-self: center; }
   .l-home .l-next-slot { flex-direction: row; align-items: center; min-height: 104px; gap: 16px; }
-  .l-home .l-next-actions { padding-left: 0; }
+  .l-home .l-next-thumb { width: 88px; height: 88px; border-radius: 16px; }
+  .l-home .l-next-badge { width: 88px; height: 88px; }
+  .l-home .l-next-badge b { font-size: 15px; }
+  .l-home .l-next-badge span { font-size: 12.5px; }
   .l-home .l-next-slot + .l-next-slot { border-top: 1px solid var(--lite-line); }
   .l-home .l-next-title { font-size: 22px; }
 
   .l-home .l-section { margin: 12px 0 0; font-size: 17px; font-weight: 700; color: var(--lite-ink); }
   .l-home .l-mlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
-  .l-home .l-mrow.l-cardbtn { position: relative; flex-direction: column; align-items: stretch; gap: 2px; padding: 0 0 14px; min-height: 0; border: 1px solid var(--lite-line); border-radius: 14px; overflow: hidden; background: var(--lite-surface); transition: border-color .12s; }
-  .l-home .l-mrow.l-cardbtn:hover { border-color: var(--lite-line-strong); }
+  .l-home .l-mrow { position: relative; display: flex; flex-direction: column; padding: 0 0 12px; border: 1px solid var(--lite-line); border-radius: 14px; overflow: hidden; background: var(--lite-surface); transition: border-color .12s; }
+  .l-home .l-mrow:hover { border-color: var(--lite-line-strong); }
+  .l-home .l-mrow-open.l-cardbtn { flex-direction: column; align-items: stretch; gap: 2px; padding: 0 0 8px; min-height: 0; }
+  .l-home .l-mrow-rsvp { padding: 0 14px; }
   .l-home .l-mrow .l-thumb.sm { order: -1; display: block; width: 100%; height: 150px; border: 0; border-bottom: 1px solid var(--lite-line); border-radius: 0; margin-bottom: 10px; }
   .l-home .l-mrow-date { width: auto; padding: 0 14px; }
   .l-home .l-mrow .l-grow { padding: 0 14px; min-width: 0; }

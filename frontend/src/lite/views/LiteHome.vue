@@ -55,6 +55,7 @@
             v-for="meetup in split.rest"
             :key="meetup.id"
             :meetup="meetup"
+            @changed="load"
           />
         </div>
       </template>
