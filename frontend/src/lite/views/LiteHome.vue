@@ -44,6 +44,7 @@
       <LiteNextCard
         v-if="split.next.length"
         :meetups="split.next"
+        @changed="load"
       />
       <template v-if="split.rest.length">
         <h3 class="l-section">

@@ -127,6 +127,7 @@ const routes = [
     children: [
       { path: '', name: 'LiteHome', component: () => import('@/lite/views/LiteHome.vue') },
       { path: 'm/:id', name: 'LiteRoom', component: () => import('@/lite/views/LiteRoom.vue') },
+      { path: 'm/:id/info', name: 'LiteMeetupDetail', component: () => import('@/lite/views/LiteMeetupDetail.vue') },
       { path: 'seminar', name: 'LiteSeminar', component: () => import('@/lite/views/LiteSeminar.vue') },
       { path: 'seminar/:id', name: 'LiteSeminarHost', component: () => import('@/lite/views/LiteSeminar.vue') },
       { path: 'requests', name: 'LiteRequests', component: () => import('@/lite/views/LiteRequests.vue') },

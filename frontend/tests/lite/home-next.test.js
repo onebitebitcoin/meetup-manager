@@ -73,11 +73,15 @@ describe('LiteHome 다음 모임 카드', () => {
 
     const hero = wrapper.find('.l-next')
     expect(hero.findAll('.l-next-title').map((t) => t.text())).toEqual(['거래소 탈출', '셀프 커스터디'])
-    // 정원은 홈 카드에 두지 않고 신청 후 채팅방 상단에서 보여 준다
-    expect(hero.find('.l-next-info').text()).toBe('석우동카페')
+    // 정원과 장소는 홈 카드에 두지 않고 자세히(모임 화면)에서 보여 준다
     expect(hero.text()).not.toContain('정원')
+    expect(hero.text()).not.toContain('석우동카페')
+    // 아직 응답하지 않은 모임은 신청하기, 응답한 모임은 참석 스위치를 보여 준다
     expect(hero.findAll('.l-pill-btn').length).toBe(1)
-    expect(hero.find('.l-chip.going').text()).toBe('참석')
+    const sw = hero.find('[role="switch"]')
+    expect(sw.attributes('aria-checked')).toBe('true')
+    expect(sw.text()).toBe('참석')
+    expect(hero.findAll('.l-more').map((b) => b.text())).toEqual(['자세히', '자세히'])
     expect(wrapper.findAll('.l-mrow-title').map((t) => t.text())).toEqual(['온라인 AI 밋업'])
 
     await wrapper.find('.l-mrow').trigger('click')
@@ -108,5 +112,54 @@ describe('LiteNextCard 사진', () => {
 
     const without = mount(LiteNextCard, { props: { meetups: [card()] } })
     expect(without.find('.l-next-img').exists()).toBe(false)
+  })
+})
+
+describe('LiteNextCard 참석 스위치와 자세히', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    global.fetch = vi.fn()
+    push.mockReset()
+  })
+
+  it('스위치를 끄면 불참으로 바꾸고 홈에 다시 불러오라고 알린다', async () => {
+    useLiteStore().member = { id: 1, name: '지민', is_host: false }
+    fetch.mockResolvedValue(jsonResponse({ meetup: card({ my_status: 'no' }) }))
+    const { default: LiteNextCard } = await import('@/lite/components/LiteNextCard.vue')
+
+    const wrapper = mount(LiteNextCard, { props: { meetups: [card({ id: 7, my_status: 'going' })] } })
+    await wrapper.find('[role="switch"]').trigger('click')
+    await flushPromises()
+
+    const [url, init] = fetch.mock.calls[0]
+    expect(url).toContain('meetups/7/rsvp/')
+    expect(JSON.parse(init.body)).toEqual({ status: 'no' })
+    expect(wrapper.emitted('changed')).toHaveLength(1)
+  })
+
+  it('불참 상태에서 켜면 참석으로 바꾸고, 자세히를 누르면 모임 화면으로 간다', async () => {
+    useLiteStore().member = { id: 1, name: '지민', is_host: false }
+    fetch.mockResolvedValue(jsonResponse({ meetup: card({ my_status: 'going' }) }))
+    const { default: LiteNextCard } = await import('@/lite/components/LiteNextCard.vue')
+
+    const wrapper = mount(LiteNextCard, { props: { meetups: [card({ id: 7, my_status: 'no' })] } })
+    const sw = wrapper.find('[role="switch"]')
+    expect(sw.attributes('aria-checked')).toBe('false')
+    expect(sw.text()).toBe('불참')
+    await sw.trigger('click')
+    await flushPromises()
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ status: 'going' })
+
+    await wrapper.find('.l-more').trigger('click')
+    expect(push).toHaveBeenCalledWith('/lite/m/7/info')
+  })
+
+  it('모임마다 원형 배지에 "11/8 (일)"과 "오후 1시"를 두고 옆에 제목을 쓴다', async () => {
+    const { default: LiteNextCard } = await import('@/lite/components/LiteNextCard.vue')
+    // 2099-11-08T04:00Z = 서울 11월 8일 일요일 오후 1시, 06:30Z = 오후 3시 30분
+    const wrapper = mount(LiteNextCard, { props: { meetups: [card(), card({ id: 2, title: '셀프 커스터디', starts_at: '2099-11-08T06:30:00Z' })] } })
+    const badges = wrapper.findAll('.l-next-badge')
+    expect(badges.map((b) => [b.find('b').text(), b.find('span').text()])).toEqual([['11/8 (일)', '오후 1시'], ['11/8 (일)', '오후 3시 30분']])
+    expect(wrapper.findAll('.l-next-title').map((t) => t.text())).toEqual(['거래소 탈출', '셀프 커스터디'])
   })
 })

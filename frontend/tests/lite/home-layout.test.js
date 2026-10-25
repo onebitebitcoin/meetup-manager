@@ -78,7 +78,7 @@ describe('LiteHome 레이아웃', () => {
     expect(wrapper.text()).toContain('개설 가능 2')
   })
 
-  it('다음 모임 카드에 남은 날짜를, 목록 줄에 썸네일을 보여주고, 이미지가 없으면 PC 카드용 빈 자리만 둔다', async () => {
+  it('다음 모임 카드에 날짜 배지를, 목록 줄에 썸네일을 보여주고, 이미지가 없으면 PC 카드용 빈 자리만 둔다', async () => {
     useLiteStore().member = { id: 1, name: '지민', is_host: false }
     fetch.mockResolvedValue(jsonResponse({
       meetups: [
@@ -99,6 +99,6 @@ describe('LiteHome 레이아웃', () => {
     // 빈 자리는 모바일에서 숨기고 1024px 이상 카드 그리드에서만 이미지 영역으로 보인다
     expect(wrapper.findAll('.l-mrow .l-thumb-empty')).toHaveLength(1)
     expect(wrapper.find('.l-body').classes()).toContain('l-home')
-    expect(wrapper.find('.l-next .l-dday').text()).toMatch(/일 후$/)
+    expect(wrapper.find('.l-next .l-next-badge b').text()).toBe('10/18 (일)')
   })
 })
