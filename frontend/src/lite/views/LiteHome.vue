@@ -41,11 +41,22 @@
       >
         예정된 모임이 없어요
       </p>
-      <LiteMeetupCard
-        v-for="meetup in home.meetups"
-        :key="meetup.id"
-        :meetup="meetup"
+      <LiteNextCard
+        v-if="split.next.length"
+        :meetups="split.next"
       />
+      <template v-if="split.rest.length">
+        <h3 class="l-section">
+          다가오는 모임
+        </h3>
+        <div class="l-mlist">
+          <LiteMeetupRow
+            v-for="meetup in split.rest"
+            :key="meetup.id"
+            :meetup="meetup"
+          />
+        </div>
+      </template>
     </div>
   </div>
   <LiteFab
@@ -59,9 +70,11 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Plus, Settings } from 'lucide-vue-next'
 import { liteApi } from '../api'
+import { splitNextMeetups } from '../format'
 import { useLiteStore } from '../store'
 import LiteFab from '../components/LiteFab.vue'
-import LiteMeetupCard from '../components/LiteMeetupCard.vue'
+import LiteMeetupRow from '../components/LiteMeetupRow.vue'
+import LiteNextCard from '../components/LiteNextCard.vue'
 import LiteRequestEntry from '../components/LiteRequestEntry.vue'
 import LiteSeminarCard from '../components/LiteSeminarCard.vue'
 import LiteTopbar from '../components/LiteTopbar.vue'
@@ -73,7 +86,8 @@ const error = ref('')
 const loaded = ref(false)
 
 const SEMINAR_ORDER = { received: 0, guide: 1, confirmed: 2 }
-const sortedSeminars = computed(() => [...home.value.seminars].sort((a, b) => SEMINAR_ORDER[a.status] - SEMINAR_ORDER[b.status]))
+const split = computed(() => splitNextMeetups(home.value.meetups))
+const sortedSeminars =computed(() => [...home.value.seminars].sort((a, b) => SEMINAR_ORDER[a.status] - SEMINAR_ORDER[b.status]))
 
 const load = async () => {
   try {

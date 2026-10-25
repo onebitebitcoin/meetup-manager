@@ -38,6 +38,18 @@ export const daysUntilLabel = (iso, now = dayjs()) => {
   return `${diff}일 후`
 }
 
+const seoulDay = (iso) => dayjs(iso).tz(TZ).format('YYYY-MM-DD')
+
+// 시작 시각 순 목록에서 가장 가까운 모임 날짜(서울 기준)의 모임을 next로, 나머지를 rest로 나눈다.
+// 취소된 모임은 next에 넣지 않는다(다음 모임 카드에서 신청을 받으면 안 되므로).
+export const splitNextMeetups = (meetups) => {
+  const first = meetups.find((m) => !m.cancelled)
+  if (!first) return { next: [], rest: meetups }
+  const day = seoulDay(first.starts_at)
+  const isNext = (m) => !m.cancelled && seoulDay(m.starts_at) === day
+  return { next: meetups.filter(isNext), rest: meetups.filter((m) => !isNext(m)) }
+}
+
 // location.hash 값을 읽고 즉시 주소에서 지운다(토큰과 운영자 키가 방문 기록에 남지 않게 한다)
 export const takeHash = () => {
   const value = decodeURIComponent(window.location.hash.slice(1))

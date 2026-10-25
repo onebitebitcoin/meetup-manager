@@ -78,10 +78,14 @@ describe('LiteHome 레이아웃', () => {
     expect(wrapper.text()).toContain('개설 가능 2')
   })
 
-  it('모임 카드에 썸네일과 남은 날짜를 보여주고, 이미지가 없으면 썸네일을 그리지 않는다', async () => {
+  it('다음 모임 카드에 남은 날짜를, 목록 줄에 썸네일을 보여주고, 이미지가 없으면 썸네일을 그리지 않는다', async () => {
     useLiteStore().member = { id: 1, name: '지민', is_host: false }
     fetch.mockResolvedValue(jsonResponse({
-      meetups: [card(), card({ id: 6, title: '이미지 없음', image_url: null })],
+      meetups: [
+        card({ id: 4, title: '가장 가까운 모임', starts_at: '2099-10-18T04:00:00Z', image_url: null }),
+        card(),
+        card({ id: 6, title: '이미지 없음', image_url: null }),
+      ],
       my_seminar: null, seminars: [], ready_request_count: 0,
     }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
@@ -92,6 +96,6 @@ describe('LiteHome 레이아웃', () => {
     const thumbs = wrapper.findAll('img.l-thumb')
     expect(thumbs).toHaveLength(1)
     expect(thumbs[0].attributes('src')).toBe('/media/meetups/a.png')
-    expect(wrapper.findAll('.l-dday')[0].text()).toMatch(/일 후$/)
+    expect(wrapper.find('.l-next .l-dday').text()).toMatch(/일 후$/)
   })
 })

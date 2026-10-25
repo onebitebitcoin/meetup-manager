@@ -1,7 +1,7 @@
 <template>
-  <div class="l-btn-row">
+  <div :class="compact ? 'l-join-compact' : 'l-btn-row'">
     <button
-      class="l-btn p"
+      :class="compact ? 'l-pill-btn' : 'l-btn p'"
       :disabled="busy"
       @click.stop="join"
     >
@@ -15,7 +15,11 @@ import { ref } from 'vue'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 
-const props = defineProps({ meetup: { type: Object, required: true } })
+const props = defineProps({
+  meetup: { type: Object, required: true },
+  // 다음 모임 카드의 세션 줄 오른쪽에 들어가는 작은 버튼으로 그린다
+  compact: { type: Boolean, default: false },
+})
 const emit = defineEmits(['done'])
 
 const store = useLiteStore()
