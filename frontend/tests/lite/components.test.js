@@ -80,14 +80,14 @@ describe('LiteHome', () => {
     expect(calls.filter((c) => c.includes('home/')).length).toBeGreaterThanOrEqual(2)
   })
 
-  it('응답하지 않은 모임도 신청하기 대신 꺼진 불참 스위치로 보여 준다', async () => {
+  it('응답하지 않은 모임도 참석하기 대신 꺼진 불참 스위치로 보여 준다', async () => {
     memberStore()
     routeFetch({ 'home/': { meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 } })
 
     const wrapper = mount(LiteHome)
     await flushPromises()
 
-    expect(wrapper.text()).not.toContain('신청하기')
+    expect(wrapper.text()).not.toContain('참석하기')
     expect(wrapper.find('[role="switch"]').attributes('aria-checked')).toBe('false')
     expect(wrapper.find('.l-fab-btn').exists()).toBe(true)
   })
@@ -118,7 +118,7 @@ describe('LiteRoom', () => {
     fetch.mockReset()
   })
 
-  it('이름이 없어도 이름을 묻지 않고, 신청하기를 누르면 자동 닉네임으로 가입·신청해 채팅방을 연다', async () => {
+  it('이름이 없어도 이름을 묻지 않고, 참석하기를 누르면 자동 닉네임으로 가입·신청해 채팅방을 연다', async () => {
     let status = null
     fetch.mockImplementation((url, init = {}) => {
       if (url.includes('members/')) return Promise.resolve(jsonResponse({ token: 't1', member: { id: 1, name: '느긋한 수달', is_host: false } }, 201))
@@ -136,7 +136,7 @@ describe('LiteRoom', () => {
     expect(wrapper.text()).not.toContain('이름을 알려주세요')
     expect(wrapper.find('input[aria-label="이름"]').exists()).toBe(false)
 
-    await wrapper.findAll('button').find((b) => b.text() === '신청하기').trigger('click')
+    await wrapper.findAll('button').find((b) => b.text() === '참석하기').trigger('click')
     await flushPromises()
 
     const calls = fetch.mock.calls.map(([url, init]) => `${init?.method || 'GET'} ${url}`)
@@ -147,7 +147,7 @@ describe('LiteRoom', () => {
     expect(wrapper.find('input[aria-label="메시지"]').exists()).toBe(true)
   })
 
-  it('미신청자에게는 메시지 대신 참석 인원과 신청하기를 보여준다', async () => {
+  it('미신청자에게는 메시지 대신 참석 인원과 참석하기를 보여준다', async () => {
     memberStore()
     routeFetch({
       'meetups/5/': { meetup: card() },
@@ -157,7 +157,7 @@ describe('LiteRoom', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('3명 참석')
-    expect(wrapper.text()).toContain('신청하기')
+    expect(wrapper.text()).toContain('참석하기')
     expect(wrapper.text()).not.toContain('못 가요')
     expect(wrapper.find('.l-composer').exists()).toBe(false)
     expect(fetch.mock.calls.some(([url]) => url.includes('rooms/'))).toBe(false)
@@ -204,8 +204,7 @@ describe('LiteRoom', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('운영자가 내보낸 모임이에요')
-    expect(wrapper.text()).not.toContain('신청하기')
-    expect(wrapper.text()).not.toContain('다시 신청하기')
+    expect(wrapper.text()).not.toContain('참석하기')
     expect(wrapper.find('.l-bar button').exists()).toBe(false)
   })
 })

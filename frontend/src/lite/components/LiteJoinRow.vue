@@ -1,11 +1,11 @@
 <template>
   <div :class="compact ? 'l-join-compact' : 'l-btn-row'">
     <button
-      :class="compact ? 'l-pill-btn' : 'l-btn p'"
+      :class="compact ? 'l-pill-btn go' : 'l-btn go'"
       :disabled="busy"
       @click.stop="join"
     >
-      {{ meetup.my_status === 'no' ? '다시 신청하기' : '신청하기' }}
+      참석하기
     </button>
   </div>
 </template>
@@ -33,7 +33,7 @@ const join = async () => {
     busy.value = false
     return
   }
-  const data = await store.act(() => liteApi.rsvp(props.meetup.id, 'going'), '신청했어요')
+  const data = await store.act(() => liteApi.rsvp(props.meetup.id, 'going'), '참석 신청했어요', 'going')
   busy.value = false
   if (data) emit('done', { status: 'going', meetup: data.meetup })
 }

@@ -37,7 +37,7 @@ const toggle = async () => {
     busy.value = false
     return
   }
-  const data = await store.act(() => liteApi.rsvp(props.meetup.id, next), next === 'going' ? '참석으로 바꿨어요' : '불참으로 바꿨어요')
+  const data = await store.act(() => liteApi.rsvp(props.meetup.id, next), next === 'going' ? '참석으로 바꿨어요' : '불참으로 바꿨어요', next)
   busy.value = false
   if (data) emit('changed')
 }

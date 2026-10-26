@@ -2,11 +2,15 @@
   <div
     v-if="store.toast"
     class="l-toast"
-    :class="{ error: store.toast.kind === 'error' }"
+    :class="store.toast.kind"
     role="status"
   >
     <TriangleAlert
       v-if="store.toast.kind === 'error'"
+      :size="18"
+    />
+    <XCircle
+      v-else-if="store.toast.kind === 'no'"
       :size="18"
     />
     <CheckCircle2
@@ -18,7 +22,7 @@
 </template>
 
 <script setup>
-import { TriangleAlert, CheckCircle2 } from 'lucide-vue-next'
+import { TriangleAlert, CheckCircle2, XCircle } from 'lucide-vue-next'
 import { useLiteStore } from '../store'
 
 const store = useLiteStore()

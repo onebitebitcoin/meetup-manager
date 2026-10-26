@@ -27,10 +27,11 @@ export const useLiteStore = defineStore('lite', () => {
   }
 
   // 서버 호출을 감싸 성공/실패 토스트를 띄운다. 실패하면 null을 반환한다.
-  const act = async (fn, okMessage) => {
+  // okKind: 'ok'(검정), 'going'(참석 초록), 'no'(불참 빨강)
+  const act = async (fn, okMessage, okKind = 'ok') => {
     try {
       const result = await fn()
-      if (okMessage) notify(okMessage)
+      if (okMessage) notify(okMessage, okKind)
       return result
     } catch (error) {
       notify(error.message, 'error')

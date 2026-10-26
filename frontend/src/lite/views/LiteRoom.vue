@@ -91,7 +91,11 @@ const load = async () => {
 }
 
 const changeRsvp = async (status) => {
-  const data = await store.act(() => liteApi.rsvp(meetup.value.id, status), '응답을 바꿨어요')
+  const data = await store.act(
+    () => liteApi.rsvp(meetup.value.id, status),
+    status === 'going' ? '참석으로 바꿨어요' : '불참으로 바꿨어요',
+    status,
+  )
   if (data) await load()
 }
 

@@ -43,7 +43,7 @@ describe('LiteMeetupDetail (자세히 화면)', () => {
     expect(push).toHaveBeenCalledWith('/m/5')
   })
 
-  it('아직 신청하지 않았으면 공지 확인하기 대신 신청하기를 보여 준다', async () => {
+  it('아직 신청하지 않았으면 공지 확인하기 대신 참석하기를 보여 준다', async () => {
     fetch.mockResolvedValue(jsonResponse(detail()))
     const { default: LiteMeetupDetail } = await import('@/lite/views/LiteMeetupDetail.vue')
 
@@ -51,7 +51,21 @@ describe('LiteMeetupDetail (자세히 화면)', () => {
     await flushPromises()
 
     expect(wrapper.text()).not.toContain('공지 확인하기')
-    expect(wrapper.findAll('button').some((b) => b.text() === '신청하기')).toBe(true)
+    expect(wrapper.findAll('button').some((b) => b.text() === '참석하기')).toBe(true)
+    // 참석하기 버튼은 초록 계열(go 클래스)이다
+    expect(wrapper.findAll('button').find((b) => b.text() === '참석하기').classes()).toContain('go')
+  })
+
+  it('불참으로 응답했던 회원에게도 같은 참석하기 버튼을 보여 준다', async () => {
+    useLiteStore().member = { id: 1, name: '지민', is_host: false }
+    fetch.mockResolvedValue(jsonResponse(detail({ my_status: 'no' })))
+    const { default: LiteMeetupDetail } = await import('@/lite/views/LiteMeetupDetail.vue')
+
+    const wrapper = mount(LiteMeetupDetail)
+    await flushPromises()
+
+    expect(wrapper.findAll('button').map((b) => b.text())).toContain('참석하기')
+    expect(wrapper.text()).not.toContain('다시')
   })
 
   it('취소된 모임은 안내 문구만 두고 신청 버튼을 숨긴다', async () => {
@@ -62,6 +76,6 @@ describe('LiteMeetupDetail (자세히 화면)', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('취소된 모임이에요')
-    expect(wrapper.findAll('button').some((b) => b.text() === '신청하기')).toBe(false)
+    expect(wrapper.findAll('button').some((b) => b.text() === '참석하기')).toBe(false)
   })
 })

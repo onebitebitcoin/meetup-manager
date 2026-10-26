@@ -140,6 +140,7 @@ describe('LiteNextCard 참석 스위치와 자세히', () => {
     expect(url).toContain('meetups/7/rsvp/')
     expect(JSON.parse(init.body)).toEqual({ status: 'no' })
     expect(wrapper.emitted('changed')).toHaveLength(1)
+    expect(useLiteStore().toast).toEqual({ message: '불참으로 바꿨어요', kind: 'no' })
   })
 
   it('불참 상태에서 켜면 참석으로 바꾸고, 자세히를 누르면 모임 화면으로 간다', async () => {

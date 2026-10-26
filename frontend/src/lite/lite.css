@@ -186,6 +186,9 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 76px; width: calc(100% - 32px); max-width: 448px; background: var(--lite-ink); color: var(--lite-paper); border-radius: 10px; padding: 10px 14px; font-size: 14px; display: flex; gap: 8px; align-items: center; z-index: 50; }
 .l-toast.error { font-weight: 600; }
 .l-toast.error svg { color: var(--lite-yellow); }
+/* 참석·불참 응답 알림은 스위치와 같은 초록·빨강으로 구분한다(흰 글자 대비 4.5:1 이상) */
+.l-toast.going { background: var(--lite-going-strong); color: #FFFFFF; font-weight: 600; }
+.l-toast.no { background: var(--lite-no-strong); color: #FFFFFF; font-weight: 600; }
 .l-state { padding: 24px; text-align: center; color: var(--lite-muted); font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .l-btn, .l-card { transition: none; } }
 .l-cardbtn { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
@@ -236,6 +239,8 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-join-compact { flex: none; }
 .l-pill-btn { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--lite-btn); color: var(--lite-btn-ink); font-size: 14px; font-weight: 700; }
 .l-pill-btn:disabled { opacity: .6; }
+/* 참석하기 버튼은 참석 스위치·알림과 같은 초록 계열(흰 글자 대비 5.0:1) */
+.l-btn.go, .l-pill-btn.go { background: var(--lite-going-strong); color: #FFFFFF; }
 .l-section { margin: 18px 0 2px; font-size: 18px; font-weight: 800; color: var(--lite-ink); }
 .l-mlist { display: flex; flex-direction: column; }
 .l-mrow { border-top: 1px solid var(--lite-line); padding: 6px 0 10px; }
