@@ -52,6 +52,7 @@ export const request = async (path, { method = 'GET', body, form, token = readTo
 export const liteApi = {
   createMember: (name) => request('members/', { method: 'POST', body: { name } }),
   me: (token) => request('me/', token ? { token } : {}),
+  rename: (name) => request('me/', { method: 'PATCH', body: { name } }),
   claimHost: (key) => request('host/claim/', { method: 'POST', body: { key } }),
   home: () => request('home/'),
   createMeetup: (payload) => request('meetups/', { method: 'POST', body: payload }),

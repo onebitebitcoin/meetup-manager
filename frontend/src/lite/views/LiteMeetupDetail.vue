@@ -34,6 +34,11 @@
       @click="openRoom"
     >
       <Megaphone :size="20" />공지 확인하기
+      <span
+        v-if="unread > 0"
+        class="l-badge"
+        :aria-label="`안 읽은 대화 ${unread}개`"
+      >{{ unread > 99 ? '99+' : unread }}</span>
     </button>
     <LiteJoinRow
       v-else-if="!notice"
@@ -60,6 +65,8 @@ const store = useLiteStore()
 const meetup = ref(null)
 const description = ref('')
 const audience = ref('')
+// 채팅방에서 아직 읽지 않은 대화 수(신청한 회원·운영자만 서버가 센다)
+const unread = ref(0)
 const removed = ref(false)
 const error = ref('')
 
@@ -78,6 +85,7 @@ const load = async () => {
     description.value = data.description || ''
     audience.value = data.audience || ''
     removed.value = Boolean(data.removed)
+    unread.value = data.unread_count || 0
     error.value = ''
   } catch (e) {
     error.value = e.message

@@ -96,10 +96,23 @@ export const useLiteStore = defineStore('lite', () => {
     return true
   }
 
-  const logout = () => {
-    setToken(null)
-    member.value = null
+  // 새로고침 버튼: 자동 닉네임을 새로 뽑아 이름만 바꾼다(토큰·참석·대화 기록은 그대로). 겹치면 다시 뽑는다.
+  const renameRandom = async () => {
+    for (let attempt = 0; attempt < NICKNAME_ATTEMPTS; attempt += 1) {
+      const name = randomNickname({ suffix: attempt === NICKNAME_ATTEMPTS - 1 })
+      try {
+        const data = await liteApi.rename(name)
+        member.value = data.member
+        notify(`이제 ${data.member.name}님이에요`)
+        return true
+      } catch (error) {
+        if (error.status === 409 && attempt < NICKNAME_ATTEMPTS - 1) continue
+        notify(error.message, 'error')
+        return false
+      }
+    }
+    return false
   }
 
-  return { token, member, ready, toast, hasToken, isHost, setToken, notify, act, init, ensureMember, claimHost, recover, logout }
+  return { token, member, ready, toast, hasToken, isHost, setToken, notify, act, init, ensureMember, claimHost, recover, renameRandom }
 })

@@ -43,9 +43,9 @@
 .l-top.scrolled { border-bottom-color: var(--lite-line); }
 .l-top h2 { font-size: 20px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .l-icon-btn { border: 0; background: none; padding: 8px; margin: -8px; min-width: 44px; min-height: 44px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
-.l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--lite-muted); border: 0; background: none; min-height: 44px; padding: 0 4px; margin-right: -4px; }
-.l-me-wrap { position: relative; }
-.l-me-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; width: 240px; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: var(--lite-surface); border: 1px solid var(--lite-line-strong); border-radius: 12px; font-size: 14px; }
+.l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--lite-muted); min-height: 44px; }
+.l-me-refresh { display: grid; place-items: center; width: 44px; height: 44px; margin-right: -10px; border: 0; background: none; color: var(--lite-ink); border-radius: 50%; }
+.l-me-refresh:disabled { opacity: .5; }
 .l-av { width: 30px; height: 30px; border-radius: 50%; background: var(--lite-sunk); color: var(--lite-ink); display: inline-grid; place-items: center; font-size: 13px; font-weight: 700; flex: none; }
 .l-av.bot { background: var(--lite-plum-soft); color: var(--lite-plum); }
 
@@ -98,14 +98,6 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-btn-row .l-btn { flex: 1; min-height: 44px; font-size: 14px; }
 .l-btn-row .l-btn.fit { flex: 0 0 auto; }
 
-.l-rsvp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 1; }
-.l-rsvp button { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600; min-height: 44px; }
-.l-rsvp button[data-v="going"] svg { color: var(--lite-going-strong); }
-.l-rsvp button[data-v="no"] svg { color: var(--lite-no-strong); }
-.l-rsvp button[data-v="going"][aria-pressed="true"] { background: var(--lite-going-strong); border-color: var(--lite-going-strong); color: #FFFFFF; }
-.l-rsvp button[data-v="maybe"][aria-pressed="true"] { background: var(--lite-maybe-soft); border-color: var(--lite-yellow); color: var(--lite-maybe); }
-.l-rsvp button[data-v="no"][aria-pressed="true"] { background: var(--lite-no-strong); border-color: var(--lite-no-strong); color: #FFFFFF; }
-.l-rsvp button[aria-pressed="true"] svg { color: inherit; }
 
 /* 상단 바 아래 띠들은 칼럼 끝까지 깔지 않고 본문 여백 안쪽의 둥근 상자로 둔다. PC에서 띠가 바탕 위에 떠 보이지 않게 하기 위함이다. */
 .l-bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; margin: 4px 8px 0; border: 1px solid var(--lite-line); border-radius: 10px; background: var(--lite-surface); font-size: 14px; color: var(--lite-muted); min-height: 48px; }
@@ -240,6 +232,7 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-pill-btn { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--lite-btn); color: var(--lite-btn-ink); font-size: 14px; font-weight: 700; }
 .l-pill-btn:disabled { opacity: .6; }
 /* 참석하기 버튼은 참석 스위치·알림과 같은 초록 계열(흰 글자 대비 5.0:1) */
+.l-badge { min-width: 24px; height: 24px; padding: 0 7px; border-radius: 999px; background: var(--lite-no-strong); color: #FFFFFF; font-size: 13px; font-weight: 800; line-height: 24px; text-align: center; }
 .l-btn.go, .l-pill-btn.go { background: var(--lite-going-strong); color: #FFFFFF; }
 .l-section { margin: 18px 0 2px; font-size: 18px; font-weight: 800; color: var(--lite-ink); }
 .l-mlist { display: flex; flex-direction: column; }
@@ -327,11 +320,6 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-info-long { flex-direction: column; gap: 6px; }
 .l-info-long dd { font-weight: 400; white-space: pre-line; }
 /* 채팅방 상단에서 펼친 안내는 상자 안에 다시 상자를 두지 않도록 바깥 테두리를 뺀다 */
-.l-bar.l-bar-info { display: block; padding: 0; overflow: hidden; }
-.l-bar-info .l-info { border: 0; border-radius: 0; }
-.l-rsvp-label { flex: none; font-size: 14px; font-weight: 600; color: var(--lite-ink); }
-.l-rsvp.two { grid-template-columns: repeat(2, 1fr); }
-.l-rsvp.two button { font-size: 16px; min-height: 46px; }
 
 /* 홈 제목은 화면의 이름표 역할이라 다른 화면 제목보다 크게 쓴다 */
 .lite-shell:has(.l-home) .l-top h2 { font-size: 24px; letter-spacing: -0.02em; }

@@ -17,6 +17,7 @@ from ..services import (
     requests_with_votes,
     seminars_with_last_message,
     today_start_kst,
+    unread_count,
 )
 from .base import ApiError, LiteView, clean_text, get_or_404
 
@@ -28,7 +29,8 @@ MEETUP_END_GRACE = timedelta(hours=12)
 DESCRIPTION_MAX = 1000
 AUDIENCE_MAX = 100
 
-RSVP_LABELS = {Rsvp.Status.GOING: '참석', Rsvp.Status.MAYBE: '미정', Rsvp.Status.NO: '불참'}
+# 채팅방에 남는 응답 기록 문구(예: "지민님 참석합니다")
+RSVP_LABELS = {Rsvp.Status.GOING: '참석합니다', Rsvp.Status.MAYBE: '미정입니다', Rsvp.Status.NO: '불참합니다'}
 
 
 def ensure_not_cancelled(meetup):
@@ -163,11 +165,17 @@ class MeetupDetailView(LiteView):
         member = self.member
         meetup = get_or_404(meetups_with_counts(), '모임을 찾을 수 없어요', pk=meetup_id)
         rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first() if member else None
+        removed = bool(rsvp and rsvp.removed_at)
+        joined = bool(rsvp and rsvp.status in (Rsvp.Status.GOING, Rsvp.Status.MAYBE) and not removed)
+        room = getattr(meetup, 'room', None)
+        # 채팅방에 들어갈 수 있는 사람(신청한 회원, 운영자)에게만 안 읽은 대화 수를 센다
+        unread = unread_count(member, room) if room and member and (joined or member.is_host) else 0
         return APIResponse.success({
             'meetup': meetup_card(meetup, rsvp.status if rsvp else None),
             'description': meetup.description,
             'audience': meetup.audience,
-            'removed': bool(rsvp and rsvp.removed_at),
+            'removed': removed,
+            'unread_count': unread,
         })
 
 

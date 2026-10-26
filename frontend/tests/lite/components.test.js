@@ -245,10 +245,9 @@ describe('LiteRoom 모임 안내와 참석 응답', () => {
     expect(wrapper.findAll('.l-info dt').map((d) => d.text())).toEqual(['언제', '어디서', '정원'])
   })
 
-  it('신청한 회원은 참석·불참 두 버튼으로 바로 응답을 바꾸고, 안내는 눌러서 펼친다', async () => {
+  it('신청한 회원의 채팅방에는 참석 버튼과 안내 펼치기 없이 요약 줄과 대화만 둔다', async () => {
     memberStore()
-    fetch.mockImplementation((url, init = {}) => {
-      if (url.includes('rsvp/')) return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'no' }), method: init.method }))
+    fetch.mockImplementation((url) => {
       if (url.includes('rooms/')) return Promise.resolve(jsonResponse({ messages: [], has_more: false, pinned: null }))
       return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }), ...info }))
     })
@@ -256,20 +255,11 @@ describe('LiteRoom 모임 안내와 참석 응답', () => {
     const wrapper = mount(LiteRoom)
     await flushPromises()
 
-    const choices = wrapper.findAll('.l-rsvp button')
-    expect(choices.map((b) => b.text())).toEqual(['참석', '불참'])
-    expect(choices[0].attributes('aria-pressed')).toBe('true')
-    expect(wrapper.text()).not.toContain('미정')
-
+    expect(wrapper.find('.l-bar').exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('내 참석')
+    expect(wrapper.findAll('.l-bar button')).toHaveLength(0)
     expect(wrapper.find('.l-info').exists()).toBe(false)
-    const toggle = wrapper.findAll('.l-bar > button').find((b) => b.text().startsWith('안내'))
-    await toggle.trigger('click')
-    expect(wrapper.find('.l-info').text()).toContain(info.audience)
-
-    await choices[1].trigger('click')
-    await flushPromises()
-    const rsvpCall = fetch.mock.calls.find(([url]) => url.includes('rsvp/'))
-    expect(JSON.parse(rsvpCall[1].body)).toEqual({ status: 'no' })
+    expect(fetch.mock.calls.some(([url]) => url.includes('rsvp/'))).toBe(false)
     wrapper.unmount()
   })
 })

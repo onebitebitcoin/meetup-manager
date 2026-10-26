@@ -8,6 +8,7 @@ from meetups.views.helpers import APIResponse
 
 from ..models import ChatMessage, ChatRoom, LiteConfig, Rsvp, SeminarRequest
 from ..serializers import message_obj
+from ..services import mark_read
 from ..throttles import MessageSendThrottle
 from ..uploads import validate_attachment
 from .base import ApiError, LiteView, clean_text, get_or_404
@@ -70,10 +71,15 @@ class RoomMessagesView(LiteView):
         pinned = message_obj(room.pinned_message) if room.pinned_message_id else None
         if after not in (None, ''):
             messages = list(qs.filter(id__gt=parse_message_id(after, 'after')).order_by('id')[:MESSAGE_LIMIT])
+            if messages:
+                mark_read(self.member, room, messages[-1].id)
             return APIResponse.success({'messages': [message_obj(m) for m in messages], 'pinned': pinned})
         if before not in (None, ''):
             qs = qs.filter(id__lt=parse_message_id(before, 'before'))
         messages, has_more = latest_page(qs, INITIAL_MESSAGE_LIMIT)
+        # 이전 메시지(before)를 더 불러올 때는 읽은 위치를 바꾸지 않는다
+        if messages and before in (None, ''):
+            mark_read(self.member, room, messages[-1].id)
         return APIResponse.success({'messages': [message_obj(m) for m in messages], 'has_more': has_more, 'pinned': pinned})
 
     def post(self, request, room_id):

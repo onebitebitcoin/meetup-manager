@@ -43,6 +43,24 @@ describe('LiteMeetupDetail (자세히 화면)', () => {
     expect(push).toHaveBeenCalledWith('/m/5')
   })
 
+  it.each([
+    [0, null],
+    [3, '3'],
+    [99, '99'],
+    [150, '99+'],
+  ])('안 읽은 대화가 %i개면 공지 확인하기 배지는 %s', async (count, label) => {
+    useLiteStore().member = { id: 1, name: '지민', is_host: false }
+    fetch.mockResolvedValue(jsonResponse({ ...detail({ my_status: 'going' }), unread_count: count }))
+    const { default: LiteMeetupDetail } = await import('@/lite/views/LiteMeetupDetail.vue')
+
+    const wrapper = mount(LiteMeetupDetail)
+    await flushPromises()
+
+    const badge = wrapper.find('.l-badge')
+    if (label === null) expect(badge.exists()).toBe(false)
+    else expect(badge.text()).toBe(label)
+  })
+
   it('아직 신청하지 않았으면 공지 확인하기 대신 참석하기를 보여 준다', async () => {
     fetch.mockResolvedValue(jsonResponse(detail()))
     const { default: LiteMeetupDetail } = await import('@/lite/views/LiteMeetupDetail.vue')

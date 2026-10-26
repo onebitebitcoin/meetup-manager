@@ -141,6 +141,17 @@ class ChatMessage(models.Model):
         indexes = [models.Index(fields=['room', 'id'])]
 
 
+class RoomRead(models.Model):
+    """회원이 채팅방에서 어디까지 읽었는지(마지막으로 받은 메시지 id). 안 읽은 대화 수 배지에 쓴다."""
+
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='room_reads')
+    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='reads')
+    last_read_id = models.PositiveBigIntegerField(default=0)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['member', 'room'], name='lite_roomread_unique_member_room')]
+
+
 class RequestVote(models.Model):
     request = models.ForeignKey(MeetupRequest, on_delete=models.CASCADE, related_name='votes')
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='votes')

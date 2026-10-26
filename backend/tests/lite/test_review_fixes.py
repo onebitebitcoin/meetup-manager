@@ -188,7 +188,9 @@ def test_polling_query_count(api_client, member, auth, make_meetup, django_asser
     meetup = make_meetup()
     api_client.put(f'/api/lite/meetups/{meetup.id}/rsvp/', {'status': 'going'}, format='json', **auth(member))
     url = f'/api/lite/rooms/{meetup.room.id}/messages/?after=0'
-    with django_assert_max_num_queries(3):  # 인증 + 방/권한 + 메시지
+    assert api_client.get(url, **auth(member)).status_code == 200  # 첫 폴링에서 읽음 기록을 만든다
+    ChatMessage.objects.create(room=meetup.room, member=member, body='새 메시지')
+    with django_assert_max_num_queries(4):  # 인증 + 방/권한 + 메시지 + 읽음 위치 갱신
         assert api_client.get(url, **auth(member)).status_code == 200
 
 

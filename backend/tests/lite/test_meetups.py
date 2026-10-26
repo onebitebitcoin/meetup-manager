@@ -99,15 +99,16 @@ def test_rsvp_flow_and_messages(api_client, member, auth, make_meetup):
     assert r.status_code == 200
     assert r.json()['meetup']['my_status'] == 'going' and r.json()['meetup']['going_count'] == 1
     bodies = list(ChatMessage.objects.filter(room=meetup.room).values_list('kind', 'body'))
-    assert bodies == [('system', '민수님 참석'), ('guide', '신청 완료! 공지는 여기서 안내해요.')]
+    assert bodies == [('system', '민수님 참석합니다'), ('guide', '신청 완료! 공지는 여기서 안내해요.')]
     rsvp(api_client, auth(member), meetup, 'going')
     assert ChatMessage.objects.filter(room=meetup.room).count() == 2
     r = rsvp(api_client, auth(member), meetup, 'maybe')
     assert r.json()['meetup']['going_count'] == 0 and r.json()['meetup']['maybe_count'] == 1
     assert ChatMessage.objects.filter(room=meetup.room).count() == 3
-    assert ChatMessage.objects.filter(room=meetup.room).last().body == '민수님 미정'
+    assert ChatMessage.objects.filter(room=meetup.room).last().body == '민수님 미정입니다'
     rsvp(api_client, auth(member), meetup, 'no')
     assert Rsvp.objects.get(member=member).status == 'no'
+    assert ChatMessage.objects.filter(room=meetup.room).last().body == '민수님 불참합니다'
 
 
 def test_rsvp_invalid_status(api_client, member, auth, make_meetup):

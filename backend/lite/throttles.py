@@ -38,6 +38,12 @@ class MessageSendThrottle(MemberThrottle):
     methods = ('POST',)
 
 
+class MemberRenameThrottle(MemberThrottle):
+    scope = 'lite_member_rename'
+    rate = '20/hour'
+    methods = ('PATCH',)
+
+
 class RequestCreateThrottle(MemberThrottle):
     scope = 'lite_request_create'
     rate = '10/hour'

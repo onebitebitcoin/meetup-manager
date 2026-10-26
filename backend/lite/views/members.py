@@ -10,7 +10,7 @@ from meetups.views.helpers import APIResponse
 
 from ..models import Member
 from ..serializers import member_full
-from ..throttles import HostClaimThrottle, MemberCreateThrottle
+from ..throttles import HostClaimThrottle, MemberCreateThrottle, MemberRenameThrottle
 from .base import ApiError, LiteView, clean_text
 
 logger = logging.getLogger(__name__)
@@ -49,8 +49,25 @@ class MemberCreateView(LiteView):
 
 
 class MeView(LiteView):
+    throttle_classes = [MemberRenameThrottle]  # GET(내 정보)은 세지 않고 이름 바꾸기(PATCH)만 센다
+
     def get(self, request):
         return APIResponse.success({'member': member_full(self.member)})
+
+    def patch(self, request):
+        """이름만 바꾼다. 토큰·참석·대화 기록은 그대로 두고, 화면에는 새 이름으로 보인다."""
+        member = self.member
+        name = clean_name(self.json_body().get('name'))
+        if name != member.name:
+            if Member.objects.filter(name=name).exclude(pk=member.pk).exists():
+                raise ApiError('이미 사용 중인 이름이에요', 409)
+            member.name = name
+            try:
+                member.save(update_fields=['name'])
+            except IntegrityError:
+                raise ApiError('이미 사용 중인 이름이에요', 409) from None
+            logger.info('LITE 이름 변경: id=%s', member.id)
+        return APIResponse.success({'member': member_full(member)})
 
 
 class HostClaimView(LiteView):
