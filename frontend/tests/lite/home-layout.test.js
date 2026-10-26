@@ -34,7 +34,7 @@ describe('LiteHome 레이아웃', () => {
   const card = (over = {}) => ({
     id: 5, title: '거래소 탈출', starts_at: '2099-10-25T04:00:00Z', location: '석우동카페', capacity: 10,
     going_count: 6, maybe_count: 0, my_status: null, from_request: false, is_today: false, room_id: 9,
-    image_url: '/media/meetups/a.png', ...over,
+    thumb_url: '/media/lite/thumbs/a.webp', ...over,
   })
 
   it('일반 회원은 1:1 세미나와 요청을 목록 대신 플로팅 버튼 메뉴로 연다', async () => {
@@ -57,7 +57,7 @@ describe('LiteHome 레이아웃', () => {
     expect(items.map((b) => b.text())).toEqual(['1:1 세미나접수됨', '이런 모임 열어주세요'])
 
     await items[1].trigger('click')
-    expect(push).toHaveBeenCalledWith('/lite/new-request')
+    expect(push).toHaveBeenCalledWith('/new-request')
     expect(wrapper.find('.l-fab-menu').exists()).toBe(false)
   })
 
@@ -82,9 +82,9 @@ describe('LiteHome 레이아웃', () => {
     useLiteStore().member = { id: 1, name: '지민', is_host: false }
     fetch.mockResolvedValue(jsonResponse({
       meetups: [
-        card({ id: 4, title: '가장 가까운 모임', starts_at: '2099-10-18T04:00:00Z', image_url: null }),
+        card({ id: 4, title: '가장 가까운 모임', starts_at: '2099-10-18T04:00:00Z', thumb_url: null }),
         card(),
-        card({ id: 6, title: '이미지 없음', image_url: null }),
+        card({ id: 6, title: '이미지 없음', thumb_url: null }),
       ],
       my_seminar: null, seminars: [], ready_request_count: 0,
     }))
@@ -95,7 +95,7 @@ describe('LiteHome 레이아웃', () => {
 
     const thumbs = wrapper.findAll('img.l-thumb')
     expect(thumbs).toHaveLength(1)
-    expect(thumbs[0].attributes('src')).toBe('/media/meetups/a.png')
+    expect(thumbs[0].attributes('src')).toBe('/media/lite/thumbs/a.webp')
     // 빈 자리는 모바일에서 숨기고 1024px 이상 카드 그리드에서만 이미지 영역으로 보인다
     expect(wrapper.findAll('.l-mrow .l-thumb-empty')).toHaveLength(1)
     expect(wrapper.find('.l-body').classes()).toContain('l-home')

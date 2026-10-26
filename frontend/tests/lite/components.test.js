@@ -167,7 +167,7 @@ describe('LiteRoom', () => {
     memberStore()
     // 상단 요약 줄은 신청한 회원에게 보인다
     routeFetch({
-      'meetups/5/': { meetup: card({ my_status: 'going', image_url: '/media/meetups/a.png' }) },
+      'meetups/5/': { meetup: card({ my_status: 'going', thumb_url: '/media/lite/thumbs/a.webp' }) },
       'rooms/': { messages: [], has_more: false, pinned: null },
     })
 
@@ -176,14 +176,14 @@ describe('LiteRoom', () => {
 
     const img = wrapper.find('.l-bar img.l-thumb')
     expect(img.exists()).toBe(true)
-    expect(img.attributes('src')).toBe('/media/meetups/a.png')
+    expect(img.attributes('src')).toBe('/media/lite/thumbs/a.webp')
   })
 
   it('썸네일이 없으면 상단 줄에 이미지를 그리지 않는다', async () => {
     memberStore()
     // 상단 요약 줄은 신청한 회원에게 보인다
     routeFetch({
-      'meetups/5/': { meetup: card({ my_status: 'going', image_url: null }) },
+      'meetups/5/': { meetup: card({ my_status: 'going', thumb_url: null }) },
       'rooms/': { messages: [], has_more: false, pinned: null },
     })
 

@@ -10,6 +10,7 @@ from ..auth import IsHost
 from ..models import ChatMessage, ChatRoom, Meetup, Rsvp
 from ..serializers import meetup_card, member_brief, message_obj
 from ..services import KST, add_message, meetups_with_counts, today_start_kst
+from ..thumbnails import ThumbnailError, make_thumbnail
 from .base import ApiError, LiteView, clean_text, get_or_404, not_found
 from .meetups import DESCRIPTION_MAX, parse_audience, parse_capacity, parse_starts_at
 
@@ -49,6 +50,19 @@ def parse_image_url(value):
     return value
 
 
+def thumbnail_for(data):
+    """image_url을 보냈으면 썸네일 /media/ 주소를 만들어 돌려준다(비우면 ''). 안 보냈으면 None."""
+    if 'image_url' not in data:
+        return None
+    image_url = parse_image_url(data['image_url'])
+    if not image_url:
+        return ''
+    try:
+        return make_thumbnail(image_url)
+    except ThumbnailError as exc:
+        raise ApiError(str(exc)) from exc
+
+
 def parse_description(value):
     if not isinstance(value, str):
         raise ApiError('설명 형식이 올바르지 않아요')
@@ -84,8 +98,8 @@ def admin_detail(meetup_id):
     }
 
 
-def apply_meetup_changes(meetup, data):
-    """보낸 필드만 검증해 meetup에 반영하고 바뀐 필드 이름 목록을 돌려준다."""
+def apply_meetup_changes(meetup, data, thumb_url=None):
+    """보낸 필드만 검증해 meetup에 반영하고 바뀐 필드 이름 목록을 돌려준다. thumb_url은 thumbnail_for()의 결과."""
     changes = {}
     if 'title' in data:
         changes['title'] = clean_text(data['title'], '제목', 1, 80)
@@ -105,6 +119,7 @@ def apply_meetup_changes(meetup, data):
         changes['audience'] = parse_audience(data['audience'])
     if 'image_url' in data:
         changes['image_url'] = parse_image_url(data['image_url'])
+        changes['thumb_url'] = thumb_url
     changed = [name for name, value in changes.items() if getattr(meetup, name) != value]
     for name in changed:
         setattr(meetup, name, changes[name])
@@ -134,9 +149,11 @@ class AdminMeetupDetailView(LiteView):
 
     def patch(self, request, meetup_id):
         data = self.json_body()
+        # 이미지 내려받기는 느릴 수 있으므로 행 잠금을 잡기 전에 썸네일을 만든다
+        thumb_url = thumbnail_for(data)
         with transaction.atomic():
             meetup = locked_meetup(meetup_id)
-            changed = apply_meetup_changes(meetup, data)
+            changed = apply_meetup_changes(meetup, data, thumb_url)
             if changed:
                 meetup.save(update_fields=changed)
             if 'starts_at' in changed or 'location' in changed:

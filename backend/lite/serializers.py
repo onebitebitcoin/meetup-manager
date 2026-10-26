@@ -29,7 +29,7 @@ def meetup_card(meetup, my_status=None):
         'starts_at': meetup.starts_at.isoformat(),
         'location': meetup.location,
         'capacity': meetup.capacity,
-        'image_url': meetup.image_url or None,
+        'thumb_url': meetup.thumb_url or None,
         'going_count': meetup.going_count,
         'maybe_count': meetup.maybe_count,
         'my_status': my_status,

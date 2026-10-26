@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest import mock
 
 from django.db import IntegrityError, connection
 from django.test.utils import CaptureQueriesContext
@@ -81,6 +82,7 @@ def test_patch_success_and_schedule_message(api_client, host, auth, make_meetup)
     body = r.json()
     assert body['meetup']['title'] == '새 제목' and body['meetup']['capacity'] == 5
     assert body['description'] == '설명' and body['image_url'] == '/media/a.png'
+    assert body['meetup']['thumb_url'].startswith('/media/lite/thumbs/')
     msgs = messages(meetup)
     assert len(msgs) == 1 and msgs[0].startswith('일정이 바뀌었어요 · ') and msgs[0].endswith(' · 홍대')
     assert '(' in msgs[0] and ':' in msgs[0]
@@ -118,6 +120,18 @@ def test_patch_image_url_validation(api_client, host, auth, make_meetup):
         assert patch(api_client, auth(host), meetup, image_url=good).status_code == 200, good
     r = patch(api_client, auth(host), meetup, image_url='')
     assert r.status_code == 200 and r.json()['image_url'] == ''
+    assert r.json()['meetup']['thumb_url'] is None
+
+
+def test_patch_image_url_reports_thumbnail_failure(api_client, host, auth, make_meetup, fake_thumbnails):
+    from lite.thumbnails import ThumbnailError
+
+    meetup = make_meetup()
+    with mock.patch('lite.views.admin.make_thumbnail', side_effect=ThumbnailError('썸네일 이미지를 내려받지 못했어요')):
+        r = patch(api_client, auth(host), meetup, image_url='https://x.com/missing.png')
+    assert r.status_code == 400 and '썸네일' in r.json()['error']
+    meetup.refresh_from_db()
+    assert meetup.image_url == '' and meetup.thumb_url == ''
 
 
 def test_patch_validation_errors(api_client, host, auth, make_meetup):

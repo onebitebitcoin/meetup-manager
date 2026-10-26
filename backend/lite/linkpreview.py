@@ -5,13 +5,14 @@ import socket
 import ssl
 import time
 from html.parser import HTMLParser
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import quote, urljoin, urlsplit
 
 ALLOWED_PORTS = {'http': 80, 'https': 443}
 MAX_REDIRECTS = 3
 MAX_BYTES = 512 * 1024
 TIMEOUT = 3
 USER_AGENT = 'Mozilla/5.0 (compatible; HanipLinkPreview/1.0)'
+URL_SAFE = "/%:@!$&'()*+,;=-._~?"
 
 
 class InvalidUrl(ValueError):
@@ -57,27 +58,29 @@ def resolve_host(host):
     return list(dict.fromkeys(info[4][0] for info in infos))
 
 
-def send_request(url, ip):
-    """검사를 마친 ip로 GET 요청을 보내고 (상태 코드, 소문자 헤더, 본문)을 돌려준다. 리다이렉트는 따라가지 않는다."""
+def send_request(url, ip, accept='text/html', max_bytes=MAX_BYTES):
+    """검사를 마친 ip로 GET 요청을 보내고 (상태 코드, 소문자 헤더, 본문)을 돌려준다. 리다이렉트는 따라가지 않는다.
+    accept(예: 'text/html', 'image/')가 content-type에 없으면 본문을 읽지 않는다."""
     parts = urlsplit(url)
     connection_class = PinnedHTTPSConnection if parts.scheme == 'https' else PinnedHTTPConnection
     conn = connection_class(parts.hostname, ip, port=parts.port or ALLOWED_PORTS[parts.scheme], timeout=TIMEOUT)
     deadline = time.monotonic() + TIMEOUT
     try:
-        path = parts.path or '/'
+        # 한글 파일명처럼 ASCII가 아닌 경로는 퍼센트 인코딩한다(이미 인코딩된 %XX는 그대로 둔다)
+        path = quote(parts.path or '/', safe=URL_SAFE)
         if parts.query:
-            path = f'{path}?{parts.query}'
+            path = f'{path}?{quote(parts.query, safe=URL_SAFE)}'
         conn.request('GET', path, headers={
             'Host': parts.netloc.rpartition('@')[2], 'User-Agent': USER_AGENT,
-            'Accept': 'text/html', 'Accept-Encoding': 'identity',
+            'Accept': '*/*' if accept.endswith('/') else accept, 'Accept-Encoding': 'identity',
         })
         response = conn.getresponse()
         headers = {key.lower(): value for key, value in response.getheaders()}
-        if response.status in (301, 302, 303, 307, 308) or 'text/html' not in headers.get('content-type', '').lower():
+        if response.status in (301, 302, 303, 307, 308) or accept not in headers.get('content-type', '').lower():
             return response.status, headers, b''
         body = b''
-        while len(body) < MAX_BYTES and time.monotonic() < deadline:
-            chunk = response.read(min(8192, MAX_BYTES - len(body)))
+        while len(body) < max_bytes and time.monotonic() < deadline:
+            chunk = response.read(min(8192, max_bytes - len(body)))
             if not chunk:
                 break
             body += chunk
@@ -99,7 +102,7 @@ def check_url(url):
         return None
     try:
         ips = resolve_host(parts.hostname)
-    except OSError:
+    except (OSError, UnicodeError):
         return None
     if not ips or not all(is_public_ip(ip) for ip in ips):
         return None
@@ -167,8 +170,8 @@ def parse_preview(url, html):
     }
 
 
-def fetch_preview(url):
-    """미리보기 dict를 돌려준다. 실패·거부·비HTML은 None, URL 형식이 틀리면 InvalidUrl."""
+def fetch(url, accept, max_bytes=MAX_BYTES):
+    """리다이렉트를 따라가며 (content-type, 본문)을 돌려준다. 실패·거부·다른 형식은 None, URL 형식이 틀리면 InvalidUrl."""
     parts = urlsplit(url)
     if parts.scheme not in ALLOWED_PORTS or not parts.hostname:
         raise InvalidUrl(url)
@@ -178,8 +181,8 @@ def fetch_preview(url):
         if checked is None:
             return None
         try:
-            status, headers, body = send_request(current, checked[1])
-        except (OSError, http.client.HTTPException):
+            status, headers, body = send_request(current, checked[1], accept, max_bytes)
+        except (OSError, http.client.HTTPException, UnicodeError):
             return None
         if status in (301, 302, 303, 307, 308):
             location = headers.get('location')
@@ -187,7 +190,17 @@ def fetch_preview(url):
                 return None
             current = urljoin(current, location)
             continue
-        if status != 200 or 'text/html' not in headers.get('content-type', '').lower():
+        content_type = headers.get('content-type', '')
+        if status != 200 or accept not in content_type.lower():
             return None
-        return parse_preview(url, decode_body(body, headers['content-type']))
+        return content_type, body
     return None
+
+
+def fetch_preview(url):
+    """미리보기 dict를 돌려준다. 실패·거부·비HTML은 None, URL 형식이 틀리면 InvalidUrl."""
+    result = fetch(url, 'text/html')
+    if result is None:
+        return None
+    content_type, body = result
+    return parse_preview(url, decode_body(body, content_type))

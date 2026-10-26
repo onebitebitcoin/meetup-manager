@@ -14,7 +14,7 @@ const jsonResponse = (body, status = 200) => ({ ok: status < 400, status, json: 
 const card = (over = {}) => ({
   id: 5, title: '멀티시그 지갑 실습', starts_at: '2099-11-08T05:00:00Z', location: '강남 토즈', capacity: 15,
   going_count: 3, maybe_count: 0, my_status: null, from_request: false, is_today: false, room_id: 9,
-  image_url: null, cancelled: false, ...over,
+  thumb_url: null, cancelled: false, ...over,
 })
 
 const detail = (over = {}) => ({
@@ -40,7 +40,7 @@ describe('LiteMeetupDetail (자세히 화면)', () => {
     expect(wrapper.findAll('.l-info dt').map((d) => d.text())).toEqual(['언제', '어디서', '정원', '대상', '내용'])
     const button = wrapper.findAll('button').find((b) => b.text() === '공지 확인하기')
     await button.trigger('click')
-    expect(push).toHaveBeenCalledWith('/lite/m/5')
+    expect(push).toHaveBeenCalledWith('/m/5')
   })
 
   it('아직 신청하지 않았으면 공지 확인하기 대신 신청하기를 보여 준다', async () => {

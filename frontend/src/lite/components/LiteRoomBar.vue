@@ -5,9 +5,9 @@
     class="l-bar"
   >
     <img
-      v-if="meetup.image_url"
+      v-if="meetup.thumb_url"
       class="l-thumb sm"
-      :src="meetup.image_url"
+      :src="meetup.thumb_url"
       alt=""
     >
     <CalendarDays

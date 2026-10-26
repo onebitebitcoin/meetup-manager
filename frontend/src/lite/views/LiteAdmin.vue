@@ -22,7 +22,7 @@
     </div>
     <button
       class="l-btn s"
-      @click="router.push('/lite/new-meetup')"
+      @click="router.push('/new-meetup')"
     >
       <Plus :size="18" />모임 만들기
     </button>
@@ -48,7 +48,7 @@
       v-for="meetup in meetups"
       :key="meetup.id"
       class="l-row-btn"
-      @click="router.push(`/lite/admin/m/${meetup.id}`)"
+      @click="router.push(`/admin/m/${meetup.id}`)"
     >
       <div class="l-date">
         <span>{{ partsOf(meetup).month }}월</span>
@@ -108,7 +108,7 @@ const load = async () => {
 
 onMounted(() => {
   if (!store.isHost) {
-    router.replace('/lite')
+    router.replace('/')
     return
   }
   load()

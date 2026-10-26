@@ -5,7 +5,7 @@
       <div class="mb-6">
         <button
           class="flex items-center text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors mb-4"
-          @click="$router.push(`/meetup/${meetupId}`)"
+          @click="$router.push(`/legacy/meetup/${meetupId}`)"
         >
           <svg
             class="w-5 h-5 mr-1"
@@ -37,7 +37,7 @@
         <p class="text-red-800 dark:text-red-200">
           {{ error }}
         </p>
-        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="$router.push('/dashboard')">
+        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="$router.push('/legacy/dashboard')">
           대시보드로 돌아가기
         </button>
       </div>
@@ -110,7 +110,7 @@
               </template>
               <template v-else>
                 <router-link
-                  :to="`/meetup/${meetupId}/tasks/${task.id}/submit`"
+                  :to="`/legacy/meetup/${meetupId}/tasks/${task.id}/submit`"
                   :class="[
                     'px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-block',
                     task.is_past_deadline

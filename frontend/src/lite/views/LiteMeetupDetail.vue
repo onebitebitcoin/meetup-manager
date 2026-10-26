@@ -53,7 +53,7 @@ import LiteJoinRow from '../components/LiteJoinRow.vue'
 import LiteMeetupInfo from '../components/LiteMeetupInfo.vue'
 import LiteTopbar from '../components/LiteTopbar.vue'
 
-// 홈의 "자세히"에서 오는 모임 정보 화면. 채팅방(/lite/m/:id)으로 가기 전 단계다.
+// 홈의 "자세히"에서 오는 모임 정보 화면. 채팅방(/m/:id)으로 가기 전 단계다.
 const route = useRoute()
 const router = useRouter()
 const store = useLiteStore()
@@ -85,7 +85,7 @@ const load = async () => {
   }
 }
 
-const openRoom = () => router.push(`/lite/m/${route.params.id}`)
+const openRoom = () => router.push(`/m/${route.params.id}`)
 
 onMounted(load)
 watch(() => route.params.id, load)

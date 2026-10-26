@@ -2,7 +2,7 @@
   <div class="l-body">
     <button
       class="l-btn p"
-      @click="router.push('/lite/new-request')"
+      @click="router.push('/new-request')"
     >
       <Plus :size="18" />이런 모임 열어주세요
     </button>

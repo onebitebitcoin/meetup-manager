@@ -46,9 +46,9 @@
           </div>
         </div>
         <img
-          v-if="meetup.image_url"
+          v-if="meetup.thumb_url"
           class="l-thumb"
-          :src="meetup.image_url"
+          :src="meetup.thumb_url"
           alt=""
           loading="lazy"
         >
@@ -77,7 +77,7 @@ const store = useLiteStore()
 const parts = computed(() => dateParts(props.meetup.starts_at))
 const dday = computed(() => daysUntilLabel(props.meetup.starts_at))
 
-const open = () => router.push(`/lite/m/${props.meetup.id}`)
+const open = () => router.push(`/m/${props.meetup.id}`)
 
 const onJoinDone = () => open()
 </script>

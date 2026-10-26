@@ -11,7 +11,7 @@
         <p class="text-red-800 dark:text-red-200">
           {{ error }}
         </p>
-        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="$router.push('/dashboard')">
+        <button class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" @click="$router.push('/legacy/dashboard')">
           대시보드로 돌아가기
         </button>
       </div>
@@ -22,7 +22,7 @@
         <div class="relative p-6 border-b border-neutral-200 dark:border-neutral-600 bg-beige-200 dark:bg-neutral-700">
           <button
             class="flex items-center mb-4 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors sm:absolute sm:top-6 sm:left-6 sm:mb-0"
-            @click="$router.push('/dashboard')"
+            @click="$router.push('/legacy/dashboard')"
           >
             <svg
               class="w-5 h-5 mr-1"
@@ -251,7 +251,7 @@
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && (isRegistered || isCreator)"
               class="w-full py-4 px-6 rounded-lg text-base font-semibold text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 transition-colors duration-200"
-              @click="$router.push(`/meetup/${meetupId}/tasks`)"
+              @click="$router.push(`/legacy/meetup/${meetupId}/tasks`)"
             >
               과제 확인
             </button>
@@ -260,7 +260,7 @@
             <button
               v-if="authStore.isLoggedIn && !authStore.isGuest && isCreator"
               class="w-full py-4 px-6 rounded-lg text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600 transition-colors duration-200 flex items-center justify-center gap-2"
-              @click="$router.push(`/meetup/${meetupId}/payment-link`)"
+              @click="$router.push(`/legacy/meetup/${meetupId}/payment-link`)"
             >
               <svg
                 class="w-5 h-5"

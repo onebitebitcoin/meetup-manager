@@ -46,5 +46,5 @@ const props = defineProps({ seminar: { type: Object, required: true } })
 const STATUS_CLASS = { guide: 'none', received: 'maybe', confirmed: 'going' }
 const router = useRouter()
 
-const open = () => router.push(`/lite/seminar/${props.seminar.id}`)
+const open = () => router.push(`/seminar/${props.seminar.id}`)
 </script>

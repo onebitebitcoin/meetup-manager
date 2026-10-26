@@ -4,7 +4,7 @@
       v-if="store.isHost"
       class="l-icon-btn"
       aria-label="관리"
-      @click="router.push('/lite/admin')"
+      @click="router.push('/admin')"
     >
       <Settings :size="20" />
     </button>
@@ -25,7 +25,7 @@
       <button
         v-if="store.isHost"
         class="l-btn s"
-        @click="router.push('/lite/new-meetup')"
+        @click="router.push('/new-meetup')"
       >
         <Plus :size="18" />모임 만들기
       </button>

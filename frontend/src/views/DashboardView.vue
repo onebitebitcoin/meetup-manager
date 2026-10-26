@@ -18,26 +18,26 @@
           <div class="flex items-center space-x-1 sm:space-x-4">
             <router-link
               v-if="authStore.isAdmin"
-              to="/admin"
+              to="/legacy/admin"
               class="text-purple-500 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
             >
               관리자
             </router-link>
             <router-link
-              to="/reviews"
+              to="/legacy/reviews"
               class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
             >
               후기
             </router-link>
             <router-link
-              to="/help"
+              to="/legacy/help"
               class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
             >
               사용 가이드
             </router-link>
             <router-link
               v-if="!authStore.isGuest"
-              to="/settings"
+              to="/legacy/settings"
               class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-2 sm:px-3 py-2 rounded-md text-sm font-medium hidden sm:block"
             >
               내 모임
@@ -45,7 +45,7 @@
             <!-- Mobile: Admin navigation -->
             <router-link
               v-if="authStore.isAdmin"
-              to="/admin"
+              to="/legacy/admin"
               class="sm:hidden p-1 text-purple-500 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 rounded-md"
               title="관리자 패널"
             >
@@ -65,7 +65,7 @@
             </router-link>
             <!-- Mobile: Reviews navigation -->
             <router-link
-              to="/reviews"
+              to="/legacy/reviews"
               class="sm:hidden p-1 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 rounded-md"
               title="후기"
             >
@@ -85,7 +85,7 @@
             </router-link>
             <!-- Mobile: Help navigation -->
             <router-link
-              to="/help"
+              to="/legacy/help"
               class="sm:hidden p-1 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 rounded-md"
               title="사용 가이드"
             >
@@ -106,7 +106,7 @@
             <!-- Mobile: Only show essential navigation -->
             <router-link
               v-if="!authStore.isGuest"
-              to="/settings"
+              to="/legacy/settings"
               class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
               title="내 모임"
             >
@@ -1044,7 +1044,7 @@ export default {
 
     const logout = async () => {
       await authStore.logout()
-      router.push('/login')
+      router.push('/legacy/login')
     }
     
     // Handle ads banner click

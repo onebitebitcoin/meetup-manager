@@ -78,7 +78,7 @@ describe('LiteAdmin', () => {
     mount(LiteAdmin)
     await flushPromises()
 
-    expect(replace).toHaveBeenCalledWith('/lite')
+    expect(replace).toHaveBeenCalledWith('/')
     expect(fetch).not.toHaveBeenCalled()
   })
 })
@@ -108,7 +108,7 @@ describe('LiteAdminMeetup', () => {
 
     expect(fetch).toHaveBeenCalledTimes(1)
     expect(fetch.mock.calls[0][1].method).toBe('DELETE')
-    expect(push).toHaveBeenCalledWith('/lite/admin')
+    expect(push).toHaveBeenCalledWith('/admin')
   })
 
   it('내보내기는 확인 후에만 실행하고 내보낸 회원에는 버튼이 없다', async () => {

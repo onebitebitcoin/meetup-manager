@@ -103,7 +103,7 @@ export async function fetchWithCSRF(url, options = {}) {
       // Reset CSRF token
       resetCSRFToken()
       // Redirect to login page
-      window.location.href = '/login'
+      window.location.href = '/legacy/login'
       return response
     }
 
@@ -126,7 +126,7 @@ export async function fetchWithCSRF(url, options = {}) {
           console.log('Retry got 401 Unauthorized, logging out...')
           localStorage.removeItem('user')
           resetCSRFToken()
-          window.location.href = '/login'
+          window.location.href = '/legacy/login'
         }
 
         return retryResponse

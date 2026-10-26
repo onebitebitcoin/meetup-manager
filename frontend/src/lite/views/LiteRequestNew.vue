@@ -59,7 +59,7 @@ const title = ref('')
 const period = ref('next_month')
 const busy = ref(false)
 // 방문자는 홈의 문의 메뉴에서 바로 오고, 운영자는 요청 목록에서 온다
-const backTo = computed(() => (store.isHost ? '/lite/requests' : '/lite'))
+const backTo = computed(() => (store.isHost ? '/requests' : '/'))
 
 const submit = async () => {
   const trimmed = title.value.trim()

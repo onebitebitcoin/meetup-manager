@@ -13,7 +13,7 @@
     >
       <button
         type="button"
-        @click="go('/lite/seminar')"
+        @click="go('/seminar')"
       >
         <GraduationCap :size="20" />
         <span class="l-grow">1:1 세미나</span>
@@ -25,7 +25,7 @@
       </button>
       <button
         type="button"
-        @click="go('/lite/new-request')"
+        @click="go('/new-request')"
       >
         <Hand :size="20" />
         <span class="l-grow">이런 모임 열어주세요</span>

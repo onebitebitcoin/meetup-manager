@@ -164,7 +164,7 @@
                 </div>
                 <div class="grid grid-cols-3 gap-2 w-full flex-shrink-0 sm:flex sm:w-auto">
                   <router-link
-                    :to="`/meetup/${meetupId}/tasks/${task.id}/submissions`"
+                    :to="`/legacy/meetup/${meetupId}/tasks/${task.id}/submissions`"
                     class="inline-flex items-center justify-center min-h-11 sm:min-h-0 px-2.5 sm:px-3 py-2 sm:py-1.5 text-xs sm:text-sm font-medium rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 transition-colors whitespace-nowrap"
                   >
                     제출 확인
@@ -319,7 +319,7 @@ export default {
     }
 
     const goBack = () => {
-      router.push('/settings')
+      router.push('/legacy/settings')
     }
 
     onMounted(async () => {

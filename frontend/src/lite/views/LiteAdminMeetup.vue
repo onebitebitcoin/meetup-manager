@@ -2,7 +2,7 @@
   <LiteTopbar
     :title="data ? data.meetup.title : '모임 관리'"
     back
-    back-to="/lite/admin"
+    back-to="/admin"
   >
     <span />
   </LiteTopbar>
@@ -90,7 +90,7 @@
 
     <button
       class="l-btn s"
-      @click="router.push(`/lite/m/${data.meetup.id}`)"
+      @click="router.push(`/m/${data.meetup.id}`)"
     >
       <MessageCircle :size="18" />채팅방 열기
     </button>
@@ -237,12 +237,12 @@ const destroy = async () => {
   busy.value = true
   const result = await store.act(() => liteApi.deleteMeetup(data.value.meetup.id), '삭제했어요')
   busy.value = false
-  if (result) router.push('/lite/admin')
+  if (result) router.push('/admin')
 }
 
 onMounted(() => {
   if (!store.isHost) {
-    router.replace('/lite')
+    router.replace('/')
     return
   }
   load()

@@ -28,7 +28,7 @@
           <div class="text-sm text-neutral-500 dark:text-neutral-500">
             또는
             <router-link
-              to="/register"
+              to="/legacy/register"
               class="font-semibold text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline underline-offset-2 transition-colors ml-1"
             >
               새 계정 만들기
@@ -153,7 +153,7 @@
             </div>
             
             <router-link
-              to="/help"
+              to="/legacy/help"
               class="inline-flex items-center text-sm text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline underline-offset-2 transition-colors"
             >
               <svg
@@ -238,9 +238,9 @@ export default {
           await new Promise((resolve) => setTimeout(resolve, 100))
 
           if (userData.is_admin) {
-            router.push('/admin')
+            router.push('/legacy/admin')
           } else {
-            router.push('/dashboard')
+            router.push('/legacy/dashboard')
           }
           errorMessage.value = ''
         } else {
@@ -275,7 +275,7 @@ export default {
         }
 
         await authStore.login(guestUserData)
-        router.push('/dashboard')
+        router.push('/legacy/dashboard')
       } catch (error) {
         alert('게스트 로그인에 실패했습니다.')
       }

@@ -452,7 +452,7 @@ export default {
     }
 
     const showMeetupDetail = (meetup) => {
-      router.push(`/meetup/${meetup.id}`)
+      router.push(`/legacy/meetup/${meetup.id}`)
     }
 
     const canRegister = (meetup) => {

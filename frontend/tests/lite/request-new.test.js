@@ -32,7 +32,7 @@ describe('LiteRequestNew (이런 모임 열어주세요 입력)', () => {
     const urls = fetch.mock.calls.map(([url]) => url)
     expect(urls[0]).toContain('members/')
     expect(urls[1]).toContain('requests/')
-    expect(push).toHaveBeenCalledWith('/lite')
+    expect(push).toHaveBeenCalledWith('/')
   })
 
   it('운영자는 올린 뒤 요청 목록으로 돌아간다', async () => {
@@ -46,6 +46,6 @@ describe('LiteRequestNew (이런 모임 열어주세요 입력)', () => {
     await flushPromises()
 
     expect(fetch).toHaveBeenCalledTimes(1)
-    expect(push).toHaveBeenCalledWith('/lite/requests')
+    expect(push).toHaveBeenCalledWith('/requests')
   })
 })

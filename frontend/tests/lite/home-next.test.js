@@ -12,7 +12,7 @@ const jsonResponse = (body, status = 200) => ({ ok: status < 400, status, json: 
 const card = (over = {}) => ({
   id: 1, title: '거래소 탈출', starts_at: '2099-11-08T04:00:00Z', location: '석우동카페', capacity: 10,
   going_count: 0, maybe_count: 0, my_status: null, from_request: false, is_today: false, room_id: 1,
-  image_url: null, cancelled: false, ...over,
+  thumb_url: null, cancelled: false, ...over,
 })
 
 describe('splitNextMeetups (서울 날짜 기준)', () => {
@@ -86,7 +86,7 @@ describe('LiteHome 다음 모임 카드', () => {
     expect(wrapper.findAll('.l-mrow-title').map((t) => t.text())).toEqual(['온라인 AI 밋업'])
 
     await wrapper.find('.l-mrow-open').trigger('click')
-    expect(push).toHaveBeenCalledWith('/lite/m/3')
+    expect(push).toHaveBeenCalledWith('/m/3')
   })
 
   it('운영자에게는 참석 스위치를 보이지 않는다', async () => {
@@ -109,14 +109,14 @@ describe('LiteNextCard 사진', () => {
     const { default: LiteNextCard } = await import('@/lite/components/LiteNextCard.vue')
 
     const wrapper = mount(LiteNextCard, { props: { meetups: [
-      card({ id: 1, image_url: '/media/meetups/exit.png' }),
-      card({ id: 2, title: '셀프 커스터디', image_url: '/media/meetups/custody.png' }),
+      card({ id: 1, thumb_url: '/media/lite/thumbs/exit.webp' }),
+      card({ id: 2, title: '셀프 커스터디', thumb_url: '/media/lite/thumbs/custody.webp' }),
       card({ id: 3, title: '사진 없는 모임' }),
     ] } })
 
     const slots = wrapper.findAll('.l-next-slot')
     expect(slots.map((s) => s.find('img.l-next-thumb').exists() ? s.find('img.l-next-thumb').attributes('src') : null))
-      .toEqual(['/media/meetups/exit.png', '/media/meetups/custody.png', null])
+      .toEqual(['/media/lite/thumbs/exit.webp', '/media/lite/thumbs/custody.webp', null])
   })
 })
 
@@ -156,7 +156,7 @@ describe('LiteNextCard 참석 스위치와 자세히', () => {
     expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ status: 'going' })
 
     await wrapper.find('.l-more').trigger('click')
-    expect(push).toHaveBeenCalledWith('/lite/m/7/info')
+    expect(push).toHaveBeenCalledWith('/m/7/info')
   })
 
   it('모임마다 원형 배지에 "11/8 (일)"과 "오후 1시"를 두고 옆에 제목을 쓴다', async () => {

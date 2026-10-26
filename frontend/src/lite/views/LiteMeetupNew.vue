@@ -59,7 +59,7 @@ const submit = async () => {
   busy.value = true
   const data = await store.act(() => liteApi.createMeetup(payload), '열었어요')
   busy.value = false
-  if (data) router.push(`/lite/m/${data.meetup.id}`)
+  if (data) router.push(`/m/${data.meetup.id}`)
 }
 
 const loadRequest = async (id) => {
@@ -71,12 +71,12 @@ const loadRequest = async (id) => {
 
 onMounted(async () => {
   if (!store.member) {
-    router.replace('/lite')
+    router.replace('/')
     return
   }
   if (!store.isHost) {
     store.notify('운영자만 할 수 있어요', 'error')
-    router.replace('/lite')
+    router.replace('/')
     return
   }
   if (route.query.request) await store.act(() => loadRequest(route.query.request))

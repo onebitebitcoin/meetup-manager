@@ -297,7 +297,7 @@ export default {
     }
 
     const goBack = () => {
-      router.push(`/meetup/${meetupId.value}/tasks`)
+      router.push(`/legacy/meetup/${meetupId.value}/tasks`)
     }
 
     const handleFileChange = (event) => {
@@ -338,7 +338,7 @@ export default {
         await tasksStore.submitTask(taskId.value, formData)
 
         // Navigate back to task list
-        router.push(`/meetup/${meetupId.value}/tasks`)
+        router.push(`/legacy/meetup/${meetupId.value}/tasks`)
       } catch (err) {
         submitError.value = err.message || '제출에 실패했습니다'
       } finally {

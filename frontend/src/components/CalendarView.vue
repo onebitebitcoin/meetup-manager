@@ -79,7 +79,7 @@
               v-for="meetup in date.meetups.slice(0, 1)"
               :key="meetup.id"
               class="text-xs bg-indigo-100 dark:bg-neutral-600 text-indigo-800 dark:text-neutral-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-neutral-500 truncate block sm:hidden"
-              @click="$router.push(`/meetup/${meetup.id}`)"
+              @click="$router.push(`/legacy/meetup/${meetup.id}`)"
             >
               {{ meetup.name.length > 6 ? meetup.name.substring(0, 6) + '...' : meetup.name }}
             </div>
@@ -87,7 +87,7 @@
               v-for="meetup in date.meetups.slice(0, 2)"
               :key="meetup.id"
               class="text-xs bg-indigo-100 dark:bg-neutral-600 text-indigo-800 dark:text-neutral-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded cursor-pointer hover:bg-indigo-200 dark:hover:bg-neutral-500 truncate hidden sm:block"
-              @click="$router.push(`/meetup/${meetup.id}`)"
+              @click="$router.push(`/legacy/meetup/${meetup.id}`)"
             >
               {{ meetup.name }}
             </div>
@@ -243,7 +243,7 @@ export default {
 
     const selectMeetupFromDate = (meetup) => {
       selectedDateMeetups.value = null
-      router.push(`/meetup/${meetup.id}`)
+      router.push(`/legacy/meetup/${meetup.id}`)
     }
 
     const getStatus = (meetup) => {

@@ -8,7 +8,7 @@
         <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           또는
           <router-link
-            to="/login"
+            to="/legacy/login"
             class="font-semibold text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline underline-offset-2"
           >
             기존 계정으로 로그인
@@ -136,7 +136,7 @@
         
         <div class="text-center">
           <router-link
-            to="/help"
+            to="/legacy/help"
             class="text-xs text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline underline-offset-2"
           >
             📚 사용 가이드 보기

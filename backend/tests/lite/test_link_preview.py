@@ -32,7 +32,7 @@ def net():
     def resolve(host):
         return state['dns'].get(host, ['93.184.216.34'])
 
-    def request(url, ip):
+    def request(url, ip, *_):
         state['requests'].append((url, ip))
         return state['responses'].pop(0)
 
@@ -149,3 +149,13 @@ def test_null_결과도_캐시한다(api_client, auth, member, net):
 def test_토큰이_없으면_401(api_client, net):
     res = api_client.get('/api/lite/link-preview/', {'url': URL})
     assert res.status_code == 401
+
+
+def test_한글_경로는_퍼센트_인코딩해서_요청한다():
+    conn = mock.MagicMock()
+    conn.getresponse.return_value.status = 302
+    conn.getresponse.return_value.getheaders.return_value = [('Location', '/x')]
+    with mock.patch.object(linkpreview, 'PinnedHTTPSConnection', return_value=conn):
+        linkpreview.send_request('https://example.com/media/거래소 탈출.png?q=가', '93.184.216.34', 'image/')
+    path = conn.request.call_args.args[1]
+    assert path == '/media/%EA%B1%B0%EB%9E%98%EC%86%8C%20%ED%83%88%EC%B6%9C.png?q=%EA%B0%80'

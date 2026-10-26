@@ -208,6 +208,7 @@ class TestReviewNameMasking:
 
     def _make_review(self, create_meetup, create_meetup_user, create_registration, name, email):
         from datetime import timedelta
+
         from django.utils import timezone
         past = timezone.now() - timedelta(hours=2)
         meetup = create_meetup(

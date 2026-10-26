@@ -17,11 +17,11 @@ const key = takeHash()
 // 이름이 없으면 자동 닉네임으로 가입해 member가 생긴 뒤에 claim을 호출한다
 const claim = async () => {
   await store.claimHost(key)
-  router.replace('/lite')
+  router.replace('/')
 }
 
 onMounted(async () => {
-  if (!key) router.replace('/lite')
+  if (!key) router.replace('/')
   else if (await store.ensureMember()) claim()
 })
 </script>

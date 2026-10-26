@@ -487,7 +487,7 @@ export default {
     }
 
     const goBack = () => {
-      router.push(`/meetup/${meetupId.value}/tasks/manage`)
+      router.push(`/legacy/meetup/${meetupId.value}/tasks/manage`)
     }
 
     onMounted(async () => {

@@ -173,21 +173,21 @@ describe('복구 링크와 운영자 링크', () => {
   })
 
   it('복구: me/가 성공한 뒤에만 새 토큰을 저장하고 fragment를 지운다', async () => {
-    setLocation('/lite/r', '#newtok')
+    setLocation('/r', '#newtok')
     fetch.mockResolvedValue(json({ member: { id: 1, name: '지민', is_host: false } }))
     mount(LiteRecover)
     await flushPromises()
 
     expect(fetch.mock.calls[0][1].headers['X-Member-Token']).toBe('newtok')
     expect(localStorage.setItem).toHaveBeenCalledWith('lite_token', 'newtok')
-    expect(window.history.replaceState).toHaveBeenCalledWith(window.history.state, '', '/lite/r')
-    expect(replace).toHaveBeenCalledWith('/lite')
+    expect(window.history.replaceState).toHaveBeenCalledWith(window.history.state, '', '/r')
+    expect(replace).toHaveBeenCalledWith('/')
   })
 
   it('복구: 실패하면 기존 토큰을 유지하고 에러 토스트를 띄운다', async () => {
     localStorage.setItem('lite_token', 'old')
     const store = useLiteStore()
-    setLocation('/lite/r', '#bad')
+    setLocation('/r', '#bad')
     fetch.mockResolvedValue(json({ error: '이름을 먼저 입력해 주세요' }, 401))
     mount(LiteRecover)
     await flushPromises()
@@ -198,7 +198,7 @@ describe('복구 링크와 운영자 링크', () => {
   })
 
   it('운영자: 이름이 없으면 자동 닉네임으로 가입한 뒤 claim을 호출한다', async () => {
-    setLocation('/lite/host', '#secret')
+    setLocation('/host', '#secret')
     const store = useLiteStore()
     fetch.mockImplementation((url) => {
       if (url.endsWith('members/')) return Promise.resolve(json({ token: 't', member: { id: 1, name: '느긋한 수달', is_host: false } }, 201))
@@ -208,7 +208,7 @@ describe('복구 링크와 운영자 링크', () => {
     const wrapper = mount(LiteHostClaim)
     await flushPromises()
 
-    expect(window.history.replaceState).toHaveBeenCalledWith(window.history.state, '', '/lite/host')
+    expect(window.history.replaceState).toHaveBeenCalledWith(window.history.state, '', '/host')
     expect(wrapper.find('input').exists()).toBe(false)
     const calls = fetch.mock.calls.map(([u]) => u)
     expect(calls.findIndex((u) => u.endsWith('members/'))).toBeLessThan(calls.findIndex((u) => u.endsWith('host/claim/')))
@@ -216,6 +216,6 @@ describe('복구 링크와 운영자 링크', () => {
     expect(claim).toHaveLength(1)
     expect(JSON.parse(claim[0][1].body)).toEqual({ key: 'secret' })
     expect(store.isHost).toBe(true)
-    expect(replace).toHaveBeenCalledWith('/lite')
+    expect(replace).toHaveBeenCalledWith('/')
   })
 })

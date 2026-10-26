@@ -6,7 +6,7 @@
         <div class="flex items-center gap-3">
           <button
             class="p-1 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-            @click="$router.push('/dashboard')"
+            @click="$router.push('/legacy/dashboard')"
           >
             <svg
               class="w-5 h-5"
@@ -67,7 +67,7 @@
             <router-link
               v-for="meetup in pendingReviewMeetups"
               :key="meetup.id"
-              :to="`/write-review/${meetup.id}`"
+              :to="`/legacy/write-review/${meetup.id}`"
               class="flex items-center gap-2 py-1.5 px-2 bg-white/60 dark:bg-neutral-800/60 rounded hover:bg-white dark:hover:bg-neutral-800 transition-colors"
             >
               <div class="flex-1 min-w-0">

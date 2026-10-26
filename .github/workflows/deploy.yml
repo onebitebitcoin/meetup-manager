@@ -33,6 +33,10 @@ jobs:
           sleep 5
           curl -fsS http://localhost:8000/api/health/ || ($COMPOSE -f "$TARGET_DIR/docker-compose.yml" logs web && exit 1)
 
+      # 썸네일이 없는 LITE 모임의 작은 WebP 썸네일을 만든다(이미 있으면 건너뜀)
+      - name: Fill thumbnails
+        run: $COMPOSE -f "$TARGET_DIR/docker-compose.yml" exec -T web python manage.py make_lite_thumbnails
+
       # nginx 가 / 를 /var/www/meet 에서 직접 서빙하므로, 이미지 안의 프론트 빌드를 꺼내 반영한다
       - name: Publish frontend
         env:

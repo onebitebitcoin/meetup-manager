@@ -36,7 +36,7 @@
           <div class="flex items-center space-x-1 sm:space-x-4">
             <!-- Desktop navigation -->
             <router-link
-              to="/dashboard"
+              to="/legacy/dashboard"
               class="hidden sm:block text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
             >
               한입 모임
@@ -44,7 +44,7 @@
             
             <!-- Mobile: Dashboard icon -->
             <router-link
-              to="/dashboard"
+              to="/legacy/dashboard"
               class="sm:hidden p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-md"
               title="한입 모임"
             >
@@ -803,7 +803,7 @@ export default {
         console.log('Response headers:', response.headers)
 
         if (response.ok) {
-          router.push('/settings?message=모임이 성공적으로 생성되었습니다')
+          router.push('/legacy/settings?message=모임이 성공적으로 생성되었습니다')
         } else {
           const responseText = await response.text()
           console.error('Error response:', response.status, responseText)
@@ -841,7 +841,7 @@ export default {
             errorMessage = '로그인이 필요합니다. 다시 로그인해주세요.'
             // Auto redirect to login after 2 seconds
             setTimeout(() => {
-              router.push('/login')
+              router.push('/legacy/login')
             }, 2000)
             break
               
@@ -922,7 +922,7 @@ export default {
 
     const logout = async () => {
       await authStore.logout()
-      router.push('/login')
+      router.push('/legacy/login')
     }
 
     // Cleanup event listeners on component unmount

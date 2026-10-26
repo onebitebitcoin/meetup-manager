@@ -208,7 +208,8 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-next { border-radius: 18px; background: var(--lite-surface); border: 1px solid var(--lite-line); color: var(--lite-ink); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 12px; }
 /* 머리글은 흰 카드 위에서도 7:1을 넘는 짙은 머스타드로 쓴다 */
 .l-next { overflow: hidden; }
-.l-next-thumb { width: 64px; height: 64px; flex: none; border-radius: 14px; object-fit: cover; background: var(--lite-sunk); border: 1px solid var(--lite-line); }
+/* 썸네일은 아래 목록처럼 줄 오른쪽 끝에 둔다 */
+.l-next-thumb { width: 56px; height: 56px; flex: none; border-radius: 14px; object-fit: cover; background: var(--lite-sunk); border: 1px solid var(--lite-line); }
 .l-next-slots { display: flex; flex-direction: column; gap: 6px; }
 .l-next-slot { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 6px 0; }
 .l-next-slot + .l-next-slot { border-top: 1px solid var(--lite-line); padding-top: 12px; }
@@ -231,7 +232,7 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-next-badge { width: 76px; height: 76px; flex: none; border-radius: 50%; background: var(--lite-yellow); color: var(--lite-btn-ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; line-height: 1.25; }
 .l-next-badge b { font-size: 14px; font-weight: 800; }
 .l-next-badge span { font-size: 12px; font-weight: 600; white-space: nowrap; }
-.l-next-title { font-size: 20px; font-weight: 800; line-height: 1.3; word-break: keep-all; overflow-wrap: anywhere; }
+.l-next-title { flex: 1; min-width: 0; font-size: 20px; font-weight: 800; line-height: 1.3; word-break: keep-all; overflow-wrap: anywhere; }
 .l-join-compact { flex: none; }
 .l-pill-btn { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--lite-btn); color: var(--lite-btn-ink); font-size: 14px; font-weight: 700; }
 .l-pill-btn:disabled { opacity: .6; }

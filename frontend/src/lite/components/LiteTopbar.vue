@@ -28,7 +28,7 @@ import LiteMeMenu from './LiteMeMenu.vue'
 defineProps({
   title: { type: String, required: true },
   back: { type: Boolean, default: false },
-  backTo: { type: String, default: '/lite' },
+  backTo: { type: String, default: '/' },
 })
 
 const router = useRouter()

@@ -53,8 +53,10 @@ class Meetup(models.Model):
     starts_at = models.DateTimeField()
     location = models.CharField(max_length=100)
     capacity = models.PositiveIntegerField()
-    # 썸네일 주소. 기존 앱 모임은 업로드 파일의 /media/ 경로 또는 외부 URL을 그대로 담는다.
+    # 썸네일 원본 주소. 기존 앱 모임은 업로드 파일의 /media/ 경로 또는 외부 URL을 그대로 담는다.
     image_url = models.CharField(max_length=500, blank=True, default='')
+    # image_url을 줄여 만든 WebP 썸네일의 /media/ 주소. 화면에는 원본 대신 이것만 보낸다.
+    thumb_url = models.CharField(max_length=200, blank=True, default='')
     from_request = models.ForeignKey(
         MeetupRequest, on_delete=models.SET_NULL, null=True, blank=True, related_name='opened_meetups'
     )

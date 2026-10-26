@@ -13,7 +13,7 @@
       v-if="meetup && store.isHost"
       class="l-icon-btn"
       aria-label="관리"
-      @click="router.push(`/lite/admin/m/${meetup.id}`)"
+      @click="router.push(`/admin/m/${meetup.id}`)"
     >
       <Settings :size="20" />
     </button>

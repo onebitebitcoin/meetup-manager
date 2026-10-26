@@ -3,6 +3,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from lite.models import Meetup as LiteMeetup
+from lite.thumbnails import fill_missing_thumbnails
 from meetups.models import Meetup as LegacyMeetup
 
 
@@ -50,4 +51,8 @@ class Command(BaseCommand):
                     legacy_meetup_id=old.id,
                 )
             created += 1
-        self.stdout.write(self.style.SUCCESS(f'가져온 모임 {created}개, 건너뜀 {skipped}개, 썸네일 채움 {image_filled}개'))
+        thumbs, failed = fill_missing_thumbnails()
+        self.stdout.write(self.style.SUCCESS(
+            f'가져온 모임 {created}개, 건너뜀 {skipped}개, 썸네일 채움 {image_filled}개, '
+            f'썸네일 만듦 {thumbs}개(실패 {len(failed)}개)'
+        ))

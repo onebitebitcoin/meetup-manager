@@ -1,4 +1,6 @@
+import hashlib
 from datetime import timedelta
+from unittest import mock
 
 import pytest
 from django.core.cache import cache
@@ -12,6 +14,18 @@ def clear_throttle_cache():
     cache.clear()
     yield
     cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def fake_thumbnails():
+    """썸네일은 원본을 내려받아 줄여야 하므로 기본은 주소만 만드는 가짜로 바꾼다.
+    실제 생성을 시험하는 test_thumbnails.py는 같은 이름의 fixture로 이 가짜를 끈다."""
+    def fake(image_url):
+        return f'/media/lite/thumbs/{hashlib.sha256(image_url.encode()).hexdigest()[:8]}.webp'
+
+    with mock.patch('lite.thumbnails.make_thumbnail', side_effect=fake), \
+            mock.patch('lite.views.admin.make_thumbnail', side_effect=fake):
+        yield fake
 
 
 @pytest.fixture

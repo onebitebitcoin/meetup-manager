@@ -4,7 +4,7 @@
     <button
       type="button"
       class="l-cardbtn l-mrow-open"
-      @click="router.push(`/lite/m/${meetup.id}`)"
+      @click="router.push(`/m/${meetup.id}`)"
     >
       <span class="l-mrow-date">{{ parts.month }}.{{ parts.day }} {{ parts.weekday }}</span>
       <span class="l-grow">
@@ -12,9 +12,9 @@
         <span class="l-mrow-sub">{{ parts.time }} · {{ meetup.location }}</span>
       </span>
       <img
-        v-if="meetup.image_url"
+        v-if="meetup.thumb_url"
         class="l-thumb sm"
-        :src="meetup.image_url"
+        :src="meetup.thumb_url"
         alt=""
         loading="lazy"
       >

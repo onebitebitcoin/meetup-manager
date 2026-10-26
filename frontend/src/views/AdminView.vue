@@ -9,7 +9,7 @@
             <button
               class="p-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
               title="홈으로 돌아가기"
-              @click="$router.push('/')"
+              @click="$router.push('/dashboard')"
             >
               <span class="text-lg sm:text-xl">←</span>
             </button>

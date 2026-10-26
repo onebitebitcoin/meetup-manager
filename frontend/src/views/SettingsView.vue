@@ -13,7 +13,7 @@
           <div class="flex items-center space-x-1 sm:space-x-4">
             <!-- Desktop navigation -->
             <router-link
-              to="/dashboard"
+              to="/legacy/dashboard"
               class="hidden sm:block text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 px-3 py-2 rounded-md text-sm font-medium"
             >
               한입 모임
@@ -21,7 +21,7 @@
 
             <!-- Mobile: Dashboard icon -->
             <router-link
-              to="/dashboard"
+              to="/legacy/dashboard"
               class="sm:hidden p-1 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 rounded-md"
               title="한입 모임"
             >
@@ -250,7 +250,7 @@
                   </div>
                 </div>
                 <!-- <router-link
-                  to="/create-meetup"
+                  to="/legacy/create-meetup"
                   class="btn-primary text-sm leading-4"
                 >
                   <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -260,7 +260,7 @@
                   <span class="sm:hidden">새 모임</span>
                 </router-link> -->
                 <router-link
-                  to="/create-meetup"
+                  to="/legacy/create-meetup"
                   class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                 >
                   <svg
@@ -341,7 +341,7 @@
               </p>
               <div class="mt-6">
                 <router-link
-                  to="/create-meetup"
+                  to="/legacy/create-meetup"
                   class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
                 >
                   <svg
@@ -544,7 +544,7 @@
                             참가자 추가
                           </button>
                           <router-link
-                            :to="`/meetup/${meetup.id}/tasks/manage`"
+                            :to="`/legacy/meetup/${meetup.id}/tasks/manage`"
                             class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-purple-700 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:hover:bg-purple-800"
                             title="과제 관리"
                           >
@@ -666,7 +666,7 @@
                       참가자
                     </button>
                     <router-link
-                      :to="`/meetup/${meetup.id}/tasks/manage`"
+                      :to="`/legacy/meetup/${meetup.id}/tasks/manage`"
                       class="flex items-center justify-center px-3 py-1.5 rounded-md text-xs font-medium transition-colors text-purple-700 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:hover:bg-purple-800"
                     >
                       과제
@@ -815,7 +815,7 @@
               월 선택을 바꿔 다른 기간의 모임을 확인하거나 새로운 모임에 참가해보세요.
             </p>
             <div class="mt-6">
-              <router-link to="/dashboard" class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
+              <router-link to="/legacy/dashboard" class="inline-flex items-center justify-center text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
                 <svg
                   class="h-5 w-5 sm:-ml-1 sm:mr-2"
                   xmlns="http://www.w3.org/2000/svg"
@@ -3341,7 +3341,7 @@ export default {
 
     const logout = async () => {
       await authStore.logout()
-      router.push('/login')
+      router.push('/legacy/login')
     }
 
     const handleImageError = (event) => {

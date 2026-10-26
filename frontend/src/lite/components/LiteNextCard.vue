@@ -11,19 +11,19 @@
           class="l-cardbtn l-next-open"
           @click="open(meetup)"
         >
-          <!-- 같은 날 모임이라도 썸네일은 모임마다 다르므로 줄마다 자기 사진을 둔다 -->
-          <img
-            v-if="meetup.image_url"
-            class="l-next-thumb"
-            :src="meetup.image_url"
-            alt=""
-            loading="lazy"
-          >
           <span class="l-next-badge">
             <b>{{ shortDate(meetup.starts_at) }}</b>
             <span>{{ koreanTime(meetup.starts_at) }}</span>
           </span>
           <span class="l-next-title">{{ meetup.title }}</span>
+          <!-- 같은 날 모임이라도 썸네일은 모임마다 다르므로 줄 오른쪽 끝에 자기 사진을 둔다 -->
+          <img
+            v-if="meetup.thumb_url"
+            class="l-next-thumb"
+            :src="meetup.thumb_url"
+            alt=""
+            loading="lazy"
+          >
         </button>
         <div class="l-next-actions">
           <LiteRsvpSwitch
@@ -66,5 +66,5 @@ const shortDate = (iso) => {
 }
 
 // 자세히와 제목은 모임 정보 화면으로 보낸다
-const open = (meetup) => router.push(`/lite/m/${meetup.id}/info`)
+const open = (meetup) => router.push(`/m/${meetup.id}/info`)
 </script>

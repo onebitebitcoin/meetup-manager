@@ -67,10 +67,13 @@ def test_home_filters_past_and_orders(api_client, member, auth, make_meetup):
 def test_home_card_includes_thumbnail_or_null(api_client, member, auth, make_meetup):
     with_image = make_meetup('이미지', days=1)
     with_image.image_url = '/media/meetups/a.png'
-    with_image.save(update_fields=['image_url'])
+    with_image.thumb_url = '/media/lite/thumbs/a.webp'
+    with_image.save(update_fields=['image_url', 'thumb_url'])
     make_meetup('없음', days=2)
     cards = api_client.get('/api/lite/home/', **auth(member)).json()['meetups']
-    assert [c['image_url'] for c in cards] == ['/media/meetups/a.png', None]
+    # 카드에는 원본 주소 없이 작은 썸네일 주소만 보낸다
+    assert [c['thumb_url'] for c in cards] == ['/media/lite/thumbs/a.webp', None]
+    assert all('image_url' not in c for c in cards)
 
 
 def test_home_keeps_meetup_earlier_today(api_client, member, auth, make_meetup):

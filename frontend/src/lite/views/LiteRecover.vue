@@ -17,6 +17,6 @@ onMounted(async () => {
   const token = takeHash()
   if (!token) store.notify('복구 링크가 올바르지 않아요', 'error')
   else if (await store.recover(token)) store.notify(`${store.member.name}님, 반가워요`)
-  router.replace('/lite')
+  router.replace('/')
 })
 </script>

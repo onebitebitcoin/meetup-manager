@@ -3,7 +3,7 @@
     <button
       type="button"
       class="l-cardbtn l-row center"
-      @click="router.push('/lite/requests')"
+      @click="router.push('/requests')"
     >
       <div class="l-date always">
         <Hand :size="24" />

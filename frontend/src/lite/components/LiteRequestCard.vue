@@ -43,7 +43,7 @@
         class="l-vote"
         :class="{ primary: ready }"
         style="margin-left: auto"
-        @click="router.push({ path: '/lite/new-meetup', query: { request: request.id } })"
+        @click="router.push({ path: '/new-meetup', query: { request: request.id } })"
       >
         <Plus :size="18" />열기
       </button>
@@ -73,7 +73,7 @@ const store = useLiteStore()
 const busy = ref(false)
 const ready = computed(() => props.request.vote_count >= props.request.threshold)
 
-const openMeetup = () => router.push(`/lite/m/${props.request.meetup_id}`)
+const openMeetup = () => router.push(`/m/${props.request.meetup_id}`)
 
 const vote = async () => {
   if (busy.value) return
