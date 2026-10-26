@@ -239,11 +239,11 @@ textarea.l-field { min-height: 88px; resize: vertical; }
 .l-mrow { border-top: 1px solid var(--lite-line); padding: 6px 0 10px; }
 .l-mrow-open.l-cardbtn { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 4px 0; width: 100%; }
 /* 참석 스위치는 제목 아래 줄에, 날짜 칸만큼 들여 쓴다 */
-.l-mrow-rsvp { padding-left: 80px; }
+/* 맨 위 다음 모임 카드와 같은 배치: 스위치는 왼쪽 끝, 자세히는 오른쪽 끝 */
+.l-mrow-actions { display: flex; align-items: center; gap: 10px; }
 .l-mrow-date { width: 66px; flex: none; font-family: var(--lite-mono); font-size: 14px; font-weight: 600; color: var(--lite-muted); }
 .l-mrow-title { display: block; font-size: 17px; font-weight: 700; line-height: 1.35; }
 .l-mrow-sub { display: block; font-size: 14px; color: var(--lite-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.l-mrow-go { flex: none; color: var(--lite-muted); }
 .l-thumb.sm { width: 56px; height: 56px; border-radius: 12px; }
 
 /* 채팅 첨부, 링크, 미리보기 */
@@ -300,13 +300,12 @@ textarea.l-field { min-height: 88px; resize: vertical; }
   .l-home .l-mrow { position: relative; display: flex; flex-direction: column; padding: 0 0 12px; border: 1px solid var(--lite-line); border-radius: 14px; overflow: hidden; background: var(--lite-surface); transition: border-color .12s; }
   .l-home .l-mrow:hover { border-color: var(--lite-line-strong); }
   .l-home .l-mrow-open.l-cardbtn { flex-direction: column; align-items: stretch; gap: 2px; padding: 0 0 8px; min-height: 0; }
-  .l-home .l-mrow-rsvp { padding: 0 14px; }
+  .l-home .l-mrow-actions { padding: 0 14px; }
   .l-home .l-mrow .l-thumb.sm { order: -1; display: block; width: 100%; height: 150px; border: 0; border-bottom: 1px solid var(--lite-line); border-radius: 0; margin-bottom: 10px; }
   .l-home .l-mrow-date { width: auto; padding: 0 14px; }
   .l-home .l-mrow .l-grow { padding: 0 14px; min-width: 0; }
   .l-home .l-mrow-title { font-size: 16px; font-weight: 700; }
   .l-home .l-mrow .l-chip { position: absolute; top: 10px; left: 10px; }
-  .l-home .l-mrow-go { display: none; }
 }
 
 /* 모임 안내: 어르신도 한눈에 읽도록 항목 이름(언제·어디서·정원·대상·내용)을 왼쪽에 고정하고 값은 크게 쓴다 */

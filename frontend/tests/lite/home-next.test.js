@@ -85,8 +85,13 @@ describe('LiteHome 다음 모임 카드', () => {
     expect(hero.findAll('.l-more').map((b) => b.text())).toEqual(['자세히', '자세히'])
     expect(wrapper.findAll('.l-mrow-title').map((t) => t.text())).toEqual(['온라인 AI 밋업'])
 
-    await wrapper.find('.l-mrow-open').trigger('click')
-    expect(push).toHaveBeenCalledWith('/m/3')
+    // 다가오는 모임도 스위치 옆에 자세히가 있고, 줄과 자세히 모두 모임 정보 화면으로 간다
+    const row = wrapper.find('.l-mrow')
+    expect(row.find('.l-mrow-actions .l-more').text()).toBe('자세히')
+    await row.find('.l-mrow-actions .l-more').trigger('click')
+    expect(push).toHaveBeenLastCalledWith('/m/3/info')
+    await row.find('.l-mrow-open').trigger('click')
+    expect(push).toHaveBeenLastCalledWith('/m/3/info')
   })
 
   it('운영자에게는 참석 스위치를 보이지 않는다', async () => {
