@@ -46,6 +46,8 @@
 .l-me { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--lite-muted); min-height: 44px; }
 .l-me-refresh { display: grid; place-items: center; width: 44px; height: 44px; margin-right: -10px; border: 0; background: none; color: var(--lite-ink); border-radius: 50%; }
 .l-me-refresh:disabled { opacity: .5; }
+.l-me { position: relative; }
+.l-me-confirm { position: absolute; top: 100%; right: -10px; z-index: 20; display: flex; flex-direction: column; gap: 10px; width: 240px; padding: 14px; background: var(--lite-surface); border: 1px solid var(--lite-line-strong); border-radius: 14px; box-shadow: 0 6px 20px rgba(0, 0, 0, .12); color: var(--lite-ink); font-size: 15px; font-weight: 600; }
 .l-av { width: 30px; height: 30px; border-radius: 50%; background: var(--lite-sunk); color: var(--lite-ink); display: inline-grid; place-items: center; font-size: 13px; font-weight: 700; flex: none; }
 .l-av.bot { background: var(--lite-plum-soft); color: var(--lite-plum); }
 
@@ -126,8 +128,8 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-time { flex: none; font-size: 12px; color: var(--lite-muted); line-height: 1.4; }
 .l-day { align-self: center; font-size: 13px; color: var(--lite-muted); padding: 6px 0 2px; }
 .l-bub { background: var(--lite-sunk); border: 1px solid transparent; border-radius: 4px 16px 16px 16px; padding: 8px 13px; font-size: 16px; overflow-wrap: anywhere; white-space: pre-line; }
-/* 전역 user-select: none(style.css)을 말풍선에서만 풀어 메시지를 복사할 수 있게 한다 */
-.l-bub { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+/* 전역 user-select: none(style.css)을 말풍선과 모임 정보 값에서만 풀어 복사할 수 있게 한다 */
+.l-bub, .l-info dd { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 .l-pinbar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; background: var(--lite-surface); border-bottom: 1px solid var(--lite-line); font-size: 14px; }
 .l-pinbar svg { flex: none; color: var(--lite-muted); }
 .l-pinbar-who { flex: none; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
@@ -144,9 +146,6 @@ button.l-chip { min-height: 32px; padding-inline: 12px; border: 0; }
 .l-msg.mine .l-bub { background: var(--lite-btn); color: var(--lite-btn-ink); border-color: transparent; border-radius: 16px 4px 16px 16px; }
 .l-msg.bot .l-bub { background: var(--lite-plum-soft); border-color: transparent; }
 .l-sys { align-self: center; font-size: 13px; color: var(--lite-muted); background: none; padding: 2px 4px; border-radius: 999px; text-align: center; }
-.l-choices { display: flex; gap: 6px; flex-wrap: wrap; margin-left: 34px; }
-.l-choice { border: 1px solid var(--lite-line-strong); background: var(--lite-surface); border-radius: 999px; padding: 5px 14px; min-height: 44px; display: inline-flex; gap: 5px; align-items: center; font-size: 14px; font-weight: 600; }
-.l-choice:active { background: var(--lite-sunk); }
 .l-composer { flex: none; display: flex; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--lite-line); background: var(--lite-surface); }
 .l-composer input { flex: 1; min-width: 0; min-height: 44px; border: 1px solid var(--lite-line-strong); background: var(--lite-bg); border-radius: 999px; padding: 8px 14px; }
 .l-composer button { border: 0; background: var(--lite-btn); color: var(--lite-btn-ink); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; flex: none; }
