@@ -56,7 +56,7 @@ describe('LiteHome', () => {
     fetch.mockImplementation((url) => {
       if (url.includes('members/')) return Promise.resolve(jsonResponse({ token: 't1', member: { id: 1, name: '느긋한 수달', is_host: false } }, 201))
       if (url.includes('rsvp/')) return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'going' }) }))
-      return Promise.resolve(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 }))
+      return Promise.resolve(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0, is_open: true }))
     })
 
     const wrapper = mount(LiteHome)
@@ -82,7 +82,7 @@ describe('LiteHome', () => {
 
   it('응답하지 않은 모임도 참석하기 대신 꺼진 불참 스위치로 보여 준다', async () => {
     memberStore()
-    routeFetch({ 'home/': { meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 } })
+    routeFetch({ 'home/': { meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0, is_open: true } })
 
     const wrapper = mount(LiteHome)
     await flushPromises()
@@ -96,7 +96,7 @@ describe('LiteHome', () => {
     memberStore()
     fetch.mockImplementation((url, options) => {
       if (options?.method === 'PUT') return Promise.resolve(jsonResponse({ meetup: card({ my_status: 'no' }) }))
-      return Promise.resolve(jsonResponse({ meetups: [card({ my_status: 'going' })], my_seminar: null, seminars: [], ready_request_count: 0 }))
+      return Promise.resolve(jsonResponse({ meetups: [card({ my_status: 'going' })], my_seminar: null, seminars: [], ready_request_count: 0, is_open: true }))
     })
 
     const wrapper = mount(LiteHome)

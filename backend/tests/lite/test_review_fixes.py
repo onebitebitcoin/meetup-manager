@@ -182,7 +182,7 @@ def test_polling_query_count(api_client, member, auth, make_meetup, django_asser
     url = f'/api/lite/rooms/{meetup.room.id}/messages/?after=0'
     assert api_client.get(url, **auth(member)).status_code == 200  # 첫 폴링에서 읽음 기록을 만든다
     ChatMessage.objects.create(room=meetup.room, member=member, body='새 메시지')
-    with django_assert_max_num_queries(4):  # 인증 + 방/권한 + 메시지 + 읽음 위치 갱신
+    with django_assert_max_num_queries(5):  # 인증 + 오픈 확인 + 방/권한 + 메시지 + 읽음 위치 갱신
         assert api_client.get(url, **auth(member)).status_code == 200
 
 
@@ -192,7 +192,7 @@ def test_requests_list_query_count(api_client, member, make_member, auth, django
     for i in range(5):
         req = MeetupRequest.objects.create(title=f'r{i}', created_by=other)
         RequestVote.objects.create(request=req, member=member)
-    with django_assert_max_num_queries(4):  # 인증 + 설정 + 요청 + 내 투표
+    with django_assert_max_num_queries(5):  # 인증 + 오픈 확인 + 설정 + 요청 + 내 투표
         r = api_client.get('/api/lite/requests/', **auth(member))
     assert r.status_code == 200 and all(c['voted'] for c in r.json()['requests'])
 

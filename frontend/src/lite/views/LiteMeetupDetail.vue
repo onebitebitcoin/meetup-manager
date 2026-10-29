@@ -28,7 +28,7 @@
     />
     <!-- 신청한 회원과 운영자는 채팅방에서 공지를 본다. 아직 신청하지 않았으면 신청부터 받는다. -->
     <button
-      v-if="joined || store.isHost"
+      v-if="store.isHost || (joined && store.isOpen)"
       type="button"
       class="l-btn p"
       @click="openRoom"
@@ -73,6 +73,7 @@ const error = ref('')
 const joined = computed(() => ['going', 'maybe'].includes(meetup.value?.my_status))
 const notice = computed(() => {
   if (store.isHost) return ''
+  if (!store.isOpen) return '오픈 준비 중이에요'
   if (removed.value) return '운영자가 내보낸 모임이에요'
   if (meetup.value?.cancelled) return '취소된 모임이에요'
   return ''
@@ -86,6 +87,7 @@ const load = async () => {
     audience.value = data.audience || ''
     removed.value = Boolean(data.removed)
     unread.value = data.unread_count || 0
+    store.isOpen = data.is_open
     error.value = ''
   } catch (e) {
     error.value = e.message

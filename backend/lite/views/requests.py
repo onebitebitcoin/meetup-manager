@@ -4,6 +4,7 @@ from django.db import transaction
 
 from meetups.views.helpers import APIResponse
 
+from ..auth import IsMember, IsOpenOrHost
 from ..models import LiteConfig, MeetupRequest, RequestVote
 from ..serializers import request_card, voted_request_ids
 from ..services import requests_with_votes
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class RequestListView(LiteView):
+    permission_classes = [IsMember, IsOpenOrHost]
     throttle_classes = [RequestCreateThrottle]
 
     def get(self, request):
@@ -42,6 +44,7 @@ class RequestListView(LiteView):
 
 
 class RequestVoteView(LiteView):
+    permission_classes = [IsMember, IsOpenOrHost]
     def post(self, request, request_id):
         member = self.member
         with transaction.atomic():

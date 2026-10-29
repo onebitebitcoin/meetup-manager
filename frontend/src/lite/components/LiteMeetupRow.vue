@@ -30,7 +30,7 @@
     </button>
     <div class="l-mrow-actions">
       <LiteRsvpSwitch
-        v-if="!store.isHost && !meetup.cancelled"
+        v-if="!store.isHost && store.isOpen && !meetup.cancelled"
         :meetup="meetup"
         @changed="emit('changed')"
       />

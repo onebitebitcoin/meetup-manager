@@ -7,7 +7,7 @@ from django.utils import timezone
 from meetups.views.helpers import APIResponse
 
 from ..auth import IsHost
-from ..models import ChatMessage, ChatRoom, Meetup, Rsvp
+from ..models import ChatMessage, ChatRoom, LiteConfig, Meetup, Rsvp
 from ..serializers import meetup_card, member_brief, message_obj
 from ..services import KST, add_message, meetups_with_counts, today_start_kst
 from ..thumbnails import ThumbnailError, make_thumbnail
@@ -236,3 +236,17 @@ class AdminPinView(LiteView):
             raise not_found('메시지를 찾을 수 없어요') from None
         logger.info('LITE 공지 고정: room_id=%s message_id=%s', room_id, message_id)
         return APIResponse.success({'pinned': message_obj(message) if message else None})
+
+
+class AdminOpenView(LiteView):
+    permission_classes = [IsHost]
+
+    def put(self, request):
+        is_open = self.json_body().get('is_open')
+        if not isinstance(is_open, bool):
+            raise ApiError('is_open은 true 또는 false여야 해요')
+        config = LiteConfig.get()
+        config.is_open = is_open
+        config.save(update_fields=['is_open'])
+        logger.info('LITE 오픈 상태 변경: is_open=%s member_id=%s', is_open, self.member.id)
+        return APIResponse.success({'is_open': is_open})

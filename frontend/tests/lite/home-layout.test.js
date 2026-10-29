@@ -39,7 +39,7 @@ describe('LiteHome 레이아웃', () => {
 
   it('일반 회원은 1:1 세미나와 요청을 목록 대신 플로팅 버튼 메뉴로 연다', async () => {
     useLiteStore().member = { id: 1, name: '지민', is_host: false }
-    fetch.mockResolvedValue(jsonResponse({ meetups: [card()], my_seminar: { id: 3, status: 'received', mode: 'online' }, seminars: [], ready_request_count: 0 }))
+    fetch.mockResolvedValue(jsonResponse({ meetups: [card()], my_seminar: { id: 3, status: 'received', mode: 'online' }, seminars: [], ready_request_count: 0, is_open: true }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
 
     const wrapper = mount(LiteHome)
@@ -64,7 +64,7 @@ describe('LiteHome 레이아웃', () => {
   it('운영자는 플로팅 버튼 없이 세미나 대화 카드와 요청 항목을 목록에서 본다', async () => {
     useLiteStore().member = { id: 9, name: '운영', is_host: true }
     fetch.mockResolvedValue(jsonResponse({
-      meetups: [], my_seminar: null, ready_request_count: 2,
+      meetups: [], my_seminar: null, ready_request_count: 2, is_open: true,
       seminars: [{ id: 4, status: 'received', mode: null, member: { id: 1, name: '지민' } }],
     }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
@@ -86,7 +86,7 @@ describe('LiteHome 레이아웃', () => {
         card(),
         card({ id: 6, title: '이미지 없음', thumb_url: null }),
       ],
-      my_seminar: null, seminars: [], ready_request_count: 0,
+      my_seminar: null, seminars: [], ready_request_count: 0, is_open: true,
     }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
 

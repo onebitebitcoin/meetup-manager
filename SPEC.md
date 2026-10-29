@@ -490,7 +490,7 @@ npm run test
 | MeetupRequest | title(60), preferred_period(this_month/next_month/any), created_by FK Member, status(open/done), meetup(FK Meetup null), created_at |
 | RoomRead | member FK, room FK, last_read_id(PositiveBigInt, 기본 0: 그 회원이 그 채팅방에서 마지막으로 받은 메시지 id) · unique(member, room) |
 | RequestVote | request FK, member FK · unique(request, member) |
-| LiteConfig | 싱글턴(pk=1). vote_threshold(기본 5), seminar_guide_1="운영자와 1:1로 진행하는 세미나예요.\n온라인·오프라인 모두 가능해요.", seminar_guide_2="제안 주제\n· 비트코인 셀프 커스터디\n· 비트코인 공부\n· AI 공부\n다른 주제도 괜찮아요.", seminar_guide_3="원하는 주제와 희망 날짜·시간을 적어 주세요. 온라인·오프라인 중 편한 쪽도 함께 알려 주세요.", seminar_guide_4="접수됐어요. 여기서 일정을 안내해 드릴게요.", join_guide="신청 완료! 공지는 여기서 안내해요." · Django admin에서 수정 |
+| LiteConfig | 싱글턴(pk=1). vote_threshold(기본 5), is_open(기본 False: 오픈 전 잠금), seminar_guide_1="운영자와 1:1로 진행하는 세미나예요.\n온라인·오프라인 모두 가능해요.", seminar_guide_2="제안 주제\n· 비트코인 셀프 커스터디\n· 비트코인 공부\n· AI 공부\n다른 주제도 괜찮아요.", seminar_guide_3="원하는 주제와 희망 날짜·시간을 적어 주세요. 온라인·오프라인 중 편한 쪽도 함께 알려 주세요.", seminar_guide_4="접수됐어요. 여기서 일정을 안내해 드릴게요.", join_guide="신청 완료! 공지는 여기서 안내해요." · Django admin에서 수정 |
 
 - Meetup 생성 시 ChatRoom(kind=meetup)을 함께 만든다(뷰·관리 명령·Django admin 어디서 만들어도 보장, 모델 계층에서 처리). ChatRoom은 admin에서 읽기 전용. SeminarRequest 생성 시 ChatRoom(kind=seminar)을 함께 만든다.
 - 참석 인원(going_count)은 Rsvp(status=going) 수로 계산한다. 별도 카운터 필드는 두지 않는다.
@@ -509,6 +509,7 @@ npm run test
 - 토큰 없음/잘못됨 → 401 `{"error": "이름을 먼저 입력해 주세요"}`. 운영자 전용 → 403 `{"error": "운영자만 할 수 있어요"}`.
 - 운영자 승격: 환경 변수 `LITE_HOST_KEY`(비어 있으면 승격 불가, 운영에서는 `secrets.token_urlsafe(32)` 수준의 무작위 값)와 일치하는 key를 `POST host/claim/`으로 보내면 is_host=True.
 - 이름 검증: NFKC 정규화 후 앞뒤 공백 제거, 1~20자, 제어문자·줄바꿈·제로폭 문자 거부, 예약어("운영자", "관리자", "admin", "host") 거부.
+- 오픈 전 잠금: LiteConfig.is_open이 False이면 운영자가 아닌 회원은 참석(rsvp/), 채팅방(rooms/), 1:1 세미나(seminar/), 모임 요청(requests/) API에서 403 `{"error": "아직 오픈 전이에요"}`를 받는다. 홈·모임 정보 조회, 회원 만들기, 이름 바꾸기, 운영자 승격(host/claim/)은 막지 않는다(운영자가 오픈 전에 /host#키로 들어와야 하므로). 운영자는 홈 맨 위 막대의 "오픈하기"/"닫기" 버튼이나 Django admin의 LITE 설정에서 바꾼다. home/과 meetups/<id>/ 응답에 is_open을 함께 준다. 프론트는 잠금 상태에서 방문자에게 "오픈 준비 중이에요"를 보여 주고 참석 스위치, 문의 버튼, 참석하기·공지 확인하기 버튼을 숨긴다.
 - 요청 횟수 제한(DRF throttle, 캐시는 워커 간 공유되는 FileBasedCache): 회원 생성 IP당 60/hour, 운영자 승격 회원·IP당 5/hour, 메시지 전송 회원당 30/min, 요청 작성 회원당 10/hour. 초과 시 429 `{"error": "잠시 후 다시 시도해 주세요"}`.
 - 프록시 뒤 클라이언트 IP: 운영 설정에서 `REST_FRAMEWORK['NUM_PROXIES'] = 1`(nginx 1단).
 
@@ -540,6 +541,7 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | rooms/<id>/messages/?after=<msg_id> 또는 ?before=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | after가 있으면 200 {messages, pinned} (그 이후 최대 200개, 폴링용). after가 없으면 200 {messages, has_more, pinned} — 최신 100개, before가 있으면 그 id보다 오래된 메시지 중 최신 100개(둘 다 id 오름차순). after로 받거나 before 없이 최신 페이지를 받으면, 받은 마지막 메시지 id까지 읽은 것으로 RoomRead를 앞으로만 옮긴다(before로 이전 메시지를 볼 때는 옮기지 않는다). has_more는 더 오래된 메시지가 남았는지. after·before는 0 이상 정수(아니면 400) |
 | POST | rooms/<id>/messages/ | 위와 동일 | {body} (1~1000자) | 201 {message: Message} · 세미나방에서 신청자 본인이 보낸 메시지이고 status=guide이면: topic=body, status=received, guide 메시지 seminar_guide_4 추가 |
 | POST | seminar/ | member | - | 200 {seminar: SeminarCard} — 내 SeminarRequest get-or-create. 새로 만들 때 guide 메시지 seminar_guide_1, seminar_guide_2, seminar_guide_3 추가(진행 방식 선택 단계 없음) |
+| PUT | admin/open/ | host | {is_open: bool} | 200 {is_open} — 오픈 전 잠금을 켜고 끈다 |
 | POST | seminars/<id>/confirm/ | host | - | 200 {seminar} — status=confirmed, 시스템 메시지 "일정 확정" |
 | GET | requests/ | member | - | 200 {requests: [RequestCard]} (open 먼저, vote_count 내림차순, done 뒤) |
 | POST | requests/ | member | {title(1~60), preferred_period} | 201 {request: RequestCard} (작성자 자동 투표) |

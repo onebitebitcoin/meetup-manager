@@ -4,7 +4,7 @@ from django.db import transaction
 
 from meetups.views.helpers import APIResponse
 
-from ..auth import IsHost
+from ..auth import IsHost, IsMember, IsOpenOrHost
 from ..models import ChatMessage, LiteConfig, SeminarRequest
 from ..serializers import seminar_card
 from ..services import seminars_with_last_message
@@ -18,6 +18,7 @@ def guide(room, body):
 
 
 class SeminarView(LiteView):
+    permission_classes = [IsMember, IsOpenOrHost]
     def post(self, request):
         member = self.member
         with transaction.atomic():

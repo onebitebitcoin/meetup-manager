@@ -69,6 +69,7 @@ export const liteApi = {
   },
   linkPreview: (url) => request(`link-preview/?url=${encodeURIComponent(url)}`),
   seminar: () => request('seminar/', { method: 'POST' }),
+  setOpen: (isOpen) => request('admin/open/', { method: 'PUT', body: { is_open: isOpen } }),
   confirmSeminar: (id) => request(`seminars/${id}/confirm/`, { method: 'POST' }),
   requests: () => request('requests/'),
   createRequest: (title, preferredPeriod) => request('requests/', {

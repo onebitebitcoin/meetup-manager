@@ -6,7 +6,7 @@ import pytest
 from django.core.cache import cache
 from django.utils import timezone
 
-from lite.models import Meetup, Member
+from lite.models import LiteConfig, Meetup, Member
 
 
 @pytest.fixture(autouse=True)
@@ -14,6 +14,21 @@ def clear_throttle_cache():
     cache.clear()
     yield
     cache.clear()
+
+
+@pytest.fixture
+def opened(db):
+    """기존 시나리오는 오픈된 서비스를 전제로 한다. 잠금 동작은 test_open_gate.py에서 따로 본다."""
+    config = LiteConfig.get()
+    config.is_open = True
+    config.save()
+    return config
+
+
+@pytest.fixture(autouse=True)
+def default_open(request):
+    if 'closed' not in request.keywords:
+        request.getfixturevalue('opened')
 
 
 @pytest.fixture(autouse=True)

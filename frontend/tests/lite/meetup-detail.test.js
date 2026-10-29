@@ -19,7 +19,7 @@ const card = (over = {}) => ({
 
 const detail = (over = {}) => ({
   meetup: card(over), description: '지갑을 직접 만들어 봅니다', audience: '처음 접하는 분',
-  removed: false,
+  removed: false, is_open: true,
 })
 
 describe('LiteMeetupDetail (자세히 화면)', () => {

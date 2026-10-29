@@ -27,7 +27,7 @@
         </button>
         <div class="l-next-actions">
           <LiteRsvpSwitch
-            v-if="!store.isHost"
+            v-if="!store.isHost && store.isOpen"
             :meetup="meetup"
             @changed="emit('changed')"
           />

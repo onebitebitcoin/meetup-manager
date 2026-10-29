@@ -14,6 +14,9 @@ export const useLiteStore = defineStore('lite', () => {
 
   const hasToken = computed(() => !!token.value)
   const isHost = computed(() => !!member.value?.is_host)
+  // 오픈 전(isOpen=false)에는 운영자가 아니면 목록만 보고 참석·채팅·세미나·요청을 쓸 수 없다. 홈·모임 정보 응답으로 채운다.
+  const isOpen = ref(false)
+  const canJoin = computed(() => isHost.value || isOpen.value)
 
   const setToken = (value) => {
     token.value = value || null
@@ -114,5 +117,5 @@ export const useLiteStore = defineStore('lite', () => {
     return false
   }
 
-  return { token, member, ready, toast, hasToken, isHost, setToken, notify, act, init, ensureMember, claimHost, recover, renameRandom }
+  return { token, member, ready, toast, hasToken, isHost, isOpen, canJoin, setToken, notify, act, init, ensureMember, claimHost, recover, renameRandom }
 })

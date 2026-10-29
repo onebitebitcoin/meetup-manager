@@ -7,7 +7,7 @@ from django.utils.dateparse import parse_datetime
 
 from meetups.views.helpers import APIResponse
 
-from ..auth import IsHost
+from ..auth import IsHost, IsMember, IsOpenOrHost
 from ..models import ChatMessage, LiteConfig, Meetup, MeetupRequest, Rsvp
 from ..serializers import meetup_card, my_statuses, seminar_card
 from ..services import (
@@ -96,6 +96,7 @@ class HomeView(LiteView):
             'my_seminar': seminar_card(my_seminar) if my_seminar else None,
             'seminars': seminars,
             'ready_request_count': ready,
+            'is_open': LiteConfig.get().is_open,
         })
 
 
@@ -176,10 +177,12 @@ class MeetupDetailView(LiteView):
             'audience': meetup.audience,
             'removed': removed,
             'unread_count': unread,
+            'is_open': LiteConfig.get().is_open,
         })
 
 
 class RsvpView(LiteView):
+    permission_classes = [IsMember, IsOpenOrHost]
     def put(self, request, meetup_id):
         member = self.member
         new_status = self.json_body().get('status')

@@ -64,7 +64,7 @@ describe('LiteHome 다음 모임 카드', () => {
         card({ id: 2, title: '셀프 커스터디', starts_at: '2099-11-08T06:00:00Z', my_status: 'going' }),
         card({ id: 3, title: '온라인 AI 밋업', starts_at: '2099-11-11T11:00:00Z', location: '온라인', capacity: 30 }),
       ],
-      my_seminar: null, seminars: [], ready_request_count: 0,
+      my_seminar: null, seminars: [], ready_request_count: 0, is_open: true,
     }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
 
@@ -96,7 +96,7 @@ describe('LiteHome 다음 모임 카드', () => {
 
   it('운영자에게는 참석 스위치를 보이지 않는다', async () => {
     useLiteStore().member = { id: 9, name: '운영', is_host: true }
-    fetch.mockResolvedValue(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0 }))
+    fetch.mockResolvedValue(jsonResponse({ meetups: [card()], my_seminar: null, seminars: [], ready_request_count: 0, is_open: true }))
     const { default: LiteHome } = await import('@/lite/views/LiteHome.vue')
 
     const wrapper = mount(LiteHome)
@@ -108,7 +108,10 @@ describe('LiteHome 다음 모임 카드', () => {
 })
 
 describe('LiteNextCard 사진', () => {
-  beforeEach(() => setActivePinia(createPinia()))
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    useLiteStore().isOpen = true
+  })
 
   it('같은 날 모임이 여럿이면 줄마다 자기 썸네일을 보여 주고, 사진이 없는 모임은 썸네일 자리를 두지 않는다', async () => {
     const { default: LiteNextCard } = await import('@/lite/components/LiteNextCard.vue')
@@ -128,6 +131,7 @@ describe('LiteNextCard 사진', () => {
 describe('LiteNextCard 참석 스위치와 자세히', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    useLiteStore().isOpen = true
     global.fetch = vi.fn()
     push.mockReset()
   })

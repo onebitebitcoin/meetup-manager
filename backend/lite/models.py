@@ -169,6 +169,8 @@ class LiteConfig(models.Model):
     """싱글턴 설정(pk=1). Django admin에서 수정한다."""
 
     vote_threshold = models.PositiveIntegerField(default=5)
+    # 꺼져 있으면 운영자가 아닌 방문자는 목록만 보고 참석·채팅·세미나·요청을 쓸 수 없다(오픈 전 잠금)
+    is_open = models.BooleanField(default=False)
     seminar_guide_1 = models.TextField(default=SEMINAR_GUIDE_1)
     seminar_guide_2 = models.TextField(default=SEMINAR_GUIDE_2)
     seminar_guide_3 = models.TextField(default=SEMINAR_GUIDE_3)

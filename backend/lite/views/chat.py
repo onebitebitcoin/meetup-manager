@@ -6,6 +6,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 
 from meetups.views.helpers import APIResponse
 
+from ..auth import IsMember, IsOpenOrHost
 from ..models import ChatMessage, ChatRoom, LiteConfig, Rsvp, SeminarRequest
 from ..serializers import message_obj
 from ..services import mark_read
@@ -58,6 +59,7 @@ def latest_page(qs, limit):
 
 
 class RoomMessagesView(LiteView):
+    permission_classes = [IsMember, IsOpenOrHost]
     throttle_classes = [MessageSendThrottle]  # 폴링(GET)은 제한하지 않고 전송(POST)만 센다
 
     def _room(self, room_id):
@@ -102,6 +104,7 @@ class RoomMessagesView(LiteView):
 
 
 class RoomFilesView(LiteView):
+    permission_classes = [IsMember, IsOpenOrHost]
     parser_classes = [MultiPartParser, FormParser]
     throttle_classes = [MessageSendThrottle]
 

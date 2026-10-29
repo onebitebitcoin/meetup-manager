@@ -2,11 +2,12 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.permissions import BasePermission
 
-from .models import Member
+from .models import LiteConfig, Member
 
 TOKEN_HEADER = 'HTTP_X_MEMBER_TOKEN'
 UNAUTHORIZED_MESSAGE = '이름을 먼저 입력해 주세요'
 HOST_ONLY_MESSAGE = '운영자만 할 수 있어요'
+NOT_OPEN_MESSAGE = '아직 오픈 전이에요'
 
 
 class MemberTokenAuthentication(BaseAuthentication):
@@ -42,3 +43,12 @@ class IsHost(BasePermission):
         if not request.auth.is_host:
             raise PermissionDenied(HOST_ONLY_MESSAGE)
         return True
+
+
+class IsOpenOrHost(BasePermission):
+    """오픈 전에는 운영자만 통과시킨다. IsMember 뒤에 둔다."""
+
+    message = NOT_OPEN_MESSAGE
+
+    def has_permission(self, request, view):
+        return request.auth.is_host or LiteConfig.get().is_open
