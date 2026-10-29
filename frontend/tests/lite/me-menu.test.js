@@ -21,6 +21,28 @@ describe('LiteMeMenu 새 이름 받기', () => {
     return { store, wrapper: mount(LiteMeMenu) }
   }
 
+  const confirmRename = async (wrapper) => {
+    const ok = wrapper.findAll('.l-me-confirm button').find((b) => b.text() === '바꾸기')
+    await ok.trigger('click')
+    await flushPromises()
+  }
+
+  it('새로고침을 누르면 바로 바꾸지 않고 확인을 묻고, 그만두기를 누르면 닫는다', async () => {
+    const { store, wrapper } = mountWithMember()
+
+    await wrapper.find('button[aria-label="새 이름 받기"]').trigger('click')
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(wrapper.find('.l-me-confirm').text()).toContain('새 이름으로 바꿀까요?')
+
+    const cancel = wrapper.findAll('.l-me-confirm button').find((b) => b.text() === '그만두기')
+    await cancel.trigger('click')
+
+    expect(wrapper.find('.l-me-confirm').exists()).toBe(false)
+    expect(fetch).not.toHaveBeenCalled()
+    expect(store.member.name).toBe('지민')
+  })
+
   it('이름 지우기 메뉴 없이 새로고침 버튼만 둔다', () => {
     const { wrapper } = mountWithMember()
     expect(wrapper.text()).toContain('지민')
@@ -35,7 +57,7 @@ describe('LiteMeMenu 새 이름 받기', () => {
     ))
 
     await wrapper.find('button[aria-label="새 이름 받기"]').trigger('click')
-    await flushPromises()
+    await confirmRename(wrapper)
 
     const [url, init] = fetch.mock.calls[0]
     expect(url).toContain('/api/lite/me/')
@@ -44,6 +66,7 @@ describe('LiteMeMenu 새 이름 받기', () => {
     expect(store.member.name).not.toBe('지민')
     expect(localStorage.getItem(TOKEN_KEY)).toBe('tok')
     expect(store.toast).toEqual({ message: `이제 ${store.member.name}님이에요`, kind: 'ok' })
+    expect(wrapper.find('.l-me-confirm').exists()).toBe(false)
   })
 
   it('이름이 겹치면(409) 다시 뽑고, 실패하면 에러 알림을 띄운다', async () => {
@@ -53,7 +76,7 @@ describe('LiteMeMenu 새 이름 받기', () => {
       .mockResolvedValueOnce(jsonResponse({ error: '요청이 너무 많아요' }, 429))
 
     await wrapper.find('button[aria-label="새 이름 받기"]').trigger('click')
-    await flushPromises()
+    await confirmRename(wrapper)
 
     expect(fetch).toHaveBeenCalledTimes(2)
     expect(store.member.name).toBe('지민')
