@@ -160,13 +160,18 @@ class RequestVote(models.Model):
         constraints = [models.UniqueConstraint(fields=['request', 'member'], name='lite_vote_unique_request_member')]
 
 
+SEMINAR_GUIDE_1 = '운영자와 1:1로 진행하는 세미나예요.\n온라인·오프라인 모두 가능해요.'
+SEMINAR_GUIDE_2 = '제안 주제\n· 비트코인 셀프 커스터디\n· 비트코인 공부\n· AI 공부\n다른 주제도 괜찮아요.'
+SEMINAR_GUIDE_3 = '원하는 주제와 희망 날짜·시간을 적어 주세요. 온라인·오프라인 중 편한 쪽도 함께 알려 주세요.'
+
+
 class LiteConfig(models.Model):
     """싱글턴 설정(pk=1). Django admin에서 수정한다."""
 
     vote_threshold = models.PositiveIntegerField(default=5)
-    seminar_guide_1 = models.TextField(default='원하는 주제로 운영자와 1:1로 진행해요.')
-    seminar_guide_2 = models.TextField(default='진행 방식을 골라 주세요.')
-    seminar_guide_3 = models.TextField(default='주제와 희망 날짜·시간을 적어 주세요.')
+    seminar_guide_1 = models.TextField(default=SEMINAR_GUIDE_1)
+    seminar_guide_2 = models.TextField(default=SEMINAR_GUIDE_2)
+    seminar_guide_3 = models.TextField(default=SEMINAR_GUIDE_3)
     seminar_guide_4 = models.TextField(default='접수됐어요. 여기서 일정을 안내해 드릴게요.')
     join_guide = models.TextField(default='신청 완료! 공지는 여기서 안내해요.')
 

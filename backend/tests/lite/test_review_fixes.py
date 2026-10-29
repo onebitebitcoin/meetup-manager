@@ -76,14 +76,6 @@ def test_request_create_throttle(api_client, member, auth):
     assert api_client.get('/api/lite/requests/', **auth(member)).status_code == 200
 
 
-def test_seminar_mode_throttle(api_client, member, auth):
-    post(api_client, '/api/lite/seminar/', headers=auth(member))
-    for _ in range(10):
-        post(api_client, '/api/lite/seminar/mode/', {'mode': 'bad'}, auth(member))
-    r = post(api_client, '/api/lite/seminar/mode/', {'mode': 'online'}, auth(member))
-    assert r.status_code == 429 and r.json() == THROTTLED
-
-
 # --- 채팅방 보장 ---
 
 def test_meetup_and_seminar_rooms_created_by_model(member):

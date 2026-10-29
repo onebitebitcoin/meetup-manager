@@ -20,7 +20,6 @@ urlpatterns = [
     path('api/lite/rooms/<int:room_id>/pin/', views.AdminPinView.as_view()),
     path('api/lite/link-preview/', views.LinkPreviewView.as_view()),
     path('api/lite/seminar/', views.SeminarView.as_view()),
-    path('api/lite/seminar/mode/', views.SeminarModeView.as_view()),
     path('api/lite/seminars/<int:seminar_id>/confirm/', views.SeminarConfirmView.as_view()),
     path('api/lite/requests/', views.RequestListView.as_view()),
     path('api/lite/requests/<int:request_id>/vote/', views.RequestVoteView.as_view()),

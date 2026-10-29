@@ -90,11 +90,7 @@ class RoomMessagesView(LiteView):
             message = ChatMessage.objects.create(room=room, member=member, kind=ChatMessage.Kind.USER, body=body)
             if room.kind == ChatRoom.Kind.SEMINAR:
                 seminar = SeminarRequest.objects.select_for_update().get(pk=room.seminar_id)
-                if (
-                    seminar.member_id == member.id
-                    and seminar.status == SeminarRequest.Status.GUIDE
-                    and seminar.mode
-                ):
+                if seminar.member_id == member.id and seminar.status == SeminarRequest.Status.GUIDE:
                     seminar.topic = body
                     seminar.status = SeminarRequest.Status.RECEIVED
                     seminar.save(update_fields=['topic', 'status'])

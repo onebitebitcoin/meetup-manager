@@ -484,13 +484,13 @@ npm run test
 | Member | name(CharField 20, unique), token(CharField 64, unique, `secrets.token_urlsafe(32)`), is_host(bool), created_at |
 | Meetup | title(80), description(blank), audience(100, blank: 대상 한 줄, 예 "비트코인을 처음 접하는 분"), starts_at(DateTime), location(100), capacity(PositiveInt), image_url(500, blank: 썸네일 원본 주소, 기존 모임은 /media/ 경로 또는 외부 URL), thumb_url(200, blank: image_url을 줄여 만든 WebP 썸네일의 /media/lite/thumbs/ 주소), from_request(FK MeetupRequest null), legacy_meetup_id(Int unique null), cancelled_at(DateTime null: 운영자 취소 시각), created_at |
 | Rsvp | member FK, meetup FK, status(going/maybe/no), removed_at(DateTime null: 운영자가 내보낸 시각), updated_at · unique(member, meetup) |
-| SeminarRequest | member(O2O Member), mode(online/offline, null), topic(Text blank), status(guide/received/confirmed), created_at |
+| SeminarRequest | member(O2O Member), mode(online/offline, null: 예전 방식 선택 단계의 기록, 지금은 쓰지 않음), topic(Text blank), status(guide/received/confirmed), created_at |
 | ChatRoom | kind(meetup/seminar), meetup(O2O null), seminar(O2O SeminarRequest null), pinned_message(FK ChatMessage null, SET_NULL: 방마다 고정 공지 1개) |
 | ChatMessage | room FK, member FK null, kind(user/system/guide), body(Text ≤ 1000), created_at · ordering id · 복합 인덱스(room, id) |
 | MeetupRequest | title(60), preferred_period(this_month/next_month/any), created_by FK Member, status(open/done), meetup(FK Meetup null), created_at |
 | RoomRead | member FK, room FK, last_read_id(PositiveBigInt, 기본 0: 그 회원이 그 채팅방에서 마지막으로 받은 메시지 id) · unique(member, room) |
 | RequestVote | request FK, member FK · unique(request, member) |
-| LiteConfig | 싱글턴(pk=1). vote_threshold(기본 5), seminar_guide_1="원하는 주제로 운영자와 1:1로 진행해요.", seminar_guide_2="진행 방식을 골라 주세요.", seminar_guide_3="주제와 희망 날짜·시간을 적어 주세요.", seminar_guide_4="접수됐어요. 여기서 일정을 안내해 드릴게요.", join_guide="신청 완료! 공지는 여기서 안내해요." · Django admin에서 수정 |
+| LiteConfig | 싱글턴(pk=1). vote_threshold(기본 5), seminar_guide_1="운영자와 1:1로 진행하는 세미나예요.\n온라인·오프라인 모두 가능해요.", seminar_guide_2="제안 주제\n· 비트코인 셀프 커스터디\n· 비트코인 공부\n· AI 공부\n다른 주제도 괜찮아요.", seminar_guide_3="원하는 주제와 희망 날짜·시간을 적어 주세요. 온라인·오프라인 중 편한 쪽도 함께 알려 주세요.", seminar_guide_4="접수됐어요. 여기서 일정을 안내해 드릴게요.", join_guide="신청 완료! 공지는 여기서 안내해요." · Django admin에서 수정 |
 
 - Meetup 생성 시 ChatRoom(kind=meetup)을 함께 만든다(뷰·관리 명령·Django admin 어디서 만들어도 보장, 모델 계층에서 처리). ChatRoom은 admin에서 읽기 전용. SeminarRequest 생성 시 ChatRoom(kind=seminar)을 함께 만든다.
 - 참석 인원(going_count)은 Rsvp(status=going) 수로 계산한다. 별도 카운터 필드는 두지 않는다.
@@ -509,7 +509,7 @@ npm run test
 - 토큰 없음/잘못됨 → 401 `{"error": "이름을 먼저 입력해 주세요"}`. 운영자 전용 → 403 `{"error": "운영자만 할 수 있어요"}`.
 - 운영자 승격: 환경 변수 `LITE_HOST_KEY`(비어 있으면 승격 불가, 운영에서는 `secrets.token_urlsafe(32)` 수준의 무작위 값)와 일치하는 key를 `POST host/claim/`으로 보내면 is_host=True.
 - 이름 검증: NFKC 정규화 후 앞뒤 공백 제거, 1~20자, 제어문자·줄바꿈·제로폭 문자 거부, 예약어("운영자", "관리자", "admin", "host") 거부.
-- 요청 횟수 제한(DRF throttle, 캐시는 워커 간 공유되는 FileBasedCache): 회원 생성 IP당 60/hour, 운영자 승격 회원·IP당 5/hour, 메시지 전송 회원당 30/min, 요청 작성 회원당 10/hour, 세미나 mode 선택 회원당 10/hour. 초과 시 429 `{"error": "잠시 후 다시 시도해 주세요"}`.
+- 요청 횟수 제한(DRF throttle, 캐시는 워커 간 공유되는 FileBasedCache): 회원 생성 IP당 60/hour, 운영자 승격 회원·IP당 5/hour, 메시지 전송 회원당 30/min, 요청 작성 회원당 10/hour. 초과 시 429 `{"error": "잠시 후 다시 시도해 주세요"}`.
 - 프록시 뒤 클라이언트 IP: 운영 설정에서 `REST_FRAMEWORK['NUM_PROXIES'] = 1`(nginx 1단).
 
 ### 11.4 API 계약 (prefix `/api/lite/`, trailing slash 유지)
@@ -538,9 +538,8 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | meetups/<id>/ | 없음(토큰이 있으면 회원 기준, 이름 없으면 my_status는 null) | - | 200 {meetup: MeetupCard, description: str, audience: str (비어 있으면 ""), removed: bool (요청한 회원 본인이 운영자에게 내보내졌는지), unread_count: int (채팅방에서 아직 읽지 않은 대화 수. 사람이 쓴 메시지(kind=user) 중 읽은 위치 이후이고 본인이 쓰지 않은 것만 센다. 신청한 회원(going/maybe, 내보내지지 않음)과 운영자만 세고 나머지는 0)} |
 | PUT | meetups/<id>/rsvp/ | member | {status} | 200 {meetup: MeetupCard} · 이미 지난 모임(시작 시각 + 12시간 경과)은 400 · 취소된 모임은 400 "취소된 모임이에요" · 운영자가 내보낸 회원은 403 · going인데 정원 초과 409 "정원이 찼어요" · 상태가 바뀌면 시스템 메시지 "<이름>님 참석합니다/미정입니다/불참합니다", 처음 going/maybe가 되면 guide 메시지 join_guide 추가 |
 | GET | rooms/<id>/messages/?after=<msg_id> 또는 ?before=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | after가 있으면 200 {messages, pinned} (그 이후 최대 200개, 폴링용). after가 없으면 200 {messages, has_more, pinned} — 최신 100개, before가 있으면 그 id보다 오래된 메시지 중 최신 100개(둘 다 id 오름차순). after로 받거나 before 없이 최신 페이지를 받으면, 받은 마지막 메시지 id까지 읽은 것으로 RoomRead를 앞으로만 옮긴다(before로 이전 메시지를 볼 때는 옮기지 않는다). has_more는 더 오래된 메시지가 남았는지. after·before는 0 이상 정수(아니면 400) |
-| POST | rooms/<id>/messages/ | 위와 동일 | {body} (1~1000자) | 201 {message: Message} · 세미나방에서 신청자 본인이 보낸 메시지이고 status=guide이며 mode가 정해져 있으면: topic=body, status=received, guide 메시지 seminar_guide_4 추가 |
-| POST | seminar/ | member | - | 200 {seminar: SeminarCard} — 내 SeminarRequest get-or-create. 새로 만들 때 guide 메시지 seminar_guide_1, seminar_guide_2 추가 |
-| POST | seminar/mode/ | member | {mode} | 200 {seminar} — 사용자 메시지 "온라인"/"오프라인" + guide 메시지 seminar_guide_3 추가 |
+| POST | rooms/<id>/messages/ | 위와 동일 | {body} (1~1000자) | 201 {message: Message} · 세미나방에서 신청자 본인이 보낸 메시지이고 status=guide이면: topic=body, status=received, guide 메시지 seminar_guide_4 추가 |
+| POST | seminar/ | member | - | 200 {seminar: SeminarCard} — 내 SeminarRequest get-or-create. 새로 만들 때 guide 메시지 seminar_guide_1, seminar_guide_2, seminar_guide_3 추가(진행 방식 선택 단계 없음) |
 | POST | seminars/<id>/confirm/ | host | - | 200 {seminar} — status=confirmed, 시스템 메시지 "일정 확정" |
 | GET | requests/ | member | - | 200 {requests: [RequestCard]} (open 먼저, vote_count 내림차순, done 뒤) |
 | POST | requests/ | member | {title(1~60), preferred_period} | 201 {request: RequestCard} (작성자 자동 투표) |
@@ -593,7 +592,7 @@ LITE가 사이트의 메인이다. LITE 화면은 루트 경로(`/`, `/m/:id` �
 | /m/:id | 모임 채팅방. 이름이 없어도 이름을 묻지 않는다. "참석하기"를 누르면 자동 닉네임으로 가입하고 참석 신청까지 마친 뒤 채팅방을 연다. 홈 카드의 "참석하기"도 같은 방식으로 가입·신청한 뒤 이 화면으로 보낸다. 상단 줄: 썸네일(thumb_url이 있으면 40px, 없으면 달력 아이콘)·일정·장소만 둔다. 채팅방에는 참석 응답 버튼과 안내 펼치기 버튼이 없다(참석 여부는 홈의 스위치, 모임 안내는 /m/:id/info에서 본다). 미신청자는 메시지 대신 모임 안내 패널과 큰 참석하기 버튼을 보고, 상단 요약 줄은 취소·내보냄 안내가 있을 때만 보인다. 모임 안내 패널은 어르신도 읽기 쉽게 항목 이름(언제·어디서·정원·대상·내용)을 왼쪽에 두고 값을 크게 쓴다. 언제는 "11월 8일 일요일 오후 2시"와 남은 날, 정원은 "15명"과 "지금 N명 참석", 대상·내용은 운영자가 적었을 때만 보인다 |
 | /admin | 운영자 전용. 다가오는/지난 탭 모임 목록(날짜·제목·참석/정원·취소됨 칩)과 모임 만들기 버튼. 운영자가 아니면 홈으로 이동 |
 | /admin/m/:id | 운영자 전용 모임 관리. 수정 폼(대상, 내용, 썸네일 URL 포함), 참석자 명단과 내보내기, 채팅방 링크, 취소/되돌리기, 삭제. 내보내기·삭제는 화면 안에서 한 번 더 확인 |
-| /seminar | 내 1:1 세미나 채팅방. 이름이 없으면 자동 닉네임으로 가입한 뒤 바로 시작한다. 마지막 안내 메시지 아래 온라인/오프라인 선택 버튼 |
+| /seminar | 내 1:1 세미나 채팅방. 이름이 없으면 자동 닉네임으로 가입한 뒤 바로 시작한다. 안내 메시지(제안 주제, 온라인·오프라인 모두 가능) 뒤 바로 메시지를 보내 접수한다 |
 | /seminar/:id | 운영자용 1:1 세미나 채팅방 + 확정 버튼 |
 | /new-request | 요청 작성(주제 + 시기 세그먼트). 방문자는 홈 "문의" 메뉴의 "이런 모임 열어주세요"에서 목록을 거치지 않고 이 화면으로 바로 온다. 이름이 없어도 열리고, "올리기"를 누를 때 자동 닉네임으로 가입한 뒤 요청을 올린다. 올린 뒤와 뒤로 가기는 방문자는 홈, 운영자는 /requests로 간다 |
 | /new-meetup | 운영자 모임 만들기(제목, 일시, 장소, 정원, 대상, 내용). `?request=<id>`면 요청 제목을 채운다 |

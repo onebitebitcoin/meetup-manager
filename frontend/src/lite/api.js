@@ -69,7 +69,6 @@ export const liteApi = {
   },
   linkPreview: (url) => request(`link-preview/?url=${encodeURIComponent(url)}`),
   seminar: () => request('seminar/', { method: 'POST' }),
-  seminarMode: (mode) => request('seminar/mode/', { method: 'POST', body: { mode } }),
   confirmSeminar: (id) => request(`seminars/${id}/confirm/`, { method: 'POST' }),
   requests: () => request('requests/'),
   createRequest: (title, preferredPeriod) => request('requests/', {

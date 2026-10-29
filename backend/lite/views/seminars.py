@@ -8,12 +8,9 @@ from ..auth import IsHost
 from ..models import ChatMessage, LiteConfig, SeminarRequest
 from ..serializers import seminar_card
 from ..services import seminars_with_last_message
-from ..throttles import SeminarModeThrottle
-from .base import ApiError, LiteView, get_or_404
+from .base import LiteView, get_or_404
 
 logger = logging.getLogger(__name__)
-
-MODE_LABELS = {SeminarRequest.Mode.ONLINE: '온라인', SeminarRequest.Mode.OFFLINE: '오프라인'}
 
 
 def guide(room, body):
@@ -30,30 +27,8 @@ class SeminarView(LiteView):
                 config = LiteConfig.get()
                 guide(room, config.seminar_guide_1)
                 guide(room, config.seminar_guide_2)
+                guide(room, config.seminar_guide_3)
                 logger.info('LITE 세미나 시작: seminar_id=%s member_id=%s', seminar.id, member.id)
-        return APIResponse.success({'seminar': seminar_card(seminars_with_last_message().get(pk=seminar.pk))})
-
-
-class SeminarModeView(LiteView):
-    throttle_classes = [SeminarModeThrottle]
-
-    def post(self, request):
-        member = self.member
-        mode = self.json_body().get('mode')
-        if mode not in MODE_LABELS:
-            raise ApiError('진행 방식은 online 또는 offline이어야 해요')
-        with transaction.atomic():
-            seminar = get_or_404(
-                seminars_with_last_message().select_for_update(of=('self',)), '세미나를 먼저 시작해 주세요', member=member
-            )
-            if seminar.status != SeminarRequest.Status.GUIDE:
-                raise ApiError('이미 접수된 세미나예요')
-            seminar.mode = mode
-            seminar.save(update_fields=['mode'])
-            ChatMessage.objects.create(
-                room=seminar.room, member=member, kind=ChatMessage.Kind.USER, body=MODE_LABELS[mode]
-            )
-            guide(seminar.room, LiteConfig.get().seminar_guide_3)
         return APIResponse.success({'seminar': seminar_card(seminars_with_last_message().get(pk=seminar.pk))})
 
 

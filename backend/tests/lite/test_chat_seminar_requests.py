@@ -99,19 +99,13 @@ def test_seminar_full_flow(api_client, member, host, auth):
     room_id = card['room_id']
     cfg = LiteConfig.get()
     guides = list(ChatMessage.objects.filter(room_id=room_id).values_list('kind', 'body'))
-    assert guides == [('guide', cfg.seminar_guide_1), ('guide', cfg.seminar_guide_2)]
+    assert guides == [('guide', cfg.seminar_guide_1), ('guide', cfg.seminar_guide_2), ('guide', cfg.seminar_guide_3)]
+    assert '온라인·오프라인 모두' in cfg.seminar_guide_1
+    assert all(t in cfg.seminar_guide_2 for t in ('비트코인 셀프 커스터디', '비트코인 공부', 'AI 공부'))
     assert start_seminar(api_client, auth(member)).json()['seminar']['id'] == card['id']
-    assert ChatMessage.objects.filter(room_id=room_id).count() == 2
+    assert ChatMessage.objects.filter(room_id=room_id).count() == 3
 
-    # mode 선택 전 메시지는 접수되지 않는다
-    send(api_client, auth(member), room_id, '질문')
-    assert SeminarRequest.objects.get().status == 'guide'
-
-    r = api_client.post('/api/lite/seminar/mode/', {'mode': 'online'}, format='json', **auth(member))
-    assert r.status_code == 200 and r.json()['seminar']['mode'] == 'online'
-    last_two = list(ChatMessage.objects.filter(room_id=room_id).order_by('-id')[:2].values_list('kind', 'body'))
-    assert last_two == [('guide', cfg.seminar_guide_3), ('user', '온라인')]
-
+    # 진행 방식을 고르지 않아도 첫 메시지가 바로 접수된다
     send(api_client, auth(member), room_id, 'AI 주제, 토요일 3시')
     seminar = SeminarRequest.objects.get()
     assert seminar.status == 'received' and seminar.topic == 'AI 주제, 토요일 3시'
@@ -135,7 +129,6 @@ def test_seminar_full_flow(api_client, member, host, auth):
 
 def test_seminar_host_message_does_not_receive(api_client, member, host, auth):
     room_id = start_seminar(api_client, auth(member)).json()['seminar']['room_id']
-    api_client.post('/api/lite/seminar/mode/', {'mode': 'offline'}, format='json', **auth(member))
     assert send(api_client, auth(host), room_id, '안내').status_code == 201
     assert SeminarRequest.objects.get().status == 'guide'
 
@@ -148,12 +141,10 @@ def test_seminar_room_access(api_client, member, make_member, host, auth):
     assert msgs(api_client, auth(host), room_id).status_code == 200
 
 
-def test_seminar_mode_errors(api_client, member, auth):
+def test_seminar_mode_endpoint_removed(api_client, member, auth):
+    start_seminar(api_client, auth(member))
     r = api_client.post('/api/lite/seminar/mode/', {'mode': 'online'}, format='json', **auth(member))
     assert r.status_code == 404
-    start_seminar(api_client, auth(member))
-    r = api_client.post('/api/lite/seminar/mode/', {'mode': 'zoom'}, format='json', **auth(member))
-    assert r.status_code == 400
 
 
 def test_seminar_confirm_permissions(api_client, member, auth):

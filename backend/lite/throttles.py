@@ -50,11 +50,6 @@ class RequestCreateThrottle(MemberThrottle):
     methods = ('POST',)
 
 
-class SeminarModeThrottle(MemberThrottle):
-    scope = 'lite_seminar_mode'
-    rate = '10/hour'
-
-
 class LinkPreviewThrottle(MemberThrottle):
     scope = 'lite_link_preview'
     rate = '60/min'
