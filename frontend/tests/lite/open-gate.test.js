@@ -65,7 +65,7 @@ describe('오픈 전 잠금', () => {
     expect(useLiteStore().toast).toEqual({ message: '오픈했어요', kind: 'ok' })
   })
 
-  it('오픈 전이면 자세히 화면에서 참석하기와 공지 확인하기를 숨긴다', async () => {
+  it('오픈 전이면 자세히 화면에서 공지 확인하기를 비활성화하고 참석하기는 숨긴다', async () => {
     useLiteStore().member = { id: 1, name: '지민', is_host: false }
     fetch.mockResolvedValue(jsonResponse({
       meetup: card({ my_status: 'going' }), description: '', audience: '', removed: false, is_open: false,
@@ -76,7 +76,8 @@ describe('오픈 전 잠금', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('오픈 준비 중이에요')
-    expect(wrapper.text()).not.toContain('공지 확인하기')
+    const button = wrapper.findAll('button').find((b) => b.text().includes('공지 확인하기'))
+    expect(button.attributes('disabled')).toBeDefined()
     expect(wrapper.text()).not.toContain('참석하기')
   })
 })

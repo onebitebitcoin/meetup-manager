@@ -26,16 +26,21 @@
       :description="description"
       :audience="audience"
     />
-    <!-- 신청한 회원과 운영자는 채팅방에서 공지를 본다. 아직 신청하지 않았으면 신청부터 받는다. -->
+    <!-- 신청한 회원과 운영자는 채팅방에서 공지를 본다. 아직 신청하지 않았으면 신청부터 받는다.
+         오픈 전에는 버튼을 보여 주되 누를 수 없게 막는다. -->
     <button
-      v-if="store.isHost || (joined && store.isOpen)"
+      v-if="store.isHost || locked || joined"
       type="button"
       class="l-btn p"
+      :disabled="locked"
       @click="openRoom"
     >
-      <Megaphone :size="20" />공지 확인하기
+      <component
+        :is="locked ? Lock : Megaphone"
+        :size="20"
+      />공지 확인하기
       <span
-        v-if="unread > 0"
+        v-if="unread > 0 && !locked"
         class="l-badge"
         :aria-label="`안 읽은 대화 ${unread}개`"
       >{{ unread > 99 ? '99+' : unread }}</span>
@@ -51,7 +56,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Megaphone } from 'lucide-vue-next'
+import { Lock, Megaphone } from 'lucide-vue-next'
 import { liteApi } from '../api'
 import { useLiteStore } from '../store'
 import LiteJoinRow from '../components/LiteJoinRow.vue'
@@ -71,9 +76,10 @@ const removed = ref(false)
 const error = ref('')
 
 const joined = computed(() => ['going', 'maybe'].includes(meetup.value?.my_status))
+const locked = computed(() => !store.isHost && !store.isOpen)
 const notice = computed(() => {
   if (store.isHost) return ''
-  if (!store.isOpen) return '오픈 준비 중이에요'
+  if (locked.value) return '오픈 준비 중이에요'
   if (removed.value) return '운영자가 내보낸 모임이에요'
   if (meetup.value?.cancelled) return '취소된 모임이에요'
   return ''
