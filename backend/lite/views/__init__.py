@@ -1,11 +1,15 @@
 from .admin import (
+    AdminLoginView,
     AdminMeetupCancelView,
     AdminMeetupDetailView,
     AdminMeetupListView,
     AdminMemberRemoveView,
     AdminMessageDeleteView,
     AdminOpenView,
+    AdminPasswordView,
     AdminPinView,
+    AdminRoomListView,
+    AdminSettingsView,
 )
 from .chat import RoomFilesView, RoomMessagesView
 from .meetups import HomeView, MeetupCreateView, MeetupDetailView, RsvpView
@@ -15,7 +19,7 @@ from .requests import RequestListView, RequestVoteView
 from .seminars import SeminarConfirmView, SeminarView
 
 __all__ = [
-    'AdminMeetupCancelView', 'AdminMeetupDetailView', 'AdminMeetupListView', 'AdminMemberRemoveView',
+    'AdminLoginView', 'AdminPasswordView', 'AdminRoomListView', 'AdminSettingsView', 'AdminMeetupCancelView', 'AdminMeetupDetailView', 'AdminMeetupListView', 'AdminMemberRemoveView',
     'AdminMessageDeleteView', 'AdminOpenView', 'AdminPinView',
     'HomeView', 'HostClaimView', 'LinkPreviewView', 'MeView', 'MeetupCreateView', 'MeetupDetailView',
     'MemberCreateView', 'RequestListView', 'RequestVoteView', 'RoomFilesView', 'RoomMessagesView', 'RsvpView',

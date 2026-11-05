@@ -160,13 +160,15 @@ class RequestVote(models.Model):
         constraints = [models.UniqueConstraint(fields=['request', 'member'], name='lite_vote_unique_request_member')]
 
 
+# 초기 운영자 비밀번호의 Django 해시(make_password). 평문은 저장소에 두지 않는다.
+DEFAULT_ADMIN_PASSWORD_HASH = 'pbkdf2_sha256$600000$vTstmtjZ2jezBT7yhhmfpZ$MXPlqTypJ6rDZCWYSelZ8B441y+YVqsSZf63hcb9yVw='
 SEMINAR_GUIDE_1 = '운영자와 1:1로 진행하는 세미나예요.\n온라인·오프라인 모두 가능해요.'
 SEMINAR_GUIDE_2 = '제안 주제\n· 비트코인 셀프 커스터디\n· 비트코인 공부\n· AI 공부\n다른 주제도 괜찮아요.'
 SEMINAR_GUIDE_3 = '원하는 주제와 희망 날짜·시간을 적어 주세요. 온라인·오프라인 중 편한 쪽도 함께 알려 주세요.'
 
 
 class LiteConfig(models.Model):
-    """싱글턴 설정(pk=1). Django admin에서 수정한다."""
+    """싱글턴 설정(pk=1). 운영자 설정 화면(admin/settings/)에서 수정한다."""
 
     vote_threshold = models.PositiveIntegerField(default=5)
     # 꺼져 있으면 운영자가 아닌 방문자는 목록만 보고 참석·채팅·세미나·요청을 쓸 수 없다(오픈 전 잠금)
@@ -176,6 +178,7 @@ class LiteConfig(models.Model):
     seminar_guide_3 = models.TextField(default=SEMINAR_GUIDE_3)
     seminar_guide_4 = models.TextField(default='접수됐어요. 여기서 일정을 안내해 드릴게요.')
     join_guide = models.TextField(default='신청 완료! 공지는 여기서 안내해요.')
+    admin_password_hash = models.CharField(max_length=128, default=DEFAULT_ADMIN_PASSWORD_HASH)
 
     def save(self, *args, **kwargs):
         self.pk = 1

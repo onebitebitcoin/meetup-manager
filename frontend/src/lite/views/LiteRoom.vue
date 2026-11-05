@@ -2,6 +2,7 @@
   <LiteTopbar
     :title="meetup ? meetup.title : '모임'"
     back
+    :back-to="chatBackTo(route.query)"
   >
     <span
       v-if="meetup"
@@ -57,6 +58,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Settings, Users } from 'lucide-vue-next'
 import { liteApi } from '../api'
+import { chatBackTo } from '../format'
 import { useLiteStore } from '../store'
 import LiteChat from '../components/LiteChat.vue'
 import LiteJoinRow from '../components/LiteJoinRow.vue'

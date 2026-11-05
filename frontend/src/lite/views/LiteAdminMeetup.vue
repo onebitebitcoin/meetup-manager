@@ -242,7 +242,7 @@ const destroy = async () => {
 
 onMounted(() => {
   if (!store.isHost) {
-    router.replace('/')
+    router.replace('/admin')
     return
   }
   load()

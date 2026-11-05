@@ -138,9 +138,6 @@ pip install -r requirements.txt
 # 데이터베이스 마이그레이션
 python manage.py migrate
 
-# 관리자 계정 생성 (선택사항)
-python manage.py createsuperuser
-
 # 개발 서버 실행
 python manage.py runserver
 ```
@@ -161,7 +158,7 @@ npm run dev
 ### 3. 접속 정보
 - **프론트엔드**: http://localhost:7173
 - **백엔드 API**: http://localhost:7000
-- **Django Admin**: http://localhost:7000/admin
+- **운영자 화면**: http://localhost:7173/admin (비밀번호로 로그인, Django admin은 쓰지 않음)
 
 ## 📊 데이터베이스 모델
 

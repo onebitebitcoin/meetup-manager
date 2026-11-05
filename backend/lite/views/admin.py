@@ -1,6 +1,7 @@
 import logging
 from urllib.parse import urlsplit
 
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
@@ -8,8 +9,9 @@ from meetups.views.helpers import APIResponse
 
 from ..auth import IsHost
 from ..models import ChatMessage, ChatRoom, LiteConfig, Meetup, Rsvp
-from ..serializers import meetup_card, member_brief, message_obj
-from ..services import KST, add_message, meetups_with_counts, today_start_kst
+from ..serializers import meetup_card, member_brief, member_full, message_obj
+from ..services import KST, add_message, meetups_with_counts, rooms_for_host, today_start_kst
+from ..throttles import AdminLoginThrottle, AdminPasswordThrottle
 from ..thumbnails import ThumbnailError, make_thumbnail
 from .base import ApiError, LiteView, clean_text, get_or_404, not_found
 from .meetups import DESCRIPTION_MAX, parse_audience, parse_capacity, parse_starts_at
@@ -250,3 +252,115 @@ class AdminOpenView(LiteView):
         config.save(update_fields=['is_open'])
         logger.info('LITE 오픈 상태 변경: is_open=%s member_id=%s', is_open, self.member.id)
         return APIResponse.success({'is_open': is_open})
+
+
+PASSWORD_MIN = 8
+PASSWORD_MAX = 128
+GUIDE_FIELDS = ('seminar_guide_1', 'seminar_guide_2', 'seminar_guide_3', 'seminar_guide_4', 'join_guide')
+SETTING_FIELDS = ('vote_threshold', *GUIDE_FIELDS)
+GUIDE_MAX = 1000
+VOTE_THRESHOLD_MAX = 1000
+
+
+def config_settings(config):
+    return {name: getattr(config, name) for name in SETTING_FIELDS}
+
+
+class AdminLoginView(LiteView):
+    """비밀번호가 맞으면 요청한 회원을 운영자로 바꾼다. 오픈 전 잠금과 무관하다."""
+
+    throttle_classes = [AdminLoginThrottle]
+
+    def post(self, request):
+        password = self.json_body().get('password')
+        if not isinstance(password, str) or not check_password(password, LiteConfig.get().admin_password_hash):
+            logger.warning('LITE 운영자 로그인 실패: member_id=%s', self.member.id)
+            raise ApiError('비밀번호가 맞지 않아요', 403)
+        member = self.member
+        if not member.is_host:
+            member.is_host = True
+            member.save(update_fields=['is_host'])
+            logger.info('LITE 운영자 로그인으로 승격: member_id=%s', member.id)
+        return APIResponse.success({'member': member_full(member)})
+
+
+class AdminPasswordView(LiteView):
+    permission_classes = [IsHost]
+    throttle_classes = [AdminPasswordThrottle]
+
+    def put(self, request):
+        data = self.json_body()
+        current, new = data.get('current_password'), data.get('new_password')
+        config = LiteConfig.get()
+        if not isinstance(current, str) or not check_password(current, config.admin_password_hash):
+            logger.warning('LITE 비밀번호 변경 실패: member_id=%s', self.member.id)
+            raise ApiError('현재 비밀번호가 맞지 않아요', 403)
+        if not isinstance(new, str) or len(new) < PASSWORD_MIN:
+            raise ApiError(f'새 비밀번호는 {PASSWORD_MIN}자 이상이어야 해요')
+        if len(new) > PASSWORD_MAX:
+            raise ApiError(f'새 비밀번호는 {PASSWORD_MAX}자 이내로 입력해 주세요')
+        config.admin_password_hash = make_password(new)
+        config.save(update_fields=['admin_password_hash'])
+        logger.info('LITE 운영자 비밀번호 변경: member_id=%s', self.member.id)
+        return APIResponse.success({'changed': True})
+
+
+class AdminSettingsView(LiteView):
+    permission_classes = [IsHost]
+
+    def get(self, request):
+        return APIResponse.success(config_settings(LiteConfig.get()))
+
+    def patch(self, request):
+        data = self.json_body()
+        unknown = sorted(set(data) - set(SETTING_FIELDS))
+        if unknown:
+            raise ApiError(f'바꿀 수 없는 항목이에요: {", ".join(unknown)}')
+        values = {}
+        for name, value in data.items():
+            if name == 'vote_threshold':
+                if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= VOTE_THRESHOLD_MAX:
+                    raise ApiError(f'투표 기준 인원은 1~{VOTE_THRESHOLD_MAX} 사이 숫자여야 해요')
+            else:
+                if not isinstance(value, str) or not value.strip():
+                    raise ApiError('안내 문구를 입력해 주세요')
+                if len(value) > GUIDE_MAX:
+                    raise ApiError(f'안내 문구는 {GUIDE_MAX}자 이내로 입력해 주세요')
+            values[name] = value
+        config = LiteConfig.get()
+        for name, value in values.items():
+            setattr(config, name, value)
+        if values:
+            config.save(update_fields=list(values))
+            logger.info('LITE 설정 변경: fields=%s member_id=%s', sorted(values), self.member.id)
+        return APIResponse.success(config_settings(config))
+
+
+class AdminRoomListView(LiteView):
+    """모임 방과 세미나 방을 한 목록으로. 최근 메시지가 있는 방이 먼저, 최대 100개."""
+
+    permission_classes = [IsHost]
+
+    def get(self, request):
+        rooms = []
+        for room in rooms_for_host(self.member):
+            item = {
+                'room_id': room.id,
+                'kind': room.kind,
+                'last_message': (
+                    {'body': room.last_body, 'created_at': room.last_at.isoformat()} if room.last_at else None
+                ),
+                'unread_count': room.unread,
+            }
+            if room.kind == ChatRoom.Kind.MEETUP and room.meetup:
+                item.update(
+                    title=room.meetup.title, meetup_id=room.meetup_id,
+                    cancelled=room.meetup.cancelled_at is not None,
+                    starts_at=room.meetup.starts_at.isoformat(),
+                )
+            elif room.kind == ChatRoom.Kind.SEMINAR and room.seminar:
+                item.update(title=f'1:1 · {room.seminar.member.name}', seminar_id=room.seminar_id, cancelled=False)
+            else:
+                continue
+            rooms.append(item)
+        return APIResponse.success({'rooms': rooms})

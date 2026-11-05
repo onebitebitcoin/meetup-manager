@@ -90,6 +90,15 @@ export const useLiteStore = defineStore('lite', () => {
     return true
   }
 
+  // 이름이 없으면 자동 닉네임으로 가입한 뒤 비밀번호로 운영자가 된다
+  const adminLogin = async (password) => {
+    if (!(await ensureMember())) return false
+    const data = await act(() => liteApi.adminLogin(password), '운영자로 로그인했어요')
+    if (!data) return false
+    member.value = data.member
+    return true
+  }
+
   // 새 토큰으로 me/가 성공한 뒤에만 저장한다. 실패하면 기존 토큰과 회원 정보를 유지한다.
   const recover = async (newToken) => {
     const data = await act(() => liteApi.me(newToken))
@@ -117,5 +126,5 @@ export const useLiteStore = defineStore('lite', () => {
     return false
   }
 
-  return { token, member, ready, toast, hasToken, isHost, isOpen, canJoin, setToken, notify, act, init, ensureMember, claimHost, recover, renameRandom }
+  return { token, member, ready, toast, hasToken, isHost, isOpen, canJoin, setToken, notify, act, init, ensureMember, claimHost, adminLogin, recover, renameRandom }
 })

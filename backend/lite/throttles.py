@@ -32,6 +32,14 @@ class HostClaimThrottle(MemberThrottle):
         return f'{request.auth.pk}_{self.get_ident(request)}'
 
 
+class AdminLoginThrottle(HostClaimThrottle):
+    scope = 'lite_admin_login'
+
+
+class AdminPasswordThrottle(HostClaimThrottle):
+    scope = 'lite_admin_password'
+
+
 class MessageSendThrottle(MemberThrottle):
     scope = 'lite_message_send'
     rate = '30/min'

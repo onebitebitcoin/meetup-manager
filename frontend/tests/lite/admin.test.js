@@ -5,13 +5,15 @@ import { useLiteStore } from '@/lite/store'
 import { liteApi } from '@/lite/api'
 import LiteAdmin from '@/lite/views/LiteAdmin.vue'
 import LiteAdminMeetup from '@/lite/views/LiteAdminMeetup.vue'
+import LiteAdminSettings from '@/lite/views/LiteAdminSettings.vue'
 import LiteMeetupCard from '@/lite/components/LiteMeetupCard.vue'
 
 const push = vi.fn()
+const routeQuery = {}
 const replace = vi.fn()
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push, replace }),
-  useRoute: () => ({ query: {}, params: { id: '5' } }),
+  useRoute: () => ({ query: routeQuery, params: { id: '5' } }),
 }))
 
 const jsonResponse = (body) => ({ ok: true, status: 200, json: () => Promise.resolve(body) })
@@ -73,13 +75,204 @@ describe('LiteAdmin', () => {
     expect(wrapper.text()).toContain('취소됨')
   })
 
-  it('비운영자는 홈으로 보낸다', async () => {
+  it('비운영자에게는 비밀번호 폼을 보여 주고 목록을 부르지 않는다', async () => {
     asMember(false)
-    mount(LiteAdmin)
+    const wrapper = mount(LiteAdmin)
     await flushPromises()
 
-    expect(replace).toHaveBeenCalledWith('/')
+    const input = wrapper.find('input[type="password"]')
+    expect(input.exists()).toBe(true)
+    expect(input.attributes('autocomplete')).toBe('current-password')
+    expect(wrapper.findAll('.l-row-btn')).toHaveLength(0)
+    expect(replace).not.toHaveBeenCalled()
     expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('로그인에 성공하면 같은 화면에서 목록을 불러온다', async () => {
+    asMember(false)
+    routeFetch({
+      'admin/login/': { member: { id: 1, name: '운영', is_host: true } },
+      'admin/meetups/': { meetups: [card()] },
+    })
+    const wrapper = mount(LiteAdmin)
+    await flushPromises()
+
+    await wrapper.find('input[type="password"]').setValue('hanip')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    const login = fetch.mock.calls.find(([url]) => url.includes('admin/login/'))
+    expect(JSON.parse(login[1].body)).toEqual({ password: 'hanip' })
+    expect(wrapper.find('input[type="password"]').exists()).toBe(false)
+    expect(wrapper.findAll('.l-row-btn')).toHaveLength(1)
+  })
+
+  it('비밀번호가 틀리면 폼을 유지하고 오류 메시지를 띄운다', async () => {
+    asMember(false)
+    fetch.mockResolvedValue({ ok: false, status: 403, json: () => Promise.resolve({ error: '비밀번호가 맞지 않아요' }) })
+    const wrapper = mount(LiteAdmin)
+    await flushPromises()
+
+    await wrapper.find('input[type="password"]').setValue('x')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.find('input[type="password"]').exists()).toBe(true)
+    expect(useLiteStore().toast).toEqual({ message: '비밀번호가 맞지 않아요', kind: 'error' })
+  })
+})
+
+const chatRooms = () => ({
+  rooms: [
+    { room_id: 1, kind: 'meetup', title: '독서 모임', meetup_id: 5, cancelled: false, unread_count: 3, last_message: { body: '안녕하세요', created_at: '2026-10-25T10:30:00Z' } },
+    { room_id: 2, kind: 'seminar', title: '1:1 · 지민', seminar_id: 7, cancelled: false, unread_count: 0, last_message: { body: '', created_at: '2026-10-25T09:00:00Z' } },
+    { room_id: 3, kind: 'meetup', title: '취소된 모임', meetup_id: 6, cancelled: true, unread_count: 0, last_message: null },
+  ],
+})
+
+describe('LiteAdmin 채팅 탭', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    fetch.mockReset()
+    push.mockReset()
+    replace.mockReset()
+    delete routeQuery.tab
+  })
+
+  const openChat = async () => {
+    asMember(true)
+    routeFetch({ 'admin/rooms/': chatRooms(), 'admin/meetups/': { meetups: [card()] } })
+    const wrapper = mount(LiteAdmin)
+    await flushPromises()
+    await wrapper.find('input[name="tab"][value="chat"]').setValue()
+    await flushPromises()
+    return wrapper
+  }
+
+  it('채팅 탭으로 바꾸면 쿼리를 남기고 방 목록을 보여 준다', async () => {
+    const wrapper = await openChat()
+
+    expect(replace).toHaveBeenCalledWith({ query: { tab: 'chat' } })
+    const rows = wrapper.findAll('.l-row-btn')
+    expect(rows).toHaveLength(3)
+    expect(rows[0].text()).toContain('독서 모임')
+    expect(rows[0].text()).toContain('안녕하세요')
+    expect(rows[0].find('.l-badge').text()).toBe('3')
+    expect(rows[1].text()).toContain('세미나')
+    expect(rows[1].text()).toContain('첨부 파일')
+    expect(rows[2].text()).toContain('취소됨')
+    expect(rows[2].text()).toContain('메시지가 없어요')
+  })
+
+  it('모임 방은 /m/:id, 세미나 방은 /seminar/:id로 이동한다', async () => {
+    const wrapper = await openChat()
+    const rows = wrapper.findAll('.l-row-btn')
+
+    await rows[0].trigger('click')
+    await rows[1].trigger('click')
+
+    expect(push).toHaveBeenNthCalledWith(1, '/m/5?from=admin')
+    expect(push).toHaveBeenNthCalledWith(2, '/seminar/7?from=admin')
+  })
+
+  it('?tab=chat이면 처음부터 채팅 탭이고 모임 목록은 부르지 않는다', async () => {
+    routeQuery.tab = 'chat'
+    asMember(true)
+    routeFetch({ 'admin/rooms/': chatRooms() })
+    const wrapper = mount(LiteAdmin)
+    await flushPromises()
+
+    expect(wrapper.findAll('.l-row-btn')).toHaveLength(3)
+    expect(fetch.mock.calls.some(([url]) => url.includes('admin/meetups/'))).toBe(false)
+  })
+
+  it('방이 없으면 빈 상태를 보여 준다', async () => {
+    routeQuery.tab = 'chat'
+    asMember(true)
+    routeFetch({ 'admin/rooms/': { rooms: [] } })
+    const wrapper = mount(LiteAdmin)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('채팅방이 없어요')
+  })
+
+  it('불러오기에 실패하면 에러를 보여 준다', async () => {
+    routeQuery.tab = 'chat'
+    asMember(true)
+    fetch.mockResolvedValue({ ok: false, status: 500, json: () => Promise.resolve({ error: '서버 오류' }) })
+    const wrapper = mount(LiteAdmin)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('서버 오류')
+    expect(wrapper.findAll('.l-row-btn')).toHaveLength(0)
+  })
+})
+
+describe('LiteAdminSettings', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    fetch.mockReset()
+    push.mockReset()
+    replace.mockReset()
+  })
+
+  const settings = () => ({
+    vote_threshold: 5, seminar_guide_1: 'a', seminar_guide_2: 'b', seminar_guide_3: 'c', seminar_guide_4: 'd', join_guide: 'e',
+  })
+
+  it('비운영자는 /admin으로 보낸다', async () => {
+    asMember(false)
+    mount(LiteAdminSettings)
+    await flushPromises()
+
+    expect(replace).toHaveBeenCalledWith('/admin')
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('불러온 값을 채우고 저장 버튼 하나로 PATCH한다', async () => {
+    asMember(true)
+    routeFetch({ 'admin/settings/': settings() })
+    const wrapper = mount(LiteAdminSettings)
+    await flushPromises()
+
+    expect(wrapper.findAll('textarea')).toHaveLength(5)
+    expect(wrapper.find('input[type="number"]').element.value).toBe('5')
+    await wrapper.findAll('textarea')[4].setValue('환영해요')
+    await wrapper.findAll('form')[0].trigger('submit')
+    await flushPromises()
+
+    const patch = fetch.mock.calls.find(([, init]) => init.method === 'PATCH')
+    expect(JSON.parse(patch[1].body)).toMatchObject({ vote_threshold: 5, join_guide: '환영해요' })
+    expect(useLiteStore().toast.message).toBe('저장했어요')
+  })
+
+  it('불러오기에 실패하면 에러를 보이고 폼을 채우지 않는다', async () => {
+    asMember(true)
+    fetch.mockResolvedValue({ ok: false, status: 500, json: () => Promise.resolve({ error: '서버 오류' }) })
+    const wrapper = mount(LiteAdminSettings)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('서버 오류')
+    expect(wrapper.findAll('textarea')).toHaveLength(0)
+  })
+
+  it('비밀번호 변경 성공 시 입력을 비운다', async () => {
+    asMember(true)
+    routeFetch({ 'admin/settings/': settings(), 'admin/password/': { changed: true } })
+    const wrapper = mount(LiteAdminSettings)
+    await flushPromises()
+
+    const [current, next] = wrapper.findAll('input[type="password"]')
+    expect(current.attributes('autocomplete')).toBe('current-password')
+    expect(next.attributes('autocomplete')).toBe('new-password')
+    await current.setValue('hanip')
+    await next.setValue('new-password-1')
+    await wrapper.findAll('form')[1].trigger('submit')
+    await flushPromises()
+
+    const put = fetch.mock.calls.find(([, init]) => init.method === 'PUT')
+    expect(JSON.parse(put[1].body)).toEqual({ current_password: 'hanip', new_password: 'new-password-1' })
+    expect(next.element.value).toBe('')
   })
 })
 

@@ -86,17 +86,6 @@ if [ -f "backend/requirements.txt" ]; then
     sudo cp -r staticfiles/* $FRONTEND_DEPLOY_DIR/staticfiles/ 2>/dev/null || true
     sudo mkdir -p $FRONTEND_DEPLOY_DIR/media
     sudo cp -r media/* $FRONTEND_DEPLOY_DIR/media/ 2>/dev/null || true
-
-    echo "Creating Django superuser (if needed)..."
-    python manage.py shell -c "
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-    print('Superuser created: admin/admin123')
-else:
-    print('Superuser already exists')
-"
     deactivate
     cd $CURRENT_DIR
 fi
@@ -405,5 +394,4 @@ echo "  tail -f /var/log/gunicorn.log  # Gunicorn logs"
 echo "  tail -f /var/log/django-dev.log  # Django dev server logs"
 echo ""
 echo "🌐 Site should be accessible at: https://meet.onebitebitcoin.com"
-echo "📝 Django admin: https://meet.onebitebitcoin.com/api/admin/"
-echo "🔑 Default admin credentials: admin/admin123"
+echo "📝 운영자 화면: https://meet.onebitebitcoin.com/admin"

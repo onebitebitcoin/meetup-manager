@@ -3,10 +3,11 @@ from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
 from django.db import IntegrityError, transaction
-from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models import Count, F, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from .models import ChatMessage, Meetup, MeetupRequest, RoomRead, Rsvp, SeminarRequest
+from .models import ChatMessage, ChatRoom, Meetup, MeetupRequest, RoomRead, Rsvp, SeminarRequest
 
 KST = ZoneInfo('Asia/Seoul')
 
@@ -63,4 +64,21 @@ def unread_count(member, room):
         ChatMessage.objects.filter(room=room, kind=ChatMessage.Kind.USER, id__gt=last_read)
         .exclude(member=member)
         .count()
+    )
+
+
+def rooms_for_host(host, limit=100):
+    """운영자용 채팅방 목록 쿼리셋. 마지막 사람 메시지와 안 읽은 수를 쿼리 한 번에 집계한다(방 수에 비례하지 않음)."""
+    last = ChatMessage.objects.filter(room=OuterRef('pk'), kind=ChatMessage.Kind.USER).order_by('-id')
+    read = RoomRead.objects.filter(room=OuterRef('pk'), member=host).values('last_read_id')[:1]
+    unread = Q(messages__kind=ChatMessage.Kind.USER, messages__id__gt=F('read_id')) & ~Q(messages__member=host)
+    return (
+        ChatRoom.objects.select_related('meetup', 'seminar__member')
+        .annotate(
+            last_body=Subquery(last.values('body')[:1]),
+            last_at=Subquery(last.values('created_at')[:1]),
+            read_id=Coalesce(Subquery(read), 0),
+        )
+        .annotate(unread=Count('messages', filter=unread))
+        .order_by(F('last_at').desc(nulls_last=True), '-id')[:limit]
     )

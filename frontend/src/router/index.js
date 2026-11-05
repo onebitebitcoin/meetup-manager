@@ -52,6 +52,7 @@ const routes = [
       { path: 'new-request', name: 'LiteRequestNew', component: () => import('@/lite/views/LiteRequestNew.vue') },
       { path: 'new-meetup', name: 'LiteMeetupNew', component: () => import('@/lite/views/LiteMeetupNew.vue') },
       { path: 'admin', name: 'LiteAdmin', component: () => import('@/lite/views/LiteAdmin.vue') },
+      { path: 'admin/settings', name: 'LiteAdminSettings', component: () => import('@/lite/views/LiteAdminSettings.vue') },
       { path: 'admin/m/:id', name: 'LiteAdminMeetup', component: () => import('@/lite/views/LiteAdminMeetup.vue') },
       { path: 'r', name: 'LiteRecover', component: () => import('@/lite/views/LiteRecover.vue') },
       { path: 'host', name: 'LiteHostClaim', component: () => import('@/lite/views/LiteHostClaim.vue') },

@@ -30,6 +30,8 @@ describe('주소 구성', () => {
 
   it('/admin 은 LITE 운영자 화면이다', async () => {
     expect((await go('/admin')).name).toBe('LiteAdmin')
+    expect((await go('/admin/')).name).toBe('LiteAdmin')
+    expect((await go('/admin/settings')).name).toBe('LiteAdminSettings')
   })
 
   it('기존 앱 주소는 /legacy 아래로 보낸다', async () => {

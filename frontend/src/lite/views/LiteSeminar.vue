@@ -2,6 +2,7 @@
   <LiteTopbar
     :title="title"
     back
+    :back-to="chatBackTo(route.query)"
   >
     <span />
   </LiteTopbar>
@@ -44,7 +45,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Lock } from 'lucide-vue-next'
 import { liteApi } from '../api'
-import { MODE_LABEL, SEMINAR_STATUS_LABEL } from '../format'
+import { chatBackTo, MODE_LABEL, SEMINAR_STATUS_LABEL } from '../format'
 import { useLiteStore } from '../store'
 import LiteChat from '../components/LiteChat.vue'
 import LiteTopbar from '../components/LiteTopbar.vue'

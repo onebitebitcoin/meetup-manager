@@ -88,3 +88,9 @@ export const koreanTime = (iso) => {
   const minute = d.minute() ? ` ${d.minute()}분` : ''
   return `${d.hour() < 12 ? '오전' : '오후'} ${hour}시${minute}`
 }
+
+// 채팅 목록용 서울 시각: "11.8 14:30"
+export const shortDateTime = (iso) => dayjs(iso).tz(TZ).format('M.D HH:mm')
+
+// 운영자 채팅 탭에서 연 방은 ?from=admin이 붙는다. 쿼리 값을 경로로 쓰지 않고 고정 경로만 돌려준다.
+export const chatBackTo = (query) => (query?.from === 'admin' ? '/admin?tab=chat' : '/')

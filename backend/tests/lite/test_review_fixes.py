@@ -94,26 +94,6 @@ def test_serializer_survives_missing_room(api_client, member, auth, make_meetup)
     assert r.status_code == 200 and r.json()['meetups'][0]['room_id'] is None
 
 
-def test_chatroom_admin_blocks_add_and_change_but_allows_cascade_delete(rf, admin_user):
-    from django.contrib import admin
-    model_admin = admin.site._registry[ChatRoom]
-    request = rf.get('/')
-    request.user = admin_user
-    assert not model_admin.has_add_permission(request)
-    assert not model_admin.has_change_permission(request)
-    assert model_admin.has_delete_permission(request)
-
-
-def test_meetup_admin_delete_is_not_blocked_by_chatroom(rf, admin_user, make_meetup):
-    from django.contrib import admin
-    from django.contrib.admin.utils import get_deleted_objects
-    meetup = make_meetup()
-    request = rf.get('/')
-    request.user = admin_user
-    _, _, perms_needed, _ = get_deleted_objects([meetup], request, admin.site)
-    assert not perms_needed
-
-
 # --- 모임 생성/rsvp 검증 ---
 
 @pytest.mark.parametrize('starts_at', [

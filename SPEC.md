@@ -66,7 +66,7 @@ meet/
 │       │   ├── tasks.py
 │       │   ├── waitlist.py
 │       │   ├── notifications.py
-│       │   └── admin.py
+│       │   └── admin.py         # 운영자 API (Django admin 아님)
 │       ├── utils/
 │       └── middleware/
 ├── frontend/
@@ -490,9 +490,9 @@ npm run test
 | MeetupRequest | title(60), preferred_period(this_month/next_month/any), created_by FK Member, status(open/done), meetup(FK Meetup null), created_at |
 | RoomRead | member FK, room FK, last_read_id(PositiveBigInt, 기본 0: 그 회원이 그 채팅방에서 마지막으로 받은 메시지 id) · unique(member, room) |
 | RequestVote | request FK, member FK · unique(request, member) |
-| LiteConfig | 싱글턴(pk=1). vote_threshold(기본 5), is_open(기본 False: 오픈 전 잠금), seminar_guide_1="운영자와 1:1로 진행하는 세미나예요.\n온라인·오프라인 모두 가능해요.", seminar_guide_2="제안 주제\n· 비트코인 셀프 커스터디\n· 비트코인 공부\n· AI 공부\n다른 주제도 괜찮아요.", seminar_guide_3="원하는 주제와 희망 날짜·시간을 적어 주세요. 온라인·오프라인 중 편한 쪽도 함께 알려 주세요.", seminar_guide_4="접수됐어요. 여기서 일정을 안내해 드릴게요.", join_guide="신청 완료! 공지는 여기서 안내해요." · Django admin에서 수정 |
+| LiteConfig | 싱글턴(pk=1). vote_threshold(기본 5), is_open(기본 False: 오픈 전 잠금), seminar_guide_1="운영자와 1:1로 진행하는 세미나예요.\n온라인·오프라인 모두 가능해요.", seminar_guide_2="제안 주제\n· 비트코인 셀프 커스터디\n· 비트코인 공부\n· AI 공부\n다른 주제도 괜찮아요.", seminar_guide_3="원하는 주제와 희망 날짜·시간을 적어 주세요. 온라인·오프라인 중 편한 쪽도 함께 알려 주세요.", seminar_guide_4="접수됐어요. 여기서 일정을 안내해 드릴게요.", join_guide="신청 완료! 공지는 여기서 안내해요.", admin_password_hash(CharField 128, 기본값은 초기 비밀번호의 Django 해시 상수 `DEFAULT_ADMIN_PASSWORD_HASH`. 평문은 저장하지 않고 API 응답에도 싣지 않는다) · vote_threshold와 안내 문구 5개는 운영자 설정 화면(/admin/settings)에서 수정한다(Django admin은 쓰지 않는다). is_open은 홈 맨 위 막대 버튼으로 바꾼다 |
 
-- Meetup 생성 시 ChatRoom(kind=meetup)을 함께 만든다(뷰·관리 명령·Django admin 어디서 만들어도 보장, 모델 계층에서 처리). ChatRoom은 admin에서 읽기 전용. SeminarRequest 생성 시 ChatRoom(kind=seminar)을 함께 만든다.
+- Meetup 생성 시 ChatRoom(kind=meetup)을 함께 만든다(뷰·관리 명령 어디서 만들어도 보장, 모델 계층에서 처리). SeminarRequest 생성 시 ChatRoom(kind=seminar)을 함께 만든다.
 - 참석 인원(going_count)은 Rsvp(status=going) 수로 계산한다. 별도 카운터 필드는 두지 않는다.
 
 #### 11.2.1 운영자 관리 동작
@@ -507,10 +507,11 @@ npm run test
 - 요청 헤더 `X-Member-Token: <token>`. DRF 인증 클래스 `lite.auth.MemberTokenAuthentication`이 `request.user` 대신 `request.member`를 채운다(`request.auth`=Member도 허용).
 - lite 뷰는 `authentication_classes=[MemberTokenAuthentication]`만 사용한다(세션 미사용 → CSRF 불필요).
 - 토큰 없음/잘못됨 → 401 `{"error": "이름을 먼저 입력해 주세요"}`. 운영자 전용 → 403 `{"error": "운영자만 할 수 있어요"}`.
+- 운영자 비밀번호: `/admin` 화면에서 비밀번호로도 운영자가 될 수 있다. LiteConfig.admin_password_hash와 `check_password`로 비교하며, 초기 비밀번호는 코드에 해시로만 들어 있다. 운영자는 /admin/settings 화면에서 비밀번호를 바꿀 수 있다(8자 이상). Django admin은 제거했고 `/admin`과 `/admin/`은 모두 Vue 화면이다.
 - 운영자 승격: 환경 변수 `LITE_HOST_KEY`(비어 있으면 승격 불가, 운영에서는 `secrets.token_urlsafe(32)` 수준의 무작위 값)와 일치하는 key를 `POST host/claim/`으로 보내면 is_host=True.
 - 이름 검증: NFKC 정규화 후 앞뒤 공백 제거, 1~20자, 제어문자·줄바꿈·제로폭 문자 거부, 예약어("운영자", "관리자", "admin", "host") 거부.
-- 오픈 전 잠금: LiteConfig.is_open이 False이면 운영자가 아닌 회원은 참석(rsvp/), 채팅방(rooms/), 1:1 세미나(seminar/), 모임 요청(requests/) API에서 403 `{"error": "아직 오픈 전이에요"}`를 받는다. 홈·모임 정보 조회, 회원 만들기, 이름 바꾸기, 운영자 승격(host/claim/)은 막지 않는다(운영자가 오픈 전에 /host#키로 들어와야 하므로). 운영자는 홈 맨 위 막대의 "오픈하기"/"닫기" 버튼이나 Django admin의 LITE 설정에서 바꾼다. home/과 meetups/<id>/ 응답에 is_open을 함께 준다. 프론트는 잠금 상태에서 방문자에게 "오픈 준비 중이에요"를 보여 주고 참석 스위치, 문의 버튼, 참석하기·공지 확인하기 버튼을 숨긴다.
-- 요청 횟수 제한(DRF throttle, 캐시는 워커 간 공유되는 FileBasedCache): 회원 생성 IP당 60/hour, 운영자 승격 회원·IP당 5/hour, 메시지 전송 회원당 30/min, 요청 작성 회원당 10/hour. 초과 시 429 `{"error": "잠시 후 다시 시도해 주세요"}`.
+- 오픈 전 잠금: LiteConfig.is_open이 False이면 운영자가 아닌 회원은 참석(rsvp/), 채팅방(rooms/), 1:1 세미나(seminar/), 모임 요청(requests/) API에서 403 `{"error": "아직 오픈 전이에요"}`를 받는다. 홈·모임 정보 조회, 회원 만들기, 이름 바꾸기, 운영자 승격(host/claim/, admin/login/)은 막지 않는다(운영자가 오픈 전에 /host#키 또는 /admin 비밀번호로 들어와야 하므로). 운영자는 홈 맨 위 막대의 "오픈하기"/"닫기" 버튼으로 바꾼다. home/과 meetups/<id>/ 응답에 is_open을 함께 준다. 프론트는 잠금 상태에서 방문자에게 "오픈 준비 중이에요"를 보여 주고 참석 스위치, 문의 버튼, 참석하기·공지 확인하기 버튼을 숨긴다.
+- 요청 횟수 제한(DRF throttle, 캐시는 워커 간 공유되는 FileBasedCache): 회원 생성 IP당 60/hour, 운영자 승격 회원·IP당 5/hour(host/claim/, admin/login/, admin/password/ 공통 정책이며 엔드포인트별로 따로 센다), 메시지 전송 회원당 30/min, 요청 작성 회원당 10/hour. 초과 시 429 `{"error": "잠시 후 다시 시도해 주세요"}`.
 - 프록시 뒤 클라이언트 IP: 운영 설정에서 `REST_FRAMEWORK['NUM_PROXIES'] = 1`(nginx 1단).
 
 ### 11.4 API 계약 (prefix `/api/lite/`, trailing slash 유지)
@@ -534,6 +535,8 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | me/ | member | - | 200 {member: Member} |
 | PATCH | me/ | member | {name} | 200 {member: Member} · 이름만 바꾸고 토큰·참석·대화 기록은 그대로 둔다 · 이름 검증은 members/와 같고, 다른 회원이 쓰는 이름이면 409 "이미 사용 중인 이름이에요" · 회원당 시간당 20회(초과 429) |
 | POST | host/claim/ | member | {key} | 200 {member} · 키 불일치 403 |
+| POST | admin/login/ | member | {password} | 200 {member} (해당 회원을 is_host=True로 바꾸고 host/claim/과 같은 형식으로 응답) · 불일치 403 `{"error": "비밀번호가 맞지 않아요"}` · 회원·IP당 5/hour · 오픈 전 잠금과 무관 |
+| PUT | admin/password/ | host | {current_password, new_password} | 200 {changed: true} · 현재 비밀번호 불일치 403 `{"error": "현재 비밀번호가 맞지 않아요"}` · 새 비밀번호 8자 미만 400 · 회원·IP당 5/hour |
 | GET | home/ | 없음(토큰이 있으면 회원 기준) | - | 200 {meetups: [MeetupCard], my_seminar: SeminarCard\|null (이름 없으면 null), seminars: [SeminarCard] (운영자만, 아니면 []), ready_request_count: int} — meetups는 starts_at가 오늘(서울) 0시 이후인 것, 시간순 |
 | POST | meetups/ | host | {title(≤80), starts_at(현재 이후), location(≤100), capacity(2~500), description?(≤1000), audience?(≤100), request_id?} | 201 {meetup: MeetupCard} (request_id가 있으면 해당 요청 status=done, meetup 연결, 시스템 메시지 "요청으로 열린 모임이에요 · N명에게 알림") |
 | GET | meetups/<id>/ | 없음(토큰이 있으면 회원 기준, 이름 없으면 my_status는 null) | - | 200 {meetup: MeetupCard, description: str, audience: str (비어 있으면 ""), removed: bool (요청한 회원 본인이 운영자에게 내보내졌는지), unread_count: int (채팅방에서 아직 읽지 않은 대화 수. 사람이 쓴 메시지(kind=user) 중 읽은 위치 이후이고 본인이 쓰지 않은 것만 센다. 신청한 회원(going/maybe, 내보내지지 않음)과 운영자만 세고 나머지는 0)} |
@@ -541,6 +544,9 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 | GET | rooms/<id>/messages/?after=<msg_id> 또는 ?before=<msg_id> | 모임방: going/maybe 또는 host · 세미나방: 본인 또는 host | - | after가 있으면 200 {messages, pinned} (그 이후 최대 200개, 폴링용). after가 없으면 200 {messages, has_more, pinned} — 최신 100개, before가 있으면 그 id보다 오래된 메시지 중 최신 100개(둘 다 id 오름차순). after로 받거나 before 없이 최신 페이지를 받으면, 받은 마지막 메시지 id까지 읽은 것으로 RoomRead를 앞으로만 옮긴다(before로 이전 메시지를 볼 때는 옮기지 않는다). has_more는 더 오래된 메시지가 남았는지. after·before는 0 이상 정수(아니면 400) |
 | POST | rooms/<id>/messages/ | 위와 동일 | {body} (1~1000자) | 201 {message: Message} · 세미나방에서 신청자 본인이 보낸 메시지이고 status=guide이면: topic=body, status=received, guide 메시지 seminar_guide_4 추가 |
 | POST | seminar/ | member | - | 200 {seminar: SeminarCard} — 내 SeminarRequest get-or-create. 새로 만들 때 guide 메시지 seminar_guide_1, seminar_guide_2, seminar_guide_3 추가(진행 방식 선택 단계 없음) |
+| GET | admin/rooms/ | host | - | 200 {rooms: [{room_id, kind: meetup\|seminar, title, meetup_id\|seminar_id, cancelled: bool, starts_at(모임만), last_message: {body, created_at}\|null, unread_count}]} — 모임 방과 세미나 방(title은 "1:1 · 이름")을 한 목록으로, 취소·지난 모임 방도 포함한다. last_message는 사람이 쓴 메시지(kind=user) 기준이며 첨부만 있으면 body가 ""이다. 최근 메시지가 있는 방 먼저(최신순), 메시지 없는 방은 뒤(id 내림차순), 최대 100개. unread_count는 요청한 운영자 기준(읽은 위치 이후, 본인 메시지 제외)이고 쿼리 수는 방 수와 무관하다 |
+| GET | admin/settings/ | host | - | 200 {vote_threshold, seminar_guide_1, seminar_guide_2, seminar_guide_3, seminar_guide_4, join_guide} — admin_password_hash와 is_open은 담지 않는다 |
+| PATCH | admin/settings/ | host | 보낸 필드만 수정: vote_threshold(1~1000 정수), seminar_guide_1~4·join_guide(문자열, 공백만이면 거부, 1000자 이내) | 200 GET과 같은 형식 · 잘못된 값 400(이유 문구) · 허용 목록 밖 필드(is_open, admin_password_hash 등)는 무시하지 않고 400 · 400이면 아무것도 저장하지 않는다 |
 | PUT | admin/open/ | host | {is_open: bool} | 200 {is_open} — 오픈 전 잠금을 켜고 끈다 |
 | POST | seminars/<id>/confirm/ | host | - | 200 {seminar} — status=confirmed, 시스템 메시지 "일정 확정" |
 | GET | requests/ | member | - | 200 {requests: [RequestCard]} (open 먼저, vote_count 내림차순, done 뒤) |
@@ -592,8 +598,9 @@ LITE가 사이트의 메인이다. LITE 화면은 루트 경로(`/`, `/m/:id` �
 | /requests | 모임 요청 목록과 "이런 모임 열어주세요" 작성 버튼. 이름이 없으면 자동 닉네임으로 가입한 뒤 보여 준다 |
 | /m/:id/info | 모임 정보 화면(홈의 "자세히"). 모임 안내 패널(언제·어디서·정원·대상·내용) 아래에, 신청한 회원과 운영자에게는 "공지 확인하기" 버튼(누르면 채팅방 /m/:id, 안 읽은 대화가 있으면 버튼 안에 빨간 숫자 배지를 두고 100개 이상은 "99+"), 아직 신청하지 않은 방문자에게는 "참석하기"(가입·신청 후 채팅방)를 둔다. 취소된 모임이나 내보내진 회원에게는 버튼 없이 안내 문구만 보인다 |
 | /m/:id | 모임 채팅방. 이름이 없어도 이름을 묻지 않는다. "참석하기"를 누르면 자동 닉네임으로 가입하고 참석 신청까지 마친 뒤 채팅방을 연다. 홈 카드의 "참석하기"도 같은 방식으로 가입·신청한 뒤 이 화면으로 보낸다. 상단 줄: 썸네일(thumb_url이 있으면 40px, 없으면 달력 아이콘)·일정·장소만 둔다. 채팅방에는 참석 응답 버튼과 안내 펼치기 버튼이 없다(참석 여부는 홈의 스위치, 모임 안내는 /m/:id/info에서 본다). 미신청자는 메시지 대신 모임 안내 패널과 큰 참석하기 버튼을 보고, 상단 요약 줄은 취소·내보냄 안내가 있을 때만 보인다. 모임 안내 패널은 어르신도 읽기 쉽게 항목 이름(언제·어디서·정원·대상·내용)을 왼쪽에 두고 값을 크게 쓴다. 언제는 "11월 8일 일요일 오후 2시"와 남은 날, 정원은 "15명"과 "지금 N명 참석", 대상·내용은 운영자가 적었을 때만 보인다 |
-| /admin | 운영자 전용. 다가오는/지난 탭 모임 목록(날짜·제목·참석/정원·취소됨 칩)과 모임 만들기 버튼. 운영자가 아니면 홈으로 이동 |
-| /admin/m/:id | 운영자 전용 모임 관리. 수정 폼(대상, 내용, 썸네일 URL 포함), 참석자 명단과 내보내기, 채팅방 링크, 취소/되돌리기, 삭제. 내보내기·삭제는 화면 안에서 한 번 더 확인 |
+| /admin | 운영자 전용. 맨 위 "모임"/"채팅" 탭(`?tab=chat`으로 유지, 채팅방에서 뒤로 오면 같은 탭). 모임 탭: 다가오는/지난 구분 목록(날짜·제목·참석/정원·취소됨 칩)과 모임 만들기 버튼. 채팅 탭: admin/rooms/ 목록(방 이름, 모임/세미나 종류, 마지막 메시지 한 줄(첨부만 있으면 "첨부 파일"), 서울 시간, 안 읽은 수). 행을 누르면 모임 방은 /m/:id, 세미나 방은 /seminar/:id로 간다(메시지 삭제·공지 고정은 운영자에게 그 방에서 그대로 열려 있다). 운영자가 아니면 비밀번호 입력 폼을 보여 주고(이름이 없으면 자동 닉네임으로 가입한 뒤 로그인), 성공하면 같은 화면에서 목록을 불러온다. 운영자 화면에는 설정 화면으로 가는 링크가 있다 |
+| /admin/settings | 운영자 전용 설정(운영자가 아니면 /admin으로 이동). 모임 개설 투표 기준 인원(vote_threshold: 요청이 이 수만큼 투표를 받으면 "개설 가능"으로 센다), 세미나 안내 1~3(세미나 시작 때 채팅방에 올라가는 안내 메시지 세 개), 세미나 안내 4(첫 메시지를 보낸 뒤 올라가는 접수 안내), 참석 안내(처음 참석·미정을 누르면 올라가는 안내)를 textarea와 숫자 입력으로 고치고 저장 버튼 하나로 저장한다. 불러오기 실패는 에러만 보여 주고 기본값으로 채우지 않는다. 비밀번호 변경 폼(현재 비밀번호, 새 비밀번호 8자 이상)이 함께 있다 |
+| /admin/m/:id | 운영자 전용 모임 관리(운영자가 아니면 /admin으로 이동). 수정 폼(대상, 내용, 썸네일 URL 포함), 참석자 명단과 내보내기, 채팅방 링크, 취소/되돌리기, 삭제. 내보내기·삭제는 화면 안에서 한 번 더 확인 |
 | /seminar | 내 1:1 세미나 채팅방. 이름이 없으면 자동 닉네임으로 가입한 뒤 바로 시작한다. 안내 메시지(제안 주제, 온라인·오프라인 모두 가능) 뒤 바로 메시지를 보내 접수한다 |
 | /seminar/:id | 운영자용 1:1 세미나 채팅방 + 확정 버튼 |
 | /new-request | 요청 작성(주제 + 시기 세그먼트). 방문자는 홈 "문의" 메뉴의 "이런 모임 열어주세요"에서 목록을 거치지 않고 이 화면으로 바로 온다. 이름이 없어도 열리고, "올리기"를 누를 때 자동 닉네임으로 가입한 뒤 요청을 올린다. 올린 뒤와 뒤로 가기는 방문자는 홈, 운영자는 /requests로 간다 |
