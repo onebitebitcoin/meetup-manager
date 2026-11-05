@@ -365,6 +365,6 @@ export const ErrorAlert = ({ error }) => (
 ## 배포 설정
 
 - 서버: Ubuntu + Docker Compose (`docker-compose.yml`, `Dockerfile`)
-- 배포: `main` push → `.github/workflows/deploy.yml` (self-hosted runner) → 이미지 빌드, web 재시작, `migrate`, 헬스체크(`/api/health/`)
+- 배포: `main` push → `.github/workflows/deploy.yml` (self-hosted runner) → 이미지 빌드, web 재시작(컨테이너 시작 시 `migrate` 실행 후 gunicorn), 헬스체크(`/api/health/`, 최대 60초 재시도)
 - 환경 변수: 서버의 `.env`에서 관리한다 (`DATABASE_URL`, `SECRET_KEY`, `LITE_HOST_KEY` 등)
 - Railway는 사용하지 않는다.

@@ -26,12 +26,16 @@ jobs:
       - name: Restart web
         run: |
           $COMPOSE -f "$TARGET_DIR/docker-compose.yml" up -d --no-deps --no-build web
-          $COMPOSE -f "$TARGET_DIR/docker-compose.yml" exec -T web python manage.py migrate --noinput
 
+      # web 컨테이너가 시작할 때 migrate를 끝낸 뒤 gunicorn을 띄우므로, 응답할 때까지 최대 60초 기다린다
       - name: Health check
         run: |
-          sleep 5
-          curl -fsS http://localhost:8000/api/health/ || ($COMPOSE -f "$TARGET_DIR/docker-compose.yml" logs web && exit 1)
+          for i in $(seq 1 20); do
+            curl -fsS http://localhost:8000/api/health/ && exit 0
+            sleep 3
+          done
+          $COMPOSE -f "$TARGET_DIR/docker-compose.yml" logs web
+          exit 1
 
       # 썸네일이 없는 LITE 모임의 작은 WebP 썸네일을 만든다(이미 있으면 건너뜀)
       - name: Fill thumbnails

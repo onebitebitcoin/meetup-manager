@@ -583,7 +583,7 @@ RequestCard {id, title, preferred_period, created_by: {id,name}, vote_count, vot
 ### 11.5 관리 명령
 - `python manage.py import_legacy_meetups [--all]`: 기존 `meetups.Meetup` → `lite.Meetup`. 기본은 starts_at가 현재 이후인 모임만, `--all`이면 전부. name→title, description, date_time→starts_at, location, max_participants→capacity, legacy_meetup_id=원래 id. image가 있으면 그 /media/ 경로, 없으면 image_url을 썸네일로 쓴다. 이미 있는 legacy_meetup_id는 다시 만들지 않고, lite 쪽 썸네일이 비어 있을 때만 채운다(재실행 안전). 결과 개수를 출력한다. 끝에 썸네일이 없는 모임의 썸네일도 만든다.
 - 썸네일: 화면에는 원본 이미지를 보내지 않는다. 운영자가 image_url을 저장하면 서버가 원본을 읽어(/media/ 경로는 media 폴더에서, 외부 URL은 링크 미리보기와 같은 SSRF 방어 fetch로 이미지 형식·15MB 이하만) 긴 변 400px 이하 WebP(품질 78)로 줄여 `/media/lite/thumbs/<원본 주소 sha256 앞 20자>.webp`에 저장하고 thumb_url에 넣는다. 같은 원본은 다시 만들지 않는다. 화면의 썸네일은 40~88px 정사각형과 PC 카드(높이 150px)뿐이라 400px이면 충분하다(실측 2.2MB PNG → 13KB).
-- `python manage.py make_lite_thumbnails`: image_url은 있는데 thumb_url이 비어 있는 모임의 썸네일을 만든다. 실패한 모임은 id와 이유를 출력하고 넘어간다(재실행 안전). 배포 workflow가 migrate 뒤에 실행한다.
+- `python manage.py make_lite_thumbnails`: image_url은 있는데 thumb_url이 비어 있는 모임의 썸네일을 만든다. 실패한 모임은 id와 이유를 출력하고 넘어간다(재실행 안전). 배포 workflow가 web 시작 시 migrate가 끝나고 헬스체크를 통과한 뒤 실행한다.
 
 ### 11.6 프론트엔드 라우트 (`frontend/src/lite/`)
 
