@@ -77,7 +77,6 @@ class Rsvp(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='rsvps')
     meetup = models.ForeignKey(Meetup, on_delete=models.CASCADE, related_name='rsvps')
     status = models.CharField(max_length=10, choices=Status.choices)
-    removed_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

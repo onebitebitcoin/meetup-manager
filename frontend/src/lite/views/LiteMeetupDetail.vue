@@ -72,7 +72,6 @@ const description = ref('')
 const audience = ref('')
 // 채팅방에서 아직 읽지 않은 대화 수(신청한 회원·운영자만 서버가 센다)
 const unread = ref(0)
-const removed = ref(false)
 const error = ref('')
 
 const joined = computed(() => ['going', 'maybe'].includes(meetup.value?.my_status))
@@ -80,7 +79,6 @@ const locked = computed(() => !store.isHost && !store.isOpen)
 const notice = computed(() => {
   if (store.isHost) return ''
   if (locked.value) return '오픈 준비 중이에요'
-  if (removed.value) return '운영자가 내보낸 모임이에요'
   if (meetup.value?.cancelled) return '취소된 모임이에요'
   return ''
 })
@@ -91,7 +89,6 @@ const load = async () => {
     meetup.value = data.meetup
     description.value = data.description || ''
     audience.value = data.audience || ''
-    removed.value = Boolean(data.removed)
     unread.value = data.unread_count || 0
     store.isOpen = data.is_open
     error.value = ''

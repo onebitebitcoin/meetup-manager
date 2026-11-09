@@ -70,7 +70,7 @@ def test_detail_attendees_order(api_client, host, make_member, auth, make_meetup
     assert [x['status'] for x in body['attendees']] == ['going', 'maybe', 'no']
     assert body['attendees'][0]['member'] == {'id': c.id, 'name': '다'}
     assert 'checkin_code' not in body
-    assert body['attendees'][0]['removed'] is False and 'checked_in_at' not in body['attendees'][0]
+    assert 'removed' not in body['attendees'][0] and 'checked_in_at' not in body['attendees'][0]
 
 
 def test_patch_success_and_schedule_message(api_client, host, auth, make_meetup):
@@ -174,13 +174,19 @@ def test_remove_member(api_client, host, member, auth, make_meetup):
     assert api_client.get(f'/api/lite/rooms/{room_id}/messages/', **auth(member)).status_code == 200
     r = api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
     assert r.status_code == 200
-    attendee = r.json()['attendees'][0]
-    assert attendee['status'] == 'no' and attendee['removed'] is True
-    rsvp = Rsvp.objects.get(member=member, meetup=meetup)
-    assert rsvp.status == 'no' and rsvp.removed_at is not None
-    r = put_rsvp(api_client, auth(member), meetup, 'going')
-    assert r.status_code == 403 and r.json()['error'] == '운영자가 내보낸 모임이에요'
+    assert r.json()['attendees'] == []
+    assert not Rsvp.objects.filter(member=member, meetup=meetup).exists()
     assert api_client.get(f'/api/lite/rooms/{room_id}/messages/', **auth(member)).status_code == 403
+    assert api_client.get(f'/api/lite/meetups/{meetup.id}/', **auth(member)).json()['meetup']['my_status'] is None
+
+
+def test_removed_member_can_rsvp_again(api_client, host, member, auth, make_meetup):
+    meetup = make_meetup()
+    put_rsvp(api_client, auth(member), meetup, 'going')
+    api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
+    r = put_rsvp(api_client, auth(member), meetup, 'going')
+    assert r.status_code == 200 and r.json()['meetup']['my_status'] == 'going'
+    assert api_client.get(f'/api/lite/rooms/{meetup.room.id}/messages/', **auth(member)).status_code == 200
 
 
 def test_remove_member_without_rsvp(api_client, host, member, auth, make_meetup):
@@ -276,21 +282,13 @@ def test_locked_meetup_sql_has_no_join(api_client, host, auth, make_meetup):
     assert lock_selects and 'JOIN' not in lock_selects[0]
 
 
-def test_detail_removed_flag_false_by_default(api_client, member, auth, make_meetup):
-    meetup = make_meetup()
-    detail = f'/api/lite/meetups/{meetup.id}/'
-    assert api_client.get(detail, **auth(member)).json()['removed'] is False
-    put_rsvp(api_client, auth(member), meetup, 'going')
-    assert api_client.get(detail, **auth(member)).json()['removed'] is False
-
-
 def test_remove_member_already_no(api_client, host, member, auth, make_meetup):
     meetup = make_meetup()
     put_rsvp(api_client, auth(member), meetup, 'going')
     put_rsvp(api_client, auth(member), meetup, 'no')
     r = api_client.delete(f'{BASE}{meetup.id}/members/{member.id}/', **auth(host))
-    assert r.status_code == 200 and r.json()['attendees'][0]['removed'] is True
-    assert Rsvp.objects.get(member=member, meetup=meetup).removed_at is not None
+    assert r.status_code == 200 and r.json()['attendees'] == []
+    assert not Rsvp.objects.filter(member=member, meetup=meetup).exists()
 
 
 def test_message_delete_and_pin_in_seminar_room(api_client, host, member, auth):

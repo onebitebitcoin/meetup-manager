@@ -1,7 +1,7 @@
 <template>
-  <!-- 미신청자는 아래 안내 패널에 같은 정보가 있으므로, 취소·내보냄 안내가 필요할 때만 요약 줄을 둔다 -->
+  <!-- 미신청자는 아래 안내 패널에 같은 정보가 있으므로, 취소 안내가 필요할 때만 요약 줄을 둔다 -->
   <div
-    v-if="joined || store.isHost || meetup.cancelled || detail.removed"
+    v-if="joined || store.isHost || meetup.cancelled"
     class="l-bar"
   >
     <img
@@ -16,11 +16,7 @@
     />
     <span class="l-grow">{{ when }} {{ parts.time }} · {{ meetup.location }}</span>
     <span
-      v-if="!store.isHost && detail.removed"
-      class="l-chip no"
-    >운영자가 내보낸 모임이에요</span>
-    <span
-      v-else-if="!store.isHost && meetup.cancelled"
+      v-if="!store.isHost && meetup.cancelled"
       class="l-chip no"
     >취소된 모임이에요</span>
   </div>
@@ -34,7 +30,6 @@ import { useLiteStore } from '../store'
 
 const props = defineProps({
   meetup: { type: Object, required: true },
-  detail: { type: Object, required: true },
 })
 
 // 채팅방 위 요약 줄. 참석 여부는 홈 스위치에서, 모임 안내는 모임 정보 화면에서 다룬다.

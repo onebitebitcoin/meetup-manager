@@ -53,38 +53,32 @@
           class="l-chip"
           :class="a.status"
         >{{ STATUS_LABEL[a.status] }}</span>
-        <span
-          v-if="a.removed"
-          class="l-chip no"
-        >내보냄</span>
-        <template v-else>
-          <div
-            v-if="removing === a.member.id"
-            class="l-confirm"
-          >
-            <span>내보낼까요?</span>
-            <button
-              class="l-btn p"
-              :disabled="busy"
-              @click="remove(a.member.id)"
-            >
-              내보내기
-            </button>
-            <button
-              class="l-btn s"
-              @click="removing = null"
-            >
-              그만두기
-            </button>
-          </div>
+        <div
+          v-if="removing === a.member.id"
+          class="l-confirm"
+        >
+          <span>내보낼까요?</span>
           <button
-            v-else
-            class="l-btn s"
-            @click="removing = a.member.id"
+            class="l-btn p"
+            :disabled="busy"
+            @click="remove(a.member.id)"
           >
             내보내기
           </button>
-        </template>
+          <button
+            class="l-btn s"
+            @click="removing = null"
+          >
+            그만두기
+          </button>
+        </div>
+        <button
+          v-else
+          class="l-btn s"
+          @click="removing = a.member.id"
+        >
+          내보내기
+        </button>
       </div>
     </div>
 
@@ -154,7 +148,7 @@ const busy = ref(false)
 const removing = ref(null)
 const deleting = ref(false)
 
-const goingCount = computed(() => (data.value?.attendees || []).filter((a) => a.status === 'going' && !a.removed).length)
+const goingCount = computed(() => (data.value?.attendees || []).filter((a) => a.status === 'going').length)
 
 // 명단과 취소 상태만 갱신한다. 폼 값(initial)은 건드리지 않아 입력 중인 내용이 남는다.
 const apply = (next) => {

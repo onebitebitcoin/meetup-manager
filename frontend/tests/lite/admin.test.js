@@ -50,8 +50,8 @@ const detail = () => ({
   description: '',
   image_url: null,
   attendees: [
-    { member: { id: 2, name: '지민' }, status: 'going', removed: false },
-    { member: { id: 3, name: '수아' }, status: 'no', removed: true },
+    { member: { id: 2, name: '지민' }, status: 'going' },
+    { member: { id: 3, name: '수아' }, status: 'no' },
   ],
 })
 
@@ -304,14 +304,14 @@ describe('LiteAdminMeetup', () => {
     expect(push).toHaveBeenCalledWith('/admin')
   })
 
-  it('내보내기는 확인 후에만 실행하고 내보낸 회원에는 버튼이 없다', async () => {
+  it('내보내기는 확인 후에만 실행한다', async () => {
     asMember(true)
     routeFetch({ 'admin/meetups/5/': detail() })
     const wrapper = mount(LiteAdminMeetup)
     await flushPromises()
     fetch.mockClear()
 
-    expect(wrapper.text()).toContain('내보냄')
+    expect(wrapper.text()).not.toContain('내보냄')
     const kick = () => wrapper.findAll('.l-person button').find((b) => b.text() === '내보내기')
     await kick().trigger('click')
 

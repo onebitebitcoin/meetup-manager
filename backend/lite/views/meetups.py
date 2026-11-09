@@ -166,8 +166,7 @@ class MeetupDetailView(LiteView):
         member = self.member
         meetup = get_or_404(meetups_with_counts(), '모임을 찾을 수 없어요', pk=meetup_id)
         rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first() if member else None
-        removed = bool(rsvp and rsvp.removed_at)
-        joined = bool(rsvp and rsvp.status in (Rsvp.Status.GOING, Rsvp.Status.MAYBE) and not removed)
+        joined = bool(rsvp and rsvp.status in (Rsvp.Status.GOING, Rsvp.Status.MAYBE))
         room = getattr(meetup, 'room', None)
         # 채팅방에 들어갈 수 있는 사람(신청한 회원, 운영자)에게만 안 읽은 대화 수를 센다
         unread = unread_count(member, room) if room and member and (joined or member.is_host) else 0
@@ -175,7 +174,6 @@ class MeetupDetailView(LiteView):
             'meetup': meetup_card(meetup, rsvp.status if rsvp else None),
             'description': meetup.description,
             'audience': meetup.audience,
-            'removed': removed,
             'unread_count': unread,
             'is_open': LiteConfig.get().is_open,
         })
@@ -194,8 +192,6 @@ class RsvpView(LiteView):
             if meetup.starts_at + MEETUP_END_GRACE < timezone.now():
                 raise ApiError('이미 끝난 모임이에요')
             rsvp = Rsvp.objects.filter(member=member, meetup=meetup).first()
-            if rsvp and rsvp.removed_at:
-                raise ApiError('운영자가 내보낸 모임이에요', 403)
             previous = rsvp.status if rsvp else None
             if previous != new_status:
                 if new_status == Rsvp.Status.GOING:

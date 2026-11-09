@@ -127,7 +127,7 @@ describe('LiteRoom', () => {
         return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }) }))
       }
       if (url.includes('rooms/')) return Promise.resolve(jsonResponse({ messages: [], has_more: false, pinned: null }))
-      return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }), removed: false, method: init.method }))
+      return Promise.resolve(jsonResponse({ meetup: card({ my_status: status }), method: init.method }))
     })
 
     const wrapper = mount(LiteRoom)
@@ -194,18 +194,17 @@ describe('LiteRoom', () => {
     expect(wrapper.find('.l-bar svg').exists()).toBe(true)
   })
 
-  it('내보내진 회원에게는 신청, 응답 버튼을 숨기고 안내 문구만 보여준다', async () => {
+  it('운영자가 내보낸 회원은 신청하지 않은 상태라 다시 참석하기를 누를 수 있다', async () => {
     memberStore()
     routeFetch({
-      'meetups/5/': { meetup: card({ my_status: 'no' }), removed: true },
+      'meetups/5/': { meetup: card({ my_status: null }) },
     })
 
     const wrapper = mount(LiteRoom)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('운영자가 내보낸 모임이에요')
-    expect(wrapper.text()).not.toContain('참석하기')
-    expect(wrapper.find('.l-bar button').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('운영자가 내보낸 모임이에요')
+    expect(wrapper.text()).toContain('참석하기')
   })
 })
 

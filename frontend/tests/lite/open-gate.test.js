@@ -68,7 +68,7 @@ describe('오픈 전 잠금', () => {
   it('오픈 전이면 자세히 화면에서 공지 확인하기를 비활성화하고 참석하기는 숨긴다', async () => {
     useLiteStore().member = { id: 1, name: '지민', is_host: false }
     fetch.mockResolvedValue(jsonResponse({
-      meetup: card({ my_status: 'going' }), description: '', audience: '', removed: false, is_open: false,
+      meetup: card({ my_status: 'going' }), description: '', audience: '', is_open: false,
     }))
     const { default: LiteMeetupDetail } = await import('@/lite/views/LiteMeetupDetail.vue')
 

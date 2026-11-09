@@ -26,10 +26,7 @@
     {{ error }}
   </p>
   <template v-else-if="meetup">
-    <LiteRoomBar
-      :meetup="meetup"
-      :detail="detail"
-    />
+    <LiteRoomBar :meetup="meetup" />
     <div
       v-if="!store.isHost && !joined"
       class="l-intro"
@@ -40,7 +37,6 @@
         :audience="detail.audience"
       />
       <LiteJoinRow
-        v-if="!detail.removed"
         :meetup="meetup"
         @done="load"
       />
@@ -70,7 +66,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useLiteStore()
 const meetup = ref(null)
-const detail = ref({ removed: undefined, description: '', audience: '' })
+const detail = ref({ description: '', audience: '' })
 const error = ref('')
 
 const joined = computed(() => ['going', 'maybe'].includes(meetup.value?.my_status))
@@ -80,7 +76,6 @@ const load = async () => {
     const data = await liteApi.meetup(route.params.id)
     meetup.value = data.meetup
     detail.value = {
-      removed: data.removed,
       description: data.description || '',
       audience: data.audience || '',
     }
